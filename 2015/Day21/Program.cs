@@ -1,63 +1,74 @@
-﻿
-var catalog = new Catalog
-{
-    Weapons = new Weapon[]
-    {
-        new(8, 4, 0),
-        new(10, 5, 0),
-        new(25, 6, 0),
-        new(40, 7, 0),
-        new(74, 8, 0),
-    },
-    Armors = new Armor[]
-    {
-        new(13,0,1),
-        new(31,0,2),
-        new(53,0,3),
-        new(75,0,4),
-        new(102,0,5)
-    },
-    Rings = new Ring[]
-    {
-        new(25,1,0),
-        new(50,2,0),
-        new(100,3,0),
-        new(20,0,1),
-        new(40,0,2),
-        new(80,0,3)
-    }
-};
+﻿using Xunit;
 
+using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-int Part1() => (
+static class AoC
+{
+    static Catalog catalog = new()
+    {
+        Weapons = new Weapon[]
+        {
+            new(8, 4, 0),
+            new(10, 5, 0),
+            new(25, 6, 0),
+            new(40, 7, 0),
+            new(74, 8, 0),
+        },
+        Armors = new Armor[]
+        {
+            new(13,0,1),
+            new(31,0,2),
+            new(53,0,3),
+            new(75,0,4),
+            new(102,0,5)
+        },
+        Rings = new Ring[]
+        {
+            new(25,1,0),
+            new(50,2,0),
+            new(100,3,0),
+            new(20,0,1),
+            new(40,0,2),
+            new(80,0,3)
+        }
+    };
+
+    public static int Part1() => (
         from items in catalog.Scenarios()
         let player = new Player(100, items.Sum(i => i.damage), items.Sum(i => i.armor))
         where Play(player, new Player(104, 8, 1))
         select items.Sum(i => i.cost)
     ).Min();
-
-
-
-int Part2() => (
+    public static int Part2() => (
         from items in catalog.Scenarios()
         let player = new Player(100, items.Sum(i => i.damage), items.Sum(i => i.armor))
         where !Play(player, new Player(104, 8, 1))
         select items.Sum(i => i.cost)
     ).Max();
-
-bool Play(Player player, Player boss)
-{
-    while (true)
+    static bool Play(Player player, Player boss)
     {
-        boss = boss.HitBy(player);
-        if (boss.hitpoints <= 0) return true;
-        player = player.HitBy(boss);
-        if (player.hitpoints <= 0) return false;
+        while (true)
+        {
+            boss = boss.HitBy(player);
+            if (boss.hitpoints <= 0) return true;
+            player = player.HitBy(boss);
+            if (player.hitpoints <= 0) return false;
+        }
     }
 }
+
+public class Tests
+{
+    [Fact]
+    public void Test1() => Assert.Equal(78, Part1());
+    [Fact]
+    public void Test2() => Assert.Equal(148, Part2());
+}
+
+
 
 
 class Catalog
@@ -85,9 +96,9 @@ class Catalog
             }
         }
     }
-    public Weapon[] Weapons { get; set; }
-    public Armor[] Armors { get; set; }
-    public Ring[] Rings { get; set; }
+    public Weapon[] Weapons { get; set; } = Array.Empty<Weapon>();
+    public Armor[] Armors { get; set; } = Array.Empty<Armor>();
+    public Ring[] Rings { get; set; } = Array.Empty<Ring>();
 }
 
 record Item(int cost, int damage, int armor);
@@ -102,5 +113,5 @@ record Ring(int cost, int damage, int armor) : Item(cost, damage, armor)
 }
 record Player(int hitpoints, int damage, int armor)
 {
-    public Player HitBy(Player other) => this with { hitpoints = hitpoints - (other.damage - armor) }; 
+    public Player HitBy(Player other) => this with { hitpoints = hitpoints - (other.damage - armor) };
 }

@@ -1,24 +1,43 @@
 ﻿
-var input = new[] { 43, 3, 4, 10, 21, 44, 4, 6, 47, 41, 34, 17, 17, 44, 36, 31, 46, 9, 27, 38 };
-var sample = new[] { 20, 15, 10, 5, 5 };
+using Xunit;
 
-Console.WriteLine(Part1(sample, 25));
-Console.WriteLine(Part2(input, 25));
-Console.WriteLine();
-Console.WriteLine(Part1(input, 150));
-Console.WriteLine(Part2(input, 150));
+using static AoC;
 
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
 
-int Part1(int[] input, int sum) => Combinations(input).Where(c => c.Sum() == sum).Count();
-int Part2(int[] input, int sum)
+static class AoC
 {
-    var array = Combinations(input).OrderBy(c => c.Length).Where(c => c.Sum() == sum).ToArray();
-    var minlength = array.First().Length;
-    return array.Where(c => c.Length == minlength && c.Sum() == sum).Count();
-};
+    static int[] input = new[] { 43, 3, 4, 10, 21, 44, 4, 6, 47, 41, 34, 17, 17, 44, 36, 31, 46, 9, 27, 38 };
 
-
-
-static IEnumerable<T[]> Combinations<T>(T[] data) => Enumerable
+    public static object Part1() => Part1(input, 150);
+    public static object Part2() => Part2(input, 150);
+    public static int Part1(int[] input, int sum) => Combinations(input).Where(c => c.Sum() == sum).Count();
+    public static int Part2(int[] input, int sum)
+    {
+        var array = Combinations(input).OrderBy(c => c.Length).Where(c => c.Sum() == sum).ToArray();
+        var minlength = array.First().Length;
+        return array.Where(c => c.Length == minlength && c.Sum() == sum).Count();
+    }
+    static IEnumerable<T[]> Combinations<T>(T[] data) => Enumerable
       .Range(0, 1 << (data.Length))
       .Select(index => data.Where((v, i) => (index & (1 << i)) != 0).ToArray());
+}
+
+public class Tests
+{
+    static int[] sample = new[] { 20, 15, 10, 5, 5 };
+    [Fact]
+    public void Test1() => Assert.Equal(1638, Part1());
+    [Fact]
+    public void Test2() => Assert.Equal(17, Part2());
+    [Fact]
+    public void Test_Sample1() => Assert.Equal(4, Part1(sample, 25));
+    [Fact]
+    public void Test_Sample2() => Assert.Equal(3, Part2(sample, 25));
+}
+
+
+
+
+

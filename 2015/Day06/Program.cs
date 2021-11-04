@@ -1,74 +1,67 @@
-﻿using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
-var lines = await File.ReadAllLinesAsync("input.txt");
+using Xunit;
 
-Part1();
-Part2();
+using static AoC;
 
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
 
-void Part1()
+static class AoC
 {
-    var lights = new Dictionary<Coordinate, int>();
-    void turnon(Dictionary<Coordinate, int> grid, Coordinate coordinate) => grid[coordinate] = 1;
-    void turnoff(Dictionary<Coordinate, int> grid, Coordinate coordinate) => grid[coordinate] = 0;
-    void toggle(Dictionary<Coordinate, int> grid, Coordinate coordinate) => grid[coordinate] = grid[coordinate] == 0 ? 1 : 0;
+    static string[] lines = File.ReadAllLines("input.txt");
+    internal static object Part1() => Run(
+            (grid, coorindate) => grid[coorindate] = 1,
+            (grid, coordinate) => grid[coordinate] = 0,
+            (grid, coordinate) => grid[coordinate] = grid[coordinate] == 0 ? 1 : 0);
 
-    foreach (var line in lines)
+    internal static object Part2() => Run(
+            (grid, coorindate) => grid[coorindate] += 1,
+            (grid, coordinate) => grid[coordinate] -= 1,
+            (grid, coordinate) => grid[coordinate] = grid[coordinate] += 2);
+
+    static object Run(
+        Action<Dictionary<Coordinate, int>, Coordinate> turnon,
+        Action<Dictionary<Coordinate, int>, Coordinate> turnoff,
+        Action<Dictionary<Coordinate, int>, Coordinate> toggle
+        )
     {
-        var instruction = Instruction.Parse(line);
-        ApplyInstruction(lights, instruction, turnon, turnoff, toggle);
-    }
-
-    Console.WriteLine(lights.Values.Sum());
-
-
-}
-
-void Part2()
-{
-    var lights = new Dictionary<Coordinate, int>();
-
-    void turnon(Dictionary<Coordinate, int> grid, Coordinate coordinate) => grid[coordinate] += 1;
-    void turnoff(Dictionary<Coordinate, int> grid, Coordinate coordinate) => grid[coordinate] -= 1;
-    void toggle(Dictionary<Coordinate, int> grid, Coordinate coordinate) => grid[coordinate] += 2;
-
-    foreach (var line in lines)
-    {
-        var instruction = Instruction.Parse(line);
-        ApplyInstruction(lights, instruction, turnon, turnoff, toggle);
-    }
-
-    Console.WriteLine(lights.Values.Sum());
-
-}
-
-void ApplyInstruction(
-    Dictionary<Coordinate, int> grid,
-    Instruction instruction,
-    Action<Dictionary<Coordinate, int>, Coordinate> turnon,
-    Action<Dictionary<Coordinate, int>, Coordinate> turnoff,
-    Action<Dictionary<Coordinate, int>, Coordinate> toggle
-    )
-{
-    for (var i = instruction.TopLeft.x; i <= instruction.BottomRight.x; i++)
-        for (var j = instruction.TopLeft.y; j <= instruction.BottomRight.y; j++)
+        var lights = new Dictionary<Coordinate, int>();
+        foreach (var line in lines)
         {
-            if (!grid.ContainsKey(new(i,j))) grid[new(i,j)] = 0;
-            switch (instruction.WhatToDo)
-            {
-                case InstructionEnum.TurnOn:
-                    turnon(grid, new(i, j));
-                    break;
-                case InstructionEnum.TurnOff:
-                    turnoff(grid, new(i, j));
-                    break;
-                case InstructionEnum.Toggle:
-                    toggle(grid, new(i, j));
-                    break;
-            }
+            var instruction = Instruction.Parse(line);
+            ApplyInstruction(lights, instruction, turnon, turnoff, toggle);
         }
+        return lights.Values.Sum();
+    }
+
+    static void ApplyInstruction(
+        Dictionary<Coordinate, int> grid,
+        Instruction instruction,
+        Action<Dictionary<Coordinate, int>, Coordinate> turnon,
+        Action<Dictionary<Coordinate, int>, Coordinate> turnoff,
+        Action<Dictionary<Coordinate, int>, Coordinate> toggle
+        )
+    {
+        for (var i = instruction.TopLeft.x; i <= instruction.BottomRight.x; i++)
+            for (var j = instruction.TopLeft.y; j <= instruction.BottomRight.y; j++)
+            {
+                if (!grid.ContainsKey(new(i, j))) grid[new(i, j)] = 0;
+                switch (instruction.WhatToDo)
+                {
+                    case InstructionEnum.TurnOn:
+                        turnon(grid, new(i, j));
+                        break;
+                    case InstructionEnum.TurnOff:
+                        turnoff(grid, new(i, j));
+                        break;
+                    case InstructionEnum.Toggle:
+                        toggle(grid, new(i, j));
+                        break;
+                }
+            }
+    }
+
 }
 
 
@@ -92,7 +85,8 @@ readonly record struct Instruction(InstructionEnum WhatToDo, Coordinate TopLeft,
         {
             "turn on" => new Instruction(InstructionEnum.TurnOn, topleft, bottomright),
             "turn off" => new Instruction(InstructionEnum.TurnOff, topleft, bottomright),
-            "toggle" => new Instruction(InstructionEnum.Toggle, topleft, bottomright)
+            "toggle" => new Instruction(InstructionEnum.Toggle, topleft, bottomright),
+            _ => throw new Exception()
         };
     }
 }
@@ -106,4 +100,12 @@ readonly record struct Coordinate(int x, int y)
         return new Coordinate(int.Parse(match.Groups["x"].Value), int.Parse(match.Groups["y"].Value));
     }
 
+}
+
+public class Tests
+{
+    [Fact]
+    public void Test1() => Assert.Equal(377891, Part1());
+    [Fact]
+    public void Test2() => Assert.Equal(13396307, Part2());
 }

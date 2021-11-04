@@ -1,48 +1,58 @@
-﻿using System.Text;
+﻿using System.Collections.Immutable;
+using System.Text;
 
-var test = false;
+using Xunit;
 
-var filename = test ? "sample.txt" : "input.txt";
+using static AoC;
 
-var lines = File.ReadAllLines(filename);
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
 
-var input = lines.Last();
-
-var replacements = (
-    from line in lines.TakeWhile(line => !string.IsNullOrEmpty(line))
-    let split = line.Split(" => ")
-    select new Replacement(split[0], split[1])
-    ).ToList();
-
-
-Console.WriteLine(Part1(input, replacements));
-Console.WriteLine(Part2(input));
-
-
-
-int Part1(string input, List<Replacement> replacements)
+static class AoC
 {
-	HashSet<string> output = new();
-	foreach (var r in replacements) {
-		int position = 0;
-		while ((position = input.IndexOf(r.From, position)) >= 0)
+	static string[] lines = File.ReadAllLines("input.txt");
+	static string input = lines.Last();
+	static ImmutableList<Replacement> replacements = (
+		from line in lines.TakeWhile(line => !string.IsNullOrEmpty(line))
+		let split = line.Split(" => ")
+		select new Replacement(split[0], split[1])
+		).ToImmutableList();
+
+	public static object Part1() => Part1(input, replacements);
+	public static object Part2() => Part2(input);
+	static int Part1(string input, ImmutableList<Replacement> replacements)
+	{
+		HashSet<string> output = new();
+		foreach (var r in replacements)
 		{
-			var result = new StringBuilder().Append(input.AsSpan(0, position)).Append(r.To).Append(input.AsSpan(position + r.To.Length)).ToString();
-			output.Add(result);
-			position += r.From.Length;
+			int position = 0;
+			while ((position = input.IndexOf(r.From, position)) >= 0)
+			{
+				var result = new StringBuilder().Append(input.AsSpan(0, position)).Append(r.To).Append(input.AsSpan(position + r.From.Length)).ToString();
+				output.Add(result);
+				position += r.From.Length;
+			}
 		}
+		return output.Count;
 	}
-	return output.Count;
+
+
+	static int Part2(string input) => input.Count(char.IsUpper) - Count(input, "Rn") - Count(input, "Ar") - 2 * Count(input, "Y") - 1;
+
+	static int Count(string str, string element)
+	{
+		var count = 0;
+		for (var index = str.IndexOf(element); index >= 0; index = str.IndexOf(element, index + 1), ++count) { }
+		return count;
+	}
 }
 
-
-int Part2(string input) => input.Count(char.IsUpper) - Count(input, "Rn") - Count(input, "Ar") - 2 * Count(input, "Y") - 1;
-
-int Count(string str, string element)
+public class Tests
 {
-	var count = 0;
-	for (var index = str.IndexOf(element); index >= 0; index = str.IndexOf(element, index + 1), ++count) { }
-	return count;
-};
+	[Fact]
+	public void Test1() => Assert.Equal(535, Part1());
+	[Fact]
+	public void Test2() => Assert.Equal(212, Part2());
+}
 
 record Replacement(string From, string To);

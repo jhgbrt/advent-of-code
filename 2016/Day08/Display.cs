@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Linq;
 
-namespace Jeroen
-{
     class Display
     {
         bool[,] display;
@@ -26,10 +24,9 @@ namespace Jeroen
             }
         }
         
-        public void Draw()
+        public override string ToString()
         {
-            Console.Clear();
-            display.Display(b => b?"#":".");
+            return display.Display(b => b?"#":".");
         }
 
         public void RotateCol(int col, int d)
@@ -44,4 +41,3 @@ namespace Jeroen
 
 
     }
-}

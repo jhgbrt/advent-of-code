@@ -1,6 +1,71 @@
-﻿var test = true;
+﻿using Xunit;
 
-var input = 34000000;
+using static AoC;
+
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
+
+static class AoC
+{
+    static int input = 34000000;
+
+    public static int Part1()
+    {
+        var result = from house in Enumerable.Range(1, input)
+                     let presents = (
+                         from elve in Factors(house)
+                         where house % elve == 0
+                         select elve * 10
+                     ).Sum()
+                     where presents >= input
+                     select (house, presents);
+        return result.First(x => x.presents >= input).house;
+    }
+    public static int Part2()
+    {
+        var deliverycount = new Dictionary<int, int>();
+        foreach (int house in Enumerable.Range(1, input))
+        {
+            int presents = 0;
+            foreach (var elve in Factors(house))
+            {
+                if (!deliverycount.ContainsKey(elve))
+                    deliverycount[elve] = 1;
+                else if (deliverycount[elve] <= 50)
+                    deliverycount[elve]++;
+                if (deliverycount[elve] <= 50)
+                    presents += elve * 11;
+            }
+            if (presents > input)
+                return house;
+        }
+        return 0;
+    }
+
+    static IEnumerable<int> Factors(int n)
+    {
+        for (int i = 1; i <= Math.Sqrt(n); i++)
+        {
+            if (n % i == 0)
+            {
+                yield return i;
+                if (i != n / i)
+                {
+                    yield return n / i;
+                }
+            }
+        }
+    }
+}
+
+public class Tests
+{
+    [Fact]
+    public void Test1() => Assert.Equal(786240, Part1());
+    [Fact]
+    public void Test2() => Assert.Equal(831600, Part2());
+}
+
 
 
 /*
@@ -23,54 +88,3 @@ presents = (house
  
  */
 
-Console.WriteLine(Part1());
-Console.WriteLine(Part2());
-
-int Part1()
-{
-    var result = from house in Enumerable.Range(1, input)
-                 let presents = (
-                     from elve in Factors(house)
-                     where house % elve == 0
-                     select elve * 10 
-                 ).Sum()
-                 where presents >= input
-                 select (house, presents);
-    return result.First(x => x.presents >= input).house;
-}
-
-int Part2()
-{
-    var deliverycount = new Dictionary<int, int>();
-    foreach (int house in Enumerable.Range(1, input))
-    {
-        int presents = 0;
-        foreach (var elve in Factors(house))
-        {
-            if (!deliverycount.ContainsKey(elve))
-                deliverycount[elve] = 1;
-            else if (deliverycount[elve] <= 50)
-                deliverycount[elve]++;
-            if (deliverycount[elve] <= 50)
-                presents += elve * 11;
-        }
-        if (presents > input)
-            return house;
-    }
-    return 0;
-}
-
-IEnumerable<int> Factors(int n)
-{
-    for (int i = 1; i <= Math.Sqrt(n); i++)
-    {
-        if (n % i == 0)
-        {
-            yield return i;
-            if (i != n / i)
-            {
-                yield return n / i;
-            }
-        }
-    }
-}

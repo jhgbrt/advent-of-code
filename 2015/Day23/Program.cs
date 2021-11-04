@@ -1,46 +1,60 @@
-﻿var test = false;
+﻿using System.Collections.Immutable;
 
-var filename = test ? "sample.txt" : "input.txt";
+using Xunit;
 
-var instructions = (
-    from line in File.ReadAllLines(filename)
-    let split = line.Split(' ')
-    let name = split[0]
-    let instruction = name switch
-    {
-        "hlf" => new Hlf(split[1].Single()) as Instruction,
-        "tpl" => new Tpl(split[1].Single()),
-        "inc" => new Inc(split[1].Single()),
-        "jmp" => new Jmp(int.Parse(split[1])),
-        "jie" => new Jie(split[1].First(), int.Parse(split[2])),
-        "jio" => new Jio(split[1].First(), int.Parse(split[2])),
-        _ => throw new Exception()
-    }
-    select instruction).ToList();
+using static AoC;
 
-Console.WriteLine(Part1(instructions));
-Console.WriteLine(Part2(instructions));
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
 
-int Part1(IReadOnlyCollection<Instruction> instructions) => Run(instructions, 0);
-
-int Part2(IReadOnlyCollection<Instruction> instructions) => Run(instructions, 1);
-
-int Run(IReadOnlyCollection<Instruction> instructions, int a)
+static class AoC
 {
-    var memory = new Dictionary<char, int>()
-    {
-        ['a'] = a,
-        ['b'] = 0,
-    };
+    static string[] input = File.ReadAllLines("input.txt");
+    static ImmutableList<Instruction> instructions = (
+        from line in input
+        let split = line.Split(' ')
+        let name = split[0]
+        let instruction = name switch
+        {
+            "hlf" => new Hlf(split[1].Single()) as Instruction,
+            "tpl" => new Tpl(split[1].Single()),
+            "inc" => new Inc(split[1].Single()),
+            "jmp" => new Jmp(int.Parse(split[1])),
+            "jie" => new Jie(split[1].First(), int.Parse(split[2])),
+            "jio" => new Jio(split[1].First(), int.Parse(split[2])),
+            _ => throw new Exception()
+        }
+        select instruction).ToImmutableList();
 
-    var index = 0;
-    while (index >= 0 && index < instructions.Count)
+
+    public static object Part1() => Run(instructions, 0);
+    public static object Part2() => Run(instructions, 1);
+
+    static int Run(IReadOnlyCollection<Instruction> instructions, int a)
     {
-        var i = instructions.ElementAt(index);
-        index = i.Apply(index, memory);
+        var memory = new Dictionary<char, int>()
+        {
+            ['a'] = a,
+            ['b'] = 0,
+        };
+
+        var index = 0;
+        while (index >= 0 && index < instructions.Count)
+        {
+            var i = instructions.ElementAt(index);
+            index = i.Apply(index, memory);
+        }
+        return memory['b'];
+
     }
-    return memory['b'];
+}
 
+public class Tests
+{
+    [Fact]
+    public void Test1() => Assert.Equal(255, Part1());
+    [Fact]
+    public void Test2() => Assert.Equal(334, Part2());
 }
 
 interface Instruction 

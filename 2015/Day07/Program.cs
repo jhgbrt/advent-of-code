@@ -1,81 +1,81 @@
 ﻿
 using System.Text.RegularExpressions;
 
+using Xunit;
+
+using static AoC;
 
 
-var v1 = Part1();
-Console.WriteLine(v1);
-var v2 = Part2(v1);
-Console.WriteLine(v2);
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
 
-
-static int Part1()
+static class AoC
 {
-    var nodes = BuildNodes();
-    Resolve(nodes);
-    var a = nodes["a"];
-    var v = a.GetValue();
-    return v;
-}
+    static string[] input = File.ReadAllLines("input.txt");
 
-static int Part2(int v1)
-{
-    var nodes = BuildNodes();
-    nodes["b"] = (LiteralValueNode)nodes["b"] with { LiteralValue = v1 };
-    Resolve(nodes);
-    var a = nodes["a"];
-    var v = a.GetValue();
-    return v;
-}
-
-
-static Dictionary<string, Node> BuildNodes()
-{
-    var lines = File.ReadAllLines("input.txt");
-
-    var regexes = new (Regex r, Func<Match, Node> f)[]
+    public static int Part1()
     {
-    (new (@"^(?<value>[\d]+) -> (?<name>[a-z]+)$"), m => new LiteralValueNode(m.Groups["name"].Value, int.Parse(m.Groups["value"].Value))),
-    (new (@"^(?<value>[a-z]+) -> (?<name>[a-z]+)$"), m => new ConnectorNode(m.Groups["name"].Value, m.Groups["value"].Value)),
-    (new (@"^NOT (?<value>[a-z]+) -> (?<name>[a-z]+)$"), m => new NotNode(m.Groups["name"].Value, m.Groups["value"].Value)),
-    (new (@"^(?<left>[a-z]+) AND (?<right>[a-z]+) -> (?<name>[a-z]+)$"), m => new AndNode(m.Groups["name"].Value, m.Groups["left"].Value, m.Groups["right"].Value)),
-    (new (@"^(?<left>[\d]+) AND (?<right>[a-z]+) -> (?<name>[a-z]+)$"), m => new AndValueNode(m.Groups["name"].Value, int.Parse(m.Groups["left"].Value), m.Groups["right"].Value)),
-    (new (@"^(?<left>[a-z]+) OR (?<right>[a-z]+) -> (?<name>[a-z]+)$"), m => new OrNode(m.Groups["name"].Value, m.Groups["left"].Value, m.Groups["right"].Value)),
-    (new (@"^(?<operand>[a-z]+) LSHIFT (?<value>\d+) -> (?<name>[a-z]+)$"), m => new LeftShiftNode(m.Groups["name"].Value, m.Groups["operand"].Value, int.Parse(m.Groups["value"].Value))),
-    (new (@"^(?<operand>[a-z]+) RSHIFT (?<value>\d+) -> (?<name>[a-z]+)$"), m => new RightShiftNode(m.Groups["name"].Value, m.Groups["operand"].Value, int.Parse(m.Groups["value"].Value)))
-    };
+        var nodes = BuildNodes();
+        Resolve(nodes);
+        var a = nodes["a"];
+        var v = a.GetValue();
+        return v;
+    }
 
-    var nodes = new Dictionary<string, Node>();
-
-    foreach (var line in lines)
+    public static int Part2()
     {
-        try
+        var v1 = Part1();
+        var nodes = BuildNodes();
+        nodes["b"] = (LiteralValueNode)nodes["b"] with { LiteralValue = v1 };
+        Resolve(nodes);
+        var a = nodes["a"];
+        var v = a.GetValue();
+        return v;
+    }
+
+
+    static Dictionary<string, Node> BuildNodes()
+    {
+        var lines = File.ReadAllLines("input.txt");
+
+        var regexes = new (Regex r, Func<Match, Node> f)[]
+        {
+            (new (@"^(?<value>[\d]+) -> (?<name>[a-z]+)$"), m => new LiteralValueNode(m.Groups["name"].Value, int.Parse(m.Groups["value"].Value))),
+            (new (@"^(?<value>[a-z]+) -> (?<name>[a-z]+)$"), m => new ConnectorNode(m.Groups["name"].Value, m.Groups["value"].Value)),
+            (new (@"^NOT (?<value>[a-z]+) -> (?<name>[a-z]+)$"), m => new NotNode(m.Groups["name"].Value, m.Groups["value"].Value)),
+            (new (@"^(?<left>[a-z]+) AND (?<right>[a-z]+) -> (?<name>[a-z]+)$"), m => new AndNode(m.Groups["name"].Value, m.Groups["left"].Value, m.Groups["right"].Value)),
+            (new (@"^(?<left>[\d]+) AND (?<right>[a-z]+) -> (?<name>[a-z]+)$"), m => new AndValueNode(m.Groups["name"].Value, int.Parse(m.Groups["left"].Value), m.Groups["right"].Value)),
+            (new (@"^(?<left>[a-z]+) OR (?<right>[a-z]+) -> (?<name>[a-z]+)$"), m => new OrNode(m.Groups["name"].Value, m.Groups["left"].Value, m.Groups["right"].Value)),
+            (new (@"^(?<operand>[a-z]+) LSHIFT (?<value>\d+) -> (?<name>[a-z]+)$"), m => new LeftShiftNode(m.Groups["name"].Value, m.Groups["operand"].Value, int.Parse(m.Groups["value"].Value))),
+            (new (@"^(?<operand>[a-z]+) RSHIFT (?<value>\d+) -> (?<name>[a-z]+)$"), m => new RightShiftNode(m.Groups["name"].Value, m.Groups["operand"].Value, int.Parse(m.Groups["value"].Value)))
+        };
+
+        var nodes = new Dictionary<string, Node>();
+
+        foreach (var line in lines)
         {
             var match = regexes.Select(x => (m: x.r.Match(line), x.f)).First(x => x.m.Success);
             var node = match.f(match.m);
             nodes[node.Name] = node;
         }
-        catch
+
+        return nodes;
+    }
+
+    static void Resolve(Dictionary<string, Node> nodes)
+    {
+        foreach (var node in nodes.Values)
         {
-            Console.WriteLine($"not recognized: {line}");
+            node.Resolve(nodes);
         }
     }
-
-    return nodes;
 }
 
-static void Resolve(Dictionary<string, Node> nodes)
-{
-    foreach (var node in nodes.Values)
-    {
-        node.Resolve(nodes);
-    }
-}
+
 
 abstract record Node(string Name)
 {
     int? _value;
-    static int indent;
     public int GetValue()
     {
         if (!_value.HasValue)
@@ -186,3 +186,10 @@ record RightShiftNode(string Name, string OperandName, int ShiftValue) : Node(Na
     public override string ToString() => $"{OperandName} RSHIFT {ShiftValue} -> {Name}";
 }
 
+public class Tests
+{
+    [Fact]
+    public void Test1() => Assert.Equal(46065, Part1());
+    [Fact]
+    public void Test2() => Assert.Equal(14134, Part2());
+}

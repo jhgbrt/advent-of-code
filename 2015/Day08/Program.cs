@@ -1,35 +1,50 @@
-﻿var lines = File.ReadAllLines("input.txt");
+﻿using Xunit;
 
-var part1 = lines.Sum<string>(l => l.Length) - lines.Sum<string>(CountChars);
-Console.WriteLine(part1);
+using static AoC;
 
-var part2 = lines.Sum<string>(CountEscaped) - lines.Sum<string>(l => l.Length);
-Console.WriteLine(part2);
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
 
-int CountChars(string s)
+static class AoC
 {
-    var n = 0;
+    static string[] lines = File.ReadAllLines("input.txt");
 
-    var state = State.None;
-
-    for (var i = 1; i < s.Length - 1; i++)
+    public static object Part1() => lines.Sum<string>(l => l.Length) - lines.Sum<string>(CountChars);
+    public static object Part2() => lines.Sum<string>(CountEscaped) - lines.Sum<string>(l => l.Length);
+    static int CountChars(string s)
     {
-        var c = s[i];
+        var n = 0;
 
-        (n, state, i) = (state, c) switch
+        var state = State.None;
+
+        for (var i = 1; i < s.Length - 1; i++)
         {
-            (State.None, '\\') => (n, State.Escaping, i),
-            (State.Escaping, '"') => (n + 1, State.None, i),
-            (State.Escaping, '\\') => (n + 1, State.None, i),
-            (State.Escaping, 'x') => (n + 1, State.None, i + 2),
-            (State.None, _) => (n+1, State.None, i)
-        };
+            var c = s[i];
+
+            (n, state, i) = (state, c) switch
+            {
+                (State.None, '\\') => (n, State.Escaping, i),
+                (State.Escaping, '"') => (n + 1, State.None, i),
+                (State.Escaping, '\\') => (n + 1, State.None, i),
+                (State.Escaping, 'x') => (n + 1, State.None, i + 2),
+                _ => (n + 1, State.None, i)
+            };
+        }
+
+        return n;
     }
 
-    return n;
+    static int CountEscaped(string s) => s.Aggregate(2, (n, c) => c switch { '"' or '\\' => n + 2, _ => n + 1 });
 }
 
-int CountEscaped(string s) => s.Aggregate(2, (n, c) => c switch { '"' or '\\' => n + 2, _ => n + 1 });
+public class Tests
+{
+    [Fact]
+    public void Test1() => Assert.Equal(1333, Part1());
+    [Fact]
+    public void Test2() => Assert.Equal(2046, Part2());
+}
+
 
 enum State
 {

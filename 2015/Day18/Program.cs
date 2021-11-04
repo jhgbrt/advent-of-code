@@ -1,30 +1,23 @@
-﻿var test = false;
+﻿using Xunit;
 
-var filename = test ? "sample.txt" : "input.txt";
+using static AoC;
 
-var lines = File.ReadAllLines(filename);
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
 
-var grid = new Grid((
-    from y in Enumerable.Range(0, lines.Length)
-    from x in Enumerable.Range(0, lines[y].Length)
-    where lines[y][x] == '#'
-    select new Coordinate(x, y)
-    ).ToHashSet(), lines.Length);
+static class AoC
+{
+    static string[] lines = File.ReadAllLines("input.txt");
+    static Grid grid = new Grid((
+        from y in Enumerable.Range(0, lines.Length)
+        from x in Enumerable.Range(0, lines[y].Length)
+        where lines[y][x] == '#'
+        select new Coordinate(x, y)
+        ).ToHashSet(), lines.Length);
 
-//Console.WriteLine(grid);
-
-//for (int i = 0; i < 4; i++)
-//{
-//    grid = grid.Next();
-//    Console.WriteLine(grid);
-//}
-
-Console.WriteLine(Part1(grid));
-Console.WriteLine(Part2(grid));
-
-int Part1(Grid grid) => Enumerable.Range(0, 100).Aggregate(grid, (g, i) => g.Next1()).Count();
-int Part2(Grid grid) => Enumerable.Range(0, 100).Aggregate(grid, (g, i) => g.Next2()).Count();
-
+    public static object Part1() => Enumerable.Range(0, 100).Aggregate(grid, (g, i) => g.Next1()).Count();
+    public static object Part2() => Enumerable.Range(0, 100).Aggregate(grid, (g, i) => g.Next2()).Count();
+}
 
 record Coordinate(int x, int y)
 {
