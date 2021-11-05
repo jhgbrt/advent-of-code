@@ -2,8 +2,10 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <GenerateProgramFile>False</GenerateProgramFile>
     <TargetFramework>net6.0</TargetFramework>
-    <StartupObject>generator.Program</StartupObject>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

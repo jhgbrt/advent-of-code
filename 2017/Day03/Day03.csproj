@@ -2,12 +2,10 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <GenerateProgramFile>False</GenerateProgramFile>
     <TargetFramework>net6.0</TargetFramework>
-    <StartupObject>Spiral.Program</StartupObject>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

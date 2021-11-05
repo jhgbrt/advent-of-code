@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AoC.Client": {
+      "commandName": "Project",
+      "commandLineArgs": "--baseDirectory=C:\\Users\\jeroe\\source\\repos\\jhgbrt\\advent-of-code\\Common\\content"
+    }
+  }
+}

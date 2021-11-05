@@ -35,6 +35,6 @@ static class CheckSum
 
     static IEnumerable<string> ReadLines(TextReader reader)
     {
-        while (reader.Peek() >= 0) yield return reader.ReadLine();
+        while (reader.Peek() >= 0) yield return reader.ReadLine()!;
     }
 }

@@ -1,25 +1,37 @@
-﻿using System;
+﻿using Jump;
+
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 
-namespace Jump
+using Xunit;
+
+using static AoC;
+
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
+
+static class AoC
 {
-    public class Program
+    static bool test = false;
+    public static int[] input = File.ReadAllLines(test ? "sample.txt" : "input.txt").Select(int.Parse).ToArray();
+
+    public static Result<int> Part1() => Run(1, () => Jumps.CalculateJumps(input, v => 1));
+    public static Result<int> Part2() => Run(2, () => Jumps.CalculateJumps(input, v => v >= 3 ? -1 : 1));
+
+    static Result<T> Run<T>(int part, Func<T> f)
     {
-        static void Main(string[] args)
-        {
-            var input = File.ReadLines("input.txt").Select(int.Parse).ToArray();
-            Run(() => Jumps.CalculateJumps(input, v => 1));
-            Run(() => Jumps.CalculateJumps(input, v => v >= 3 ? -1 : 1));
-        }
-
-        static void Run<T>(Func<T> f)
-        {
-            var sw = Stopwatch.StartNew();
-            var result = f();
-            Console.WriteLine($"{result} / {sw.Elapsed}");
-
-        }
+        var sw = Stopwatch.StartNew();
+        var result = f();
+        return new(result, sw.Elapsed);
     }
 }
+
+public class Tests
+{
+    [Fact]
+    public void Test1() => Assert.Equal(343467, Part1().Value);
+    [Fact]
+    public void Test2() => Assert.Equal(24774780, Part2().Value);
+}
+
+readonly record struct Result<T>(T Value, TimeSpan Elapsed);
+
