@@ -4,58 +4,45 @@ using System.Net;
 
 class AoCClient : IDisposable
 {
-    HttpClientHandler handler;
-    HttpClient client;
-    DirectoryInfo baseDirectory;
+    readonly HttpClientHandler handler;
+    readonly HttpClient client;
+    readonly FileProvider provider;
 
     public AoCClient(Uri baseAddress, string sessionCookie, DirectoryInfo baseDirectory)
     {
         var cookieContainer = new CookieContainer();
         cookieContainer.Add(baseAddress, new Cookie("session", sessionCookie));
 
-        handler = new HttpClientHandler
-        {
-            CookieContainer = cookieContainer
-        };
+        handler = new HttpClientHandler { CookieContainer = cookieContainer };
 
-        client = new HttpClient(handler)
-        {
-            BaseAddress = baseAddress
-        };
-        this.baseDirectory = baseDirectory;
+        client = new HttpClient(handler) { BaseAddress = baseAddress };
+
+        this.provider = new FileProvider(baseDirectory);
     }
 
     public async Task<Puzzle> GetAsync(int year, int day, bool usecache = true)
     {
-        var dir = Path.Combine(baseDirectory.FullName, $"{year}", $"{day:00}");
-        if (!Directory.Exists(dir))
-            Directory.CreateDirectory(dir);
-
-        var htmlfile = Path.Combine(baseDirectory.FullName, dir, $"{year}-{day:00}.html");
-
         string html;
-        if (!File.Exists(htmlfile) || !usecache)
+        if (!provider.Exists(year, day, "html") || !usecache)
         {
             var response = await client.GetAsync($"{year}/day/{day}");
             if (response.StatusCode == HttpStatusCode.NotFound) return Puzzle.Locked(year, day);
             html = await response.Content.ReadAsStringAsync();
-            await File.WriteAllTextAsync(htmlfile, html);
+            await provider.WriteAsync(year, day, "html", html);
         }
         else
         {
-            html = await File.ReadAllTextAsync(htmlfile);
+            html = await provider.ReadAsync(year, day, "html");
         }
 
-        var inputfile = Path.Combine(baseDirectory.FullName, dir, $"input.{year}-{day:00}.txt");
-
         string input;
-        if (!File.Exists(inputfile) || !usecache)
+        if (!provider.Exists(year, day, "txt") || !usecache)
         {
             var response = await client.GetAsync($"{year}/day/{day}/input");
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 input = await response.Content.ReadAsStringAsync();
-                await File.WriteAllTextAsync(inputfile, input);
+                await provider.WriteAsync(year, day, "txt", input);
             }
             else
             {
@@ -64,14 +51,15 @@ class AoCClient : IDisposable
         }
         else
         {
-            input = await File.ReadAllTextAsync(inputfile);
+            input = await provider.ReadAsync(year, day, "txt");
         }
 
 
         var document = new HtmlDocument();
-        document.Load(htmlfile);
+        document.LoadHtml(html);
 
         var articles = document.DocumentNode.SelectNodes("//article").ToArray();
+
         var answers = (
             from node in document.DocumentNode.SelectNodes("//p")
             where node.InnerText.StartsWith("Your puzzle answer was")
@@ -86,13 +74,10 @@ class AoCClient : IDisposable
             _ => throw new Exception($"expected 0, 1 or 2 answers, not {answers.Length}")
         };
 
-
         var innerHtml = string.Join("", articles.Zip(answers.Select(a => a.ParentNode)).Select(n => n.First.InnerHtml + n.Second.InnerHtml));
         var innerText = string.Join("", articles.Zip(answers.Select(a => a.ParentNode)).Select(n => n.First.InnerText + n.Second.InnerText));
 
-        var puzzle = Puzzle.Unlocked(year, day, innerHtml, innerText, input, answer);
-
-        return puzzle;
+        return Puzzle.Unlocked(year, day, innerHtml, innerText, input, answer);
     }
 
     public void Dispose()
