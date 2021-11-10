@@ -8,115 +8,211 @@ using NodaTime;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 
+interface IYearDay
+{
+    int? year { get; }
+    int? day { get; } 
+}
+record CommonOptions(int? year, int? day, DirectoryInfo? dir) : IYearDay { }
+record UpdateCacheOptions(bool? force, DirectoryInfo? dir, int? leaderboardId);
+record PuzzleCommandOptions(int? year, int? day, DirectoryInfo? dir) : CommonOptions(year, day, dir);
+record LeaderBoardOptions(int year, int id, DirectoryInfo? dir);
+
 class Program
 {
     static readonly IClock Clock = SystemClock.Instance;
 
+    static IEnumerable<Option> GetOptionsFor<T>() => from p in typeof(T).GetProperties()
+                                                     select new Option(new[] { $"--{p.Name}" }, p.Name, p.PropertyType);
+
     public static async Task<int> Main(string[] args)
     {
-        var root = new RootCommand
+        Command cache = new Command("cache")
         {
-            new Command("cache")
-            {
-                new Command("update") { Handler = CreateHandler(UpdateCache) }
-            },
-            new Command("puzzle")
-            {
-                new Command("show-answers") { Handler = CreateHandler(ShowAnswers) },
-                new Command("show-status") { Handler = CreateHandler(ShowStatus) },
-                new Command("get") { Handler = CreateHandler(GetPuzzle) }
-            }
+            CreateCommand<UpdateCacheOptions>("update", UpdateCache)
         };
 
-        root.AddGlobalOption(new Option<int>("--year"));
-        root.AddGlobalOption(new Option<int>("--day"));
-        root.AddGlobalOption(new Option<bool>("--force"));
-        root.AddGlobalOption(new Option<DirectoryInfo>("--dir"));
+
+        Command puzzle = new Command("puzzle")
+        {
+            CreateCommand<PuzzleCommandOptions>("show-answers", ShowAnswers),
+            CreateCommand<PuzzleCommandOptions>("show-status", ShowStatus),
+            CreateCommand<PuzzleCommandOptions>("get", GetPuzzle),
+        };
+
+        Command leaderboard = new Command("leaderboard")
+        {
+            CreateCommand<LeaderBoardOptions>("get", GetLeaderBoard),
+            CreateCommand<LeaderBoardOptions>("report", ReportLeaderBoard),
+        };
+
+        var root = new RootCommand
+        {
+            cache, puzzle, leaderboard
+        };
 
         await root.InvokeAsync(args);
         return 0;
     }
 
-    private static async Task GetPuzzle(int y, int d, bool f, DirectoryInfo dir)
+    private static async Task GetPuzzle(int y, int d, CommonOptions yd)
     {
-        var repo = CreateRepository(dir);
+        var dir = yd.dir ?? new DirectoryInfo(Directory.GetCurrentDirectory());
+        var repo = CreatePuzzleRepository(dir);
         var result = await repo.GetAsync(y, d);
         Console.WriteLine(result);
     }    
 
-    private static async Task ShowAnswers(int y, int d, bool f, DirectoryInfo dir)
+    private static async Task ShowAnswers(int y, int d, CommonOptions yd)
     {
-        var repo = CreateRepository(dir);
+        var dir = yd.dir ?? new DirectoryInfo(Directory.GetCurrentDirectory());
+        var repo = CreatePuzzleRepository(dir);
         var result = await repo.GetAsync(y, d);
-        if (result != null)
-        {
-            Console.WriteLine($"{y};{d:00};{result.Answer.part1};{result.Answer.part2}");
-        }
+        if (result == null) return;
+        Console.WriteLine($"{y};{d:00};{result.Answer.part1};{result.Answer.part2}");
     }
-    private static async Task ShowStatus(int y, int d, bool f, DirectoryInfo dir)
+    private static async Task ShowStatus(int y, int d, CommonOptions yd)
     {
-        var repo = CreateRepository(dir);
+        var dir = yd.dir ?? new DirectoryInfo(Directory.GetCurrentDirectory());
+        var repo = CreatePuzzleRepository(dir);
         var result = await repo.GetAsync(y, d);
-        Console.WriteLine($"{y};{d:00};{result?.Status}");
+        Console.WriteLine($"{y};{d:00};{result?.Status};{result?.Unanswered}");
     }
 
-    private static async Task UpdateCache(int y, int d, bool f, DirectoryInfo dir)
+    private static async Task UpdateCache(UpdateCacheOptions ydf)
     {
-        var repo = CreateRepository(dir);
+        var dir = ydf.dir ?? new DirectoryInfo(Directory.GetCurrentDirectory());
+
+        var updatepuzzlecache = UpdatePuzzleCache(ydf.force ?? false, dir);
+        var updateleaderboardcache = ydf.leaderboardId.HasValue ? UpdateLeaderBoardCache(ydf.force ?? false, ydf.leaderboardId.Value, dir) : Task.CompletedTask;
+
+        await Task.WhenAll(
+            updatepuzzlecache,
+            updateleaderboardcache
+            );
+    }
+
+    private static async Task UpdatePuzzleCache(bool force, DirectoryInfo dir)
+    {
+        var puzzleRepo = CreatePuzzleRepository(dir);
+        var client = CreateClient(dir);
+        foreach ((var y, var d ) in GetDays(null, null))
+        {
+            var puzzle = await puzzleRepo.GetAsync(y, d);
+            if (puzzle == null || force || !puzzle.Final || string.IsNullOrEmpty(puzzle.Input))
+            {
+                puzzle = await client.GetPuzzleAsync(y, d, false);
+                await puzzleRepo.PutAsync(puzzle);
+                Console.WriteLine($"update puzzle cache {y} {d} {puzzle.Status}");
+            }
+        }
+    }
+
+    private static async Task UpdateLeaderBoardCache(bool force, int id, DirectoryInfo dir)
+    {
+        var leaderboardRepo = CreateLeaderBoardRepository(dir);
         var client = CreateClient(dir);
 
-        Console.Write($"update: {y} {d} - ");
+        for (var year = MinYear; year <= MaxYear; year++)
+        {
+            var lb = await leaderboardRepo.GetAsync(year, id);
+            if (lb == null || force)
+            {
+                lb = await client.GetLeaderBoardAsync(year, id);
+                if (lb != null)
+                    await leaderboardRepo.PutAsync(lb);
+                Console.WriteLine($"update lbcache {year} {id}");
+            }
+        }
 
-        var result = await repo.GetAsync(y, d);
-
-        if (f)
-        {
-            Console.Write("forced update - ");
-            result = await client.GetAsync(y, d, false);
-            await repo.PutAsync(result);
-        }
-        else if (result == null)
-        {
-            Console.Write("not in cache - ");
-            result = await client.GetAsync(y, d, false);
-            await repo.PutAsync(result);
-        }
-        else if (!result.Final)
-        {
-            Console.Write("not yet final - ");
-            result = await client.GetAsync(y, d, false);
-            await repo.PutAsync(result);
-        }
-        else
-        {
-            Console.Write("in cache - ");
-        }
-        Console.WriteLine(result.Status);
     }
 
-    static ICommandHandler CreateHandler(Func<int,int, bool, DirectoryInfo, Task> action) => CommandHandler.Create<int?, int?, bool?, DirectoryInfo>(async (year, day, force, dir) =>
+    private static async Task GetLeaderBoard(LeaderBoardOptions o)
     {
-        Guard.Against.InvalidInput(dir, nameof(dir), d => d.Exists, "invalid directory");
-        var f = force ?? false;
+        var repo = new LeaderboardRepository(o.dir ?? new DirectoryInfo(Directory.GetCurrentDirectory()));
+        var result = await repo.GetAsync(o.year, o.id);
+        Console.WriteLine(result);
+    }
+    private static async Task ReportLeaderBoard(LeaderBoardOptions o)
+    {
+        var repo = new LeaderboardRepository(o.dir ?? new DirectoryInfo(Directory.GetCurrentDirectory()));
+        var result = await repo.GetAsync(o.year, o.id);
 
+        Console.WriteLine("name;stars");
+
+        var query = from item in result.Members
+                    select (item.Name, item.Stars);
+
+        foreach (var item in query)
+        {
+            Console.WriteLine($"{item.Name};{item.Stars}");
+        }
+    }
+
+    static Command CreateCommand<TOptions>(string name, Func<TOptions, Task> handler) 
+    {
+        var command = new Command(name);
+        foreach (var option in GetOptionsFor<TOptions>())
+        {
+            option.IsRequired = false;
+            command.AddOption(option);
+        }
+        command.Handler = CreateHandler(handler);
+        return command;
+    }
+
+    static Command CreateCommand<TOptions>(string name, Func<int, int, TOptions, Task> handler) where TOptions : IYearDay
+    {
+        var command = new Command(name);
+        foreach (var option in GetOptionsFor<TOptions>())
+        {
+            option.IsRequired = false;
+            command.AddOption(option);
+        }
+        command.Handler = CreateHandler(handler);
+        return command;
+    }
+
+    static ICommandHandler CreateHandler<T>(Func<T, Task> action) 
+    {
+        return CommandHandler.Create<T>(async options =>
+        {
+                await action(options);
+        });
+    }
+
+    static ICommandHandler CreateHandler<T>(Func<int, int, T, Task> action) where T : IYearDay
+    {
+        return CommandHandler.Create<T>(async options =>
+        {
+            foreach ((var year, var day) in GetDays(options.year, options.day))
+                await action(year, day, options);
+        });
+    }
+
+    static IEnumerable<(int year, int day)> GetDays(int? year, int? day)
+    {
         if (!year.HasValue)
         {
-            for (int y = 2015; y <= Clock.GetCurrentInstant().InUtc().Year; y++)
+            for (int y = MinYear; y <= MaxYear; y++)
                 for (int d = 1; d <= MaxDay(y, Clock); d++)
-                    await action(y, d, f, dir);
+                    yield return (y,d);
         }
         else if (!day.HasValue)
         {
             var y = year.Value;
             for (int d = 1; d <= MaxDay(y, Clock); d++)
-                await action(y, d, f, dir);
+                yield return (y, d);
         }
         else
         {
             (var y, var d) = (year.Value, day.Value);
-            await action(y, d, f, dir);
+            yield return (y, d);
         }
-    });
+    }
+
+    internal static int MinYear => 2015;
+    internal static int MaxYear => Clock.GetCurrentInstant().InUtc().Year;
 
     internal static int MaxDay(int year, IClock clock)
     {
@@ -149,7 +245,8 @@ class Program
         return new AoCClient(baseAddress, cookieValue, baseDirectory.GetDirectories("cache").Single());
     }
 
-    static IPuzzleRepository CreateRepository(DirectoryInfo baseDirectory) => new PuzzleRepository(baseDirectory.GetDirectories("db").Single());
+    static IPuzzleRepository CreatePuzzleRepository(DirectoryInfo baseDirectory) => new PuzzleRepository(baseDirectory.GetDirectories("db").Single());
+    static ILeaderboardRepository CreateLeaderBoardRepository(DirectoryInfo baseDirectory) => new LeaderboardRepository(baseDirectory.GetDirectories("db").Single());
 }
 
 

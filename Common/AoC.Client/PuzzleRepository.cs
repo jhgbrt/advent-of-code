@@ -10,25 +10,32 @@ interface IPuzzleRepository
 
 class PuzzleRepository : IPuzzleRepository
 {
-    readonly FileProvider provider;
+    readonly DirectoryInfo directory;
     readonly JsonSerializerOptions options;
     public PuzzleRepository(DirectoryInfo dbdir)
     {
-        this.provider = new FileProvider(dbdir);
+        this.directory = dbdir;
         var options = new JsonSerializerOptions();
         options.Converters.Add(new JsonStringEnumConverter());
         this.options = options;
     }
     public async Task PutAsync(Puzzle puzzle) 
-        => await provider.WriteAsync(puzzle.Year, puzzle.Day, "json", JsonSerializer.Serialize(puzzle, options));
+        => await File.WriteAllTextAsync(GetPath(puzzle.Year, puzzle.Day), JsonSerializer.Serialize(puzzle, options));
 
     public async Task<Puzzle?> GetAsync(int year, int day)
     {
-        if (provider.Exists(year, day, "json"))
+        if (File.Exists(GetPath(year, day)))
         {
-            var json = await provider.ReadAsync(year, day, "json");
+            var json = await File.ReadAllTextAsync(GetPath(year, day));
             return JsonSerializer.Deserialize<Puzzle>(json, options);
         }
         return null;
+    }
+
+    private string GetPath(int year, int day)
+    {
+        var dir = Path.Combine(directory.FullName, $"{year}", $"{day:00}");
+        if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+        return Path.Combine(dir, $"{year}-{day:00}.json");
     }
 }
