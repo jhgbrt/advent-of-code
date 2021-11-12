@@ -1,6 +1,3 @@
-using System.IO;
-using Xunit;
-
 namespace AdventOfCode
 {
     public class Specs

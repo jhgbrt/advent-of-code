@@ -1,56 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿record Result(object Value, TimeSpan Elapsed);
+record Answer(object? part1, object? part2);
 
-namespace AdventOfCode
+public partial class AoC
 {
-    static class AoC
+    ITestOutputHelper output;
+
+    public AoC(ITestOutputHelper output)
     {
-        public static int Part1(string[] input) => input.Single().Distances().Max();
+        this.output = output;
+    }
 
-        public static int Part2(string[] input) => input.Single().Distances().Where(i => i >= 1000).Count();
-
-        public static IEnumerable<int> Distances(this string route)
+    Answer answer = JsonSerializer.Deserialize<Answer>(File.ReadAllText("answers.json"))!;
+    [Fact]
+    public void TestPart1()
+    {
+        if (answer.part1 is not null)
         {
-            (int x, int y) Next(char c, (int x, int y) p)
-            {
-                switch (c)
-                {
-                    case 'N': return (p.x, p.y - 1);
-                    case 'S': return (p.x, p.y + 1);
-                    case 'E': return (p.x + 1, p.y);
-                    case 'W': return (p.x - 1, p.y);
-                }
-                throw new ArgumentOutOfRangeException(nameof(c));
-            }
-
-            (int x, int y) current = (0, 0);
-            var positions = new Stack<(int x, int y)>();
-            var distances = new Dictionary<(int x, int y), int>();
-            foreach (var c in route[1..^1])
-            {
-                switch (c)
-                {
-                    case '(':
-                        positions.Push(current);
-                        break;
-                    case ')':
-                        current = positions.Pop();
-                        break;
-                    case '|':
-                        current = positions.Peek();
-                        break;
-                    default:
-                        var next = Next(c, current);
-                        var distance = distances.ContainsKey(current) ? distances[current] + 1: 1;
-                        distances[next] = distances.ContainsKey(next) ? Math.Min(distance, distances[next]) : distance;
-                        current = next;
-                        break;
-                }
-            }
-
-            return distances.Values;
+            var result = AoC.Part1().Value;
+            if (result is null) throw new Exception("Puzzle 1 has an answer but no code");
+            Assert.Equal(answer.part1.ToString(), AoC.Part1().Value.ToString());
         }
+        else
+        {
+            output.WriteLine("Puzzle 2 has not yet been answered");
+        }
+    }
 
+    [Fact]
+    public void TestPart2()
+    {
+        if (answer.part2 is not null)
+        {
+            var result = AoC.Part1().Value;
+            if (result is null) throw new Exception("Puzzle 1 has an answer but no code");
+            Assert.Equal(answer.part2.ToString(), AoC.Part2().Value.ToString());
+        }
+        else
+        {
+            output.WriteLine("Puzzle 2 has not yet been answered");
+        }
+    }
+
+    internal static Result Run(Func<object> f)
+    {
+        var sw = Stopwatch.StartNew();
+        return new(f(), sw.Elapsed);
     }
 }

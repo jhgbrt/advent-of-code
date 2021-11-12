@@ -1,9 +1,6 @@
-﻿using System;
-using System.Linq;
-
-static class Part2
+﻿static class Part2
 {
-    public static void Run()
+    public static long Run()
     {
         // background reading:
         // https://mathworld.wolfram.com/Congruence.html
@@ -20,7 +17,7 @@ static class Part2
                           let a = (long)n - entry.i
                           select (n, a);
 
-        Console.WriteLine(RemainderTheorem.Solve(constraints.ToArray()));
+        return RemainderTheorem.Solve(constraints.ToArray());
 
     }
 }

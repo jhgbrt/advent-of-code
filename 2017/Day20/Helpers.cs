@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-static class Helpers
+﻿static class Helpers
 {
     public static IEnumerable<string> ReadLines(this string input)
     {

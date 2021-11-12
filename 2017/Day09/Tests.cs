@@ -1,6 +1,4 @@
-﻿using Xunit;
-
-namespace Garbage
+﻿namespace Garbage
 {
     public class Tests
     {

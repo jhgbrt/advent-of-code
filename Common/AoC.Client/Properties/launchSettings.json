@@ -2,7 +2,8 @@
   "profiles": {
     "AoC.Client": {
       "commandName": "Project",
-      "commandLineArgs": "cache update --dir=C:\\Users\\jeroe\\source\\repos\\jhgbrt\\advent-of-code\\Common\\content --force=true --leaderboardId=148156"
+      "commandLineArgs": "puzzle get",
+      "workingDirectory": "$(SolutionDir)"
     }
   }
 }

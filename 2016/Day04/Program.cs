@@ -1,30 +1,27 @@
-using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
-
-using Xunit;
 
 using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
     static bool test = false;
     public static string[] input = File.ReadAllLines(test ? "sample.txt" : "input.txt");
 
-    public static Result<int> Part1() => Run(1, () => (from line in input
+    internal static Result Part1() => Run(() => (from line in input
                                                        let room = Room.Parse(line)
                                                        where room.IsValid()
                                                        select room).Sum(r => r.SectorId));
-    public static Result<int> Part2() => Run(2, () => (from line in input
+    internal static Result Part2() => Run(() => (from line in input
                                                        let room = Room.Parse(line)
                                                        let name = room.Name
                                                        where name.Contains("northpole")
                                                        select room.SectorId).Single());
 
-    static Result<T> Run<T>(int part, Func<T> f)
+    static Result Run<T>(int part, Func<T> f)
     {
         var sw = Stopwatch.StartNew();
         var result = f();
@@ -87,7 +84,7 @@ public class Tests
     }
 }
 
-readonly record struct Result<T>(T Value, TimeSpan Elapsed);
+
 
 record Room(string Id, int SectorId, string Checksum)
 {   public static Room Parse(string s)

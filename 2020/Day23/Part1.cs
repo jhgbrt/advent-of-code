@@ -1,10 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 namespace Part1;
 public static class Runner
 {
-    public static void Run()
+    public static object Run()
     {
         var input = "158937462".Select(c => (int)char.GetNumericValue(c)).ToArray();
 
@@ -38,7 +36,7 @@ public static class Runner
         var sb = new StringBuilder();
         for (node = linkedlist.NodeAt(1); node.Value != 1; node = node.Next)
             sb.Append(node.Value);
-        Console.WriteLine(sb);
+        return sb.ToString();
 
     }
 }

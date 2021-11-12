@@ -1,25 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using System.Collections.Immutable;
 
-var example = (
-    from line in File.ReadLines("example.txt") select long.Parse(line)
-    ).ToArray();
+using static AoC;
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
 
-Debug.Assert(example.InvalidNumbers(5).First() == 127);
-Debug.Assert(example.FindEncryptionWeakness(127) == 62);
+partial class AoC
+{
+    static long[] input = File.ReadLines("input.txt").Select(long.Parse).ToArray();
 
-var input = (
-    from line in File.ReadLines("input.txt") select long.Parse(line)
-    ).ToArray();
+    internal static Result Part1() => Run(() => input.InvalidNumbers(25).First());
+    internal static Result Part2() => Run(() => input.FindEncryptionWeakness((long)Part1().Value));
 
-var part1 = input.InvalidNumbers(25).First();
-var part2 = input.FindEncryptionWeakness(part1);
-Console.WriteLine((part1, part2));
+}
 
-static class AoC
+public class Tests
+{
+    static long[] input = File.ReadLines("example.txt").Select(long.Parse).ToArray();
+    public void Test1() => Assert.Equal(127, input.InvalidNumbers(5).First());
+    public void Test2() => Assert.Equal(62, input.FindEncryptionWeakness(127));
+}
+
+
+static class Ex
 {
     public static long FindEncryptionWeakness(this long[] array, long invalid) 
         => (

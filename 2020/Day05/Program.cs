@@ -1,20 +1,23 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Xunit;
-using static System.Convert;
+﻿using static System.Convert;
+using static AoC;
 
-var seats = File.ReadLines("input.txt").Select(Seat.Parse).OrderBy(s => s.SeatID).ToList();
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
 
-Console.WriteLine(seats.Max(s => s.SeatID));
+partial class AoC
+{
+    static List<Seat> seats = File.ReadLines("input.txt").Select(Seat.Parse).OrderBy(s => s.SeatID).ToList();
+    internal static Result Part1() => Run(() => seats.Max(s => s.SeatID));
+    internal static Result Part2() => Run(() =>
+    {
+        var missing =
+            from item in seats.Zip(seats.Skip(1))
+            where item.First.SeatID + 1 != item.Second.SeatID
+            select item.First.SeatID + 1;
+        return missing.Single();
+    });
+}
 
-var missing = 
-    from item in seats.Zip(seats.Skip(1))
-    where item.First.SeatID + 1 != item.Second.SeatID 
-    select item.First.SeatID + 1;
-
-Console.WriteLine(missing.Single());
 
 record Seat(int row, int col) 
 { 

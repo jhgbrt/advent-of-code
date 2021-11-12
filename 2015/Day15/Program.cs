@@ -1,14 +1,12 @@
 ﻿using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 
-using Xunit;
-
 using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
     static string[] input = File.ReadAllLines("input.txt");
     static Regex regex = new Regex(@"(?<name>\w+): capacity (?<capacity>[-\d]+), durability (?<durability>[-\d]+), flavor (?<flavor>[-\d]+), texture (?<texture>[-\d]+), calories (?<calories>[-\d]+)");
@@ -24,17 +22,17 @@ static class AoC
         let calories = int.Parse(match.Groups["calories"].Value)
         select new Ingredient(name, capacity, durability, flavor, texture, calories)
         ).ToImmutableList();
-    
-    public static long Part1() => (
+
+    internal static Result Part1() => Run(() => (
             from f in Factors()
             let capacity = Math.Max(0, ingredients.Zip(f).Select(i => i.First.capacity * i.Second).Sum())
             let durability = Math.Max(0, ingredients.Zip(f).Select(i => i.First.durability * i.Second).Sum())
             let flavor = Math.Max(0, ingredients.Zip(f).Select(i => i.First.flavor * i.Second).Sum())
             let texture = Math.Max(0, ingredients.Zip(f).Select(i => i.First.texture * i.Second).Sum())
             select capacity * durability * flavor * texture
-        ).Max();
+        ).Max());
 
-    public static long Part2() => (
+    internal static Result Part2() => Run(() => (
             from f in Factors()
             let capacity = Math.Max(0, ingredients.Zip(f).Select(i => i.First.capacity * i.Second).Sum())
             let durability = Math.Max(0, ingredients.Zip(f).Select(i => i.First.durability * i.Second).Sum())
@@ -43,7 +41,7 @@ static class AoC
             let calories = Math.Max(0, ingredients.Zip(f).Select(i => i.First.calories * i.Second).Sum())
             where calories == 500
             select capacity * durability * flavor * texture
-        ).Max();
+        ).Max());
 
     static IEnumerable<long[]> Factors()
     {
@@ -58,9 +56,9 @@ static class AoC
 public class Tests
 {
     [Fact]
-    public void Test1() => Assert.Equal(21367368, Part1());
+    public void Test1() => Assert.Equal(21367368L, Part1().Value);
     [Fact]
-    public void Test2() => Assert.Equal(1766400, Part2());
+    public void Test2() => Assert.Equal(1766400L, Part2().Value);
 }
 
 record struct Ingredient(string name, int capacity, int durability, int flavor, int texture, int calories);

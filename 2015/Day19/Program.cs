@@ -1,14 +1,12 @@
 ﻿using System.Collections.Immutable;
 using System.Text;
 
-using Xunit;
-
 using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
 	static string[] lines = File.ReadAllLines("input.txt");
 	static string input = lines.Last();
@@ -18,8 +16,8 @@ static class AoC
 		select new Replacement(split[0], split[1])
 		).ToImmutableList();
 
-	public static object Part1() => Part1(input, replacements);
-	public static object Part2() => Part2(input);
+	internal static Result Part1() => Run(() => Part1(input, replacements));
+	internal static Result Part2() => Run(() => Part2(input));
 	static int Part1(string input, ImmutableList<Replacement> replacements)
 	{
 		HashSet<string> output = new();
@@ -50,9 +48,9 @@ static class AoC
 public class Tests
 {
 	[Fact]
-	public void Test1() => Assert.Equal(535, Part1());
+	public void Test1() => Assert.Equal(535, Part1().Value);
 	[Fact]
-	public void Test2() => Assert.Equal(212, Part2());
+	public void Test2() => Assert.Equal(212, Part2().Value);
 }
 
 record Replacement(string From, string To);

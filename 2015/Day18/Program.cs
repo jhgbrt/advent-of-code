@@ -1,11 +1,10 @@
-﻿using Xunit;
-
+﻿
 using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
     static string[] lines = File.ReadAllLines("input.txt");
     static Grid grid = new Grid((
@@ -15,8 +14,8 @@ static class AoC
         select new Coordinate(x, y)
         ).ToHashSet(), lines.Length);
 
-    public static object Part1() => Enumerable.Range(0, 100).Aggregate(grid, (g, i) => g.Next1()).Count();
-    public static object Part2() => Enumerable.Range(0, 100).Aggregate(grid, (g, i) => g.Next2()).Count();
+    internal static Result Part1() => Run(() => Enumerable.Range(0, 100).Aggregate(grid, (g, i) => g.Next1()).Count());
+    internal static Result Part2() => Run(() => Enumerable.Range(0, 100).Aggregate(grid, (g, i) => g.Next2()).Count());
 }
 
 record Coordinate(int x, int y)

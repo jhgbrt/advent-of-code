@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
-class Part1
+﻿class Part1
 {
-    public static void Run()
+    public static int Run()
     {
         var example = @"939
 7,13,x,x,59,x,31,19";
@@ -24,8 +19,7 @@ class Part1
                     select (id, timestamp);
         var result = query.First();
 
-        Console.WriteLine(result);
-        Console.WriteLine(result.id * (result.timestamp - start));
+        return (result.id * (result.timestamp - start));
 
     }
 }

@@ -1,6 +1,3 @@
-using System.Linq;
-using Xunit;
-
 namespace AdventOfCode
 {
     public class Specs
@@ -30,7 +27,7 @@ namespace AdventOfCode
         {
             var input = "R2,U2,L1,D3";
 
-            var points = AoC.Points(input).ToArray();
+            var points = input.Points().ToArray();
 
             Assert.Equal(new[] { (1,0), (2,0), (2, 1), (2,2), (1,2), (1,1), (1,0), (1, -1) }, points);
 

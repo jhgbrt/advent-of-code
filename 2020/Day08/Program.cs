@@ -1,22 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using System.Collections.Immutable;
 
-Func<string, Prog> ReadProgram = file => new Prog((
-    from line in File.ReadAllLines(file)
-    let instruction = line[0..3]
-    let arg = int.Parse(line[3..])
-    select new Instruction(instruction, arg)
-).ToImmutableArray());
+using static AoC;
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
 
-var example = ReadProgram("example.txt");
-Debug.Assert((example.Part1(), example.Part2()) == (5, 8));
+partial class AoC
+{
+    static Prog program = ReadProgram("input.txt");
 
-var program = ReadProgram("input.txt");
-Console.WriteLine((program.Part1(), program.Part2()));
+    internal static Result Part1() => Run(() => program.Part1());
+    internal static Result Part2() => Run(() => program.Part2());
+
+    internal static Prog ReadProgram(string file) => new Prog((
+        from line in File.ReadAllLines(file)
+        let instruction = line[0..3]
+        let arg = int.Parse(line[3..])
+        select new Instruction(instruction, arg)
+    ).ToImmutableArray());
+
+}
+
+public class Tests
+{
+    public void Test1() => Assert.Equal(5, ReadProgram("example.txt").Part1());
+    public void Test2() => Assert.Equal(8, ReadProgram("example.txt").Part2());
+}
 
 record Instruction(string Name, int Arg);
 record Prog(ImmutableArray<Instruction> Instructions)

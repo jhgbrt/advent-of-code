@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-class Captcha
+﻿class Captcha
 {
     public static int Calculate(string input, int lookahead)
         => input.Select((c, i) => (character: c, index: i))

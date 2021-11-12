@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
-static class CheckSum
+﻿static class CheckSum
 {
     public static int CheckSum1(TextReader reader) => ReadInts(reader)
         .Select(MinAndMax)

@@ -1,27 +1,50 @@
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
+using static AoC;
 
-namespace AdventOfCode
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
+
+partial class AoC
 {
-    static class Program
+    static string[] input = File.ReadAllLines("input.txt");
+
+    internal static Result Part1() => Run(() => Part1(input));
+    internal static Result Part2() => Run(() => Part2(input));
+    public static long Part1(string[] input) => Part1(input, 12, 2)[0];
+    public static long[] Part1(string[] input, int p1, int p2) => Run(Parse(input), p1, p2);
+    public static int Part2(string[] input) => Part2(Parse(input), 19690720);
+    public static int Part2(string[] input, long target) => Part2(Parse(input), target);
+    static int Part2(IReadOnlyCollection<long> array, long target) => (
+            from p1 in Enumerable.Range(0, 100)
+            from p2 in Enumerable.Range(0, 100)
+            let result = Run(array.ToArray(), p1, p2)[0]
+            where result == target
+            select p1 * 100 + p2
+            ).First();
+
+    static long[] Parse(string[] input) => input[0].Split(',').Select(long.Parse).ToArray();
+
+    static long[] Run(long[] range, int p1, int p2)
     {
-        public static async Task Main()
+        range[1] = p1;
+        range[2] = p2;
+
+        int index = 0;
+        while (range[index] != 99)
         {
-            var lines = await File.ReadAllLinesAsync("input.txt");
+            var result = range[index] switch
+            {
+                1 => range[range[index + 1]] + range[range[index + 2]],
+                2 => range[range[index + 1]] * range[range[index + 2]],
+                _ => throw new Exception()
+            };
 
-            Measure(() => AoC.Part1(lines));
+            var position = range[index + 3];
+            range[position] = result;
 
-            Measure(() => AoC.Part2(lines));
+            index += 4;
         }
 
-        static void Measure<T>(Func<T> f)
-        {
-            var sw = Stopwatch.StartNew();
-            var result = f();
-            Console.WriteLine($"result = {result} - {sw.Elapsed}");
-        }
-        
+        return range;
+
     }
 }

@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using Xunit;
-
-namespace generator
+﻿namespace generator
 {
     public class Specs
     {

@@ -1,26 +1,17 @@
-﻿using System.Diagnostics;
-
-using Xunit;
-
+﻿
 using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
     static bool test = false;
-    public static string input = File.ReadAllText(test ? "sample.txt" : "input.txt");
+    public static string input = File.ReadLines(test ? "sample.txt" : "input.txt").First();
 
-    public static Result<int> Part1() => Run(1, () => Captcha.Calculate(input, 1));
-    public static Result<int> Part2() => Run(2, () => Captcha.Calculate(input, input.Length/2));
+    internal static Result Part1() => Run(() => Captcha.Calculate(input, 1));
+    internal static Result Part2() => Run(() => Captcha.Calculate(input, input.Length/2));
 
-    static Result<T> Run<T>(int part, Func<T> f)
-    {
-        var sw = Stopwatch.StartNew();
-        var result = f();
-        return new(result, sw.Elapsed);
-    }
 }
 
 public class Tests
@@ -52,4 +43,4 @@ public class Tests
     }
 }
 
-readonly record struct Result<T>(T Value, TimeSpan Elapsed);
+

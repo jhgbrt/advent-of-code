@@ -1,0 +1,11 @@
+﻿record Result(object Value, TimeSpan Elapsed);
+record Answer(object? part1, object? part2) { public static Answer Empty => new Answer(null, null); }
+
+public partial class AoC
+{
+    Answer? answer = JsonSerializer.Deserialize<Answer>(File.ReadAllText("answers.json"));
+    [Fact]
+    public void TestPart1() => Assert.Equal(answer?.part1?.ToString(), AoC.Part1().Value.ToString());
+    [Fact]
+    public void TestPart2() => Assert.Equal(answer?.part2?.ToString(), AoC.Part2().Value.ToString());
+}

@@ -1,6 +1,3 @@
-using System.Linq;
-using Xunit;
-
 namespace AdventOfCode
 {
 
@@ -114,7 +111,7 @@ namespace AdventOfCode
         [Fact]
         public void TestPart1()
         {
-            var result = AoC.Part1(input);
+            var result = AoC.ToGrid(input).FindGridWithLowestHeight().ToString();
             Assert.Equal(Expected, result);
         }
 

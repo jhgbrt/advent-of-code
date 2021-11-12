@@ -1,148 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using static System.Char;
-using static AdventOfCode.GuardAction.Type;
+﻿record Result(object Value, TimeSpan Elapsed);
+record Answer(object? part1, object? part2);
 
-namespace AdventOfCode
+public partial class AoC
 {
-    internal static class AoC
+    ITestOutputHelper output;
+
+    public AoC(ITestOutputHelper output)
     {
-        public static int Part1(string[] input)
+        this.output = output;
+    }
+
+    Answer answer = JsonSerializer.Deserialize<Answer>(File.ReadAllText("answers.json"))!;
+    [Fact]
+    public void TestPart1()
+    {
+        if (answer.part1 is not null)
         {
-            var guard = Helper.GetMostSleepingGuard(input);
-            var guardId = guard.Key;
-            var mostSleepingMinute = guard.GetMostSleepingMinute();
-            return guardId * mostSleepingMinute;
+            var result = AoC.Part1().Value;
+            if (result is null) throw new Exception("Puzzle 1 has an answer but no code");
+            Assert.Equal(answer.part1.ToString(), AoC.Part1().Value.ToString());
         }
-
-        public static int Part2(string[] input)
+        else
         {
-            var guards = Parser.ToGuards(input);
-
-            var query = (
-                from g in guards
-                from minute in g.GetSleepingMinutes()
-                select (g.Key, minute) into x
-                group x by x into g
-                orderby g.Count() descending
-                select g.First()
-            ).ToList();
-
-            var result = query.First();
-            return result.Key * result.minute;
+            output.WriteLine("Puzzle 2 has not yet been answered");
         }
     }
 
-    internal static class Helper
+    [Fact]
+    public void TestPart2()
     {
-        public static IGrouping<int, GuardAction> GetMostSleepingGuard(string[] input)
+        if (answer.part2 is not null)
         {
-            var result = (
-                from guard in Parser.ToGuards(input)
-                let minutesAsleep = (
-                    guard.CountMinutesAsleep()
-                )
-                orderby minutesAsleep descending
-                select guard
-                ).First();
-            return result;
+            var result = AoC.Part1().Value;
+            if (result is null) throw new Exception("Puzzle 1 has an answer but no code");
+            Assert.Equal(answer.part2.ToString(), AoC.Part2().Value.ToString());
         }
-        public static int CountMinutesAsleep(this IGrouping<int, GuardAction> guard)
-            => (
-                from interval in guard.GetSleepingIntervals()
-                select interval.GetMinutes()
-                ).Sum();
-
-        private static int GetMinutes(this (DateTime start, DateTime end) interval)
-            => (int)interval.end.Subtract(interval.start).TotalMinutes;
-
-        public static int GetMostSleepingMinute(this IGrouping<int, GuardAction> guard)
-            => (from m in guard.GetSleepingMinutes()
-                group m by m into g
-                orderby g.Count() descending
-                select g.Key).First();
-
-        public static IEnumerable<int> GetSleepingMinutes(this IGrouping<int, GuardAction> guard)
-            => from interval in guard.GetSleepingIntervals()
-               from minute in Enumerable.Range(interval.start.Minute, (int)interval.end.Subtract(interval.start).TotalMinutes)
-               select minute;
-
-
-        public static IEnumerable<(DateTime start, DateTime end)> GetSleepingIntervals(this IGrouping<int, GuardAction> guard)
+        else
         {
-            var start = default(DateTime);
-            foreach (var g in guard.OrderBy(g => g.TimeStamp))
-            {
-                switch (g.ActionType)
-                {
-                    case FellAsleep:
-                        start = g.TimeStamp;
-                        break;
-                    case WakesUp:
-                        yield return (start, g.TimeStamp);
-                        break;
-                }
-            }
+            output.WriteLine("Puzzle 2 has not yet been answered");
         }
     }
 
-    internal struct GuardAction
+    internal static Result Run(Func<object> f)
     {
-        public enum Type
-        {
-            StartShift = 'G',
-            FellAsleep = 'f',
-            WakesUp = 'w'
-        }
-        public readonly DateTime TimeStamp;
-        public readonly Type ActionType;
-        public readonly int ID;
-        public GuardAction(int id, DateTime timeStamp, Type actionType)
-        {
-            ID = id;
-            TimeStamp = timeStamp;
-            ActionType = actionType;
-        }
+        var sw = Stopwatch.StartNew();
+        return new(f(), sw.Elapsed);
     }
-
-    internal static class Parser
-    {
-        public static IEnumerable<IGrouping<int, GuardAction>> ToGuards(this IEnumerable<string> lines)
-            => from guardaction in Parser.ToGuardActions(lines)
-               orderby guardaction.TimeStamp
-               group guardaction by guardaction.ID;
-
-        public static IEnumerable<GuardAction> ToGuardActions(this IEnumerable<string> lines)
-        {
-            int id = default;
-            foreach (var item in lines.Select(s => Parse(s)).OrderBy(x => x.timestamp))
-            {
-                if (item.type == GuardAction.Type.StartShift)
-                {
-                    id = item.id.Value;
-                }
-                yield return new GuardAction(id, item.timestamp, item.type);
-            }
-        }
-        private static (int? id, DateTime timestamp, GuardAction.Type type) Parse(this ReadOnlySpan<char> line)
-        {
-            var type = (GuardAction.Type)line[19];
-            var timestamp = DateTime.ParseExact(line.Slice(1, 16), "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-            switch (type)
-            {
-                case StartShift:
-                    var l = 0;
-                    while (IsDigit(line[26 + l])) l++;
-                    var id = int.Parse(line.Slice(26, l));
-                    return (id, timestamp, type);
-                default:
-                    return (null, timestamp, type);
-            }
-        }
-
-
-    }
-
 }

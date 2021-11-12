@@ -1,46 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
+﻿using System.Collections.Immutable;
 using System.Text;
 using static Direction;
+using static AoC;
 
-var tiles = 
-    from line in File.ReadLines("input.txt")
-    select line.ToTile();
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
 
-var flippedTiles = tiles.Aggregate(
-    ImmutableHashSet<Tile>.Empty,
-    (set, tile) => set.Contains(tile) ? set.Remove(tile) : set.Add(tile)
-    );
-
-var part1 = flippedTiles.Count;
-
-for (int i = 0; i < 100; i++)
-{
-    var grid = (
-        from x in flippedTiles
-        from tile in new[] { x }.Concat(x.Neighbors())
-        select (tile, flipped: flippedTiles.Contains(tile))
-        ).Distinct();
-
-    flippedTiles = grid.Aggregate(
-        flippedTiles,
-        (set, item) =>
-            item switch
-            {
-                { flipped: true } when item.tile.Neighbors().Where(flippedTiles.Contains).Count() is 0 or > 2 => set.Remove(item.tile),
-                { flipped: false } when item.tile.Neighbors().Where(flippedTiles.Contains).Count() is 2 => set.Add(item.tile),
-                _ => set
-            }
-        );
-}
-
-
-var part2 = flippedTiles.Count;
-
-Console.WriteLine((part1, part2));
 
 record Tile(int x, int y, int z)
 {
@@ -62,8 +27,57 @@ record Tile(int x, int y, int z)
 }
 
 enum Direction { E, W, SE, SW, NE, NW };
-static class AoC
+partial class AoC
 {
+    static string[] input = File.ReadAllLines("input.txt");
+
+    internal static Result Part1() => Run(() =>
+    {
+        var tiles = from line in input select line.ToTile();
+
+        var flippedTiles = tiles.Aggregate(
+            ImmutableHashSet<Tile>.Empty,
+            (set, tile) => set.Contains(tile) ? set.Remove(tile) : set.Add(tile)
+            );
+
+        return flippedTiles.Count;
+    });
+    internal static Result Part2() => Run(() =>
+    {
+        var tiles =
+            from line in File.ReadLines("input.txt")
+            select line.ToTile();
+
+        var flippedTiles = tiles.Aggregate(
+            ImmutableHashSet<Tile>.Empty,
+            (set, tile) => set.Contains(tile) ? set.Remove(tile) : set.Add(tile)
+            );
+
+        for (int i = 0; i < 100; i++)
+        {
+            var grid = (
+                from x in flippedTiles
+                from tile in new[] { x }.Concat(x.Neighbors())
+                select (tile, flipped: flippedTiles.Contains(tile))
+                ).Distinct();
+
+            flippedTiles = grid.Aggregate(
+                flippedTiles,
+                (set, item) =>
+                    item switch
+                    {
+                        { flipped: true } when item.tile.Neighbors().Where(flippedTiles.Contains).Count() is 0 or > 2 => set.Remove(item.tile),
+                        { flipped: false } when item.tile.Neighbors().Where(flippedTiles.Contains).Count() is 2 => set.Add(item.tile),
+                        _ => set
+                    }
+                );
+        }
+        return flippedTiles.Count;
+    });
+
+}
+static class Ex 
+{ 
     public static Tile ToTile(this string line)
     {
         var tile = new Tile(0, 0, 0);

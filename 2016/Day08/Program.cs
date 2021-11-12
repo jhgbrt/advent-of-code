@@ -1,21 +1,15 @@
-﻿using System.Diagnostics;
-using System.Text.RegularExpressions;
-
-using Xunit;
-
-using static AoC;
+﻿using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-
-static class AoC
+partial class AoC
 {
     static bool test = false;
     public static string[] input = File.ReadAllLines(test ? "sample.txt" : "input.txt");
 
-    public static Result<int> Part1() => Run(1, () => Run().Count);
-    public static Result<string> Part2() => Run(2, () => Run().ToString());
+    internal static Result Part1() => Run(() => Run().Count);
+    internal static Result Part2() => Run(() => Run().ToString());
 
     static Regex rotate = new Regex("rotate (?<op>(row|column)) (x|y)=(?<i>\\d*) by (?<by>\\d*)", RegexOptions.Compiled);
     static Regex rect = new Regex("rect (?<rows>\\d*)x(?<cols>\\d)*", RegexOptions.Compiled);
@@ -36,6 +30,7 @@ static class AoC
             {
 
                 var op = matchRotate.Groups["op"].ToString();
+
                 var i = int.Parse(matchRotate.Groups["i"].ToString());
                 var by = int.Parse(matchRotate.Groups["by"].ToString());
                 if (op == "row")
@@ -48,7 +43,7 @@ static class AoC
 
     }
 
-    static Result<T> Run<T>(int part, Func<T> f)
+    static Result Run<T>(int part, Func<T> f)
     {
         var sw = Stopwatch.StartNew();
         var result = f();
@@ -61,14 +56,7 @@ public class Tests
     [Fact]
     public void Test1() => Assert.Equal(123, Part1().Value);
     [Fact]
-    public void Test2() => Assert.Equal(@"
-.##..####.###..#..#.###..####.###....##.###...###.
-#..#.#....#..#.#..#.#..#....#.#..#....#.#..#.#....
-#..#.###..###..#..#.#..#...#..###.....#.#..#.#....
-####.#....#..#.#..#.###...#...#..#....#.###...##..
-#..#.#....#..#.#..#.#....#....#..#.#..#.#.......#.
-#..#.#....###...##..#....####.###...##..#....###..
-", Part2().Value);
+    public void Test2() => Assert.Equal(@"AFBUPZBJPS", Part2().Value);
 
     [Fact]
     public void GetRow()
@@ -182,6 +170,6 @@ public class Tests
 
 }
 
-readonly record struct Result<T>(T Value, TimeSpan Elapsed);
+
 
 

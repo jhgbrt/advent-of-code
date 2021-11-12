@@ -1,7 +1,4 @@
-﻿
-using System.Text.RegularExpressions;
-
-using Xunit;
+﻿using System.Text.RegularExpressions;
 
 using static AoC;
 
@@ -9,34 +6,34 @@ using static AoC;
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
     static string[] input = File.ReadAllLines("input.txt");
 
-    public static int Part1()
+    internal static Result Part1() => Run(() =>
     {
         var nodes = BuildNodes();
         Resolve(nodes);
         var a = nodes["a"];
         var v = a.GetValue();
         return v;
-    }
+    });
 
-    public static int Part2()
+    internal static Result Part2() => Run(() =>
     {
-        var v1 = Part1();
+        var v1 = Part1().Value;
         var nodes = BuildNodes();
-        nodes["b"] = (LiteralValueNode)nodes["b"] with { LiteralValue = v1 };
+        nodes["b"] = (LiteralValueNode)nodes["b"] with { LiteralValue = (int)v1 };
         Resolve(nodes);
         var a = nodes["a"];
         var v = a.GetValue();
         return v;
-    }
+    });
 
 
     static Dictionary<string, Node> BuildNodes()
     {
-        var lines = File.ReadAllLines("input.txt");
+        var lines = input;
 
         var regexes = new (Regex r, Func<Match, Node> f)[]
         {
@@ -189,7 +186,7 @@ record RightShiftNode(string Name, string OperandName, int ShiftValue) : Node(Na
 public class Tests
 {
     [Fact]
-    public void Test1() => Assert.Equal(46065, Part1());
+    public void Test1() => Assert.Equal(46065, Part1().Value);
     [Fact]
-    public void Test2() => Assert.Equal(14134, Part2());
+    public void Test2() => Assert.Equal(14134, Part2().Value);
 }

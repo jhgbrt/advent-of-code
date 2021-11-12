@@ -1,61 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿record Result(object Value, TimeSpan Elapsed);
+record Answer(object? part1, object? part2);
 
-namespace AdventOfCode
+public partial class AoC
 {
+    ITestOutputHelper output;
 
-    static class AoC
+    public AoC(ITestOutputHelper output)
     {
-        public static int Part1(TextReader input) => ToTree(input).AllNodes().SelectMany(n => n.MetaData).Sum();
+        this.output = output;
+    }
 
-        public static int Part2(TextReader input) => ToTree(input).GetValue();
-
-        static Node ToTree(TextReader input)
+    Answer answer = JsonSerializer.Deserialize<Answer>(File.ReadAllText("answers.json"))!;
+    [Fact]
+    public void TestPart1()
+    {
+        if (answer.part1 is not null)
         {
-            var enumerator = input.ToIntegers().GetEnumerator();
-            var root = ReadNode(enumerator);
-            return root;
+            var result = AoC.Part1().Value;
+            if (result is null) throw new Exception("Puzzle 1 has an answer but no code");
+            Assert.Equal(answer.part1.ToString(), AoC.Part1().Value.ToString());
         }
-
-        static Node ReadNode(IEnumerator<int> enumerator)
+        else
         {
-            var nofchildren = enumerator.Next();
-            var nofmetadata = enumerator.Next();
-            var children = Enumerable.Range(0, nofchildren).Select(i => ReadNode(enumerator)).ToList();
-            var metadata = enumerator.Read(nofmetadata).ToList();
-            return new Node(children, metadata);
+            output.WriteLine("Puzzle 2 has not yet been answered");
         }
+    }
 
-        static T Next<T>(this IEnumerator<T> enumerator)
+    [Fact]
+    public void TestPart2()
+    {
+        if (answer.part2 is not null)
         {
-            enumerator.MoveNext();
-            return enumerator.Current;
+            var result = AoC.Part1().Value;
+            if (result is null) throw new Exception("Puzzle 1 has an answer but no code");
+            Assert.Equal(answer.part2.ToString(), AoC.Part2().Value.ToString());
         }
-
-        static IEnumerable<T> Read<T>(this IEnumerator<T> enumerator, int n) 
-            => Enumerable.Range(0, n).Select(i => enumerator.Next());
-
-        public static IEnumerable<int> ToIntegers(this TextReader input)
+        else
         {
-            var sb = new StringBuilder();
-            while (input.Peek() >= 0)
-            {
-                char c = (char)input.Read();
-                if (char.IsDigit(c))
-                {
-                    sb.Append(c);
-                }
-                else
-                {
-                    yield return int.Parse(sb.ToString());
-                    sb.Clear();
-                }
-            }
-            if (sb.Length > 0)
-                yield return int.Parse(sb.ToString());
+            output.WriteLine("Puzzle 2 has not yet been answered");
         }
+    }
+
+    internal static Result Run(Func<object> f)
+    {
+        var sw = Stopwatch.StartNew();
+        return new(f(), sw.Elapsed);
     }
 }

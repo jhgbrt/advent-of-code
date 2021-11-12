@@ -1,16 +1,15 @@
-﻿using Xunit;
-
+﻿
 using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
     static string[] lines = File.ReadAllLines("input.txt");
 
-    public static object Part1() => lines.Sum<string>(l => l.Length) - lines.Sum<string>(CountChars);
-    public static object Part2() => lines.Sum<string>(CountEscaped) - lines.Sum<string>(l => l.Length);
+    internal static Result Part1() => Run(() => lines.Sum<string>(l => l.Length) - lines.Sum<string>(CountChars));
+    internal static Result Part2() => Run(() => lines.Sum<string>(CountEscaped) - lines.Sum<string>(l => l.Length));
     static int CountChars(string s)
     {
         var n = 0;
@@ -40,9 +39,9 @@ static class AoC
 public class Tests
 {
     [Fact]
-    public void Test1() => Assert.Equal(1333, Part1());
+    public void Test1() => Assert.Equal(1333, Part1().Value);
     [Fact]
-    public void Test2() => Assert.Equal(2046, Part2());
+    public void Test2() => Assert.Equal(2046, Part2().Value);
 }
 
 

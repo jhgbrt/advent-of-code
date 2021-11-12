@@ -1,8 +1,3 @@
-using System;
-using System.IO;
-using System.Linq;
-using Xunit;
-
 namespace AdventOfCode
 {
     public class Specs
@@ -12,8 +7,8 @@ namespace AdventOfCode
         [Fact]
         public void TestPart1()
         {
-            Assert.Equal(2, new StringReader(input).ToIntegers().Last());
-            var result = AoC.Part1(new StringReader(input));
+            Assert.Equal(2, input.ToIntegers().Last());
+            var result = AoC.Part1(input);
             Assert.Equal(138, result);
         }
 
@@ -39,7 +34,7 @@ namespace AdventOfCode
         [Fact]
         public void TestPart2()
         {
-            var result = AoC.Part2(new StringReader(input));
+            var result = AoC.Part2(input);
             Assert.Equal(66, result);
         }
     }

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 public class Spinlock
 {
     public static (int index, IList<int> buffer) Find(int steps, int maxValue)

@@ -1,13 +1,11 @@
 ﻿using System.Collections.Immutable;
 
-using Xunit;
-
 using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
     static string[] input = File.ReadAllLines("input.txt");
     static ImmutableList<Instruction> instructions = (
@@ -27,8 +25,8 @@ static class AoC
         select instruction).ToImmutableList();
 
 
-    public static object Part1() => Run(instructions, 0);
-    public static object Part2() => Run(instructions, 1);
+    internal static Result Part1() => Run(() => Run(instructions, 0));
+    internal static Result Part2() => Run(() => Run(instructions, 1));
 
     static int Run(IReadOnlyCollection<Instruction> instructions, int a)
     {
@@ -52,9 +50,9 @@ static class AoC
 public class Tests
 {
     [Fact]
-    public void Test1() => Assert.Equal(255, Part1());
+    public void Test1() => Assert.Equal(255, Part1().Value);
     [Fact]
-    public void Test2() => Assert.Equal(334, Part2());
+    public void Test2() => Assert.Equal(334, Part2().Value);
 }
 
 interface Instruction 

@@ -1,7 +1,4 @@
-﻿using System.IO;
-using Xunit;
-
-namespace dance
+﻿namespace dance
 {
     public class Specs
     {

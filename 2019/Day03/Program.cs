@@ -1,27 +1,56 @@
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
+using static AoC;
+using static System.Math;
 
-namespace AdventOfCode
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
+
+partial class AoC
 {
-    static class Program
+    static string[] input = File.ReadAllLines("input.txt");
+
+    internal static Result Part1() => Run(() => Part1(input));
+    internal static Result Part2() => Run(() => Part2(input));
+    public static int Part1(string[] input)
     {
-        public static async Task Main()
+        var points = input[0].Points().ToHashSet();
+        var crossings = input[1].Points().Where(p => points.Contains(p));
+        return crossings.Min(x => Abs(x.x) + Abs(x.y));
+    }
+
+    public static int Part2(string[] input)
+    {
+        var points1 = input[0].Points().Select((p, i) => (p, steps: i + 1)).ToLookup(x => x.p, x => x.steps);
+        var points2 = input[1].Points().Select((p, i) => (p, steps: i + 1)).ToLookup(x => x.p, x => x.steps);
+        var crossings = points2.Select(p => p.Key).Where(p => points1.Contains(p));
+
+        var steps = crossings
+            .Select(p => points1[p].Min() + points2[p].Min())
+            .Min();
+
+        return steps;
+    }
+}
+static class Ex
+{ 
+    public static IEnumerable<(int x, int y)> Points(this string input)
+    {
+        (int x, int y) = (0, 0);
+        foreach (var item in input.Split(','))
         {
-            var lines = await File.ReadAllLinesAsync("input.txt");
-
-            Measure(() => AoC.Part1(lines));
-
-            Measure(() => AoC.Part2(lines));
+            Func<int, int, (int, int)> f = item[0] switch
+            {
+                'R' => (x, y) => (x + 1, y),
+                'L' => (x, y) => (x - 1, y),
+                'U' => (x, y) => (x, y + 1),
+                'D' => (x, y) => (x, y - 1),
+                _ => throw new Exception()
+            };
+            var d = int.Parse(item.AsSpan().Slice(1));
+            for (int i = 0; i < d; i++)
+            {
+                (x, y) = f(x, y);
+                yield return (x, y);
+            }
         }
-
-        static void Measure<T>(Func<T> f)
-        {
-            var sw = Stopwatch.StartNew();
-            var result = f();
-            Console.WriteLine($"result = {result} - {sw.Elapsed}");
-        }
-        
     }
 }

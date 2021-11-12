@@ -1,21 +1,12 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using Garbage;
 
-namespace Garbage
+using static AoC;
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
+
+partial class AoC
 {
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            Run(() => new GarbageProcessor().ProcessFile("input.txt"));
-        }
-
-        static void Run<T>(Func<T> f)
-        {
-            var stopwatch = Stopwatch.StartNew();
-            var result = f();
-            Console.WriteLine($"{result} in {stopwatch.Elapsed}");
-        }
-    }
+    internal static Result Part1() => Run(() => new GarbageProcessor().ProcessFile("input.txt").Score);
+    internal static Result Part2() => Run(() => new GarbageProcessor().ProcessFile("input.txt").GarbageCount);
 }
+

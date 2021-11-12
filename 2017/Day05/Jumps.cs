@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Jump
+﻿namespace Jump
 {
     public static class Jumps
     {

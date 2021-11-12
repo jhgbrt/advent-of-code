@@ -1,33 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using System.Collections.ObjectModel;
+
 using static System.Math;
+using static AoC;
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
 
-class Program
+partial class AoC
 {
-    static void Main(string[] args)
+    static ReadOnlyCollection<(string instruction, string arg1, string arg2)>? program = (
+        from line in File.ReadLines("input.txt")
+        let s = line.Split()
+        select (instruction: s[0], arg1: s[1], arg2: s[2])
+    ).ToList().AsReadOnly();
+
+    internal static Result Part1() => Run(() => Evaluate("abcdefgh".ToDictionary(c => c, _ => 0), program));
+
+    internal static Result Part2() => Run(() => Between(109900, 126900, 17).Count(NotPrime));
+
+    static bool NotPrime(int n) => !IsPrime(n);
+    static bool IsPrime(int n) => n != 1 && (n == 2 || n % 2 != 0 && Between(3, (int)Ceiling(Sqrt(n)), 2).All(i => n % i != 0));
+
+    static IEnumerable<int> Between(int lowerbound, int upperbound, int step)
     {
-        var program = (
-            from line in File.ReadLines("input.txt")
-            let s = line.Split()
-            select (instruction: s[0], arg1: s[1], arg2: s[2])
-        ).ToList().AsReadOnly();
-
-        Run(() => Evaluate("abcdefgh".ToDictionary(c => c, _ => 0), program));
-
-        Run(() => Between(109900, 126900, 17).Count(NotPrime));
-
-        bool NotPrime(int n) => !IsPrime(n);
-        bool IsPrime(int n) => n != 1 && (n == 2 || n % 2 != 0 && Between(3, (int) Ceiling(Sqrt(n)), 2).All(i => n % i != 0));
-
-        IEnumerable<int> Between(int lowerbound, int upperbound, int step)
-        {
-            for (var i = lowerbound; i <= upperbound; i += step) yield return i;
-        }
+        for (var i = lowerbound; i <= upperbound; i += step) yield return i;
     }
-
     private static int Evaluate(IDictionary<char, int> memory, IReadOnlyList<(string instruction, string arg1, string arg2)> program)
     {
         char Register(string s) => s[0];
@@ -70,11 +66,7 @@ class Program
         }
         return nofmultiplications;
     }
-
-    static void Run<T>(Func<T> f)
-    {
-        var sw = Stopwatch.StartNew();
-        var result = f();
-        Console.WriteLine($"{result} - {sw.Elapsed}");
-    }
 }
+
+
+

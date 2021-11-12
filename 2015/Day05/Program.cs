@@ -1,18 +1,15 @@
-﻿using System.Diagnostics;
-
-using Xunit;
-
+﻿
 using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
     static string[] input = File.ReadAllLines("input.txt");
 
-    public static object Part1() => input.Where(IsNice1).Count();
-    public static object Part2() => input.Where(IsNice2).Count();
+    internal static Result Part1() => Run(() => input.Where(IsNice1).Count());
+    internal static Result Part2() => Run(() => input.Where(IsNice2).Count());
 
     public static bool IsNice1(string s)
     {
@@ -53,10 +50,6 @@ static class AoC
 
 public class Tests
 {
-    [Fact]
-    public void Test1() => Assert.Equal(258, Part1());
-    [Fact]
-    public void Test2() => Assert.Equal(53, Part2());
 
     [Theory]
     [InlineData("ugknbfddgicrmopn", true)]

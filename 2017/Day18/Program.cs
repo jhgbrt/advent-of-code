@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using static AoC;
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
 
-class Program
+partial class AoC
 {
-    static void Main(string[] args)
-    {
-        string[] instructions = File.ReadAllLines("input.txt");
-        Run(() => new CPU1().Load(instructions).Run());
-        Run(() => Part2(instructions));
-    }
+    static string[] instructions = File.ReadAllLines("input.txt");
+    internal static Result Part1() => Run(() => new CPU1().Load(instructions).Run());
+    internal static Result Part2() => Run(() => Part2(instructions));
 
     private static int Part2(string[] instructions)
     {
@@ -29,11 +24,5 @@ class Program
         return cpu1.Sent;
     }
 
-    static void Run<T>(Func<T> f)
-    {
-        var sw = Stopwatch.StartNew();
-        var result = f();
-        Console.WriteLine($"{result} - {sw.Elapsed}");
-    }
 }
 

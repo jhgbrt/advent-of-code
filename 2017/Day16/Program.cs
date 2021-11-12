@@ -1,26 +1,18 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿
+using dance;
 
-namespace dance
+
+using static AoC;
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
+
+partial class AoC
 {
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            var dancer = new Dancer(new StreamReader("input.txt"));
-            var initial = "abcdefghijklmnop";
-            Run(() => dancer.Run(initial));
-            Run(() => dancer.Run(initial, 1000000000));
-        }
+    static Dancer? dancer = new Dancer(new StreamReader("input.txt"));
+    static string initial = "abcdefghijklmnop";
+    static int seedA = 722;    
+    internal static Result Part1() => Run(() => dancer.Run(initial));
+    internal static Result Part2() => Run(() => dancer.Run(initial, 1000000000));
 
-        static void Run<T>(Func<T> f)
-        {
-            var sw = Stopwatch.StartNew();
-            var result = f();
-            Console.WriteLine($"{result} - {sw.Elapsed}");
-        }
-
-
-    }
 }
+

@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-
 public class CPU1
 {
     private readonly Dictionary<char, long> _registers

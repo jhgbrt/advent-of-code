@@ -1,6 +1,4 @@
-﻿using Xunit;
-
-namespace Jump
+﻿namespace Jump
 {
     public class Specs
     {

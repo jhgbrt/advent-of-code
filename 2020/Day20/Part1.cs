@@ -1,16 +1,11 @@
-﻿using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using Xunit;
-using static Part1.AoC;
+﻿using static Part1.AoC;
 using System.Text.RegularExpressions;
 using System.Collections;
 namespace Part1;
 
 public static class Runner
 {
-    public static void Run()
+    public static object Run()
     {
         var input = ReadInput("input.txt").ToArray();
 
@@ -21,7 +16,7 @@ public static class Runner
                 where neighbors.Count() == 2
                 select tile.Id;
 
-        Console.WriteLine(q.Aggregate(1L, (x, y) => x * y));
+        return q.Aggregate(1L, (x, y) => x * y);
 
     }
 }

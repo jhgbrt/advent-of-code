@@ -1,6 +1,3 @@
-using Xunit;
-using Xunit.Abstractions;
-
 public class Tests
 {
     Grid grid;
@@ -45,7 +42,7 @@ public class Tests
         Assert.Equal(new Coordinate[] { new(3, 2), new(3, 3), new(3, 4), new(4, 2), new(4, 4), new(5, 2), new(5, 3), new(5, 4) }, grid.Neighbours(start).OrderBy(x => x.x).ThenBy(x => x.y));
     }
     [Fact]
-    public void Test1() => Assert.Equal(1061, AoC.Part1());
+    public void Test1() => Assert.Equal(1061, AoC.Part1().Value);
     [Fact]
-    public void Test2() => Assert.Equal(1006, AoC.Part2());
+    public void Test2() => Assert.Equal(1006, AoC.Part2().Value);
 }

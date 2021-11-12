@@ -1,14 +1,12 @@
 ﻿using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 
-using Xunit;
-
 using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
     static string[] lines = File.ReadAllLines("input.txt");
     static Regex regex = new Regex(@"Sue (?<number>\d+): (?<properties>.*)");
@@ -40,13 +38,13 @@ static class AoC
     }.ToImmutableDictionary();
 
 
-    public static int Part1() => (
+    internal static Result Part1() => Run(() => (
             from sue in sues
             where sue.properties.All(p => p.Value == list[p.Key])
             select sue
-            ).Single().number;
+            ).Single().number);
 
-    public static int Part2() => (
+    internal static Result Part2() => Run(() => (
             from sue in sues
             where sue.HasEqual("children", list)
             && sue.HasMore("cats", list)
@@ -59,15 +57,15 @@ static class AoC
             && sue.HasEqual("cars", list)
             && sue.HasEqual("perfumes", list)
             select sue
-            ).Single().number;
+            ).Single().number);
 }
 
 public class Tests
 {
     [Fact]
-    public void Test1() => Assert.Equal(213, Part1());
+    public void Test1() => Assert.Equal(213, Part1().Value);
     [Fact]
-    public void Test2() => Assert.Equal(323, Part2());
+    public void Test2() => Assert.Equal(323, Part2().Value);
 }
 
 record Sue(int number, IReadOnlyDictionary<string, int> properties)

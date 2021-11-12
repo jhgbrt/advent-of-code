@@ -1,48 +1,49 @@
-﻿using System.Linq;
+﻿record Result(object Value, TimeSpan Elapsed);
+record Answer(object? part1, object? part2);
 
-namespace AdventOfCode
+public partial class AoC
 {
-    static class AoC
+    ITestOutputHelper output;
+
+    public AoC(ITestOutputHelper output)
     {
-        public static (int, int, int) Part1(int sn)
-            => (
-                from x in Enumerable.Range(1, 300)
-                from y in Enumerable.Range(1, 300)
-                let p = GetSquarePower((x, y), sn)
-                orderby p descending
-                select (x, y, p)
-            ).First();
+        this.output = output;
+    }
 
-        public static (int, int, int, int) Part2(int sn)
+    Answer answer = JsonSerializer.Deserialize<Answer>(File.ReadAllText("answers.json"))!;
+    [Fact]
+    public void TestPart1()
+    {
+        if (answer.part1 is not null)
         {
-            var grid = (
-                from y in Enumerable.Range(1, 300)
-                from x in Enumerable.Range(1, 300)
-                let p = GetCellPower(x, y, sn)
-                select (x, y, p)
-            ).Aggregate(
-                new int[301,301], 
-                (sum, t) => { sum[t.y, t.x] = t.p + sum[t.y - 1, t.x] + sum[t.y, t.x - 1] - sum[t.y - 1, t.x - 1]; return sum; });
-
-            (int bx, int by, int bs, int best) = (
-                from s in Enumerable.Range(1, 300)
-                from y in Enumerable.Range(s, 300 - s + 1)
-                from x in Enumerable.Range(s, 300 - s + 1)
-                let p = grid[y, x] - grid[y - s, x] - grid[y, x - s] + grid[y - s, x - s]
-                orderby p descending
-                select (x, y, s, p)
-            ).First();
-
-            return (bx - bs + 1, by - bs + 1, bs, best);
+            var result = AoC.Part1().Value;
+            if (result is null) throw new Exception("Puzzle 1 has an answer but no code");
+            Assert.Equal(answer.part1.ToString(), AoC.Part1().Value.ToString());
         }
+        else
+        {
+            output.WriteLine("Puzzle 2 has not yet been answered");
+        }
+    }
 
-        public static int GetCellPower(int x, int y, int serialNumber) 
-            => ((x + 10) * y + serialNumber) * (x + 10) / 100 % 10 - 5;
+    [Fact]
+    public void TestPart2()
+    {
+        if (answer.part2 is not null)
+        {
+            var result = AoC.Part1().Value;
+            if (result is null) throw new Exception("Puzzle 1 has an answer but no code");
+            Assert.Equal(answer.part2.ToString(), AoC.Part2().Value.ToString());
+        }
+        else
+        {
+            output.WriteLine("Puzzle 2 has not yet been answered");
+        }
+    }
 
-        public static int GetSquarePower((int x, int y) location, int sn, int size = 3) 
-            => (from x in Enumerable.Range(location.x, size)
-                from y in Enumerable.Range(location.y, size)
-                select GetCellPower(x, y, sn)).Sum();
-
+    internal static Result Run(Func<object> f)
+    {
+        var sw = Stopwatch.StartNew();
+        return new(f(), sw.Elapsed);
     }
 }

@@ -1,27 +1,84 @@
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
+using static AoC;
 
-namespace AdventOfCode
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
+
+partial class AoC
 {
-    internal static class Program
+    static string[] input = File.ReadAllLines("input.txt");
+
+    internal static Result Part1() => Run(() => Part1(input));
+    internal static Result Part2() => Run(() => Part2(input));
+
+    public static int Part1(string[] input)
     {
-        public static async Task Main()
-        {
-            var lines = await File.ReadAllLinesAsync("input.txt");
+        var points = input.ToCoordinates().OrderBy(c => c.x).ThenBy(c => c.y);
+        var maxX = points.Max(c => c.x);
+        var maxY = points.Max(c => c.y);
+        var q = from location in Grid(maxX, maxY)
+                let cd = (
+                    from c in points
+                    let d = Math.Abs(c.x - location.x) + Math.Abs(c.y - location.y)
+                    orderby d
+                    group (c, d) by d
+                    )
+                let first = cd.First()
+                where first.Count() == 1
+                select (location, point: first.First().c, first.First().d);
 
-            Measure(() => AoC.Part1(lines));
+        var items = q.ToList();
 
-            Measure(() => AoC.Part2(lines));
-        }
+        var excluded = new HashSet<(int, int)>(
+                from item in items
+                where item.location.x == 0 || item.location.x == maxX || item.location.y == 0 || item.location.y == maxY
+                select item.point
+            );
 
-        private static void Measure<T>(Func<T> f)
-        {
-            var sw = Stopwatch.StartNew();
-            var result = f();
-            Console.WriteLine($"result = {result} - {sw.Elapsed}");
-        }
+        var largest = (
+            from item in items
+            where !excluded.Contains(item.point)
+            group item by item.point into x
+            select (coordinate: x.Key, area: x.Count()) into result
+            orderby result.area descending
+            select result
+                ).First();
 
+        return largest.area;
     }
+
+    public static int Part2(string[] input) => Part2(input, 10000);
+
+    public static int Part2(string[] input, int max)
+    {
+        var points = input.ToCoordinates().OrderBy(c => c.x).ThenBy(c => c.y);
+        var maxX = points.Max(c => c.x);
+        var maxY = points.Max(c => c.y);
+        var q = from location in Grid(maxX, maxY)
+                let d = (
+                    from point in points
+                    select Math.Abs(location.x - point.x) + Math.Abs(location.y - point.y)
+                ).Sum()
+                where d < max
+                select (location.x, location.y, d);
+
+        return q.Count();
+    }
+
+    private static IEnumerable<(int x, int y)> Grid(int maxX, int maxY) => from x in Enumerable.Range(0, maxX)
+                                                                           from y in Enumerable.Range(0, maxY)
+                                                                           select (x, y);
+
+}
+
+static class Ex
+{
+    private static readonly Regex _regex = new Regex(@"(\d+), (\d+)", RegexOptions.Compiled);
+    public static (int x, int y) ToCoordinate(this string input)
+    {
+        var match = _regex.Match(input);
+        return (int.Parse(match.Groups[1].Value), int.Parse(match.Groups[2].Value));
+    }
+
+    public static IEnumerable<(int x, int y)> ToCoordinates(this IEnumerable<string> input) => input.Select(ToCoordinate);
+
 }

@@ -1,10 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using Xunit;
+﻿using System.Collections.Immutable;
 
 namespace Registers
 {

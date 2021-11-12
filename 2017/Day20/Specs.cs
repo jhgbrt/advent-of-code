@@ -1,6 +1,3 @@
-using System.Linq;
-using Xunit;
-
 // pos(t) = p + vt + t(t+1)/2*a
 public class Specs
 {

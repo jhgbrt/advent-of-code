@@ -1,5 +1,3 @@
-using Xunit;
-
 enum ReadState
 {
     Begin,

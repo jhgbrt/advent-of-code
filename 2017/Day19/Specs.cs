@@ -1,6 +1,3 @@
-using System.Linq;
-using Xunit;
-
 public class Specs
 {
     private static string SampleMaze = "     |          \r\n" +

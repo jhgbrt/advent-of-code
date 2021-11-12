@@ -1,16 +1,15 @@
-﻿using Xunit;
-
+﻿
 using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
     static string input = "cqjxjnds";
 
-    public static object Part1() => Next(input);
-    public static object Part2() => Next(Next(input));
+    internal static Result Part1() => Run(() => Next(input));
+    internal static Result Part2() => Run(() => Next(Next(input)));
 
     static string Next(string password)
     {
@@ -56,9 +55,9 @@ static class AoC
 public class Tests
 {
     [Fact]
-    public void Test1() => Assert.Equal("cqjxxyzz", Part1());
+    public void Test1() => Assert.Equal("cqjxxyzz", Part1().Value);
     [Fact]
-    public void Test2() => Assert.Equal("cqkaabcc", Part2());
+    public void Test2() => Assert.Equal("cqkaabcc", Part2().Value);
 
     [Theory]
     [InlineData("abc", true)]

@@ -1,22 +1,11 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using ProgramTree;
 
-namespace ProgramTree
+using static AoC;
+
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
+partial class AoC
 {
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            Run(() => Tree.Parse(File.ReadAllText("input.txt")).Root.Label);
-            Run(() => Tree.Parse(File.ReadAllText("input.txt")).FindInvalidNode().RebalancingWeight);
-        }
-
-        static void Run<T>(Func<T> f)
-        {
-            var sw = Stopwatch.StartNew();
-            var result = f();
-            Console.WriteLine($"{result} - {sw.Elapsed}");
-        }
-    }
+    internal static Result Part1() => Run(() => Tree.Parse(File.ReadAllText("input.txt")).Root.Label);
+    internal static Result Part2() => Run(() => Tree.Parse(File.ReadAllText("input.txt")).FindInvalidNode().RebalancingWeight);
 }

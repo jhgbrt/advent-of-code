@@ -1,19 +1,17 @@
 ﻿using Newtonsoft.Json.Linq;
 
-using Xunit;
-
 using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
     static string input = File.ReadAllText("input.txt");
 
-    public static object Part1() => Traverse(Root(), false);
-    public static object Part2() => Traverse(Root(), true);
-    
+    internal static Result Part1() => Run(() => Traverse(Root(), false));
+    internal static Result Part2() => Run(() => Traverse(Root(), true));
+
     static JToken Root()
     {
         var jobject = JObject.Parse("{\"root\": " + input + "}");
@@ -34,8 +32,8 @@ static class AoC
 public class Tests
 {
     [Fact]
-    public void Test1() => Assert.Equal(191164, Part1());
+    public void Test1() => Assert.Equal(191164, Part1().Value);
     [Fact]
-    public void Test2() => Assert.Equal(87842, Part2());
+    public void Test2() => Assert.Equal(87842, Part2().Value);
 }
 

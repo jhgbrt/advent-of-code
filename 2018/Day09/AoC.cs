@@ -1,74 +1,49 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿record Result(object Value, TimeSpan Elapsed);
+record Answer(object? part1, object? part2);
 
-namespace AdventOfCode
+public partial class AoC
 {
-    static class AoC
-    {
-        public static long Part1(int players, long marbles)
-        {
-            var game = new Game(players);
-            game.Play(marbles); 
-            return game.HighScore();
-        }
+    ITestOutputHelper output;
 
-        public static long Part2(int players, long marbles) => Part1(players, marbles*100);
+    public AoC(ITestOutputHelper output)
+    {
+        this.output = output;
     }
 
-    class Game
+    Answer answer = JsonSerializer.Deserialize<Answer>(File.ReadAllText("answers.json"))!;
+    [Fact]
+    public void TestPart1()
     {
-        LinkedList<long> _marbles = new LinkedList<long>(new[] { 0L });
-        LinkedListNode<long> _current;
-        Dictionary<int, long> _scores = new Dictionary<int, long>();
-        private int _players;
-        private long _marble = 1;
-
-        public Game(int players)
+        if (answer.part1 is not null)
         {
-            _players = players;
-            _current = _marbles.First;
+            var result = AoC.Part1().Value;
+            if (result is null) throw new Exception("Puzzle 1 has an answer but no code");
+            Assert.Equal(answer.part1.ToString(), AoC.Part1().Value.ToString());
         }
-
-        public long CurrentMarble => _current.Value;
-        public int CurrentPlayer { get; private set; }
-
-        public void Play(long nofmarbles)
+        else
         {
-            var max = _marble + nofmarbles;
-            for (; _marble < max; _marble++)
-            {
-                CurrentPlayer = (CurrentPlayer % _players) + 1;
-                if (_marble % 23 == 0)
-                {
-                    var toremove = _current.CircularPrevious(7);
-                    AddScore(CurrentPlayer, _marble + toremove.Value);
-                    _current = toremove.CircularNext();
-                    _marbles.Remove(toremove);
-                }
-                else
-                {
-                    _current = _marbles.AddAfter(_current.CircularNext(), _marble);
-                }
-            }
+            output.WriteLine("Puzzle 2 has not yet been answered");
         }
-
-        public long this[int player] => _scores[player];
-
-        private void AddScore(int player, long score)
-        {
-            if (!_scores.ContainsKey(player)) _scores[player] = 0;
-            _scores[player] += score;
-        }
-
-        public long HighScore() => _scores.Values.Max();
     }
 
-    public static class LinkedListExt
+    [Fact]
+    public void TestPart2()
     {
-        public static LinkedListNode<T> CircularNext<T>(this LinkedListNode<T> current, int steps = 1) 
-            => Enumerable.Range(0, steps).Aggregate(current, (c, _) => c.Next ?? c.List.First);
+        if (answer.part2 is not null)
+        {
+            var result = AoC.Part1().Value;
+            if (result is null) throw new Exception("Puzzle 1 has an answer but no code");
+            Assert.Equal(answer.part2.ToString(), AoC.Part2().Value.ToString());
+        }
+        else
+        {
+            output.WriteLine("Puzzle 2 has not yet been answered");
+        }
+    }
 
-        public static LinkedListNode<T> CircularPrevious<T>(this LinkedListNode<T> current, int steps = 1)
-            => Enumerable.Range(0, steps).Aggregate(current, (c, _) => c.Previous ?? c.List.Last);
+    internal static Result Run(Func<object> f)
+    {
+        var sw = Stopwatch.StartNew();
+        return new(f(), sw.Elapsed);
     }
 }

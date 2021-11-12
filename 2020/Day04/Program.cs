@@ -1,16 +1,17 @@
-﻿using Microsoft.CodeAnalysis.CSharp;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using Xunit;
-using Xunit.Abstractions;
-using static AdventOfCode.Driver;
+﻿using AdventOfCode;
 
-Console.WriteLine(Part1("input.txt"));
-Console.WriteLine(Part2("input.txt"));
+using Microsoft.CodeAnalysis.CSharp;
+
+using static AoC;
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
+
+partial class AoC
+{
+    internal static Result Part1() => Run(() => Driver.Part1("input.txt"));
+    internal static Result Part2() => Run(() => Driver.Part2("input.txt"));
+}
+
 
 namespace AdventOfCode
 {
@@ -33,7 +34,8 @@ namespace AdventOfCode
                 log(c.ToCSharpLiteral());
                 (cb, Next) = Next(cb, c);
                 log(cb.ToString());
-                if (cb.IsComplete) yield return cb.ToCredential();
+                if (cb.IsComplete) 
+                    yield return cb.ToCredential();
 
             }
             yield return cb.RecordKeyValue().Finalize().ToCredential();
@@ -51,14 +53,14 @@ namespace AdventOfCode
         static (CredentialBuilder, TransitionFunc) OnValue(CredentialBuilder cb, char c) => c switch
         {
             ' ' => (cb.RecordKeyValue(), OnKey),
-            '\r' => (cb.RecordKeyValue(), OnFirstNewLine),
+            '\n' => (cb.RecordKeyValue(), OnFirstNewLine),
             _ => (cb.AppendToValue(c), OnValue)
         };
 
         static (CredentialBuilder, TransitionFunc) OnFirstNewLine(CredentialBuilder cb, char c) => c switch
         {
-            '\r' => (cb.Finalize(), OnAdditionalNewLine), // second newline
-            '\n' => (cb, OnFirstNewLine),
+            '\n' => (cb.Finalize(), OnAdditionalNewLine), // second newline
+            //'\n' => (cb, OnFirstNewLine),
             _ => (cb.AppendToKey(c), OnKey)
         };
 
@@ -174,9 +176,9 @@ namespace AdventOfCode
         }
 
         [Fact]
-        public void TestPart1() => Assert.Equal(2, Driver.Part1("example.txt"));
+        public void TestPart1() => Assert.Equal(2, Driver.Part1("sample.txt"));
         [Fact]
-        public void TestPart2() => Assert.Equal(2, Driver.Part2("example.txt"));
+        public void TestPart2() => Assert.Equal(2, Driver.Part2("sample.txt"));
         [Fact]
         public void TestPart2Valid() => Assert.Equal(4, Driver.Part2("valid.txt"));
         [Fact]

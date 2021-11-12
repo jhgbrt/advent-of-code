@@ -28,12 +28,17 @@ class LeaderboardRepository : ILeaderboardRepository
         }
         return null;
     }
-    public async Task PutAsync(LeaderBoard lb) => await File.WriteAllTextAsync(GetPath(lb.Year, lb.OwnerId), JsonSerializer.Serialize(lb, options));
-
-    private string GetPath(int year, int day)
+    public async Task PutAsync(LeaderBoard lb)
     {
-        var dir = Path.Combine(directory.FullName, $"{year}", $"{day:00}");
+        var path = GetPath(lb.Year, lb.OwnerId);
+        Console.WriteLine(path);
+        await File.WriteAllTextAsync(path, JsonSerializer.Serialize(lb, options));
+    }
+
+    private string GetPath(int year, int id)
+    {
+        var dir = Path.Combine(directory.FullName, $"{year}");
         if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
-        return Path.Combine(dir, $"{year}-{day:00}.json");
+        return Path.Combine(dir, $"{id:00}.json");
     }
 }

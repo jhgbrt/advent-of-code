@@ -1,6 +1,4 @@
-﻿using Xunit;
-
-namespace hexgrid
+﻿namespace hexgrid
 {
     public class Specs
     {

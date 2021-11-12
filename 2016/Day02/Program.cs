@@ -1,27 +1,18 @@
-using System.Diagnostics;
 using System.Text;
-
-using Xunit;
 
 using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
     static bool test = false;
-    public static string[] input = File.ReadAllLines(test ? "sample.txt" : "input.txt");
+    public static string[] input = File.ReadAllLines(test ? "sample.txt" : "input.txt").Where(l => !string.IsNullOrEmpty(l)).ToArray();
 
-    public static Result<string> Part1() => Run(1, () => GetCode(input, keypad1));
-    public static Result<string> Part2() => Run(2, () => GetCode(input, keypad2));
+    internal static Result Part1() => Run(() => GetCode(input, keypad1));
+    internal static Result Part2() => Run(() => GetCode(input, keypad2));
 
-    static Result<T> Run<T>(int part, Func<T> f)
-    {
-        var sw = Stopwatch.StartNew();
-        var result = f();
-        return new(result, sw.Elapsed);
-    }
     internal static readonly Keypad keypad1 = new (new char?[,] {
                 { '1', '2', '3'},
                 { '4', '5', '6'},
@@ -112,4 +103,3 @@ public record struct Coordinate(int Row, int Column)
         _ => throw new InvalidOperationException(),
     };
 }
-readonly record struct Result<T>(T Value, TimeSpan Elapsed);

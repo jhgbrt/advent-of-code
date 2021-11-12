@@ -1,19 +1,16 @@
-﻿using System.Diagnostics;
-using Xunit;
-using static AoC;
+﻿using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
 static class AoC
 {
-    static bool test = false;
-    public static string[] input = File.ReadAllLines(test ? "sample.txt" : "input.txt");
+    public static string[] input = File.ReadAllLines("input.txt");
 
-    public static Result<int> Part1() => Run(1, () => -1);
-    public static Result<int> Part2() => Run(2, () => -1);
+    public static Result Part1() => Run(() => null);
+    public static Result Part2() => Run(() => null);
 
-    static Result<T> Run<T>(int part, Func<T> f)
+    static Result Run(Func<object> f)
     {
         var sw = Stopwatch.StartNew();
         var result = f();
@@ -21,12 +18,3 @@ static class AoC
     }
 }
 
-public class Tests
-{
-    [Fact]
-    public void Test1() => Assert.Equal(-1, Part1().Value);
-    [Fact]
-    public void Test2() => Assert.Equal(-1, Part2().Value);
-}
-
-readonly record struct Result<T>(T Value, TimeSpan Elapsed);

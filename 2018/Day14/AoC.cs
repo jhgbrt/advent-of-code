@@ -1,81 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿record Result(object Value, TimeSpan Elapsed);
+record Answer(object? part1, object? part2);
 
-namespace AdventOfCode
+public partial class AoC
 {
-    static class AoC
+    ITestOutputHelper output;
+
+    public AoC(ITestOutputHelper output)
     {
-        public static long Part1(int n)
+        this.output = output;
+    }
+
+    Answer answer = JsonSerializer.Deserialize<Answer>(File.ReadAllText("answers.json"))!;
+    [Fact]
+    public void TestPart1()
+    {
+        if (answer.part1 is not null)
         {
-            int i = 0;
-            int j = 1;
-            var recipes = new List<int> { 3, 7 };
-            while (recipes.Count < (n + 10))
-            {
-                var sum = recipes[i] + recipes[j];
-                recipes.AddRange(sum.GetDigits().Reverse());
-                i = (i + 1 + recipes[i]) % recipes.Count;
-                j = (j + 1 + recipes[j]) % recipes.Count;
-            }
-
-            return (
-                from x in Enumerable.Range(0, 10)
-                let p = (long)Math.Pow(10, 10 - x - 1)
-                let r = recipes[n + x]
-                select p * r
-             ).Sum();
+            var result = AoC.Part1().Value;
+            if (result is null) throw new Exception("Puzzle 1 has an answer but no code");
+            Assert.Equal(answer.part1.ToString(), AoC.Part1().Value.ToString());
         }
-
-
-        public static int Part2(int input)
+        else
         {
-            var digits = input.GetDigits().Reverse().ToArray();
-            while (digits.Length < 5) digits = new[] { 0 }.Concat(digits).ToArray();
-
-            int index = 0;
-            int offset = 0;
-            bool found = false;
-            int i = 0;
-            int j = 1;
-            var recipes = new List<int> { 3, 7 };
-            while (!found)
-            {
-                int sum = recipes[i] + recipes[j];
-                recipes.AddRange(sum.GetDigits().Reverse());
-
-                i = (i + 1 + recipes[i]) % recipes.Count;
-                j = (j + 1 + recipes[j]) % recipes.Count;
-
-                if (recipes.Count < digits.Length) continue;
-
-                while (!found && index + offset < recipes.Count)
-                {
-                    if (digits[offset] == recipes[index + offset])
-                    {
-                        if (offset < 4)
-                            offset++;
-                        else
-                            found = true;
-                    }
-                    else
-                    {
-                        offset = 0;
-                        index++;
-                    }
-                }
-            }
-            return recipes.Count - 5;
+            output.WriteLine("Puzzle 2 has not yet been answered");
         }
+    }
 
-        public static IEnumerable<int> GetDigits(this int num)
+    [Fact]
+    public void TestPart2()
+    {
+        if (answer.part2 is not null)
         {
-            if (num == 0) yield return 0;
-            while (num > 0)
-            {
-                yield return num % 10;
-                num = num / 10;
-            }
+            var result = AoC.Part1().Value;
+            if (result is null) throw new Exception("Puzzle 1 has an answer but no code");
+            Assert.Equal(answer.part2.ToString(), AoC.Part2().Value.ToString());
         }
+        else
+        {
+            output.WriteLine("Puzzle 2 has not yet been answered");
+        }
+    }
+
+    internal static Result Run(Func<object> f)
+    {
+        var sw = Stopwatch.StartNew();
+        return new(f(), sw.Elapsed);
     }
 }

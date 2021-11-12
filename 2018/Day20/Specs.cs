@@ -1,8 +1,3 @@
-using System;
-using System.Linq;
-using System.Text.RegularExpressions;
-using Xunit;
-
 namespace AdventOfCode
 {
     public class Specs

@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Xunit;
-
-namespace ProgramTree
+﻿namespace ProgramTree
 {
     public class Tests
     {

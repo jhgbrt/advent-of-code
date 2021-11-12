@@ -1,32 +1,49 @@
-﻿using QuickGraph;
-using QuickGraph.Algorithms;
-using System.Linq;
+﻿record Result(object Value, TimeSpan Elapsed);
+record Answer(object? part1, object? part2);
 
-namespace AdventOfCode
+public partial class AoC
 {
-    static class AoC
+    ITestOutputHelper output;
+
+    public AoC(ITestOutputHelper output)
     {
-        public static int Part1(string[] input)  
+        this.output = output;
+    }
+
+    Answer answer = JsonSerializer.Deserialize<Answer>(File.ReadAllText("answers.json"))!;
+    [Fact]
+    public void TestPart1()
+    {
+        if (answer.part1 is not null)
         {
-            var graph = input.CreateGraph();
-            return graph.Vertices
-                .Select(v => graph.CountDistance("COM", v))
-                .Sum();
+            var result = AoC.Part1().Value;
+            if (result is null) throw new Exception("Puzzle 1 has an answer but no code");
+            Assert.Equal(answer.part1.ToString(), AoC.Part1().Value.ToString());
         }
+        else
+        {
+            output.WriteLine("Puzzle 2 has not yet been answered");
+        }
+    }
 
-        public static int Part2(string[] input) 
-            => input.CreateGraph().CountDistance("YOU", "SAN") - 2;
+    [Fact]
+    public void TestPart2()
+    {
+        if (answer.part2 is not null)
+        {
+            var result = AoC.Part1().Value;
+            if (result is null) throw new Exception("Puzzle 1 has an answer but no code");
+            Assert.Equal(answer.part2.ToString(), AoC.Part2().Value.ToString());
+        }
+        else
+        {
+            output.WriteLine("Puzzle 2 has not yet been answered");
+        }
+    }
 
-
-        public static IUndirectedGraph<string, SEdge<string>> CreateGraph(this string[] input)
-            => input
-                .Select(s => s.Split(')'))
-                .Select(s => new SEdge<string>(s[0], s[1]))
-                .ToUndirectedGraph<string, SEdge<string>>();
-
-        public static int CountDistance(this IUndirectedGraph<string, SEdge<string>> graph, string from, string to) 
-            => !graph.ShortestPathsDijkstra(e => 1, from)(to, out var edges) ? 0 : edges.Count();
-
-
+    internal static Result Run(Func<object> f)
+    {
+        var sw = Stopwatch.StartNew();
+        return new(f(), sw.Elapsed);
     }
 }

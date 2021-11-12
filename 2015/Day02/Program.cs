@@ -1,33 +1,22 @@
 ﻿
-using Xunit;
+using static AoC;
 
-Console.WriteLine(await Run.Part1());
-Console.WriteLine(await Run.Part2());
-
-
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
 
 
-static class Run
+partial class AoC
 {
     static string input = File.ReadAllText("input.txt");
-    public static async Task<object> Part1()
-    {
-        var surface = await GetDimensions().SumAsync(d => d.WrappingPaperSurface);
-        return surface;
-    }
-    public static async Task<object> Part2()
-    {
-        var length = await GetDimensions().SumAsync(d => d.RibbonLength);
-        return length;
-    }
+    internal static Result Part1() => Run(() => GetDimensions().Sum(d => d.WrappingPaperSurface));
+    internal static Result Part2() => Run(() => GetDimensions().Sum(d => d.RibbonLength));
 
-
-    static async IAsyncEnumerable<Dimension> GetDimensions()
+    static IEnumerable<Dimension> GetDimensions()
     {
         using var reader = new StreamReader("input.txt");
         while (reader.Peek() >= 0)
         {
-            string line = (await reader.ReadLineAsync())!;
+            string line = reader.ReadLine()!;
             var array = line.Split('x');
             var d = new Dimension(int.Parse(array[0]), int.Parse(array[1]), int.Parse(array[2]));
             yield return d;
@@ -53,20 +42,5 @@ static class Run
             yield return w * h;
             yield return h * l;
         }
-    }
-}
-
-
-public class Tests
-{
-    [Fact]
-    public async Task TestPart1()
-    {
-        Assert.Equal(1606483, await Run.Part1());
-    }
-    [Fact]
-    public async Task TestPart2()
-    {
-        Assert.Equal(3842356, await Run.Part2());
     }
 }

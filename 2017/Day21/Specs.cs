@@ -1,7 +1,3 @@
-using System;
-using System.Linq;
-using Xunit;
-
 public class Specs
 {
     [Theory]
@@ -74,24 +70,5 @@ public class Specs
         Assert.Equal(s, string.Join(Environment.NewLine, result.FromRectangular()));
 
     }
-
-    public void Step1()
-    {
-        var rules = "../.. => .##/#../..#\r\n" +
-                    "#./.. => .##/#../###\r\n" +
-                    "##/.. => ..#/#.#/#..\r\n" +
-                    ".#/#. => #../#../.#.\r\n" +
-                    "##/#. => .#./#../#..\r\n" +
-                    "##/## => .##/.../.##".ReadLines().Select(Rule.Parse).ToArray();
-
-        var input = ".#.#\r\n" +
-                    "#...\r\n" +
-                    "..#.\r\n" +
-                    "#.##".ReadLines().ToRectangular();
-
-        //var match = rules.First(rule => input.Squares(2).All(rule.IsMatch));
-
-    }
-
 
 }

@@ -1,10 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-
-class Part1
+﻿class Part1
 {
-    public static void Run()
+    public static int Run()
     {
         var input = from line in File.ReadLines("input.txt")
                     let c = line[0]
@@ -13,7 +9,7 @@ class Part1
 
         var result = input.Aggregate(new State(0, 0, 90), (state, item) => state.Apply(item.c, item.i));
 
-        Console.WriteLine(result.Distance);
+        return result.Distance;
 
     }
     record State(int X, int Y, int Bearing)

@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using Xunit;
-
-namespace Knots
+﻿namespace Knots
 {
     public class Specs
     {

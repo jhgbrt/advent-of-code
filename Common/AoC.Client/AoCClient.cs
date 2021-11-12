@@ -27,18 +27,29 @@ class AoCClient : IDisposable
         (var statusCode, var content) = await GetAsync($"{year}-{id}.json", $"{year}/leaderboard/private/view/{id}.json", usecache);
         if (statusCode != HttpStatusCode.OK || content.StartsWith("<")) 
             return null;
-        return Deserialize(content);
+        return Deserialize(year, content);
     }
 
-    private LeaderBoard Deserialize(string content)
+    private LeaderBoard Deserialize(int year, string content)
     {
         var jobject = JsonDocument.Parse(content).RootElement;
-        var enumerator = jobject.EnumerateObject();
-        enumerator.MoveNext();
-        var ownerid = int.Parse(enumerator.Current.Value.GetString()!);
-        enumerator.MoveNext();
-        var members = GetMembers(enumerator.Current.Value);
-        var lb = new LeaderBoard(ownerid, 2020, members.ToArray());
+
+        int ownerid = -1;
+        IEnumerable<Member>? members = Enumerable.Empty<Member>();
+        foreach(var p in jobject.EnumerateObject())
+        {
+            switch (p.Name)
+            {
+                case "owner_id":
+                    ownerid = int.Parse(p.Value.GetString()!);
+                    break;
+                case "members":
+                    members = GetMembers(p.Value);
+                    break;
+            }
+        }
+
+        var lb = new LeaderBoard(ownerid, year, members.ToArray());
         return lb;
 
         IEnumerable<Member> GetMembers(JsonElement element)
@@ -112,13 +123,20 @@ class AoCClient : IDisposable
         return (HttpStatusCode.OK, content);
     }
 
+    public async Task<string> GetPuzzleInputAsync(int year, int day)
+    {
+        (var statusCode, var input) = await GetAsync($"{year}-{day}-input.txt", $"{year}/day/{day}/input", true);
+        if (statusCode != HttpStatusCode.OK) return string.Empty;
+        return input;
+    }
+
     public async Task<Puzzle> GetPuzzleAsync(int year, int day, bool usecache = true)
     {
         HttpStatusCode statusCode;
         (statusCode, var html) = await GetAsync($"{year}-{day}.html", $"{year}/day/{day}", usecache);
         if (statusCode != HttpStatusCode.OK) return Puzzle.Locked(year, day);
 
-        (statusCode, var input) = await GetAsync($"{year}-{day}-input.txt", $"{year}/day/{day}/input", usecache);
+        var input = await GetPuzzleInputAsync(year, day);
 
         var document = new HtmlDocument();
         document.LoadHtml(html);

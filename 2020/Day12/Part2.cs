@@ -1,12 +1,9 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-
+﻿
 using static System.Math;
 
 class Part2
 {
-    public static void Run()
+    public static int Run()
     {
 
         var input = from line in File.ReadLines("input.txt")
@@ -15,7 +12,7 @@ class Part2
                     select (c, i);
 
         var result = input.Aggregate(new State(0, 0, new(10, 1)), (state, item) => state.Apply(item.c, item.i));
-        Console.WriteLine(result.Distance);
+        return result.Distance;
     }
     record Waypoint(int X, int Y)
     {

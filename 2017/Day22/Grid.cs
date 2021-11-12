@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-
-class Grid
+﻿class Grid
 {
     enum Direction
     {

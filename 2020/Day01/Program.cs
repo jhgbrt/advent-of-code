@@ -1,26 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using static AoC;
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
 
-using Xunit;
-
-
-var numbers = await "input.txt".LinesToNumbers();
-
-var result1 = Execute(() => numbers.Part1());
-var result2 = Execute(() => numbers.Part2());
-
-Console.WriteLine(result1);
-Console.WriteLine(result2);
-
-static (T, TimeSpan) Execute<T>(Func<T> f)
+partial class AoC
 {
-    var sw = Stopwatch.StartNew();
-    var t = f();
-    return (t, sw.Elapsed);
+    static string[] input = File.ReadAllLines("input.txt");
+    static int[] numbers = input.Select(int.Parse).ToArray();
+
+    internal static Result Part1() => Run(() => numbers.Part1());
+    internal static Result Part2() => Run(() => numbers.Part2());
+
 }
 
 
@@ -71,7 +60,7 @@ namespace AdventOfCode
         [Fact]
         async Task TestPart1()
         {
-            var numbers = (await "example.txt".LinesToNumbers()).ToList();
+            var numbers = (await "sample.txt".LinesToNumbers()).ToList();
             var result = numbers.Part1();
             Assert.Equal(514579, result);
         }
@@ -86,7 +75,7 @@ namespace AdventOfCode
         [Fact]
         async Task TestPart2()
         {
-            var numbers = (await "example.txt".LinesToNumbers()).ToList();
+            var numbers = (await "sample.txt".LinesToNumbers()).ToList();
             var result = numbers.Part2();
             Assert.Equal(241861950, result);
         }

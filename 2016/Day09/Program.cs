@@ -1,21 +1,17 @@
-﻿using System.Diagnostics;
-
-using Xunit;
-
+﻿
 using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
-    static bool test = false;
-    public static string input = File.ReadAllText(test ? "sample.txt" : "input.txt");
+    public static string input = File.ReadLines("input.txt").First();
 
-    public static Result<long> Part1() => Run(1, () => input.GetDecompressedSize(0));
-    public static Result<long> Part2() => Run(2, () => input.GetDecompressedSize2(0, input.Length));
+    internal static Result Part1() => Run(() => input.GetDecompressedSize(0));
+    internal static Result Part2() => Run(() => input.GetDecompressedSize2(0, input.Length));
 
-    static Result<T> Run<T>(int part, Func<T> f)
+    static Result Run<T>(int part, Func<T> f)
     {
         var sw = Stopwatch.StartNew();
         var result = f();
@@ -26,9 +22,9 @@ static class AoC
 public class Tests
 {
     [Fact]
-    public void Test1() => Assert.Equal(99145, Part1().Value);
+    public void Test1() => Assert.Equal(99145L, Part1().Value);
     [Fact]
-    public void Test2() => Assert.Equal(10943094568, Part2().Value);
+    public void Test2() => Assert.Equal(10943094568L, Part2().Value);
 
     [Theory]
     [InlineData("ADVENT", "ADVENT")]
@@ -56,7 +52,7 @@ public class Tests
     }
 }
 
-readonly record struct Result<T>(T Value, TimeSpan Elapsed);
+
 
 public static class Extensions
 {

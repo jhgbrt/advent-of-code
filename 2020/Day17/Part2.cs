@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
+﻿using System.Collections.Immutable;
 using System.Text;
-
-using Xunit;
 namespace Part2;
 using static State;
 
 public static class Runner
 {
-    public static void Run()
+    public static int Run()
     {
         var grid = Grid.FromFile(@"input.txt");
 
@@ -20,7 +14,7 @@ public static class Runner
             grid = grid.Cycle();
         }
 
-        Console.WriteLine(grid.ActiveCells.Count);
+        return grid.ActiveCells.Count;
 
     }
 }

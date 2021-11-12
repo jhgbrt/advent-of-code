@@ -1,9 +1,7 @@
-﻿using System;
-using System.Linq;
-namespace Part2;
+﻿namespace Part2;
 public static class Runner
 {
-    public static void Run()
+    public static object Run()
     {
         var input = "158937462".Select(c => (int)char.GetNumericValue(c)).ToArray();
 
@@ -40,7 +38,7 @@ public static class Runner
         }
 
         node = linkedlist.NodeAt(1);
-        Console.WriteLine((long)node.Value * node.Next.Value);
+        return (long)node.Value * node.Next.Value;
 
     }
 }

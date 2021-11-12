@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 class MazeRunner
 {
     private enum Direction { Up, Down, Left, Right }

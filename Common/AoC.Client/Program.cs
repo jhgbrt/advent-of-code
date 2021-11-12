@@ -1,23 +1,21 @@
 ﻿
-using Ardalis.GuardClauses;
-
 using Microsoft.Extensions.Configuration;
 
 using NodaTime;
 
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.Text;
+using System.Text.Json;
 
 interface IYearDay
 {
     int? year { get; }
     int? day { get; } 
 }
-record CommonOptions(int? year, int? day, DirectoryInfo? dir) : IYearDay { }
-record UpdateCacheOptions(bool? force, DirectoryInfo? dir, int? leaderboardId);
-record PuzzleCommandOptions(int? year, int? day, DirectoryInfo? dir) : CommonOptions(year, day, dir);
-record LeaderBoardOptions(int year, int id, DirectoryInfo? dir);
-
+record UpdateCacheOptions(bool? force, int? leaderboardId);
+record PuzzleCommandOptions(int? year, int? day, bool force);
+record LeaderBoardOptions(int year, int id);
 class Program
 {
     static readonly IClock Clock = SystemClock.Instance;
@@ -35,8 +33,6 @@ class Program
 
         Command puzzle = new Command("puzzle")
         {
-            CreateCommand<PuzzleCommandOptions>("show-answers", ShowAnswers),
-            CreateCommand<PuzzleCommandOptions>("show-status", ShowStatus),
             CreateCommand<PuzzleCommandOptions>("get", GetPuzzle),
         };
 
@@ -55,36 +51,29 @@ class Program
         return 0;
     }
 
-    private static async Task GetPuzzle(int y, int d, CommonOptions yd)
+    private static async Task GetPuzzle(PuzzleCommandOptions options)
     {
-        var dir = yd.dir ?? new DirectoryInfo(Directory.GetCurrentDirectory());
-        var repo = CreatePuzzleRepository(dir);
-        var result = await repo.GetAsync(y, d);
-        Console.WriteLine(result);
-    }    
+        var client = CreateClient();
+        foreach ((var y, var d) in GetDays(options.year, options.day))
+        {
+            Console.WriteLine($"{y}/{d:00}");
+            var result = await client.GetPuzzleAsync(y, d, !options.force);
 
-    private static async Task ShowAnswers(int y, int d, CommonOptions yd)
-    {
-        var dir = yd.dir ?? new DirectoryInfo(Directory.GetCurrentDirectory());
-        var repo = CreatePuzzleRepository(dir);
-        var result = await repo.GetAsync(y, d);
-        if (result == null) return;
-        Console.WriteLine($"{y};{d:00};{result.Answer.part1};{result.Answer.part2}");
-    }
-    private static async Task ShowStatus(int y, int d, CommonOptions yd)
-    {
-        var dir = yd.dir ?? new DirectoryInfo(Directory.GetCurrentDirectory());
-        var repo = CreatePuzzleRepository(dir);
-        var result = await repo.GetAsync(y, d);
-        Console.WriteLine($"{y};{d:00};{result?.Status};{result?.Unanswered}");
-    }
+            if (result == null)
+                return;
+
+            var target = Solution(y, d);
+            if (!target.Exists) target.Create();
+
+            await File.WriteAllTextAsync(Path.Combine(target.FullName, "input.txt"), result.Input, Encoding.ASCII);
+            await File.WriteAllTextAsync(Path.Combine(target.FullName, "answers.json"), JsonSerializer.Serialize(result.Answer));
+        }
+    }    
 
     private static async Task UpdateCache(UpdateCacheOptions ydf)
     {
-        var dir = ydf.dir ?? new DirectoryInfo(Directory.GetCurrentDirectory());
-
-        var updatepuzzlecache = UpdatePuzzleCache(ydf.force ?? false, dir);
-        var updateleaderboardcache = ydf.leaderboardId.HasValue ? UpdateLeaderBoardCache(ydf.force ?? false, ydf.leaderboardId.Value, dir) : Task.CompletedTask;
+        var updatepuzzlecache = UpdatePuzzleCache(ydf.force ?? false);
+        var updateleaderboardcache = ydf.leaderboardId.HasValue ? UpdateLeaderBoardCache(ydf.force ?? false, ydf.leaderboardId.Value) : Task.CompletedTask;
 
         await Task.WhenAll(
             updatepuzzlecache,
@@ -92,10 +81,10 @@ class Program
             );
     }
 
-    private static async Task UpdatePuzzleCache(bool force, DirectoryInfo dir)
+    private static async Task UpdatePuzzleCache(bool force)
     {
-        var puzzleRepo = CreatePuzzleRepository(dir);
-        var client = CreateClient(dir);
+        var puzzleRepo = CreatePuzzleRepository();
+        var client = CreateClient();
         foreach ((var y, var d ) in GetDays(null, null))
         {
             var puzzle = await puzzleRepo.GetAsync(y, d);
@@ -108,10 +97,10 @@ class Program
         }
     }
 
-    private static async Task UpdateLeaderBoardCache(bool force, int id, DirectoryInfo dir)
+    private static async Task UpdateLeaderBoardCache(bool force, int id)
     {
-        var leaderboardRepo = CreateLeaderBoardRepository(dir);
-        var client = CreateClient(dir);
+        var leaderboardRepo = CreateLeaderBoardRepository();
+        var client = CreateClient();
 
         for (var year = MinYear; year <= MaxYear; year++)
         {
@@ -129,13 +118,13 @@ class Program
 
     private static async Task GetLeaderBoard(LeaderBoardOptions o)
     {
-        var repo = new LeaderboardRepository(o.dir ?? new DirectoryInfo(Directory.GetCurrentDirectory()));
+        var repo = CreateLeaderBoardRepository();
         var result = await repo.GetAsync(o.year, o.id);
         Console.WriteLine(result);
     }
     private static async Task ReportLeaderBoard(LeaderBoardOptions o)
     {
-        var repo = new LeaderboardRepository(o.dir ?? new DirectoryInfo(Directory.GetCurrentDirectory()));
+        var repo = CreateLeaderBoardRepository();
         var result = await repo.GetAsync(o.year, o.id);
 
         Console.WriteLine("name;stars");
@@ -161,32 +150,11 @@ class Program
         return command;
     }
 
-    static Command CreateCommand<TOptions>(string name, Func<int, int, TOptions, Task> handler) where TOptions : IYearDay
-    {
-        var command = new Command(name);
-        foreach (var option in GetOptionsFor<TOptions>())
-        {
-            option.IsRequired = false;
-            command.AddOption(option);
-        }
-        command.Handler = CreateHandler(handler);
-        return command;
-    }
-
     static ICommandHandler CreateHandler<T>(Func<T, Task> action) 
     {
         return CommandHandler.Create<T>(async options =>
         {
                 await action(options);
-        });
-    }
-
-    static ICommandHandler CreateHandler<T>(Func<int, int, T, Task> action) where T : IYearDay
-    {
-        return CommandHandler.Create<T>(async options =>
-        {
-            foreach ((var year, var day) in GetDays(options.year, options.day))
-                await action(year, day, options);
         });
     }
 
@@ -235,18 +203,21 @@ class Program
         };
     }
 
-    static AoCClient CreateClient(DirectoryInfo baseDirectory)
+    static AoCClient CreateClient()
     {
         var config = new ConfigurationBuilder()
             .AddUserSecrets<Program>()
             .Build();
         var cookieValue = config["AOC_SESSION"];
         var baseAddress = new Uri("https://adventofcode.com");
-        return new AoCClient(baseAddress, cookieValue, baseDirectory.GetDirectories("cache").Single());
+        return new AoCClient(baseAddress, cookieValue, Cache);
     }
 
-    static IPuzzleRepository CreatePuzzleRepository(DirectoryInfo baseDirectory) => new PuzzleRepository(baseDirectory.GetDirectories("db").Single());
-    static ILeaderboardRepository CreateLeaderBoardRepository(DirectoryInfo baseDirectory) => new LeaderboardRepository(baseDirectory.GetDirectories("db").Single());
+    static DirectoryInfo Solution(int year, int day)=> new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), year.ToString(), $"Day{day:00}"));
+    static DirectoryInfo Db => new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "Common", "content", "db"));
+    static DirectoryInfo Cache => new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "Common", "content", "cache"));
+    static IPuzzleRepository CreatePuzzleRepository() => new PuzzleRepository(Db);
+    static ILeaderboardRepository CreateLeaderBoardRepository() => new LeaderboardRepository(Db);
 }
 
 

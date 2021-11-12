@@ -1,15 +1,17 @@
-﻿using Xunit;
-
+﻿
 using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
     static int input = 34000000;
 
-    public static int Part1()
+    internal static Result Part1() => Run(() => Part1Impl());
+    internal static Result Part2() => Run(() => Part2Impl());
+
+    public static int Part1Impl()
     {
         var result = from house in Enumerable.Range(1, input)
                      let presents = (
@@ -21,7 +23,7 @@ static class AoC
                      select (house, presents);
         return result.First(x => x.presents >= input).house;
     }
-    public static int Part2()
+    public static int Part2Impl()
     {
         var deliverycount = new Dictionary<int, int>();
         foreach (int house in Enumerable.Range(1, input))
@@ -61,9 +63,9 @@ static class AoC
 public class Tests
 {
     [Fact]
-    public void Test1() => Assert.Equal(786240, Part1());
+    public void Test1() => Assert.Equal(786240, Part1Impl());
     [Fact]
-    public void Test2() => Assert.Equal(831600, Part2());
+    public void Test2() => Assert.Equal(831600, Part2Impl());
 }
 
 

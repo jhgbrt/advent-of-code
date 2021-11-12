@@ -1,12 +1,14 @@
-﻿using Xunit;
-
+﻿
 using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
+    internal static Result Part1() => Run(() => Part1Impl());
+    internal static Result Part2() => Run(() => Part2Impl());
+
     static Catalog catalog = new()
     {
         Weapons = new Weapon[]
@@ -36,13 +38,13 @@ static class AoC
         }
     };
 
-    public static int Part1() => (
+    public static int Part1Impl() => (
         from items in catalog.Scenarios()
         let player = new Player(100, items.Sum(i => i.damage), items.Sum(i => i.armor))
         where Play(player, new Player(104, 8, 1))
         select items.Sum(i => i.cost)
     ).Min();
-    public static int Part2() => (
+    public static int Part2Impl() => (
         from items in catalog.Scenarios()
         let player = new Player(100, items.Sum(i => i.damage), items.Sum(i => i.armor))
         where !Play(player, new Player(104, 8, 1))
@@ -63,9 +65,9 @@ static class AoC
 public class Tests
 {
     [Fact]
-    public void Test1() => Assert.Equal(78, Part1());
+    public void Test1() => Assert.Equal(78, Part1Impl());
     [Fact]
-    public void Test2() => Assert.Equal(148, Part2());
+    public void Test2() => Assert.Equal(148, Part2Impl());
 }
 
 

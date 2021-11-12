@@ -1,27 +1,19 @@
-﻿using System.Diagnostics;
-using System.Numerics;
-
-using Xunit;
+﻿using System.Numerics;
 
 using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
     static bool test = false;
     public static string[] input = File.ReadAllLines(test ? "sample.txt" : "input.txt");
     static int[] weights = (from line in input select int.Parse(line)).ToArray();
 
-    public static Result<BigInteger> Part1() => Run(1, () => CalculateRecursive(weights, weights.Sum() / 3, 0, 1, 0));
-    public static Result<BigInteger> Part2() => Run(2, () => CalculateRecursive(weights, weights.Sum() / 4, 0, 1, 0));
-    static Result<T> Run<T>(int part, Func<T> f)
-    {
-        var sw = Stopwatch.StartNew();
-        var result = f();
-        return new(result, sw.Elapsed);
-    }
+    internal static Result Part1() => Run(() => CalculateRecursive(weights, weights.Sum() / 3, 0, 1, 0));
+    internal static Result Part2() => Run(() => CalculateRecursive(weights, weights.Sum() / 4, 0, 1, 0));
+
     static BigInteger CalculateRecursive(int[] weights, int target, int index, BigInteger entanglement, int totalweight)
     {
         if (totalweight == target) return entanglement;
@@ -37,10 +29,9 @@ static class AoC
 public class Tests
 {
     [Fact]
-    public void Test1() => Assert.Equal(11846773891, Part1().Value);
+    public void Test1() => Assert.Equal(new BigInteger(11846773891), Part1().Value);
     [Fact]
-    public void Test2() => Assert.Equal(80393059, Part2().Value);
+    public void Test2() => Assert.Equal(new BigInteger(80393059), Part2().Value);
 
 }
 
-readonly record struct Result<T>(T Value, TimeSpan Elapsed);

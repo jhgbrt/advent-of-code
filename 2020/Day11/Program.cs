@@ -1,21 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using static AoC;
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
 
-var example = Grid.FromFile("example.txt");
+partial class AoC
+{
+    static Grid grid = Grid.FromFile("input.txt");
 
-Debug.Assert(example.Handle(Grid.Rule1) == 37);
-Debug.Assert(example.Handle(Grid.Rule2) == 26);
+    internal static Result Part1() => Run(() => grid.Handle(Grid.Rule1));
+    internal static Result Part2() => Run(() => grid.Handle(Grid.Rule2));
 
-var grid = Grid.FromFile("input.txt");
-var part1 = grid.Handle(Grid.Rule1);
-var part2 = grid.Handle(Grid.Rule2);
+}
 
-Console.WriteLine((part1, part2));
+public class Tests
+{
+    Grid example = Grid.Parse(File.ReadAllLines("sample.txt"));
+    [Fact]
+    public void Test1()
+    {
+        Assert.Equal(37, example.Handle(Grid.Rule1));
+    }
+    [Fact]
+    public void Test2()
+    {
+        Assert.Equal(26, example.Handle(Grid.Rule2));
+    }
 
+}
 class Grid
 {
     char[,] _grid;

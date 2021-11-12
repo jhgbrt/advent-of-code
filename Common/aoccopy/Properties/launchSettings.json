@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "aoccopy": {
+      "commandName": "Project",
+      "workingDirectory": "$(SolutionDir)"
+    }
+  }
+}

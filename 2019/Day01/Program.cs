@@ -1,27 +1,28 @@
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
+using static AoC;
 
-namespace AdventOfCode
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
+
+partial class AoC
 {
-    static class Program
+    static string[] input = File.ReadAllLines("input.txt");
+
+    internal static Result Part1() => Run(() => Part1(input));
+    internal static Result Part2() => Run(() => Part2(input));
+    public static int Part1(string[] input) => input.Select(int.Parse).Select(CalculateFuel1).Sum();
+
+    public static int Part2(string[] input) => input.Select(int.Parse).Select(CalculateFuel2).Sum();
+    public static int CalculateFuel1(int mass) => mass / 3 - 2;
+    public static int CalculateFuel2(int mass) => Fuel(mass).Sum();
+
+    static IEnumerable<int> Fuel(int mass)
     {
-        public static async Task Main()
+        var fuel = mass;
+        while (true)
         {
-            var lines = await File.ReadAllLinesAsync("input.txt");
-
-            Measure(() => AoC.Part1(lines));
-
-            Measure(() => AoC.Part2(lines));
+            fuel = CalculateFuel1(fuel);
+            if (fuel < 0) break;
+            yield return fuel;
         }
-
-        static void Measure<T>(Func<T> f)
-        {
-            var sw = Stopwatch.StartNew();
-            var result = f();
-            Console.WriteLine($"result = {result} - {sw.Elapsed}");
-        }
-        
     }
 }

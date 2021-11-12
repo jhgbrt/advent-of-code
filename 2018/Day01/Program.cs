@@ -1,27 +1,36 @@
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
+using static AoC;
 
-namespace AdventOfCode
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
+
+partial class AoC
 {
-    static class Program
+    static string[] input = File.ReadAllLines("input.txt");
+
+    internal static Result Part1() => Run(() => Part1(input));
+    internal static Result Part2() => Run(() => Part2(input));
+
+    public static int Part1(string[] input) => input.Select(int.Parse).Sum();
+
+    public static int Part2(string[] input)
     {
-        public static async Task Main()
+        var ints = input.Select(int.Parse);
+        var frequency = 0;
+        var hashSet = new HashSet<int>();
+        ints.EndlessRepeat().TakeWhile(i =>
         {
-            var lines = await File.ReadAllLinesAsync("input.txt");
-
-            Measure(() => AoC.Part1(lines));
-
-            Measure(() => AoC.Part2(lines));
-        }
-
-        static void Measure<T>(Func<T> f)
-        {
-            var sw = Stopwatch.StartNew();
-            var result = f();
-            Console.WriteLine($"result = {result} - {sw.Elapsed}");
-        }
+            hashSet.Add(frequency);
+            frequency += i;
+            return !hashSet.Contains(frequency);
+        }).Last();
+        return frequency;
     }
 }
-    
+static class Ex
+{ 
+    public static IEnumerable<int> EndlessRepeat(this IEnumerable<int> input)
+    {
+        while (true) foreach (var i in input) yield return i;
+    }
+
+}

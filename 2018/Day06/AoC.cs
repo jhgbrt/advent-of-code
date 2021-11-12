@@ -1,78 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
+﻿record Result(object Value, TimeSpan Elapsed);
+record Answer(object? part1, object? part2);
 
-namespace AdventOfCode
+public partial class AoC
 {
-    internal static class AoC
+    ITestOutputHelper output;
+
+    public AoC(ITestOutputHelper output)
     {
-        public static int Part1(string[] input)
+        this.output = output;
+    }
+
+    Answer answer = JsonSerializer.Deserialize<Answer>(File.ReadAllText("answers.json"))!;
+    [Fact]
+    public void TestPart1()
+    {
+        if (answer.part1 is not null)
         {
-            var points = input.ToCoordinates().OrderBy(c => c.x).ThenBy(c => c.y);
-            var maxX = points.Max(c => c.x);
-            var maxY = points.Max(c => c.y);
-            var q = from location in Grid(maxX, maxY)
-                    let cd = (
-                        from c in points
-                        let d = Math.Abs(c.x - location.x) + Math.Abs(c.y - location.y)
-                        orderby d
-                        group (c, d) by d
-                        )
-                    let first = cd.First()
-                    where first.Count() == 1
-                    select (location, point: first.First().c, first.First().d);
-
-            var items = q.ToList();
-
-            var excluded = new HashSet<(int, int)>(
-                    from item in items
-                    where item.location.x == 0 || item.location.x == maxX || item.location.y == 0 || item.location.y == maxY
-                    select item.point
-                );
-
-            var largest = (
-                from item in items
-                where !excluded.Contains(item.point)
-                group item by item.point into x
-                select (coordinate: x.Key, area: x.Count()) into result
-                orderby result.area descending
-                select result
-                    ).First();
-
-            return largest.area;
+            var result = AoC.Part1().Value;
+            if (result is null) throw new Exception("Puzzle 1 has an answer but no code");
+            Assert.Equal(answer.part1.ToString(), AoC.Part1().Value.ToString());
         }
-
-        public static int Part2(string[] input) => Part2(input, 10000);
-
-        public static int Part2(string[] input, int max)
+        else
         {
-            var points = input.ToCoordinates().OrderBy(c => c.x).ThenBy(c => c.y);
-            var maxX = points.Max(c => c.x);
-            var maxY = points.Max(c => c.y);
-            var q = from location in Grid(maxX, maxY)
-                    let d = (
-                        from point in points
-                        select Math.Abs(location.x - point.x) + Math.Abs(location.y - point.y)
-                    ).Sum()
-                    where d < max
-                    select (location.x, location.y, d);
-
-            return q.Count();
+            output.WriteLine("Puzzle 2 has not yet been answered");
         }
+    }
 
-        private static IEnumerable<(int x, int y)> Grid(int maxX, int maxY) => from x in Enumerable.Range(0, maxX)
-                                                                               from y in Enumerable.Range(0, maxY)
-                                                                               select (x, y);
-
-        private static readonly Regex _regex = new Regex(@"(\d+), (\d+)", RegexOptions.Compiled);
-        public static (int x, int y) ToCoordinate(this string input)
+    [Fact]
+    public void TestPart2()
+    {
+        if (answer.part2 is not null)
         {
-            var match = _regex.Match(input);
-            return (int.Parse(match.Groups[1].Value), int.Parse(match.Groups[2].Value));
+            var result = AoC.Part1().Value;
+            if (result is null) throw new Exception("Puzzle 1 has an answer but no code");
+            Assert.Equal(answer.part2.ToString(), AoC.Part2().Value.ToString());
         }
+        else
+        {
+            output.WriteLine("Puzzle 2 has not yet been answered");
+        }
+    }
 
-        public static IEnumerable<(int x, int y)> ToCoordinates(this IEnumerable<string> input) => input.Select(ToCoordinate);
-
+    internal static Result Run(Func<object> f)
+    {
+        var sw = Stopwatch.StartNew();
+        return new(f(), sw.Elapsed);
     }
 }

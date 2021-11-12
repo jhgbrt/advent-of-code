@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace AdventOfCode
+﻿namespace AdventOfCode
 {
     class Node
     {

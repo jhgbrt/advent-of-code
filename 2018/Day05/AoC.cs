@@ -1,64 +1,49 @@
-﻿using System;
-using System.Linq;
-using System.Text;
+﻿record Result(object Value, TimeSpan Elapsed);
+record Answer(object? part1, object? part2);
 
-namespace AdventOfCode
+public partial class AoC
 {
-    internal static class AoC
+    ITestOutputHelper output;
+
+    public AoC(ITestOutputHelper output)
     {
-        public static int Part1(string input) => React(input, null);
+        this.output = output;
+    }
 
-        private static int React(string input, char? ignore)
+    Answer answer = JsonSerializer.Deserialize<Answer>(File.ReadAllText("answers.json"))!;
+    [Fact]
+    public void TestPart1()
+    {
+        if (answer.part1 is not null)
         {
-            var sb = new StringBuilder(input);
-            var length = sb.Length;
-            sb = React(sb, ignore);
-            while (sb.Length < length)
-            {
-                length = sb.Length;
-                sb = React(sb, ignore);
-            }
-            return sb.Length;
+            var result = AoC.Part1().Value;
+            if (result is null) throw new Exception("Puzzle 1 has an answer but no code");
+            Assert.Equal(answer.part1.ToString(), AoC.Part1().Value.ToString());
         }
-
-        private static StringBuilder React(StringBuilder input, char? ignore)
+        else
         {
-            var i = 0;
-            while (i < input.Length - 1)
-            {
-                // char arithmetic turns out to be much faster than ToLowerInvariant/ToUpperInvariant
-                var diff = 'a' - 'A';
-                var c1 = input[i];
-                var c2 = input[i + 1];
-
-                //if (c1 == ignore || char.ToLowerInvariant(c1) == ignore)
-                if (c1 == ignore || (c1 + diff) == ignore)
-                {
-                    input.Remove(i, 1);
-                    continue;
-                }
-                //if (c1 != c2 && char.ToUpperInvariant(c1) == char.ToUpperInvariant(c2))
-                if (c1 != c2 && Math.Abs(c1 - c2) == diff)
-                {
-                    input.Remove(i, 2);
-                }
-                else
-                {
-                    i++;
-                }
-            }
-            return input;
+            output.WriteLine("Puzzle 2 has not yet been answered");
         }
+    }
 
-        public static int Part2(string input)
+    [Fact]
+    public void TestPart2()
+    {
+        if (answer.part2 is not null)
         {
-            var query = from c in Enumerable.Range('a', 26)
-                        let length = React(input, (char)c)
-                        orderby length
-                        select length;
-            return query.First();
+            var result = AoC.Part1().Value;
+            if (result is null) throw new Exception("Puzzle 1 has an answer but no code");
+            Assert.Equal(answer.part2.ToString(), AoC.Part2().Value.ToString());
         }
+        else
+        {
+            output.WriteLine("Puzzle 2 has not yet been answered");
+        }
+    }
 
-
+    internal static Result Run(Func<object> f)
+    {
+        var sw = Stopwatch.StartNew();
+        return new(f(), sw.Elapsed);
     }
 }

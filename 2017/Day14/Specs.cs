@@ -1,6 +1,4 @@
-﻿using Xunit;
-
-namespace defrag
+﻿namespace defrag
 {
     public class Specs
     {

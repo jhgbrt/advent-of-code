@@ -1,25 +1,21 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using static System.Linq.Enumerable;
+﻿using static System.Linq.Enumerable;
 using static System.Math;
+using static AoC;
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
 
-class Program
+partial class AoC
 {
-    static void Main(string[] args)
-    {
-        var particles = File.ReadLines("input.txt").Select(Particle.Parse).ToArray();
-        var t =  particles.Sum(p => Abs(p.Acceleration.x) + Abs(p.Acceleration.y) + Abs(p.Acceleration.z));
-
-        Run(() => (
-            from x in particles.Select((p, i) => (p: p, i: i))
+    static Particle[] particles = File.ReadLines("input.txt").Select(Particle.Parse).ToArray();
+    static readonly double t = particles.Sum(p => Abs(p.Acceleration.x) + Abs(p.Acceleration.y) + Abs(p.Acceleration.z));
+    internal static Result Part1() => Run(() => (
+        from x in particles.Select((p, i) => (p: p, i: i))
             let position = x.p.GetPosition(t)
             let distance = position.Distance()
-            select (index: x.i, particle: x.p, position: position, distance: distance)
+            select(index: x.i, particle: x.p, position: position, distance: distance)
         ).MinBy(x => x.distance).index);
 
-        Run(() => Repeat(0, 100).Aggregate(particles, (set, i) => (
+    internal static Result Part2() => Run(() => Repeat(0, 100).Aggregate(particles, (set, i) => (
                 from item in set
                 select item.Tick() into tick
                 group tick by tick.Position into g
@@ -27,12 +23,4 @@ class Program
                 select g.Single()
             ).ToArray()).Length
         );
-    }
-    
-    static void Run<T>(Func<T> f)
-    {
-        var sw = Stopwatch.StartNew();
-        var result = f();
-        Console.WriteLine($"{result} - {sw.Elapsed}");
-    }
 }

@@ -1,13 +1,11 @@
 ﻿using System.Collections.Immutable;
 
-using Xunit;
-
 using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
     static ImmutableArray<Spell> AllSpells = new Spell[]
     {
@@ -20,8 +18,8 @@ static class AoC
 
     static string[] input = File.ReadAllLines("input.txt");
 
-    public static object Part1() => Play(new Player(50, 0, 0, 500), new Player(58, 9, 0, 0), false);
-    public static object Part2() => Play(new Player(50, 0, 0, 500), new Player(58, 9, 0, 0), true);
+    internal static Result Part1() => Run(() => Play(new Player(50, 0, 0, 500), new Player(58, 9, 0, 0), false));
+    internal static Result Part2() => Run(() => Play(new Player(50, 0, 0, 500), new Player(58, 9, 0, 0), true));
 
     static int Play(Player player, Player boss, bool hardMode, bool playerTurn = true, int best = 999999, int spent = 0, ImmutableList<Spell>? activeSpells = null)
     {
@@ -66,9 +64,9 @@ static class AoC
 public class Tests
 {
     [Fact]
-    public void Test1() => Assert.Equal(1269, Part1());
+    public void Test1() => Assert.Equal(1269, Part1().Value);
     [Fact]
-    public void Test2() => Assert.Equal(1309, Part2());
+    public void Test2() => Assert.Equal(1309, Part2().Value);
 }
 
 record struct Player(int HitPoints, int Damage, int Armor, int Mana)

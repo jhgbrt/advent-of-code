@@ -1,6 +1,3 @@
-using System;
-using Xunit;
-
 namespace AdventOfCode
 {
     public class Specs

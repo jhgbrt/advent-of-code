@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-
 public class CPU2 
 {
     private readonly int _id;

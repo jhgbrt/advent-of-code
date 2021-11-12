@@ -1,22 +1,19 @@
-﻿using System.Diagnostics;
-using System.Text;
-
-using Xunit;
+﻿using System.Text;
 
 using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
     static bool test = false;
     static string[] input = File.ReadAllLines(test ? "sample.txt" : "input.txt");
 
-    public static Result<string> Part1() => Run(1, () => new Accumulator().Decode(input, 8, false));
-    public static Result<string> Part2() => Run(2, () => new Accumulator().Decode(input, 8, true));
+    internal static Result Part1() => Run(() => new Accumulator().Decode(input, 8, false));
+    internal static Result Part2() => Run(() => new Accumulator().Decode(input, 8, true));
 
-    static Result<T> Run<T>(int part, Func<T> f)
+    static Result Run<T>(int part, Func<T> f)
     {
         var sw = Stopwatch.StartNew();
         var result = f();
@@ -46,7 +43,7 @@ public class Tests
     }
 }
 
-readonly record struct Result<T>(T Value, TimeSpan Elapsed);
+
 
 
 public class Accumulator

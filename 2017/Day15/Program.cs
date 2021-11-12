@@ -1,23 +1,14 @@
-﻿using System;
-using System.Diagnostics;
+﻿using generator;
 
-namespace generator
+using static AoC;
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
+
+partial class AoC
 {
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            var seedA = 722;
-            var seedB = 354;
-            Run(() => Generator.GetNofMatches(seedA, seedB, 40_000_000));
-            Run(() => Generator.GetNofMatches(seedA, seedB, 5_000_000, 4, 8));
-        }
+    static int seedA = 722;
+    static int seedB = 354;
+    internal static Result Part1() => Run(() => Generator.GetNofMatches(seedA, seedB, 40_000_000));
+    internal static Result Part2() => Run(() => Generator.GetNofMatches(seedA, seedB, 5_000_000, 4, 8));
 
-        static void Run<T>(Func<T> f)
-        {
-            var sw = Stopwatch.StartNew();
-            var result = f();
-            Console.WriteLine($"{result} - {sw.Elapsed}");
-        }
-    }
 }

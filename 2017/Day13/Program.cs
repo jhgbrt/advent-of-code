@@ -1,40 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using firewall;
+using static AoC;
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
 
-namespace firewall
+partial class AoC
 {
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            var items = (
-                from line in File.ReadLines("input.txt")
-                let indexes = line.Split(": ").Select(int.Parse).ToArray()
-                select (layer: indexes[0], range: indexes[1])
-                ).ToArray();
+    static (int layer, int range)[]? items = (
+            from line in File.ReadLines("input.txt")
+            let indexes = line.Split(": ").Select(int.Parse).ToArray()
+            select (layer: indexes[0], range: indexes[1])
+            ).ToArray();
+    internal static Result Part1() => Run(() => Firewall.Severity(items));
 
-            Run(() => Firewall.Severity(items));
+    internal static Result Part2() => Run(() => Firewall.DelayToEscape(items));
 
-            Run(() => Firewall.DelayToEscape(items));
-
-        }
-
-        static void Run<T>(Func<T> f)
-        {
-            var sw = Stopwatch.StartNew();
-            var result = f();
-            Console.WriteLine($"{result} / {sw.Elapsed}");
-        }
-    }
-
-    static class Ex
-    {
-        public static IEnumerable<string> ReadLines(this TextReader input)
-        {
-            while (input.Peek() >= 0) yield return input.ReadLine();
-        }
-    }
 }

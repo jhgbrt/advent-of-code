@@ -1,16 +1,13 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 using Memory = System.Collections.Immutable.ImmutableDictionary<int, long>;
 namespace Part1;
 
 public static class Part1
 {
-    public static void Run()
+    public static long Run()
     {
-        var input = File.ReadLines(@"..\input.txt");
+        var input = File.ReadLines(@"input.txt");
 
         var query = from line in input
                     select Factory.Create(line);
@@ -23,7 +20,7 @@ public static class Part1
                 WriteMemory m => (x.mask, x.memory.SetItem(m.Address, x.mask.Apply(m.Value))),
                 _ => x
             }).memory;
-        Console.WriteLine(memory.Sum(m => m.Value));
+        return memory.Sum(m => m.Value);
 
     }
 

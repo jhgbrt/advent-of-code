@@ -1,21 +1,20 @@
 ﻿using System.Text;
 
-using Xunit;
-
 using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
     static readonly string input = "1113222113";
 
-    public static object Part1() => Run(input, 40);
-    public static object Part2() => Run(input, 50);
+    internal static Result Part1() => Run(input, 40);
+    internal static Result Part2() => Run(input, 50);
 
-    static int Run(string input, int times)
+    static Result Run(string input, int times)
     {
+        var sw = Stopwatch.StartNew();
         var sb = new StringBuilder();
 
         for (int i = 0; i < times; i++)
@@ -39,12 +38,12 @@ static class AoC
             sb.Append(n).Append(last);
             input = sb.ToString();
         }
-        return sb.Length;
+        return new(sb.Length, sw.Elapsed);
     }
 }public class Tests
 {
     [Fact]
-    public void Test1() => Assert.Equal(252594, Part1());
+    public void Test1() => Assert.Equal(252594, Part1().Value);
     [Fact]
-    public void Test2() => Assert.Equal(3579328, Part2());
+    public void Test2() => Assert.Equal(3579328, Part2().Value);
 }

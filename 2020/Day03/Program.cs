@@ -1,24 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using Xunit;
-using Xunit.Abstractions;
+﻿using static AoC;
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
 
-var result1 = Execute(() => Driver.Part1("input.txt"));
-var result2 = Execute(() => Driver.Part2("input.txt"));
-
-Console.WriteLine(result1);
-Console.WriteLine(result2);
-
-
-static (T, TimeSpan) Execute<T>(Func<T> f)
+partial class AoC
 {
-    var sw = Stopwatch.StartNew();
-    var t = f();
-    return (t, sw.Elapsed);
+    internal static Result Part1() => Run(() => Driver.Part1("input.txt"));
+    internal static Result Part2() => Run(() => Driver.Part2("input.txt"));
 }
+
 
 static class Driver
 {
@@ -86,7 +75,7 @@ namespace AdventOfCode
         [Fact]
         public void TestPart1()
         {
-            Assert.Equal(7, Driver.Part1("example.txt"));
+            Assert.Equal(7, Driver.Part1("sample.txt"));
         }
 
         [Fact]
@@ -109,7 +98,7 @@ namespace AdventOfCode
         [Fact]
         public void TestPart2()
         {
-            var result = Driver.Part2("example.txt");
+            var result = Driver.Part2("sample.txt");
             Assert.Equal(336, result);
         }
     }

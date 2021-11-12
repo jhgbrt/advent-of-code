@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-
-class ExpandingGrid
+﻿class ExpandingGrid
 {
     private readonly char[,] _grid;
 

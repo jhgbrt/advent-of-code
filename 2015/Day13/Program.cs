@@ -1,14 +1,12 @@
 ﻿using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 
-using Xunit;
-
 using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
     static Regex regex = new Regex(@"(?<first>\w+) would (?<action>lose|gain) (?<amount>\d+) happiness units by sitting next to (?<second>\w+).", RegexOptions.Compiled);
     static string[] input = File.ReadAllLines("input.txt");
@@ -25,11 +23,11 @@ static class AoC
     static ImmutableHashSet<string> vertices = edges.Select(e => e.Source).Concat(edges.Select(e => e.Target)).ToImmutableHashSet();
 
 
-    public static object Part1() => CalculateScore(edges, vertices);
-    public static object Part2() => CalculateScore(edges.AddRange(from v in vertices 
+    internal static Result Part1() => Run(() => CalculateScore(edges, vertices));
+    internal static Result Part2() => Run(() => CalculateScore(edges.AddRange(from v in vertices 
                                                                   let edge = new Edge("Jeroen", v, 0)
                                                                   from e in new[] { edge, edge.Reverse() } 
-                                                                  select e), vertices.Add("Jeroen"));
+                                                                  select e), vertices.Add("Jeroen")));
 
     static int CalculateScore(IEnumerable<Edge> edges, IReadOnlySet<string> vertices)
     {
@@ -54,9 +52,9 @@ static class AoC
 public class Tests
 {
     [Fact]
-    public void Test1() => Assert.Equal(618, Part1());
+    public void Test1() => Assert.Equal(618, Part1().Value);
     [Fact]
-    public void Test2() => Assert.Equal(601, Part2());
+    public void Test2() => Assert.Equal(601, Part2().Value);
 }
 
 

@@ -1,43 +1,49 @@
-﻿using System.Linq;
+﻿record Result(object Value, TimeSpan Elapsed);
+record Answer(object? part1, object? part2);
 
-namespace AdventOfCode
+public partial class AoC
 {
-    public static class AoC
+    ITestOutputHelper output;
+
+    public AoC(ITestOutputHelper output)
     {
-        public static int Part1(string[] input)
+        this.output = output;
+    }
+
+    Answer answer = JsonSerializer.Deserialize<Answer>(File.ReadAllText("answers.json"))!;
+    [Fact]
+    public void TestPart1()
+    {
+        if (answer.part1 is not null)
         {
-            var (twos, threes) = input.Aggregate((twos: 0, threes: 0), (t, s) => Process(t.twos, t.threes, s));
-            return twos * threes;
+            var result = AoC.Part1().Value;
+            if (result is null) throw new Exception("Puzzle 1 has an answer but no code");
+            Assert.Equal(answer.part1.ToString(), AoC.Part1().Value.ToString());
         }
-
-        public static string Part2(string[] input)
+        else
         {
-            var result = (
-                from l in input
-                from r in input
-                let diffCount = DiffCount(l, r)
-                where diffCount > 0
-                select (l, r, diffCount)
-                ).Aggregate((curMin, x) => x.diffCount < curMin.diffCount ? x : curMin);
-            return Common(result.l, result.r);
+            output.WriteLine("Puzzle 2 has not yet been answered");
         }
-        static (int twos, int threes) Process(int twos, int threes, string s)
+    }
+
+    [Fact]
+    public void TestPart2()
+    {
+        if (answer.part2 is not null)
         {
-            var g = from c in s group c by c;
-            if (g.Any(x => x.Count() == 2)) twos++;
-            if (g.Any(x => x.Count() == 3)) threes++;
-            return (twos, threes);
+            var result = AoC.Part1().Value;
+            if (result is null) throw new Exception("Puzzle 1 has an answer but no code");
+            Assert.Equal(answer.part2.ToString(), AoC.Part2().Value.ToString());
         }
+        else
+        {
+            output.WriteLine("Puzzle 2 has not yet been answered");
+        }
+    }
 
-        static string Common(this string left, string right) 
-            => new string((
-                from x in left.Zip(right, (l, r) => (l, r))
-                where x.l == x.r
-                select x.l).ToArray());
-
-        public static int DiffCount(this string left, string right) 
-            => left.Zip(right, (l, r) => (l, r))
-            .Aggregate(0, (int count, (char l, char r) x) => count += x.l == x.r ? 0 : 1);
-
+    internal static Result Run(Func<object> f)
+    {
+        var sw = Stopwatch.StartNew();
+        return new(f(), sw.Elapsed);
     }
 }

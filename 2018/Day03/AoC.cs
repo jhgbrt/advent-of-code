@@ -1,54 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
+﻿record Result(object Value, TimeSpan Elapsed);
+record Answer(object? part1, object? part2);
 
-namespace AdventOfCode
+public partial class AoC
 {
-    static class AoC
+    ITestOutputHelper output;
+
+    public AoC(ITestOutputHelper output)
     {
-        public static int Part1(string[] input)
-        {
-            var query = from line in input
-                        select ToRectangle(line) into r
-                        from x in Enumerable.Range(r.left, r.width)
-                        from y in Enumerable.Range(r.top, r.height)
-                        group r by (x, y) into g
-                        where g.Count() > 1
-                        select g;
+        this.output = output;
+    }
 
-            return query.Count();
+    Answer answer = JsonSerializer.Deserialize<Answer>(File.ReadAllText("answers.json"))!;
+    [Fact]
+    public void TestPart1()
+    {
+        if (answer.part1 is not null)
+        {
+            var result = AoC.Part1().Value;
+            if (result is null) throw new Exception("Puzzle 1 has an answer but no code");
+            Assert.Equal(answer.part1.ToString(), AoC.Part1().Value.ToString());
         }
-
-        public static int Part2(string[] data)
+        else
         {
-
-            var rectangles = data.Select(ToRectangle).ToList();
-
-            var query = from r in rectangles
-                        from x in Enumerable.Range(r.left, r.width)
-                        from y in Enumerable.Range(r.top, r.height)
-                        group r by (x, y) into g
-                        where g.Count() > 1
-                        from r in g
-                        select r.id;
-
-            var overlapping = new HashSet<int>(query);
-            var single = rectangles.Single(r => !overlapping.Contains(r.id));
-            return single.id;
-        }
-
-        private static readonly Regex regex = new Regex(@"#(?<id>\d+) \@ (?<left>\d+),(?<top>\d+): (?<width>\d+)x(?<height>\d+)", RegexOptions.Compiled);
-        public static (int left, int top, int width, int height, int id) ToRectangle(string input)
-        {
-            var result = regex.Match(input);
-            var left = int.Parse(result.Groups["left"].Value);
-            var top = int.Parse(result.Groups["top"].Value);
-            var width = int.Parse(result.Groups["width"].Value);
-            var height = int.Parse(result.Groups["height"].Value);
-            var id = int.Parse(result.Groups["id"].Value);
-            return (left, top, width, height, id);
+            output.WriteLine("Puzzle 2 has not yet been answered");
         }
     }
+
+    [Fact]
+    public void TestPart2()
+    {
+        if (answer.part2 is not null)
+        {
+            var result = AoC.Part1().Value;
+            if (result is null) throw new Exception("Puzzle 1 has an answer but no code");
+            Assert.Equal(answer.part2.ToString(), AoC.Part2().Value.ToString());
+        }
+        else
+        {
+            output.WriteLine("Puzzle 2 has not yet been answered");
+        }
+    }
+
+    internal static Result Run(Func<object> f)
+    {
+        var sw = Stopwatch.StartNew();
+        return new(f(), sw.Elapsed);
+    }
 }
-    

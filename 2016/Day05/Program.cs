@@ -1,23 +1,20 @@
-using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
-
-using Xunit;
 
 using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
     static bool test = false;
     public static string input = "ugkcyxxp";
 
-    public static Result<string> Part1() => Run(1, () => new Cracker().GeneratePassword1(input, 8));
-    public static Result<string> Part2() => Run(2, () => new Cracker().GeneratePassword2(input, 8));
+    internal static Result Part1() => Run(() => new Cracker().GeneratePassword1(input, 8));
+    internal static Result Part2() => Run(() => new Cracker().GeneratePassword2(input, 8));
 
-    static Result<T> Run<T>(int part, Func<T> f)
+    static Result Run<T>(int part, Func<T> f)
     {
         var sw = Stopwatch.StartNew();
         var result = f();
@@ -69,7 +66,7 @@ public class Tests
     }
 }
 
-readonly record struct Result<T>(T Value, TimeSpan Elapsed);
+
 
 class Cracker
 {

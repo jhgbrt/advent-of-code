@@ -1,17 +1,15 @@
 ﻿
-using Xunit;
-
 using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
     static int[] input = new[] { 43, 3, 4, 10, 21, 44, 4, 6, 47, 41, 34, 17, 17, 44, 36, 31, 46, 9, 27, 38 };
 
-    public static object Part1() => Part1(input, 150);
-    public static object Part2() => Part2(input, 150);
+    internal static Result Part1() => Run(() => Part1(input, 150));
+    internal static Result Part2() => Run(() => Part2(input, 150));
     public static int Part1(int[] input, int sum) => Combinations(input).Where(c => c.Sum() == sum).Count();
     public static int Part2(int[] input, int sum)
     {
@@ -28,9 +26,9 @@ public class Tests
 {
     static int[] sample = new[] { 20, 15, 10, 5, 5 };
     [Fact]
-    public void Test1() => Assert.Equal(1638, Part1());
+    public void Test1() => Assert.Equal(1638, Part1().Value);
     [Fact]
-    public void Test2() => Assert.Equal(17, Part2());
+    public void Test2() => Assert.Equal(17, Part2().Value);
     [Fact]
     public void Test_Sample1() => Assert.Equal(4, Part1(sample, 25));
     [Fact]

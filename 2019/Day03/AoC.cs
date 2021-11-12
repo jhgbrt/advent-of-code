@@ -1,52 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using static System.Math;
+﻿record Result(object Value, TimeSpan Elapsed);
+record Answer(object? part1, object? part2);
 
-namespace AdventOfCode
+public partial class AoC
 {
-    static class AoC
+    ITestOutputHelper output;
+
+    public AoC(ITestOutputHelper output)
     {
-        public static int Part1(string[] input)
+        this.output = output;
+    }
+
+    Answer answer = JsonSerializer.Deserialize<Answer>(File.ReadAllText("answers.json"))!;
+    [Fact]
+    public void TestPart1()
+    {
+        if (answer.part1 is not null)
         {
-            var points = input[0].Points().ToHashSet();
-            var crossings = input[1].Points().Where(p => points.Contains(p));
-            return crossings.Min(x => Abs(x.x) + Abs(x.y));
+            var result = AoC.Part1().Value;
+            if (result is null) throw new Exception("Puzzle 1 has an answer but no code");
+            Assert.Equal(answer.part1.ToString(), AoC.Part1().Value.ToString());
         }
-
-        public static int Part2(string[] input)
+        else
         {
-            var points1 = input[0].Points().Select((p, i) => (p, steps: i + 1)).ToLookup(x => x.p, x => x.steps);
-            var points2 = input[1].Points().Select((p, i) => (p, steps: i + 1)).ToLookup(x => x.p, x => x.steps);
-            var crossings = points2.Select(p => p.Key).Where(p => points1.Contains(p));
-
-            var steps = crossings
-                .Select(p => points1[p].Min() + points2[p].Min())
-                .Min();
-
-            return steps;
+            output.WriteLine("Puzzle 2 has not yet been answered");
         }
+    }
 
-        public static IEnumerable<(int x, int y)> Points(this string input)
+    [Fact]
+    public void TestPart2()
+    {
+        if (answer.part2 is not null)
         {
-            (int x, int y) = (0, 0);
-            foreach (var item in input.Split(','))
-            {
-                Func<int, int, (int, int)> f = item[0] switch
-                {
-                    'R' => (x, y) => (x + 1, y),
-                    'L' => (x, y) => (x - 1, y),
-                    'U' => (x, y) => (x, y + 1),
-                    'D' => (x, y) => (x, y - 1),
-                    _ => throw new Exception()
-                };
-                var d = int.Parse(item.AsSpan().Slice(1));
-                for (int i = 0; i < d; i++)
-                {
-                    (x, y) = f(x, y);
-                    yield return (x, y);
-                }
-            }
+            var result = AoC.Part1().Value;
+            if (result is null) throw new Exception("Puzzle 1 has an answer but no code");
+            Assert.Equal(answer.part2.ToString(), AoC.Part2().Value.ToString());
         }
+        else
+        {
+            output.WriteLine("Puzzle 2 has not yet been answered");
+        }
+    }
+
+    internal static Result Run(Func<object> f)
+    {
+        var sw = Stopwatch.StartNew();
+        return new(f(), sw.Elapsed);
     }
 }

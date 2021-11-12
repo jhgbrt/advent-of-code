@@ -1,20 +1,13 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-
-using Xunit;
-using Xunit.Abstractions;
 
 using static Part2.AoC;
 namespace Part2;
 public static class Runner
 {
-    public static void Run()
+    public static object Run()
     {
         var input = ReadInput("input.txt").ToImmutableArray();
 
@@ -37,7 +30,7 @@ public static class Runner
         var count = image.CountPattern(pattern);
         var part2 = image.Count('#') - count * 15;
 
-        Console.WriteLine((part1, part2));
+        return part2;
 
     }
 }

@@ -1,23 +1,11 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using hexgrid;
+using static AoC;
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
 
-namespace hexgrid
+partial class AoC
 {
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            var steps = File.ReadLines("input.txt").SelectMany(l => l.Split(','));
-            Run(() => HexGrid.Calculate(steps.ToArray()));
-        }
-
-        static void Run<T>(Func<T> f)
-        {
-            var sw = Stopwatch.StartNew();
-            var result = f();
-            Console.WriteLine($"{result} - {sw.Elapsed}");
-        }
-    }
+    static string[] input = File.ReadAllLines("input.txt");
+    internal static Result Part1() => Run(() => HexGrid.Calculate(input.SelectMany(l => l.Split(',')).ToArray()).distance);
+    internal static Result Part2() => Run(() => HexGrid.Calculate(input.SelectMany(l => l.Split(',')).ToArray()).max);
 }

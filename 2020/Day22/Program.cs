@@ -1,24 +1,32 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Linq;
 using static AoC.Input;
+using static AoC;
 
 #if DEBUG
 Trace.Listeners.Add(new ConsoleTraceListener());
 #endif
 
-var (deck1, deck2) = (new Deck(Deck1, 1), new Deck(Deck2, 2));
 
-var part1 = AoC.Play1(deck1, deck2).Reverse().Select((n, i) => n * (i + 1)).Sum();
-var part2 = AoC.Play2(deck1, deck2, 1).Reverse().Select((n, i) => n * (i + 1)).Sum();
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
 
-Console.WriteLine((part1, part2));
 
-static class AoC
+partial class AoC
 {
+
+    internal static Result Part1() => Run(() => 
+    {
+        var (deck1, deck2) = (new Deck(Deck1, 1), new Deck(Deck2, 2));
+        return Play1(deck1, deck2).Reverse().Select((n, i) => n * (i + 1)).Sum();
+    });
+    internal static Result Part2() => Run(() =>
+    {
+        var (deck1, deck2) = (new Deck(Deck1, 1), new Deck(Deck2, 2));
+        return Play2(deck1, deck2, 1).Reverse().Select((n, i) => n * (i + 1)).Sum();
+    });
+
+
     public static Deck Play1(Deck d1, Deck d2)
     {
         while (d1.Any() && d2.Any())
@@ -158,8 +166,8 @@ public class Deck : IImmutableQueue<int>, IEquatable<IImmutableQueue<int>>
     IImmutableQueue<int> IImmutableQueue<int>.Enqueue(int value) => new Deck(_q.Enqueue(value), Player);
     public Deck Enqueue(int value) => new Deck(_q.Enqueue(value), Player);
     public int Peek() => _q.Peek();
-    public override bool Equals(object obj) => Equals(obj as IImmutableQueue<int>);
-    public bool Equals(IImmutableQueue<int> other) => this.SequenceEqual(other ?? ImmutableQueue<int>.Empty);
+    public override bool Equals(object? obj) => obj is not null && Equals((IImmutableQueue<int>)obj);
+    public bool Equals(IImmutableQueue<int>? other) => this.SequenceEqual(other ?? ImmutableQueue<int>.Empty);
     public IEnumerator<int> GetEnumerator() => _q.GetEnumerator();
 
     public override int GetHashCode()

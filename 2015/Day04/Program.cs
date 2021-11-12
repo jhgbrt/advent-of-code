@@ -1,19 +1,17 @@
-﻿using System.Diagnostics;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
-
-using Xunit;
 
 using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
     static string key = "bgvyzdsv";
-    public static object Part1() => Solve(key, 5);
-    public static object Part2() => Solve(key, 6);
+    internal static Result Part1() => Run(() => Solve(key, 5));
+    internal static Result Part2() => Run(() => Solve(key, 6));
+
     internal static int Solve(string key, int n)
     {
         var md5 = MD5.Create();
@@ -42,10 +40,5 @@ public class Tests
         var result = Solve(input, 5);
         Assert.Equal(expected, result);
     }
-
-    [Fact]
-    public void Test1() => Assert.Equal(254575, Part1());
-    [Fact]
-    public void Test2() => Assert.Equal(1038736, Part2());
 
 }

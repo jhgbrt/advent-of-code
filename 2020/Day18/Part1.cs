@@ -1,22 +1,16 @@
 ﻿using Sprache;
 
-using System;
-using System.IO;
-using System.Linq;
 using System.Linq.Expressions;
-
-using Xunit;
 namespace Part1;
 public static class Runner
 {
-    public static void Run()
+    public static object Run()
     {
         var result = (
             from line in File.ReadLines("input.txt")
             select Calculator.Calculate(line)
             ).Aggregate(0L, (x, y) => x + y);
-
-        Console.WriteLine(result);
+        return result;
 
     }
 }

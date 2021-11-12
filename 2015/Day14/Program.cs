@@ -1,19 +1,17 @@
 ﻿using System.Text.RegularExpressions;
 
-using Xunit;
-
 using static AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+partial class AoC
 {
     static Regex regex = new Regex(@"(?<name>\w+) can fly (?<speed>\d+) km/s for (?<fly>\d+) seconds, but then must rest for (?<rest>\d+) seconds");
     static string[] input = File.ReadAllLines("input.txt"); // "sample.txt"
     static int maxtime = 2503; // 1000
-    public static object Part1() => GetEntries().Select(e => e.GetDistance(maxtime)).Max();
-    public static object Part2()
+    internal static Result Part1() => Run(() => GetEntries().Select(e => e.GetDistance(maxtime)).Max());
+    internal static Result Part2() => Run(() =>
     {
         var entries = GetEntries();
         var points = entries.ToDictionary(e => e, e => 0);
@@ -38,7 +36,7 @@ static class AoC
         }
 
         return points.Max(x => x.Value);
-    }
+    });
 
     static IEnumerable<Entry> GetEntries() => from line in input
                                               let match = regex.Match(line)
@@ -52,9 +50,9 @@ static class AoC
 public class Tests
 {
     [Fact]
-    public void Test1() => Assert.Equal(2660, Part1());
+    public void Test1() => Assert.Equal(2660, Part1().Value);
     [Fact]
-    public void Test2() => Assert.Equal(1256, Part2());
+    public void Test2() => Assert.Equal(1256, Part2().Value);
 }
 
 record Entry(string name, int speed, int fly, int rest)
