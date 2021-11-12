@@ -20,7 +20,7 @@ namespace AdventOfCode
         internal static long Part1(string input) => Parse(input).Count(RequiredFieldsPresent);
         internal static long Part2(string input) => Parse(input).Where(RequiredFieldsPresent).Count(IsValid);
         internal static IEnumerable<IReadOnlyDictionary<string, string>> Parse(string path, Action<string> log = null)
-            => Parse(new StreamReader(File.OpenRead(path)), log);
+            => Parse(new StringReader(File.ReadAllText(path).Replace("\r\n", "\n")), log);
 
         internal static IEnumerable<IReadOnlyDictionary<string, string>> Parse(TextReader reader, Action<string> log = null)
         {
@@ -60,7 +60,6 @@ namespace AdventOfCode
         static (CredentialBuilder, TransitionFunc) OnFirstNewLine(CredentialBuilder cb, char c) => c switch
         {
             '\n' => (cb.Finalize(), OnAdditionalNewLine), // second newline
-            //'\n' => (cb, OnFirstNewLine),
             _ => (cb.AppendToKey(c), OnKey)
         };
 
@@ -187,7 +186,7 @@ namespace AdventOfCode
         [Fact]
         public void TestParse()
         {
-            var tr = new StringReader("byr:abc def:123\r\nxyz:asdf\r\n\r\nbyr:edf");
+            var tr = new StringReader("byr:abc def:123\nxyz:asdf\n\nbyr:edf");
             var items = Driver.Parse(tr, s => _output.WriteLine(s)).ToList();
             Assert.Equal("asdf", items[0]["xyz"]);
             Assert.Equal("abc", items[0]["byr"]);
