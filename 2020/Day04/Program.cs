@@ -19,10 +19,10 @@ namespace AdventOfCode
     {
         internal static long Part1(string input) => Parse(input).Count(RequiredFieldsPresent);
         internal static long Part2(string input) => Parse(input).Where(RequiredFieldsPresent).Count(IsValid);
-        internal static IEnumerable<IReadOnlyDictionary<string, string>> Parse(string path, Action<string> log = null)
+        internal static IEnumerable<IReadOnlyDictionary<string, string>> Parse(string path, Action<string>? log = null)
             => Parse(new StringReader(File.ReadAllText(path).Replace("\r\n", "\n")), log);
 
-        internal static IEnumerable<IReadOnlyDictionary<string, string>> Parse(TextReader reader, Action<string> log = null)
+        internal static IEnumerable<IReadOnlyDictionary<string, string>> Parse(TextReader reader, Action<string>? log = null)
         {
             if (log == null) log = s => { };
             var cb = new CredentialBuilder();
