@@ -22,13 +22,14 @@ public partial class AoC
         }
         else
         {
-            output.WriteLine("Puzzle 2 has not yet been answered");
+            throw new Exception("Puzzle 1 has not yet been answered");
         }
     }
 
     [Fact]
     public void TestPart2()
     {
+        if (System.Reflection.Assembly.GetExecutingAssembly().GetName().Name!.EndsWith("25")) return;
         if (answer.part2 is not null)
         {
             var result = AoC.Part1().Value;
@@ -37,7 +38,7 @@ public partial class AoC
         }
         else
         {
-            output.WriteLine("Puzzle 2 has not yet been answered");
+            throw new Exception("Puzzle 2 has not yet been answered");
         }
     }
 
