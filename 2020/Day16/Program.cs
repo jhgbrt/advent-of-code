@@ -106,13 +106,3 @@ namespace AdventOfCode.Year2020.Day16
 }
 
 record FieldDef(string Name, ImmutableHashSet<int> Values) { public bool IsValid(int value) => Values.Contains(value); }
-
-static class Ex
-{
-
-    internal static IEnumerable<string> ReadWhile(this StreamReader sr, Func<string, bool> predicate)
-    {
-        for (string line = sr.ReadLine(); predicate(line); line = sr.ReadLine())
-            yield return line;
-    }
-}

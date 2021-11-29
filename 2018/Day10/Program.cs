@@ -19,16 +19,4 @@ namespace AdventOfCode.Year2018.Day10
         internal static Grid ToGrid(string[] input) => new Grid(from s in input select Point.Parse(s));
 
     }
-    static class Ex
-    {
-        public static Grid FindGridWithLowestHeight(this Grid grid) => grid.KeepMoving().Where(g => g.Height < g.Move(1).Height).First();
-        static IEnumerable<Grid> KeepMoving(this Grid grid)
-        {
-            while (true)
-            {
-                grid = grid.Move(1);
-                yield return grid;
-            }
-        }
-    }
 }

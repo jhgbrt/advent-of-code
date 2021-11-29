@@ -9,7 +9,7 @@ namespace AdventOfCode.Year2017.Day23
 {
     partial class AoC
     {
-        static ReadOnlyCollection<(string instruction, string arg1, string arg2)>? program = (
+        static ReadOnlyCollection<(string instruction, string arg1, string arg2)> program = (
             from line in File.ReadLines("input.txt")
             let s = line.Split()
             select (instruction: s[0], arg1: s[1], arg2: s[2])

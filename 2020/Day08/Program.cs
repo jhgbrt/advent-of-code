@@ -1,4 +1,3 @@
-
 using static AdventOfCode.Year2020.Day08.AoC;
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
@@ -20,12 +19,6 @@ namespace AdventOfCode.Year2020.Day08
         ).ToImmutableArray());
 
     }
-}
-
-public class Tests
-{
-    public void Test1() => Assert.Equal(5, ReadProgram("example.txt").Part1());
-    public void Test2() => Assert.Equal(8, ReadProgram("example.txt").Part2());
 }
 
 record Instruction(string Name, int Arg);

@@ -1,4 +1,3 @@
-
 using static AdventOfCode.Year2018.Day15.AoC;
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
@@ -134,46 +133,5 @@ namespace AdventOfCode.Year2018.Day15
         }
 
         static bool IsOpen((int x, int y) coordinate, IEnumerable<Unit> units) => grid[coordinate.y][coordinate.x] == '.' && units.All(u => u.Coordinate != coordinate);
-    }
-}
-
-class Unit
-{
-    public Unit((int x, int y) coordinate, int health, int power)
-    {
-        Coordinate = coordinate;
-        Health = health;
-        AttackPower = power;
-    }
-
-    public (int x, int y) Coordinate { get; private set; }
-    public int Health { get; private set; }
-    public int AttackPower { get; }
-    public bool IsNeighbour(Unit other) => Math.Abs(Coordinate.x - other.Coordinate.x) + Math.Abs(Coordinate.y - other.Coordinate.y) == 1;
-
-    internal Unit AttackBy(Unit unit)
-    {
-        Health -= unit.AttackPower;
-        return this;
-    }
-
-    internal Unit MoveTo((int x, int y) p)
-    {
-        Coordinate = p;
-        return this;
-    }
-}
-
-class Goblin : Unit
-{
-    public Goblin((int x, int y) coordinate) : base(coordinate, 200, 3)
-    {
-    }
-}
-
-class Elve : Unit
-{
-    public Elve((int x, int y) coordinate, int power) : base(coordinate, 200, power)
-    {
     }
 }

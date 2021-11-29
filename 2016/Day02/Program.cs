@@ -1,4 +1,3 @@
-
 using static AdventOfCode.Year2016.Day02.AoC;
 
 Console.WriteLine(Part1());
@@ -41,57 +40,6 @@ namespace AdventOfCode.Year2016.Day02
             }
             return sb.ToString();
         }
-    }
-}
-
-public class Tests
-{
-    [Fact]
-    public void Test1() => Assert.Equal("24862", Part1().Value);
-    [Fact]
-    public void Test2() => Assert.Equal("46C91", Part2().Value);
-
-    static string[] testinputs = new[] { "ULL", "RRDDD", "LURDL", "UUUUD" };
-
-    [Fact]
-    public void ExamplesPart1()
-    {
-        var code = GetCode(testinputs, keypad1);
-        Assert.Equal("1985", code);
-    }
-
-
-    [Fact]
-    public void ExamplesPart2()
-    {
-        var code = GetCode(testinputs, keypad2);
-        Assert.Equal("5DB3", code);
-    }
-
-}
-
-public class Keypad
-{
-    char?[,] _keys;
-    Coordinate _coordinate;
-
-    public Keypad(char?[,] keys, Coordinate coordinate)
-    {
-        _keys = keys;
-        _coordinate = coordinate;
-    }
-
-    public char? Current => _keys[_coordinate.Row, _coordinate.Column];
-
-    public void Move(char direction)
-    {
-        var next = _coordinate.Move(direction);
-        if (
-            next.Row >= 0 && next.Row < _keys.GetLength(0)
-            && next.Column >= 0 && next.Column < _keys.GetLength(1)
-            && _keys[next.Row, next.Column].HasValue
-            )
-            _coordinate = next;
     }
 }
 public record struct Coordinate(int Row, int Column)

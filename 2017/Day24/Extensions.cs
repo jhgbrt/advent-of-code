@@ -12,6 +12,6 @@ static class Extensions
 
     public static IEnumerable<string> ReadLines(this TextReader reader)
     {
-        while (reader.Peek() >= 0) yield return reader.ReadLine();
+        while (reader.Peek() >= 0) yield return reader.ReadLine()!;
     }
 }

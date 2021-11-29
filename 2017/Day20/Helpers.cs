@@ -14,7 +14,7 @@ static class Helpers
     {
         while (reader.Peek() >= 0)
         {
-            yield return reader.ReadLine();
+            yield return reader.ReadLine()!;
         }
     }
 }

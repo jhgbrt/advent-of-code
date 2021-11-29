@@ -30,44 +30,4 @@ namespace AdventOfCode.Year2020.Day07
     }
 }
 
-public class Tests
-{
-    [Fact]
-    public void Test1()
-    {
-        Assert.Equal(4, Part1("sample.txt"));
-    }
-    [Fact]
-    public void Test2()
-    {
-        Assert.Equal(32, Part2("sample.txt"));
-        Assert.Equal(126, Part2("sample2.txt"));
-    }
-}
-
 record Relation(string Parent, int N, string Child);
-
-static class Ex
-{
-    public static IEnumerable<Relation> AllParents(this ILookup<string, Relation> tree, string child)
-    {
-        var parents = new[] { child }.SelectMany(c => tree[c]);
-        while (parents.Any())
-        {
-            foreach (var parent in parents) yield return parent;
-            parents = parents.Select(p => p.Parent).SelectMany(c => tree[c]);
-        }
-    }
-    public static IEnumerable<(int n, Relation item)> AllChildren(this ILookup<string, Relation> tree, string name, int n)
-    {
-        foreach (var child in new[] { name }.SelectMany(c => tree[c]))
-        {
-            yield return (n, child);
-            foreach (var item in AllChildren(tree, child.Child, n * child.N)) yield return item;
-        }
-    }
-}
-public class Test
-{
-
-}

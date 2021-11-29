@@ -1,4 +1,3 @@
-
 using static AdventOfCode.Year2015.Day07.AoC;
 
 
@@ -181,12 +180,4 @@ record RightShiftNode(string Name, string OperandName, int ShiftValue) : Node(Na
     public override void Resolve(IReadOnlyDictionary<string, Node> nodes) { Operand = nodes[OperandName]; }
 
     public override string ToString() => $"{OperandName} RSHIFT {ShiftValue} -> {Name}";
-}
-
-public class Tests
-{
-    [Fact]
-    public void Test1() => Assert.Equal(46065, Part1().Value);
-    [Fact]
-    public void Test2() => Assert.Equal(14134, Part2().Value);
 }

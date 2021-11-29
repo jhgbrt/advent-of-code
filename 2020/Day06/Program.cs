@@ -24,34 +24,3 @@ namespace AdventOfCode.Year2020.Day06
         ).Sum();
     }
 }
-
-static class Ex
-{
-    internal static Blocks AsBlocks(this IEnumerable<string> lines)
-    {
-        var enumerator = lines.GetEnumerator();
-        while (enumerator.MoveNext())
-            yield return GetBlock(enumerator);
-    }
-    private static IEnumerable<string> GetBlock(IEnumerator<string> enumerator)
-    {
-        while (!string.IsNullOrEmpty(enumerator.Current))
-        {
-            yield return enumerator.Current;
-            if (!enumerator.MoveNext()) break;
-        }
-    }
-
-}
-
-public class Tests
-{
-    [Fact]
-    public void TestExample()
-    {
-        var example = File.ReadLines("sample.txt").AsBlocks();
-        var (e1, e2) = (Part1(example), Part2(example));
-        Debug.Assert((e1, e2) == (11, 6), $"{(e1, e2)}");
-
-    }
-}

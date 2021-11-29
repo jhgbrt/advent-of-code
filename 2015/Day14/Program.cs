@@ -1,4 +1,3 @@
-
 using static AdventOfCode.Year2015.Day14.AoC;
 
 Console.WriteLine(Part1());
@@ -47,14 +46,6 @@ namespace AdventOfCode.Year2015.Day14
                                                   let rest = int.Parse(match.Groups["rest"].Value)
                                                   select new Entry(name, speed, fly, rest);
     }
-}
-
-public class Tests
-{
-    [Fact]
-    public void Test1() => Assert.Equal(2660, Part1().Value);
-    [Fact]
-    public void Test2() => Assert.Equal(1256, Part2().Value);
 }
 
 record Entry(string name, int speed, int fly, int rest)

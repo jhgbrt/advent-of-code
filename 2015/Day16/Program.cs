@@ -1,4 +1,3 @@
-
 using static AdventOfCode.Year2015.Day16.AoC;
 
 Console.WriteLine(Part1());
@@ -59,14 +58,6 @@ namespace AdventOfCode.Year2015.Day16
                 select sue
                 ).Single().number);
     }
-}
-
-public class Tests
-{
-    [Fact]
-    public void Test1() => Assert.Equal(213, Part1().Value);
-    [Fact]
-    public void Test2() => Assert.Equal(323, Part2().Value);
 }
 
 record Sue(int number, IReadOnlyDictionary<string, int> properties)

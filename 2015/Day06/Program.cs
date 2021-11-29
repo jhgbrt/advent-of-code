@@ -1,4 +1,3 @@
-
 using static AdventOfCode.Year2015.Day06.AoC;
 
 Console.WriteLine(Part1());
@@ -107,12 +106,4 @@ readonly record struct Coordinate(int x, int y)
         return new Coordinate(int.Parse(match.Groups["x"].Value), int.Parse(match.Groups["y"].Value));
     }
 
-}
-
-public class Tests
-{
-    [Fact]
-    public void Test1() => Assert.Equal(377891, Part1().Value);
-    [Fact]
-    public void Test2() => Assert.Equal(14110788, Part2().Value);
 }

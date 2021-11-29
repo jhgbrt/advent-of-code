@@ -27,7 +27,7 @@ public static class Extensions
     {
         using (var reader = new StringReader(s))
         {
-            while (reader.Peek() >= 0) yield return reader.ReadLine();
+            while (reader.Peek() >= 0) yield return reader.ReadLine()!;
         }
     }
 }

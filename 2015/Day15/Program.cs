@@ -1,4 +1,3 @@
-
 using static AdventOfCode.Year2015.Day15.AoC;
 
 Console.WriteLine(Part1());
@@ -52,14 +51,6 @@ namespace AdventOfCode.Year2015.Day15
                             yield return new[] { i, j, k, 100L - i - j - k };
         }
     }
-}
-
-public class Tests
-{
-    [Fact]
-    public void Test1() => Assert.Equal(21367368L, Part1().Value);
-    [Fact]
-    public void Test2() => Assert.Equal(1766400L, Part2().Value);
 }
 
 record struct Ingredient(string name, int capacity, int durability, int flavor, int texture, int calories);

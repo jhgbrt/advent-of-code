@@ -12,7 +12,7 @@ public class CPU2
             .ToDictionary(x => x.key, x => x.value);
 
     private int _instructionPtr;
-    private IReadOnlyList<string> _instructions;
+    private IReadOnlyList<string> _instructions = Array.Empty<string>();
 
     public int Sent { get; private set; }
 

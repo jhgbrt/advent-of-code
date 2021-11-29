@@ -1,4 +1,3 @@
-
 using static AdventOfCode.Year2015.Day13.AoC;
 
 Console.WriteLine(Part1());
@@ -48,14 +47,6 @@ namespace AdventOfCode.Year2015.Day13
                 : GetPermutations(list, length - 1).SelectMany(t => list.Where(e => !t.Contains(e)), (t1, t2) => t1.Concat(new[] { t2 }).ToArray());
 
     }
-}
-
-public class Tests
-{
-    [Fact]
-    public void Test1() => Assert.Equal(618, Part1().Value);
-    [Fact]
-    public void Test2() => Assert.Equal(601, Part2().Value);
 }
 
 

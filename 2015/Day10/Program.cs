@@ -1,4 +1,3 @@
-
 using static AdventOfCode.Year2015.Day10.AoC;
 
 Console.WriteLine(Part1());
@@ -42,12 +41,4 @@ namespace AdventOfCode.Year2015.Day10
             return new(sb.Length, sw.Elapsed);
         }
     }
-}
-
-public class Tests
-{
-    [Fact]
-    public void Test1() => Assert.Equal(252594, Part1().Value);
-    [Fact]
-    public void Test2() => Assert.Equal(3579328, Part2().Value);
 }

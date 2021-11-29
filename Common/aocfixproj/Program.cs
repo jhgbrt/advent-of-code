@@ -79,17 +79,29 @@ static void UpdateProgramCs(int year, int day)
     var workspace = new AdhocWorkspace();
     workspace.AddSolution(SolutionInfo.Create(SolutionId.CreateNewId(Guid.NewGuid().ToString()), VersionStamp.Default));
 
-    foreach (var c in collector.Classes.Where(c => c.Identifier.ToString() != "AoC"))
+    var ns = SyntaxFactory.FileScopedNamespaceDeclaration(SyntaxFactory.ParseName(namespaceName));
+
+    if (collector.Classes.Where(c => c.Identifier.ToString() != "AoC").Any())
     {
-        root = root.RemoveNode(c, SyntaxRemoveOptions.KeepNoTrivia);
+        var usings = root.Usings;
+        root = root.RemoveNodes(collector.Classes.Where(c => c.Identifier.ToString() != "AoC"), SyntaxRemoveOptions.KeepNoTrivia);
+
+        foreach (var c in collector.Classes.Where(c => c.Identifier.ToString() != "AoC"))
+        {
+            var croot = SyntaxFactory.CompilationUnit()
+                .WithUsings(usings)
+                .AddMembers(ns, c);
+            Console.WriteLine($"Create {c.Identifier}.cs");
+            File.WriteAllText(Path.Combine(year.ToString(), $"Day{day:00}", $"{c.Identifier}.cs"), Formatter.Format(croot, workspace).ToString());
+        }
+
         shouldWrite = true;
     }
 
     if (shouldWrite)
     {
-        Console.WriteLine($"Writing {file}");
-        Console.WriteLine(Formatter.Format(root, workspace));
-        //File.WriteAllText(file, Formatter.Format(root, workspace).ToString());
+        Console.WriteLine($"Update {file}");
+        File.WriteAllText(file, Formatter.Format(root, workspace).ToString());
     }
 }
 

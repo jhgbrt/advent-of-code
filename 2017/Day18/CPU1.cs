@@ -8,7 +8,7 @@ public class CPU1
         .ToDictionary(x => x.key, x => x.value);
 
     private int _instructionPtr;
-    private IReadOnlyList<string> _instructions;
+    private IReadOnlyList<string> _instructions = Array.Empty<string>();
 
     public CPU1 Load(IReadOnlyList<string> instructions)
     {

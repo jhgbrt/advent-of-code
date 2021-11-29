@@ -12,7 +12,7 @@ static class Extensions
 
     public static IEnumerable<string> ReadLines(this TextReader reader)
     {
-        while (reader.Peek() >= 0) yield return reader.ReadLine();
+        while (reader.Peek() >= 0) yield return reader.ReadLine()!;
     }
 
     public static (char beginState, int checksum, string code) EncodeToSomethingSimpler(this string input)
