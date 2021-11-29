@@ -1,6 +1,6 @@
 using static System.Char;
-using static GuardAction.Type;
 using System.Globalization;
+using static AdventOfCode.Year2018.Day04.GuardAction.Type;
 
 namespace AdventOfCode.Year2018.Day04;
 

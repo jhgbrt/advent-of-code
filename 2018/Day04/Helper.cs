@@ -1,5 +1,3 @@
-using static GuardAction.Type;
-
 namespace AdventOfCode.Year2018.Day04;
 
 internal static class Helper
@@ -44,10 +42,10 @@ internal static class Helper
         {
             switch (g.ActionType)
             {
-                case FellAsleep:
+                case GuardAction.Type.FellAsleep:
                     start = g.TimeStamp;
                     break;
-                case WakesUp:
+                case GuardAction.Type.WakesUp:
                     yield return (start, g.TimeStamp);
                     break;
             }

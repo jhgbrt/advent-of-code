@@ -1,7 +1,5 @@
-using static Direction;
-
+using static AdventOfCode.Year2020.Day24.Direction;
 namespace AdventOfCode.Year2020.Day24;
-
 static class Ex
 {
     public static Tile ToTile(this string line)

@@ -6,14 +6,14 @@ using Microsoft.CodeAnalysis.Formatting;
 using System.Xml.Linq;
 
 
-for (var year = 2015; year <= DateTime.Now.Year; year++)
+for (var year = 2015; year < DateTime.Now.Year; year++)
 {
     for (var day = 1; day <= 25; day++)
     {
-        Console.WriteLine($"{year}/{day}");
-        UpdateProject(year, day);
+        //Console.WriteLine($"{year}/{day}");
+        //UpdateProject(year, day);
         UpdateProgramCs(year, day);
-        UpdateNamespaces(year, day);
+        //UpdateNamespaces(year, day);
     }
 }
 
@@ -52,6 +52,14 @@ static void UpdateProject(int year, int day)
             shouldWrite = true;
         }
 
+        if (!itemGroup.Descendants().Any(n => n.Attribute("Include")?.Value == "System.Diagnostics"))
+        {
+            var @using = new XElement("Using");
+            @using.SetAttributeValue("Include", "System.Diagnostics");
+            itemGroup.Add(@using);
+            shouldWrite = true;
+        }
+
         if (shouldWrite)
         {
             Console.WriteLine($"Update {csproj}");
@@ -81,28 +89,67 @@ static void UpdateProgramCs(int year, int day)
 
     var ns = SyntaxFactory.FileScopedNamespaceDeclaration(SyntaxFactory.ParseName(namespaceName));
 
-    if (collector.Classes.Where(c => c.Identifier.ToString() != "AoC").Any())
+    var usings = root.Usings;
+
+
+    //foreach (var c in collector.Classes)
+    //    Console.WriteLine($"{file}: {c.Identifier}");
+    //foreach (var c in collector.Records)
+    //    Console.WriteLine($"{file}: {c.Identifier}");
+
+    var aocimpl = Path.Combine(year.ToString(), $"Day{day:00}", $"AoC.Impl.cs");
+
+    if (collector.Enums.Any() && File.Exists(aocimpl))
     {
-        var usings = root.Usings;
-        root = root.RemoveNodes(collector.Classes.Where(c => c.Identifier.ToString() != "AoC"), SyntaxRemoveOptions.KeepNoTrivia);
-
-        foreach (var c in collector.Classes.Where(c => c.Identifier.ToString() != "AoC"))
-        {
-            var croot = SyntaxFactory.CompilationUnit()
-                .WithUsings(usings)
-                .AddMembers(ns, c);
-            Console.WriteLine($"Create {c.Identifier}.cs");
-            File.WriteAllText(Path.Combine(year.ToString(), $"Day{day:00}", $"{c.Identifier}.cs"), Formatter.Format(croot, workspace).ToString());
-        }
-
-        shouldWrite = true;
-    }
-
-    if (shouldWrite)
-    {
+        var tree = CSharpSyntaxTree.ParseText(File.ReadAllText(aocimpl));
+        var croot = tree.GetCompilationUnitRoot();
+        foreach (var c in collector.Enums)
+            croot = croot.AddMembers(c);
+        Console.WriteLine($"Update AoC.Impl.cs");
+        File.WriteAllText(aocimpl, Formatter.Format(croot, workspace).ToString());
         Console.WriteLine($"Update {file}");
-        File.WriteAllText(file, Formatter.Format(root, workspace).ToString());
+        File.WriteAllText(file, Formatter.Format(root.RemoveNodes(collector.Enums, SyntaxRemoveOptions.KeepNoTrivia), workspace).ToString());
     }
+    if (collector.Classes.Any() && File.Exists(aocimpl))
+    {
+        var tree = CSharpSyntaxTree.ParseText(File.ReadAllText(aocimpl));
+        var croot = tree.GetCompilationUnitRoot();
+        foreach (var c in collector.Classes)
+            croot = croot.AddMembers(c);
+        Console.WriteLine($"Update AoC.Impl.cs");
+        File.WriteAllText(aocimpl, Formatter.Format(croot, workspace).ToString());
+        Console.WriteLine($"Update {file}");
+        File.WriteAllText(file, Formatter.Format(root.RemoveNodes(collector.Classes, SyntaxRemoveOptions.KeepNoTrivia), workspace).ToString());
+    }
+    if (collector.Interfaces.Any() && File.Exists(aocimpl))
+    {
+        var tree = CSharpSyntaxTree.ParseText(File.ReadAllText(aocimpl));
+        var croot = tree.GetCompilationUnitRoot();
+        foreach (var c in collector.Interfaces)
+            croot = croot.AddMembers(c);
+        Console.WriteLine($"Update AoC.Impl.cs");
+        File.WriteAllText(aocimpl, Formatter.Format(croot, workspace).ToString());
+        Console.WriteLine($"Update {file}");
+        File.WriteAllText(file, Formatter.Format(root.RemoveNodes(collector.Interfaces, SyntaxRemoveOptions.KeepNoTrivia), workspace).ToString());
+    }
+
+    File.WriteAllLines(file, new[]
+    {
+        @$"using static AdventOfCode.Year{year}.Day{day:00}.AoC;",
+        "Console.WriteLine(Part1());",
+        "Console.WriteLine(Part2());"
+    });
+
+    //if (collector.Classes.Count == 1 && collector.Namespaces.Count == 1)
+    //{
+    //    var croot = SyntaxFactory.CompilationUnit()
+    //        .WithUsings(usings)
+    //        .AddMembers(ns, collector.Classes[0]);
+    //    Console.WriteLine($"Create AoC.Impl.cs");
+    //    File.WriteAllText(Path.Combine(year.ToString(), $"Day{day:00}", $"AoC.Impl.cs"), Formatter.Format(croot, workspace).ToString());
+    //    Console.WriteLine($"Update {file}");
+    //    File.WriteAllText(file, Formatter.Format(root.RemoveNode(collector.Namespaces[0], SyntaxRemoveOptions.KeepNoTrivia), workspace).ToString());
+    //}
 }
 
 
@@ -147,9 +194,27 @@ class FindFileScopedNamespace : CSharpSyntaxWalker
 class ProgramCsWalker : CSharpSyntaxWalker
 {
     public List<ClassDeclarationSyntax> Classes { get; private set; } = new();
+    public List<RecordDeclarationSyntax> Records { get; private set; } = new();
+    public List<EnumDeclarationSyntax> Enums { get; private set; } = new();
+    public List<InterfaceDeclarationSyntax> Interfaces { get; private set; } = new();
+
 
     public override void VisitClassDeclaration(ClassDeclarationSyntax node)
     {
         Classes.Add(node);
+    }
+    public override void VisitRecordDeclaration(RecordDeclarationSyntax node)
+    {
+        Records.Add(node);
+    }
+
+    public override void VisitEnumDeclaration(EnumDeclarationSyntax node)
+    {
+        Enums.Add(node);
+    }
+
+    public override void VisitInterfaceDeclaration(InterfaceDeclarationSyntax node)
+    {
+        Interfaces.Add(node);
     }
 }
