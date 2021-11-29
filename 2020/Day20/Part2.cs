@@ -35,7 +35,7 @@ public static class Runner
 
 record Edge(int cw, int ccw)
 {
-    public bool IsCompatibleWith(Edge other) => Object.Equals((cw, ccw), (other.ccw, other.cw));
+    public bool IsCompatibleWith(Edge other) => Equals((cw, ccw), (other.ccw, other.cw));
 }
 
 class Tile

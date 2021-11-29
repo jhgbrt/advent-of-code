@@ -56,6 +56,10 @@ class CPU
     }
 
 #pragma warning disable CS0164
+#pragma warning disable IDE0054
+#pragma warning disable IDE0059
+#pragma warning disable IDE1006
+
     public long RunReverseEngineered(bool part2)
     {
         var set = new HashSet<long>();

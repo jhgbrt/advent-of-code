@@ -37,7 +37,7 @@ namespace AdventOfCode.Year2017.Day03
         [InlineData(21, -2, -2)]
         public void ToEuclideanTests(int square, int expectedX, int expectedY)
         {
-            var (x, y) = Spiral.ToEuclidean(square);
+            var (x, y) = ToEuclidean(square);
             Assert.Equal((expectedX, expectedY), (x, y));
         }
 
@@ -48,7 +48,7 @@ namespace AdventOfCode.Year2017.Day03
         [InlineData(1024, 31)]
         public void ShortestDistanceTest(int square, int expected)
         {
-            var distance = Spiral.DistanceToOrigin(square);
+            var distance = DistanceToOrigin(square);
             Assert.Equal(expected, distance);
         }
 
@@ -63,7 +63,7 @@ namespace AdventOfCode.Year2017.Day03
         [InlineData(8, 23)]
         public void SpiralValueTest(int square, int expected)
         {
-            var value = Spiral.SpiralValues().Take(square).Last().value;
+            var value = SpiralValues().Take(square).Last().value;
             Assert.Equal(expected, value);
         }
     }

@@ -117,7 +117,7 @@ internal struct GuardAction
 internal static class Parser
 {
     public static IEnumerable<IGrouping<int, GuardAction>> ToGuards(this IEnumerable<string> lines)
-        => from guardaction in Parser.ToGuardActions(lines)
+        => from guardaction in ToGuardActions(lines)
            orderby guardaction.TimeStamp
            group guardaction by guardaction.ID;
 
@@ -126,7 +126,7 @@ internal static class Parser
         int id = default;
         foreach (var item in lines.Select(s => Parse(s)).OrderBy(x => x.timestamp))
         {
-            if (item.type == GuardAction.Type.StartShift)
+            if (item.type == StartShift)
             {
                 id = item.id.Value;
             }

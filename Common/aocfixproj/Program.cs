@@ -23,6 +23,8 @@ static void UpdateProject(int year, int day)
     if (File.Exists(csproj))
     {
         var doc = XDocument.Load(csproj);
+        bool shouldWrite = false;
+
         var propertyGroup = (
             from node in doc.Descendants()
             where node.Name == "PropertyGroup"
@@ -32,6 +34,7 @@ static void UpdateProject(int year, int day)
         if (!propertyGroup.Descendants().Any(p => p.Name == "RootNameSpace"))
         {
             propertyGroup.Add(new XElement("RootNameSpace", $"AdventOfCode.Year{year:0000}.Day{day:00}"));
+            shouldWrite = true;
         }
 
         var itemGroup = (
@@ -46,9 +49,14 @@ static void UpdateProject(int year, int day)
             var @using = new XElement("Using");
             @using.SetAttributeValue("Include", "System.Collections.Immutable");
             itemGroup.Add(@using);
+            shouldWrite = true;
         }
 
-        doc.Save(csproj);
+        if (shouldWrite)
+        {
+            Console.WriteLine($"Update {csproj}");
+            doc.Save(csproj);
+        }
     }
 
 }
@@ -63,31 +71,25 @@ static void UpdateProgramCs(int year, int day)
 
     var root = syntax.GetCompilationUnitRoot();
 
-    var collector = new FindAoCClass();
+    var collector = new ProgramCsWalker();
     collector.Visit(root);
 
     bool shouldWrite = false;
 
-    if (collector.AoC is not null)
-    {
-        var ns = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(namespaceName));
-        root = root.ReplaceNode(collector.AoC, ns.AddMembers(collector.AoC));
-        shouldWrite = true;
-    }
+    var workspace = new AdhocWorkspace();
+    workspace.AddSolution(SolutionInfo.Create(SolutionId.CreateNewId(Guid.NewGuid().ToString()), VersionStamp.Default));
 
-    if (collector.UsingStaticAoC is not null)
+    foreach (var c in collector.Classes.Where(c => c.Identifier.ToString() != "AoC"))
     {
-        var newusing = collector.UsingStaticAoC.WithName(SyntaxFactory.ParseName(namespaceName + ".AoC"));
-        root = root.ReplaceNode(collector.UsingStaticAoC, newusing);
+        root = root.RemoveNode(c, SyntaxRemoveOptions.KeepNoTrivia);
         shouldWrite = true;
     }
 
     if (shouldWrite)
     {
-        var workspace = new AdhocWorkspace();
-        workspace.AddSolution(SolutionInfo.Create(SolutionId.CreateNewId(Guid.NewGuid().ToString()), VersionStamp.Default));
         Console.WriteLine($"Writing {file}");
-        File.WriteAllText(file, Formatter.Format(root, workspace).ToString());
+        Console.WriteLine(Formatter.Format(root, workspace));
+        //File.WriteAllText(file, Formatter.Format(root, workspace).ToString());
     }
 }
 
@@ -115,7 +117,7 @@ static void UpdateNamespaces(int year, int day)
             var workspace = new AdhocWorkspace();
             workspace.AddSolution(SolutionInfo.Create(SolutionId.CreateNewId(Guid.NewGuid().ToString()), VersionStamp.Default));
             Console.WriteLine($"Writing {file.FullName}");
-            File.WriteAllText(file.FullName, Formatter.Format(root, workspace).ToString());
+            //File.WriteAllText(file.FullName, Formatter.Format(root, workspace).ToString());
         }
 
     }
@@ -130,24 +132,12 @@ class FindFileScopedNamespace : CSharpSyntaxWalker
         HasFileScopedNamespace = true;
     }
 }
-class FindAoCClass : CSharpSyntaxWalker
+class ProgramCsWalker : CSharpSyntaxWalker
 {
-    public UsingDirectiveSyntax UsingStaticAoC { get; private set; }
-    public ClassDeclarationSyntax AoC { get; private set; }
-
-    public override void VisitUsingDirective(UsingDirectiveSyntax node)
-    {
-        if (node.Name.ToString() == "AoC" && node.StaticKeyword != SyntaxFactory.Token(SyntaxKind.None))
-        {
-            UsingStaticAoC = node;
-        }
-    }
+    public List<ClassDeclarationSyntax> Classes { get; private set; } = new();
 
     public override void VisitClassDeclaration(ClassDeclarationSyntax node)
     {
-        if (node.Identifier.ToString() == "AoC" && node.Parent is not NamespaceDeclarationSyntax)
-        {
-            AoC = node;
-        }
+        Classes.Add(node);
     }
 }

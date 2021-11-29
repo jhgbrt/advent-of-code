@@ -70,7 +70,7 @@ public class Specs
     [InlineData(11143, 43, Mode.Immediate, Mode.Immediate, Mode.Immediate)]
     public void DecodeTest(int value, int expectedOpCode, params Mode[] expectedModes)
     {
-        (var opcode, var modes) = IntCode.Decode(value);
+        (var opcode, var modes) = Decode(value);
         Assert.Equal(expectedOpCode, opcode);
         Assert.Equal(expectedModes, modes);
     }
