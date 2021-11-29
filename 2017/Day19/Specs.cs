@@ -1,3 +1,5 @@
+namespace AdventOfCode.Year2017.Day19;
+
 public class Specs
 {
     private static string SampleMaze = "     |          \r\n" +

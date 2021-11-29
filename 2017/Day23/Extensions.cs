@@ -1,3 +1,5 @@
+namespace AdventOfCode.Year2017.Day23;
+
 static class Extensions
 {
     public static IEnumerable<string> ReadLines(this string s)

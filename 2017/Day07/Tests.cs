@@ -1,8 +1,8 @@
-﻿namespace ProgramTree
+namespace AdventOfCode.Year2017.Day07;
+
+public class Tests
 {
-    public class Tests
-    {
-        private string SampleInput = @"pbga (66)
+    private string SampleInput = @"pbga (66)
 xhth (57)
 ebii (61)
 havc (66)
@@ -17,37 +17,35 @@ gyxo (61)
 cntj (57)
 ";
 
-        [Fact]
-        public void TestPart1()
-        {
-            var tree = Tree.Parse(SampleInput);
-            var root = tree.Root;
-            Assert.Equal("tknk", root.Label);
-        }
-
-        [Theory]
-        [InlineData("ugml", 251)]
-        [InlineData("gyxo", 61)]
-        [InlineData("padx", 243)]
-        public void TestPart2_Weights(string label, int expectedWeight)
-        {
-            var tree = Tree.Parse(SampleInput);
-            var node = tree.Find(label);
-            Assert.Equal(expectedWeight, node.Weight);
-        }
-
-        [Fact]
-        public void TestPart2()
-        {
-            var tree = Tree.Parse(SampleInput);
-            
-
-            var invalidNode =tree.FindInvalidNode();
-            var result = invalidNode.RebalancingWeight;
-
-            Assert.Equal("ugml", invalidNode.Label);
-            Assert.Equal(60, result);
-        }
+    [Fact]
+    public void TestPart1()
+    {
+        var tree = Tree.Parse(SampleInput);
+        var root = tree.Root;
+        Assert.Equal("tknk", root.Label);
     }
 
+    [Theory]
+    [InlineData("ugml", 251)]
+    [InlineData("gyxo", 61)]
+    [InlineData("padx", 243)]
+    public void TestPart2_Weights(string label, int expectedWeight)
+    {
+        var tree = Tree.Parse(SampleInput);
+        var node = tree.Find(label);
+        Assert.Equal(expectedWeight, node.Weight);
+    }
+
+    [Fact]
+    public void TestPart2()
+    {
+        var tree = Tree.Parse(SampleInput);
+
+
+        var invalidNode = tree.FindInvalidNode();
+        var result = invalidNode.RebalancingWeight;
+
+        Assert.Equal("ugml", invalidNode.Label);
+        Assert.Equal(60, result);
+    }
 }

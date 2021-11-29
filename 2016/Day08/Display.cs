@@ -1,4 +1,6 @@
-﻿class Display
+namespace AdventOfCode.Year2016.Day08;
+
+class Display
 {
     bool[,] display;
 
@@ -24,7 +26,7 @@
     public override string ToString()
     {
         var sb = new StringBuilder();
-        for (int col = 0; col < display.GetLength(1); col+=5)
+        for (int col = 0; col < display.GetLength(1); col += 5)
         {
             sb.Append(GetLetter(0, col));
         }
@@ -36,7 +38,7 @@
         var sb = new StringBuilder().AppendLine();
         for (int r = row; r < display.GetLength(0); r++)
         {
-            for (int c = col; c < col+4; c++)
+            for (int c = col; c < col + 4; c++)
                 sb.Append(display[r, c] ? '#' : '.');
             sb.AppendLine();
         }

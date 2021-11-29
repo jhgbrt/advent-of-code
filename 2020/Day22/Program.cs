@@ -1,7 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Immutable;
-using static AoC.Input;
-using static AoC;
+using System.Collections;
+using static AdventOfCode.Year2020.Day22.AoC.Input;
+using static AdventOfCode.Year2020.Day22.AoC;
 
 #if DEBUG
 Trace.Listeners.Add(new ConsoleTraceListener());
@@ -11,127 +10,129 @@ Trace.Listeners.Add(new ConsoleTraceListener());
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-
-partial class AoC
+namespace AdventOfCode.Year2020.Day22
 {
-
-    internal static Result Part1() => Run(() => 
+    partial class AoC
     {
-        var (deck1, deck2) = (new Deck(Deck1, 1), new Deck(Deck2, 2));
-        return Play1(deck1, deck2).Reverse().Select((n, i) => n * (i + 1)).Sum();
-    });
-    internal static Result Part2() => Run(() =>
-    {
-        var (deck1, deck2) = (new Deck(Deck1, 1), new Deck(Deck2, 2));
-        return Play2(deck1, deck2, 1).Reverse().Select((n, i) => n * (i + 1)).Sum();
-    });
 
-
-    public static Deck Play1(Deck d1, Deck d2)
-    {
-        while (d1.Any() && d2.Any())
+        internal static Result Part1() => Run(() =>
         {
+            var (deck1, deck2) = (new Deck(Deck1, 1), new Deck(Deck2, 2));
+            return Play1(deck1, deck2).Reverse().Select((n, i) => n * (i + 1)).Sum();
+        });
+        internal static Result Part2() => Run(() =>
+        {
+            var (deck1, deck2) = (new Deck(Deck1, 1), new Deck(Deck2, 2));
+            return Play2(deck1, deck2, 1).Reverse().Select((n, i) => n * (i + 1)).Sum();
+        });
+
+
+        public static Deck Play1(Deck d1, Deck d2)
+        {
+            while (d1.Any() && d2.Any())
+            {
 #if DEBUG
             Trace.WriteLine($"player 1: {d1}");
             Trace.WriteLine($"player 2: {d2}");
 #endif
-            (d1,d2) = (d1.Dequeue(out int c1), d2.Dequeue(out int c2));
-            var winner = c1 > c2 ? d1 : d2;
-            (d1, d2) = winner switch
-            {
-                {Player: 1 } => (d1.Enqueue(c1).Enqueue(c2), d2),
-                {Player: 2 } => (d1, d2.Enqueue(c2).Enqueue(c1)),
-                _ => throw new()
-            };
+                (d1, d2) = (d1.Dequeue(out int c1), d2.Dequeue(out int c2));
+                var winner = c1 > c2 ? d1 : d2;
+                (d1, d2) = winner switch
+                {
+                    { Player: 1 } => (d1.Enqueue(c1).Enqueue(c2), d2),
+                    { Player: 2 } => (d1, d2.Enqueue(c2).Enqueue(c1)),
+                    _ => throw new()
+                };
 #if DEBUG
             Trace.WriteLine($"player {winner} wins");
 #endif
+            }
+            return d1.Any() ? d1 : d2;
         }
-        return d1.Any() ? d1 : d2;
-    }
-    public static Deck Play2(Deck d1, Deck d2, int level)
-    {
-        int round = 0;
-        var seen = ImmutableHashSet<(Deck p1, Deck p2)>.Empty;
-        while (d1.Any() && d2.Any())
+        public static Deck Play2(Deck d1, Deck d2, int level)
         {
-            round++;
-            if (seen.Contains((d1,d2)))
+            int round = 0;
+            var seen = ImmutableHashSet<(Deck p1, Deck p2)>.Empty;
+            while (d1.Any() && d2.Any())
             {
+                round++;
+                if (seen.Contains((d1, d2)))
+                {
 #if DEBUG
                 Trace.WriteLine($"seen: {(d1, d2)}");
 #endif
-                return d1;
-            }
-            seen = seen.Add((d1, d2));
+                    return d1;
+                }
+                seen = seen.Add((d1, d2));
 
 #if DEBUG
             Trace.WriteLine($"--Round: {round} (Game {level})--");
             Trace.WriteLine($"player 1: {d1}");
             Trace.WriteLine($"player 2: {d2}");
 #endif
-            (d1, d2) = (d1.Dequeue(out int c1), d2.Dequeue(out int c2));
+                (d1, d2) = (d1.Dequeue(out int c1), d2.Dequeue(out int c2));
 #if DEBUG
             Trace.WriteLine($"player 1 plays {c1}");
             Trace.WriteLine($"player 2 plays {c2}");
 #endif
-            Deck winner;
-            if (d1.Count() >= c1 && d2.Count() >= c2)
-            {
+                Deck winner;
+                if (d1.Count() >= c1 && d2.Count() >= c2)
+                {
 #if DEBUG
                 Trace.WriteLine("Subgame needed to determine winner");
 #endif
-                winner = Play2(new Deck(d1.Take(c1), d1.Player), new Deck(d2.Take(c2), d2.Player), level + 1);
+                    winner = Play2(new Deck(d1.Take(c1), d1.Player), new Deck(d2.Take(c2), d2.Player), level + 1);
 #if DEBUG
                 Trace.WriteLine($"back to game {level}");
 #endif
-            }
-            else
-            {
-                winner = c1 > c2 ? d1 : d2;
-            }
-            (d1, d2) = winner switch
-            {
-                { Player: 1 } => (d1.Enqueue(c1).Enqueue(c2), d2),
-                { Player: 2 } => (d1, d2.Enqueue(c2).Enqueue(c1)),
-                _ => throw new()
-            };
+                }
+                else
+                {
+                    winner = c1 > c2 ? d1 : d2;
+                }
+                (d1, d2) = winner switch
+                {
+                    { Player: 1 } => (d1.Enqueue(c1).Enqueue(c2), d2),
+                    { Player: 2 } => (d1, d2.Enqueue(c2).Enqueue(c1)),
+                    _ => throw new()
+                };
 #if DEBUG
             Trace.WriteLine($"Player {winner} wins round {round} of game {level}");
             Trace.WriteLine(string.Empty);
 #endif
+            }
+            return d1.Any() ? d1 : d2;
         }
-        return d1.Any() ? d1 : d2;
-    }
 
-  
-    public static class Input
-    {
-        public static int[] Deck1 = new[]
+
+        public static class Input
         {
+            public static int[] Deck1 = new[]
+            {
             14, 23, 6 , 16, 46, 24, 13, 25, 17, 4 , 31, 7 , 1 , 47, 15, 9 , 50, 3 , 30, 37, 43, 10, 28, 33, 32
         };
-        public static int[] Deck2 = new[]
-        {
+            public static int[] Deck2 = new[]
+            {
             29, 49, 11, 42, 35, 18, 39, 40, 36, 19, 48, 22, 2 , 20, 26, 8 , 12, 44, 45, 21, 38, 41, 34, 5 , 27
         };
 
-    }
-    public static class TestRecursion
-    {
-        public static int[] Deck1 = new[] { 43, 19 };
-        public static int[] Deck2 = new[] { 2, 29, 14 };
-    }
-    public static class Example
-    {
-        public static int[] Deck1 = new[]
+        }
+        public static class TestRecursion
         {
+            public static int[] Deck1 = new[] { 43, 19 };
+            public static int[] Deck2 = new[] { 2, 29, 14 };
+        }
+        public static class Example
+        {
+            public static int[] Deck1 = new[]
+            {
             9,2,6,3,1
         };
-        public static int[] Deck2 = new[]
-        {
+            public static int[] Deck2 = new[]
+            {
             5,8,4,7,10
         };
+        }
     }
 }
 

@@ -1,3 +1,5 @@
+namespace AdventOfCode.Year2017.Day21;
+
 class Rule
 {
     private readonly char[,] _source;

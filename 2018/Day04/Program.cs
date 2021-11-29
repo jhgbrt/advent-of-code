@@ -1,4 +1,4 @@
-using static AoC;
+using static AdventOfCode.Year2018.Day04.AoC;
 using static System.Char;
 using static GuardAction.Type;
 using System.Globalization;
@@ -6,36 +6,39 @@ using System.Globalization;
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-partial class AoC
+namespace AdventOfCode.Year2018.Day04
 {
-    static string[] input = File.ReadAllLines("input.txt");
-
-    internal static Result Part1() => Run(() => Part1(input));
-    internal static Result Part2() => Run(() => Part2(input));
-
-    public static int Part1(string[] input)
+    partial class AoC
     {
-        var guard = Helper.GetMostSleepingGuard(input);
-        var guardId = guard.Key;
-        var mostSleepingMinute = guard.GetMostSleepingMinute();
-        return guardId * mostSleepingMinute;
-    }
+        static string[] input = File.ReadAllLines("input.txt");
 
-    public static int Part2(string[] input)
-    {
-        var guards = Parser.ToGuards(input);
+        internal static Result Part1() => Run(() => Part1(input));
+        internal static Result Part2() => Run(() => Part2(input));
 
-        var query = (
-            from g in guards
-            from minute in g.GetSleepingMinutes()
-            select (g.Key, minute) into x
-            group x by x into g
-            orderby g.Count() descending
-            select g.First()
-        ).ToList();
+        public static int Part1(string[] input)
+        {
+            var guard = Helper.GetMostSleepingGuard(input);
+            var guardId = guard.Key;
+            var mostSleepingMinute = guard.GetMostSleepingMinute();
+            return guardId * mostSleepingMinute;
+        }
 
-        var result = query.First();
-        return result.Key * result.minute;
+        public static int Part2(string[] input)
+        {
+            var guards = Parser.ToGuards(input);
+
+            var query = (
+                from g in guards
+                from minute in g.GetSleepingMinutes()
+                select (g.Key, minute) into x
+                group x by x into g
+                orderby g.Count() descending
+                select g.First()
+            ).ToList();
+
+            var result = query.First();
+            return result.Key * result.minute;
+        }
     }
 }
 

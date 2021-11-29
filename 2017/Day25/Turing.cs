@@ -1,3 +1,5 @@
+namespace AdventOfCode.Year2017.Day25;
+
 static class Turing
 {
     public static int CalculateChecksum(this (char beginState, int steps, string code) input)

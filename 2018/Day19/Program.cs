@@ -1,29 +1,33 @@
-using static AoC;
+using static AdventOfCode.Year2018.Day19.AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-partial class AoC
+namespace AdventOfCode.Year2018.Day19
 {
-    static string[] input = File.ReadAllLines("input.txt");
-
-    internal static Result Part1() => Run(() => Part1(input));
-    internal static Result Part2() => Run(() => Part2(input));
-    public static long Part1(string[] input)
+    partial class AoC
     {
-        var cpu = new CPU(int.Parse(input[0].Split(' ').Last()), input.GetInstructions(), new[] { 0L, 0, 0, 0, 0, 0 });
-        cpu.Run();
-        return cpu.Registers[0];
-    }
+        static string[] input = File.ReadAllLines("input.txt");
 
-    public static long Part2(string[] input)
-    {
-        var cpu = new CPU(int.Parse(input[0].Split(' ').Last()), input.GetInstructions(), new[] { 1L, 0, 0, 0, 0, 0 });
-        return cpu.RunReverseEngineered().A;
+        internal static Result Part1() => Run(() => Part1(input));
+        internal static Result Part2() => Run(() => Part2(input));
+        public static long Part1(string[] input)
+        {
+            var cpu = new CPU(int.Parse(input[0].Split(' ').Last()), input.GetInstructions(), new[] { 0L, 0, 0, 0, 0, 0 });
+            cpu.Run();
+            return cpu.Registers[0];
+        }
+
+        public static long Part2(string[] input)
+        {
+            var cpu = new CPU(int.Parse(input[0].Split(' ').Last()), input.GetInstructions(), new[] { 1L, 0, 0, 0, 0, 0 });
+            return cpu.RunReverseEngineered().A;
+        }
     }
 }
+
 static class Ex
-{    
+{
     public static IEnumerable<(string code, int a, int b, int c)> GetInstructions(this string[] input)
     {
         for (int i = 1; i < input.Length; i++)

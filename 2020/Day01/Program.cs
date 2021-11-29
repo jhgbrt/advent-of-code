@@ -1,25 +1,27 @@
-﻿using static AoC;
+using static AdventOfCode.Year2020.Day01.AoC;
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-partial class AoC
+namespace AdventOfCode.Year2020.Day01
 {
-    static string[] input = File.ReadAllLines("input.txt");
-    static int[] numbers = input.Select(int.Parse).ToArray();
+    partial class AoC
+    {
+        static string[] input = File.ReadAllLines("input.txt");
+        static int[] numbers = input.Select(int.Parse).ToArray();
 
-    internal static Result Part1() => Run(() => numbers.Part1());
-    internal static Result Part2() => Run(() => numbers.Part2());
+        internal static Result Part1() => Run(() => numbers.Part1());
+        internal static Result Part2() => Run(() => numbers.Part2());
 
+    }
 }
 
-
-record Pair(int i, int j) 
-{ 
-    public int Sum => i + j; 
+record Pair(int i, int j)
+{
+    public int Sum => i + j;
 }
-record Triplet(int i, int j, int k) 
-{ 
-    public int Sum => i + j + k; 
+record Triplet(int i, int j, int k)
+{
+    public int Sum => i + j + k;
 }
 static class Driver
 {
@@ -37,16 +39,16 @@ static class Driver
             select p.i
             ).Distinct().Aggregate(1L, (i, m) => m * i);
 
-    public static async Task<IEnumerable<int>> LinesToNumbers(this string filename) 
+    public static async Task<IEnumerable<int>> LinesToNumbers(this string filename)
         => from line in await File.ReadAllLinesAsync(filename)
            select int.Parse(line);
 
-    public static IEnumerable<Pair> GetPairs(this IEnumerable<int> numbers) 
+    public static IEnumerable<Pair> GetPairs(this IEnumerable<int> numbers)
         => from i in numbers
            from j in numbers
            select new Pair(i, j);
-    
-    public static IEnumerable<Triplet> GetTriplets(this IEnumerable<int> numbers) 
+
+    public static IEnumerable<Triplet> GetTriplets(this IEnumerable<int> numbers)
         => from i in numbers
            from j in numbers
            from k in numbers

@@ -1,49 +1,51 @@
-﻿using System.Collections.Immutable;
 
-using static AoC;
+using static AdventOfCode.Year2015.Day23.AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-partial class AoC
+namespace AdventOfCode.Year2015.Day23
 {
-    static string[] input = File.ReadAllLines("input.txt");
-    static ImmutableList<Instruction> instructions = (
-        from line in input
-        let split = line.Split(' ')
-        let name = split[0]
-        let instruction = name switch
-        {
-            "hlf" => new Hlf(split[1].Single()) as Instruction,
-            "tpl" => new Tpl(split[1].Single()),
-            "inc" => new Inc(split[1].Single()),
-            "jmp" => new Jmp(int.Parse(split[1])),
-            "jie" => new Jie(split[1].First(), int.Parse(split[2])),
-            "jio" => new Jio(split[1].First(), int.Parse(split[2])),
-            _ => throw new Exception()
-        }
-        select instruction).ToImmutableList();
-
-
-    internal static Result Part1() => Run(() => Run(instructions, 0));
-    internal static Result Part2() => Run(() => Run(instructions, 1));
-
-    static int Run(IReadOnlyCollection<Instruction> instructions, int a)
+    partial class AoC
     {
-        var memory = new Dictionary<char, int>()
-        {
-            ['a'] = a,
-            ['b'] = 0,
-        };
+        static string[] input = File.ReadAllLines("input.txt");
+        static ImmutableList<Instruction> instructions = (
+            from line in input
+            let split = line.Split(' ')
+            let name = split[0]
+            let instruction = name switch
+            {
+                "hlf" => new Hlf(split[1].Single()) as Instruction,
+                "tpl" => new Tpl(split[1].Single()),
+                "inc" => new Inc(split[1].Single()),
+                "jmp" => new Jmp(int.Parse(split[1])),
+                "jie" => new Jie(split[1].First(), int.Parse(split[2])),
+                "jio" => new Jio(split[1].First(), int.Parse(split[2])),
+                _ => throw new Exception()
+            }
+            select instruction).ToImmutableList();
 
-        var index = 0;
-        while (index >= 0 && index < instructions.Count)
+
+        internal static Result Part1() => Run(() => Run(instructions, 0));
+        internal static Result Part2() => Run(() => Run(instructions, 1));
+
+        static int Run(IReadOnlyCollection<Instruction> instructions, int a)
         {
-            var i = instructions.ElementAt(index);
-            index = i.Apply(index, memory);
+            var memory = new Dictionary<char, int>()
+            {
+                ['a'] = a,
+                ['b'] = 0,
+            };
+
+            var index = 0;
+            while (index >= 0 && index < instructions.Count)
+            {
+                var i = instructions.ElementAt(index);
+                index = i.Apply(index, memory);
+            }
+            return memory['b'];
+
         }
-        return memory['b'];
-
     }
 }
 
@@ -55,9 +57,9 @@ public class Tests
     public void Test2() => Assert.Equal(334, Part2().Value);
 }
 
-interface Instruction 
+interface Instruction
 {
-    int Apply(int index, IDictionary<char, int> memory); 
+    int Apply(int index, IDictionary<char, int> memory);
 }
 readonly record struct Hlf(char register) : Instruction
 {

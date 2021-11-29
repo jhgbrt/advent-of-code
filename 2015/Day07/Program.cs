@@ -1,42 +1,43 @@
-﻿using System.Text.RegularExpressions;
 
-using static AoC;
+using static AdventOfCode.Year2015.Day07.AoC;
 
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-partial class AoC
+namespace AdventOfCode.Year2015.Day07
 {
-    static string[] input = File.ReadAllLines("input.txt");
-
-    internal static Result Part1() => Run(() =>
+    partial class AoC
     {
-        var nodes = BuildNodes();
-        Resolve(nodes);
-        var a = nodes["a"];
-        var v = a.GetValue();
-        return v;
-    });
+        static string[] input = File.ReadAllLines("input.txt");
 
-    internal static Result Part2() => Run(() =>
-    {
-        var v1 = Part1().Value;
-        var nodes = BuildNodes();
-        nodes["b"] = (LiteralValueNode)nodes["b"] with { LiteralValue = (int)v1 };
-        Resolve(nodes);
-        var a = nodes["a"];
-        var v = a.GetValue();
-        return v;
-    });
-
-
-    static Dictionary<string, Node> BuildNodes()
-    {
-        var lines = input;
-
-        var regexes = new (Regex r, Func<Match, Node> f)[]
+        internal static Result Part1() => Run(() =>
         {
+            var nodes = BuildNodes();
+            Resolve(nodes);
+            var a = nodes["a"];
+            var v = a.GetValue();
+            return v;
+        });
+
+        internal static Result Part2() => Run(() =>
+        {
+            var v1 = Part1().Value;
+            var nodes = BuildNodes();
+            nodes["b"] = (LiteralValueNode)nodes["b"] with { LiteralValue = (int)v1 };
+            Resolve(nodes);
+            var a = nodes["a"];
+            var v = a.GetValue();
+            return v;
+        });
+
+
+        static Dictionary<string, Node> BuildNodes()
+        {
+            var lines = input;
+
+            var regexes = new (Regex r, Func<Match, Node> f)[]
+            {
             (new (@"^(?<value>[\d]+) -> (?<name>[a-z]+)$"), m => new LiteralValueNode(m.Groups["name"].Value, int.Parse(m.Groups["value"].Value))),
             (new (@"^(?<value>[a-z]+) -> (?<name>[a-z]+)$"), m => new ConnectorNode(m.Groups["name"].Value, m.Groups["value"].Value)),
             (new (@"^NOT (?<value>[a-z]+) -> (?<name>[a-z]+)$"), m => new NotNode(m.Groups["name"].Value, m.Groups["value"].Value)),
@@ -45,30 +46,29 @@ partial class AoC
             (new (@"^(?<left>[a-z]+) OR (?<right>[a-z]+) -> (?<name>[a-z]+)$"), m => new OrNode(m.Groups["name"].Value, m.Groups["left"].Value, m.Groups["right"].Value)),
             (new (@"^(?<operand>[a-z]+) LSHIFT (?<value>\d+) -> (?<name>[a-z]+)$"), m => new LeftShiftNode(m.Groups["name"].Value, m.Groups["operand"].Value, int.Parse(m.Groups["value"].Value))),
             (new (@"^(?<operand>[a-z]+) RSHIFT (?<value>\d+) -> (?<name>[a-z]+)$"), m => new RightShiftNode(m.Groups["name"].Value, m.Groups["operand"].Value, int.Parse(m.Groups["value"].Value)))
-        };
+            };
 
-        var nodes = new Dictionary<string, Node>();
+            var nodes = new Dictionary<string, Node>();
 
-        foreach (var line in lines)
-        {
-            var match = regexes.Select(x => (m: x.r.Match(line), x.f)).First(x => x.m.Success);
-            var node = match.f(match.m);
-            nodes[node.Name] = node;
+            foreach (var line in lines)
+            {
+                var match = regexes.Select(x => (m: x.r.Match(line), x.f)).First(x => x.m.Success);
+                var node = match.f(match.m);
+                nodes[node.Name] = node;
+            }
+
+            return nodes;
         }
 
-        return nodes;
-    }
-
-    static void Resolve(Dictionary<string, Node> nodes)
-    {
-        foreach (var node in nodes.Values)
+        static void Resolve(Dictionary<string, Node> nodes)
         {
-            node.Resolve(nodes);
+            foreach (var node in nodes.Values)
+            {
+                node.Resolve(nodes);
+            }
         }
     }
 }
-
-
 
 abstract record Node(string Name)
 {
@@ -89,7 +89,7 @@ abstract record Node(string Name)
 record LiteralValueNode(string Name, int LiteralValue) : Node(Name)
 {
     protected override int GetValueImpl() => LiteralValue;
-    public override void Resolve(IReadOnlyDictionary<string, Node> nodes) {}
+    public override void Resolve(IReadOnlyDictionary<string, Node> nodes) { }
     public override string ToString() => $"{LiteralValue} -> {Name}";
 }
 
@@ -99,7 +99,7 @@ record ConnectorNode(string Name, string SourceName) : Node(Name)
 
     protected override int GetValueImpl() => Source?.GetValue() ?? 0;
 
-    public override void Resolve(IReadOnlyDictionary<string, Node> nodes)  { Source = nodes[SourceName]; }
+    public override void Resolve(IReadOnlyDictionary<string, Node> nodes) { Source = nodes[SourceName]; }
     public override string ToString() => $"{SourceName} -> {Name}";
 }
 
@@ -117,7 +117,7 @@ record AndNode(string Name, string Left, string Right) : Node(Name)
     }
 
     public override void Resolve(IReadOnlyDictionary<string, Node> nodes) { LeftOperand = nodes[Left]; RightOperand = nodes[Right]; }
-  
+
     public override string ToString() => $"{Left} AND {Right} -> {Name}";
 }
 record AndValueNode(string Name, int Value, string RightOperandName) : Node(Name)
@@ -132,7 +132,7 @@ record AndValueNode(string Name, int Value, string RightOperandName) : Node(Name
     }
 
     public override void Resolve(IReadOnlyDictionary<string, Node> nodes) { RightOperand = nodes[RightOperandName]; }
-   
+
     public override string ToString() => $"{Value} AND {RightOperandName} -> {Name}";
 }
 
@@ -150,7 +150,7 @@ record OrNode(string Name, string LeftOperandName, string RightOperandName) : No
     }
 
     public override void Resolve(IReadOnlyDictionary<string, Node> nodes) { LeftOperand = nodes[LeftOperandName]; RightOperand = nodes[RightOperandName]; }
-   
+
     public override string ToString() => $"{LeftOperandName} OR {RightOperandName} -> {Name}";
 }
 record NotNode(string Name, string OperandName) : Node(Name)
@@ -179,7 +179,7 @@ record RightShiftNode(string Name, string OperandName, int ShiftValue) : Node(Na
     protected override int GetValueImpl() => (Operand?.GetValue() ?? 0) >> ShiftValue;
 
     public override void Resolve(IReadOnlyDictionary<string, Node> nodes) { Operand = nodes[OperandName]; }
-  
+
     public override string ToString() => $"{OperandName} RSHIFT {ShiftValue} -> {Name}";
 }
 

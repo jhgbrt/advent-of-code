@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+namespace AdventOfCode.Year2017.Day06;
 
 public class Specs
 {

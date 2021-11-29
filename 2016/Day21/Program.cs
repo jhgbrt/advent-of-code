@@ -1,8 +1,12 @@
-using static AoC;
+using static AdventOfCode.Year2016.Day21.AoC;
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
-partial class AoC
+
+namespace AdventOfCode.Year2016.Day21
 {
-    internal static Result Part1() => Run(() => null);
-    internal static Result Part2() => Run(() => null);
+    partial class AoC
+    {
+        internal static Result Part1() => Run(() => -1);
+        internal static Result Part2() => Run(() => -1);
+    }
 }

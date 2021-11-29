@@ -1,5 +1,6 @@
-﻿
 using static System.Math;
+
+namespace AdventOfCode.Year2020.Day12;
 
 class Part2
 {

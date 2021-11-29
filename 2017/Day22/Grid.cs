@@ -1,4 +1,6 @@
-﻿class Grid
+namespace AdventOfCode.Year2017.Day22;
+
+class Grid
 {
     enum Direction
     {

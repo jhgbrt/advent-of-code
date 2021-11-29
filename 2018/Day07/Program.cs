@@ -1,20 +1,24 @@
-using static AoC;
+using static AdventOfCode.Year2018.Day07.AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-partial class AoC
+namespace AdventOfCode.Year2018.Day07
 {
-    static string[] input = File.ReadAllLines("input.txt");
+    partial class AoC
+    {
+        static string[] input = File.ReadAllLines("input.txt");
 
-    internal static Result Part1() => Run(() => Part1(input));
-    internal static Result Part2() => Run(() => Part2(input));
+        internal static Result Part1() => Run(() => Part1(input));
+        internal static Result Part2() => Run(() => Part2(input));
 
-    public static string Part1(string[] input) => new string(input.ToGraph().FindStepOrder().ToArray());
-    public static int Part2(string[] input) => input.ToGraph().FindTotalDuration(5, 60);
+        public static string Part1(string[] input) => new string(input.ToGraph().FindStepOrder().ToArray());
+        public static int Part2(string[] input) => input.ToGraph().FindTotalDuration(5, 60);
+    }
 }
-static class Ex 
-{ 
+
+static class Ex
+{
     public static (char from, char to) ToEdge(this string input) => (input[5], input[36]);
     public static Graph ToGraph(this IEnumerable<string> input) => new Graph(input.Select(ToEdge));
     public static int GetTime(this char c, int offset) => offset + c - 'A' + 1;

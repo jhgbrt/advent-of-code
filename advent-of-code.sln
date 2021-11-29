@@ -325,6 +325,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AoC.2019.Day25", "2019\Day2
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdventOfCode.Template.CSharp", "Common\AdventOfCode.Template.CSharp\AdventOfCode.Template.CSharp.csproj", "{D2009F95-7CD2-42F1-8615-B6688CEAB325}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aocfixproj", "Common\aocfixproj\aocfixproj.csproj", "{514B0AF8-781C-48C3-9C27-168DA8119431}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -947,6 +949,10 @@ Global
 		{D2009F95-7CD2-42F1-8615-B6688CEAB325}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2009F95-7CD2-42F1-8615-B6688CEAB325}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D2009F95-7CD2-42F1-8615-B6688CEAB325}.Release|Any CPU.Build.0 = Release|Any CPU
+		{514B0AF8-781C-48C3-9C27-168DA8119431}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{514B0AF8-781C-48C3-9C27-168DA8119431}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{514B0AF8-781C-48C3-9C27-168DA8119431}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{514B0AF8-781C-48C3-9C27-168DA8119431}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1106,6 +1112,7 @@ Global
 		{2F422C56-22EF-4A00-BF7D-A27895369FF7} = {B5C06100-7AD2-4944-ABAB-3A7D428743A0}
 		{C4DE9C16-C09A-41C5-AF0C-62FBF4F8435E} = {B5C06100-7AD2-4944-ABAB-3A7D428743A0}
 		{D2009F95-7CD2-42F1-8615-B6688CEAB325} = {6EBE7E1E-24FE-4608-A6D8-2A630DA44803}
+		{514B0AF8-781C-48C3-9C27-168DA8119431} = {6EBE7E1E-24FE-4608-A6D8-2A630DA44803}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2945180A-2A03-4775-B192-B0CC82DCDBEB}

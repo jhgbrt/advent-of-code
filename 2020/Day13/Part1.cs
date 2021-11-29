@@ -1,4 +1,6 @@
-﻿class Part1
+namespace AdventOfCode.Year2020.Day13;
+
+class Part1
 {
     public static int Run()
     {

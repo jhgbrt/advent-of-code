@@ -1,4 +1,6 @@
-﻿static class Helpers
+namespace AdventOfCode.Year2017.Day20;
+
+static class Helpers
 {
     public static IEnumerable<string> ReadLines(this string input)
     {

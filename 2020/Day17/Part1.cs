@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Text;
-namespace Part1;
+﻿namespace AdventOfCode.Year2020.Day17.Part1;
 
 using static State;
 public static class Runner

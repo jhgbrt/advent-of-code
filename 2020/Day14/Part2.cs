@@ -1,7 +1,6 @@
-﻿using System.Text.RegularExpressions;
-
+﻿
 using Memory = System.Collections.Immutable.ImmutableDictionary<long, long>;
-namespace Part2;
+namespace AdventOfCode.Year2020.Day14.Part2;
 
 static class Part2
 {

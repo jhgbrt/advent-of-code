@@ -1,4 +1,6 @@
-﻿class ExpandingGrid
+namespace AdventOfCode.Year2017.Day21;
+
+class ExpandingGrid
 {
     private readonly char[,] _grid;
 

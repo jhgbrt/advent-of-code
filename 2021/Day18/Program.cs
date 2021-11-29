@@ -1,23 +1,26 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using Xunit;
-using static AoC;
+using static AdventOfCode.Year2021.Day18.AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-static class AoC
+namespace AdventOfCode.Year2021.Day18
 {
-    static bool test = false;
-    public static string[] input = File.ReadAllLines(test ? "sample.txt" : "input.txt");
-
-    public static Result<int> Part1() => Run(1, () => -1);
-    public static Result<int> Part2() => Run(2, () => -1);
-
-    static Result<T> Run<T>(int part, Func<T> f)
+    static class AoC
     {
-        var sw = Stopwatch.StartNew();
-        var result = f();
-        return new(result, sw.Elapsed);
+        static bool test = false;
+        public static string[] input = File.ReadAllLines(test ? "sample.txt" : "input.txt");
+
+        public static Result<int> Part1() => Run(1, () => -1);
+        public static Result<int> Part2() => Run(2, () => -1);
+
+        static Result<T> Run<T>(int part, Func<T> f)
+        {
+            var sw = Stopwatch.StartNew();
+            var result = f();
+            return new(result, sw.Elapsed);
+        }
     }
 }
 

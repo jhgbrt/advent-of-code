@@ -1,12 +1,14 @@
-﻿using static AoC;
+using static AdventOfCode.Year2017.Day21.AoC;
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-partial class AoC
+namespace AdventOfCode.Year2017.Day21
 {
-    static Rule[] rules = File.ReadLines("input.txt").Select(Rule.Parse).ToArray();
-    static char[,] input = ".#.\r\n..#\r\n###".ReadLines().ToRectangular();
-    internal static Result Part1() => Run(() => new ExpandingGrid(input).Expand(rules, 5).Count('#'));
-    internal static Result Part2() => Run(() => new ExpandingGrid(input).Expand(rules, 18).Count('#'));
+    partial class AoC
+    {
+        static Rule[] rules = File.ReadLines("input.txt").Select(Rule.Parse).ToArray();
+        static char[,] input = ".#.\r\n..#\r\n###".ReadLines().ToRectangular();
+        internal static Result Part1() => Run(() => new ExpandingGrid(input).Expand(rules, 5).Count('#'));
+        internal static Result Part2() => Run(() => new ExpandingGrid(input).Expand(rules, 18).Count('#'));
+    }
 }
-

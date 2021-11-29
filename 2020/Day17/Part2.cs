@@ -1,8 +1,6 @@
-﻿using System.Collections.Immutable;
-using System.Text;
-namespace Part2;
-using static State;
+﻿using static AdventOfCode.Year2020.Day17.Part2.State;
 
+namespace AdventOfCode.Year2020.Day17.Part2;
 public static class Runner
 {
     public static int Run()

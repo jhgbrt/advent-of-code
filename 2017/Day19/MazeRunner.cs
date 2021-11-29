@@ -1,3 +1,5 @@
+namespace AdventOfCode.Year2017.Day19;
+
 class MazeRunner
 {
     private enum Direction { Up, Down, Left, Right }

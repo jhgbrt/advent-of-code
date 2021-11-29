@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "aocfixproj": {
+      "commandName": "Project",
+      "workingDirectory": "$(SolutionDir)"
+    }
+  }
+}

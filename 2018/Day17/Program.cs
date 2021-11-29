@@ -1,29 +1,33 @@
-using static AoC;
+using static AdventOfCode.Year2018.Day17.AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-partial class AoC
+namespace AdventOfCode.Year2018.Day17
 {
-    static string[] input = File.ReadAllLines("input.txt");
-
-    internal static Result Part1() => Run(() => Part1(input));
-    internal static Result Part2() => Run(() => Part2(input));
-    public static int Part1(string[] input)
+    partial class AoC
     {
-        var grid = Grid.Parse(input);
-        grid.Simulate();
-        return grid.NofWaterReachableTiles;
-    }
+        static string[] input = File.ReadAllLines("input.txt");
 
-    public static int Part2(string[] input)
-    {
-        var grid = Grid.Parse(input);
-        grid.Simulate();
-        return grid.NofWaterTiles;
-    }
+        internal static Result Part1() => Run(() => Part1(input));
+        internal static Result Part2() => Run(() => Part2(input));
+        public static int Part1(string[] input)
+        {
+            var grid = Grid.Parse(input);
+            grid.Simulate();
+            return grid.NofWaterReachableTiles;
+        }
 
+        public static int Part2(string[] input)
+        {
+            var grid = Grid.Parse(input);
+            grid.Simulate();
+            return grid.NofWaterTiles;
+        }
+
+    }
 }
+
 static class Ex
 {
     public static (int x, int y) Up(this (int x, int y) c) => (c.x, c.y - 1);

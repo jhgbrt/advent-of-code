@@ -1,4 +1,4 @@
-using System.Text;
+namespace AdventOfCode.Year2016.Day08;
 
 public static class Extensions
 {
@@ -43,10 +43,10 @@ public static class Extensions
     }
 
 
-    public static string Display<T>(this T[,] array, Func<T, string> tostring = null)
+    public static string Display<T>(this T[,] array, Func<T, string?>? tostring = null)
     {
         var sb = new StringBuilder().AppendLine();
-        if (tostring == null) tostring = t => t.ToString();
+        if (tostring == null) tostring = t => t!.ToString();
 
         for (int row = 0; row <= array.GetUpperBound(0); row++)
         {

@@ -1,34 +1,35 @@
-﻿using System.Security.Cryptography;
-using System.Text;
+using System.Security.Cryptography;
 
-using static AoC;
+using static AdventOfCode.Year2015.Day04.AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-partial class AoC
+namespace AdventOfCode.Year2015.Day04
 {
-    static string key = "bgvyzdsv";
-    internal static Result Part1() => Run(() => Solve(key, 5));
-    internal static Result Part2() => Run(() => Solve(key, 6));
-
-    internal static int Solve(string key, int n)
+    partial class AoC
     {
-        var md5 = MD5.Create();
-        var i = 0;
-        while (true)
+        static string key = "bgvyzdsv";
+        internal static Result Part1() => Run(() => Solve(key, 5));
+        internal static Result Part2() => Run(() => Solve(key, 6));
+
+        internal static int Solve(string key, int n)
         {
-            var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(key + i));
-            var s = Convert.ToHexString(hash);
-            if (s.Take(n).All(x => x == '0'))
+            var md5 = MD5.Create();
+            var i = 0;
+            while (true)
             {
-                return i;
+                var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(key + i));
+                var s = Convert.ToHexString(hash);
+                if (s.Take(n).All(x => x == '0'))
+                {
+                    return i;
+                }
+                i++;
             }
-            i++;
         }
     }
 }
-
 
 public class Tests
 {

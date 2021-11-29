@@ -1,10 +1,7 @@
 ﻿using System.Collections;
-using System.Collections.Immutable;
-using System.Text;
-using System.Text.RegularExpressions;
 
-using static Part2.AoC;
-namespace Part2;
+using static AdventOfCode.Year2020.Day20.Part2.AoC;
+namespace AdventOfCode.Year2020.Day20.Part2;
 public static class Runner
 {
     public static object Run()

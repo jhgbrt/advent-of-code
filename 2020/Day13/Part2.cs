@@ -1,4 +1,6 @@
-﻿static class Part2
+namespace AdventOfCode.Year2020.Day13;
+
+static class Part2
 {
     public static long Run()
     {
@@ -30,7 +32,7 @@ public static class RemainderTheorem
         long prod = entries.Aggregate(1L, (r, e) => r * e.n);
         long p;
         long s = 0;
-        foreach (var (n,a) in entries)
+        foreach (var (n, a) in entries)
         {
             p = prod / n;
             s += a * ModularMultiplicativeInverse(p, n) * p;

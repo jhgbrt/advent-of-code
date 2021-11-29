@@ -1,22 +1,24 @@
-﻿
-using static AoC;
+using static AdventOfCode.Year2016.Day07.AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-partial class AoC
+namespace AdventOfCode.Year2016.Day07
 {
-    static bool test = false;
-    public static string[] input = File.ReadAllLines(test ? "sample.txt" : "input.txt");
-
-    internal static Result Part1() => Run(() => input.Select(s => new IPAddress(s)).Where(ip => ip.SupportsTLS()).Count());
-    internal static Result Part2() => Run(() => input.Select(s => new IPAddress(s)).Where(ip => ip.SupportsSSL()).Count());
-
-    static Result Run<T>(int part, Func<T> f)
+    partial class AoC
     {
-        var sw = Stopwatch.StartNew();
-        var result = f();
-        return new(result, sw.Elapsed);
+        static bool test = false;
+        public static string[] input = File.ReadAllLines(test ? "sample.txt" : "input.txt");
+
+        internal static Result Part1() => Run(() => input.Select(s => new IPAddress(s)).Where(ip => ip.SupportsTLS()).Count());
+        internal static Result Part2() => Run(() => input.Select(s => new IPAddress(s)).Where(ip => ip.SupportsSSL()).Count());
+
+        static Result Run<T>(int part, Func<T> f)
+        {
+            var sw = Stopwatch.StartNew();
+            var result = f();
+            return new(result, sw.Elapsed);
+        }
     }
 }
 

@@ -1,7 +1,6 @@
-﻿using static Part1.AoC;
-using System.Text.RegularExpressions;
+﻿using static AdventOfCode.Year2020.Day20.Part1.AoC;
 using System.Collections;
-namespace Part1;
+namespace AdventOfCode.Year2020.Day20.Part1;
 
 public static class Runner
 {

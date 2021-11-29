@@ -1,4 +1,4 @@
-﻿using System.Text;
+namespace AdventOfCode.Year2015.Day18;
 
 class Grid
 {
@@ -10,12 +10,12 @@ class Grid
         _size = size;
     }
 
-    public Grid Next1() => new (Traverse().Where(NextShouldBeOn).ToHashSet(), _size);
-    public Grid Next2() => new (Traverse().Where(c => c switch
-                                 {
-                                     (0 or 99, 0 or 99) => true,
-                                     _ => NextShouldBeOn(c)
-                                 }).ToHashSet(), _size);
+    public Grid Next1() => new(Traverse().Where(NextShouldBeOn).ToHashSet(), _size);
+    public Grid Next2() => new(Traverse().Where(c => c switch
+                                {
+                                    (0 or 99, 0 or 99) => true,
+                                    _ => NextShouldBeOn(c)
+                                }).ToHashSet(), _size);
 
     private bool NextShouldBeOn(Coordinate c) => IsOn(c) switch
     {
@@ -34,9 +34,9 @@ class Grid
 
     public IEnumerable<Coordinate> Neighbours(Coordinate c)
     {
-        if (c.x > 0 && c.y > 0) yield return new(c.x-1, c.y-1);
+        if (c.x > 0 && c.y > 0) yield return new(c.x - 1, c.y - 1);
         if (c.y > 0) yield return new(c.x, c.y - 1);
-        if (c.x < _size-1 && c.y > 0) yield return new(c.x+1, c.y - 1);
+        if (c.x < _size - 1 && c.y > 0) yield return new(c.x + 1, c.y - 1);
 
         if (c.x > 0) yield return new(c.x - 1, c.y);
         if (c.x < _size - 1) yield return new(c.x + 1, c.y);

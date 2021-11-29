@@ -1,5 +1,7 @@
 using static System.Math;
 
+namespace AdventOfCode.Year2017.Day20;
+
 struct Particle
 {
     public readonly (double x, double y, double z) Position;

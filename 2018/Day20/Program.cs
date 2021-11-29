@@ -1,18 +1,22 @@
-using static AoC;
+using static AdventOfCode.Year2018.Day20.AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-partial class AoC
+namespace AdventOfCode.Year2018.Day20
 {
-    static string[] input = File.ReadAllLines("input.txt");
+    partial class AoC
+    {
+        static string[] input = File.ReadAllLines("input.txt");
 
-    internal static Result Part1() => Run(() => Part1(input));
-    internal static Result Part2() => Run(() => Part2(input));
-    public static int Part1(string[] input) => input.Single().Distances().Max();
+        internal static Result Part1() => Run(() => Part1(input));
+        internal static Result Part2() => Run(() => Part2(input));
+        public static int Part1(string[] input) => input.Single().Distances().Max();
 
-    public static int Part2(string[] input) => input.Single().Distances().Where(i => i >= 1000).Count();
+        public static int Part2(string[] input) => input.Single().Distances().Where(i => i >= 1000).Count();
+    }
 }
+
 static class Ex
 {
     public static IEnumerable<int> Distances(this string route)

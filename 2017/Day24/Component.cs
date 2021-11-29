@@ -1,4 +1,7 @@
 using static System.Math;
+
+namespace AdventOfCode.Year2017.Day24;
+
 struct Component
 {
     public readonly int Port1;

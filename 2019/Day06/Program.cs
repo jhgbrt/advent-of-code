@@ -1,28 +1,32 @@
 using QuickGraph;
 using QuickGraph.Algorithms;
 
-using static AoC;
+using static AdventOfCode.Year2019.Day06.AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-partial class AoC
+namespace AdventOfCode.Year2019.Day06
 {
-    static string[] input = File.ReadAllLines("input.txt");
-
-    internal static Result Part1() => Run(() => Part1(input));
-    internal static Result Part2() => Run(() => Part2(input));
-    public static int Part1(string[] input)
+    partial class AoC
     {
-        var graph = input.CreateGraph();
-        return graph.Vertices
-            .Select(v => graph.CountDistance("COM", v))
-            .Sum();
-    }
+        static string[] input = File.ReadAllLines("input.txt");
 
-    public static int Part2(string[] input)
-        => input.CreateGraph().CountDistance("YOU", "SAN") - 2;
+        internal static Result Part1() => Run(() => Part1(input));
+        internal static Result Part2() => Run(() => Part2(input));
+        public static int Part1(string[] input)
+        {
+            var graph = input.CreateGraph();
+            return graph.Vertices
+                .Select(v => graph.CountDistance("COM", v))
+                .Sum();
+        }
+
+        public static int Part2(string[] input)
+            => input.CreateGraph().CountDistance("YOU", "SAN") - 2;
+    }
 }
+
 static class Ex
 {
     public static IUndirectedGraph<string, SEdge<string>> CreateGraph(this string[] input)

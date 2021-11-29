@@ -1,7 +1,7 @@
 ﻿using Sprache;
 
 using System.Linq.Expressions;
-namespace Part1;
+namespace AdventOfCode.Year2020.Day18.Part1;
 public static class Runner
 {
     public static object Run()

@@ -1,26 +1,30 @@
-using System.Collections.Immutable;
 
-using static AoC;
+using static AdventOfCode.Year2018.Day21.AoC;
 
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
-partial class AoC
+
+namespace AdventOfCode.Year2018.Day21
 {
-    static string[] input = File.ReadAllLines("input.txt");
-    internal static Result Part1() => Run(() => 
+    partial class AoC
     {
-        var cpu = new CPU(int.Parse(input[0].Split(' ').Last()), input.GetInstructions(), new long[] { 0, 0, 0, 0, 0, 0 });
-        Console.WriteLine(cpu.Run(false));
-        return cpu.RunReverseEngineered(false);
-    });
-    internal static Result Part2() => Run(() => {
-        var cpu = new CPU(int.Parse(input[0].Split(' ').Last()), input.GetInstructions(), new long[] { 0, 0, 0, 0, 0, 0 });
-        return cpu.RunReverseEngineered(true);
-    });
-    internal static void WriteProgram()
-    {
-        foreach (var i in input.GetInstructions()) Console.WriteLine(i);
+        static string[] input = File.ReadAllLines("input.txt");
+        internal static Result Part1() => Run(() =>
+        {
+            var cpu = new CPU(int.Parse(input[0].Split(' ').Last()), input.GetInstructions(), new long[] { 0, 0, 0, 0, 0, 0 });
+            Console.WriteLine(cpu.Run(false));
+            return cpu.RunReverseEngineered(false);
+        });
+        internal static Result Part2() => Run(() =>
+        {
+            var cpu = new CPU(int.Parse(input[0].Split(' ').Last()), input.GetInstructions(), new long[] { 0, 0, 0, 0, 0, 0 });
+            return cpu.RunReverseEngineered(true);
+        });
+        internal static void WriteProgram()
+        {
+            foreach (var i in input.GetInstructions()) Console.WriteLine(i);
+        }
     }
 }
 
@@ -51,40 +55,41 @@ class CPU
         _registers = registers;
     }
 
+#pragma warning disable CS0164
     public long RunReverseEngineered(bool part2)
     {
         var set = new HashSet<long>();
         (long A, long B, long C, long D, long E, long I) = (0, 0, 0, 0, 0, 0);
         long last = -1;
-        _00: I = 00; E = 123;
-        _01: I = 01; E = E & 456;
-        _02: I = 02; E = E == 72 ? 1 : 0;
-        _03: I = 03; I = E + I; if (E == 1) { goto _05; } else if (E != 0) throw new InvalidOperationException();
+    _00: I = 00; E = 123;
+    _01: I = 01; E = E & 456;
+    _02: I = 02; E = E == 72 ? 1 : 0;
+    _03: I = 03; I = E + I; if (E == 1) { goto _05; } else if (E != 0) throw new InvalidOperationException();
         _04: I = 04; I = 0; goto _01;
-        _05: I = 05; E = 0;
-        _06: I = 06; D = E | 65536;
-        _07: I = 07; E = 733884;
-        _08: I = 08; B = D & 255;
-        _09: I = 09; E = E + B;
-        _10: I = 10; E = E & 16777215;
-        _11: I = 11; E = E * 65899;
-        _12: I = 12; E = E & 16777215;
-        _13: I = 13; B = 256 > D ? 1 : 0;
-        _14: I = 14; I = B + I; if (B == 1) { goto _16; } else if (B != 0) throw new InvalidOperationException();
+    _05: I = 05; E = 0;
+    _06: I = 06; D = E | 65536;
+    _07: I = 07; E = 733884;
+    _08: I = 08; B = D & 255;
+    _09: I = 09; E = E + B;
+    _10: I = 10; E = E & 16777215;
+    _11: I = 11; E = E * 65899;
+    _12: I = 12; E = E & 16777215;
+    _13: I = 13; B = 256 > D ? 1 : 0;
+    _14: I = 14; I = B + I; if (B == 1) { goto _16; } else if (B != 0) throw new InvalidOperationException();
         _15: I = 15; I = I + 1; goto _17;
-        _16: I = 16; I = 27; goto _28;
-        _17: I = 17; B = 0;
-        _18: I = 18; C = B + 1;
-        _19: I = 19; C = C * 256;
-        _20: I = 20; C = C > D ? 1 : 0;
-        _21: I = 21; I = C + I; if (C == 1) { goto _23; } else if (C != 0) throw new InvalidOperationException();
+    _16: I = 16; I = 27; goto _28;
+    _17: I = 17; B = 0;
+    _18: I = 18; C = B + 1;
+    _19: I = 19; C = C * 256;
+    _20: I = 20; C = C > D ? 1 : 0;
+    _21: I = 21; I = C + I; if (C == 1) { goto _23; } else if (C != 0) throw new InvalidOperationException();
         _22: I = 22; I = I + 1; goto _24;
-        _23: I = 23; I = 25; goto _26;
-        _24: I = 24; B = B + 1;
-        _25: I = 25; I = 17; goto _18;
-        _26: I = 26; D = B;
-        _27: I = 27; I = 7; goto _08;
-        _28: I = 28; B = E == A ? 1 : 0; 
+    _23: I = 23; I = 25; goto _26;
+    _24: I = 24; B = B + 1;
+    _25: I = 25; I = 17; goto _18;
+    _26: I = 26; D = B;
+    _27: I = 27; I = 7; goto _08;
+    _28: I = 28; B = E == A ? 1 : 0;
         if (last == -1 && !part2)
         {
             return E;
@@ -95,9 +100,9 @@ class CPU
         }
         last = E;
         set.Add(last);
-        _29: I = 29; I = B + I; if (B == 1) { goto _31; } else if (B != 0) throw new InvalidOperationException();
+    _29: I = 29; I = B + I; if (B == 1) { goto _31; } else if (B != 0) throw new InvalidOperationException();
         _30: I = 30; I = 5; goto _06;
-        _31:;
+    _31:;
 
         return E;
     }
@@ -130,7 +135,7 @@ class CPU
 }
 class OpCode
 {
-    public static IReadOnlyDictionary<string, Action<long[], long, long, long>> All = new []
+    public static IReadOnlyDictionary<string, Action<long[], long, long, long>> All = new[]
     {
             addr,
             addi,
@@ -186,7 +191,13 @@ internal record struct Instruction(long address, string name, long a, long b, lo
 
     string R(long n) => n switch
     {
-        0 => "A", 1 => "B", 2 => "C", 3 => "D", 4 => "I", 5 => "E"
+        0 => "A",
+        1 => "B",
+        2 => "C",
+        3 => "D",
+        4 => "I",
+        5 => "E",
+        _ => throw new NotImplementedException()
     };
 
     public override string ToString()
@@ -208,7 +219,8 @@ internal record struct Instruction(long address, string name, long a, long b, lo
             "gtrr" => $"_{address:00} : I = {address:00}; {R(c),3} = {R(a)} > {R(b)} ? 1 : 0 ".PadRight(50) + $"; {PrintJump()}",
             "eqir" => $"_{address:00} : I = {address:00}; {R(c),3} = {a} == {R(b)} ? 1 : 0   ".PadRight(50) + $"; {PrintJump()}",
             "eqri" => $"_{address:00} : I = {address:00}; {R(c),3} = {R(a)} == {b} ? 1 : 0   ".PadRight(50) + $"; {PrintJump()}",
-            "eqrr" => $"_{address:00} : I = {address:00}; {R(c),3} = {R(a)} == {R(b)} ? 1 : 0".PadRight(50) + $"; {PrintJump()}"
+            "eqrr" => $"_{address:00} : I = {address:00}; {R(c),3} = {R(a)} == {R(b)} ? 1 : 0".PadRight(50) + $"; {PrintJump()}",
+            _ => throw new NotImplementedException()
         };
     }
 

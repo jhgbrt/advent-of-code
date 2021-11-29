@@ -1,4 +1,4 @@
-using System.Text;
+namespace AdventOfCode.Year2017.Day25;
 
 static class Extensions
 {
@@ -42,7 +42,7 @@ static class Extensions
             }
             else if (line.StartsWith("  If"))
             {
-                sb.Remove(1, sb.Length-1).Append(line[line.Length - 2]);
+                sb.Remove(1, sb.Length - 1).Append(line[line.Length - 2]);
             }
             else if (line.StartsWith("    - Write"))
             {

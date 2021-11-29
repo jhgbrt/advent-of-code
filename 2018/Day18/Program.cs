@@ -1,48 +1,52 @@
-using static AoC;
+using static AdventOfCode.Year2018.Day18.AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-partial class AoC
+namespace AdventOfCode.Year2018.Day18
 {
-    static string[] input = File.ReadAllLines("input.txt");
-
-    internal static Result Part1() => Run(() => Part1(input));
-    internal static Result Part2() => Run(() => Part2(input));
-
-
-    public static int Part1(string[] input) => new Grid(input).Step(10).Value;
-
-    public static int Part2(string[] input)
+    partial class AoC
     {
-        var grid = new Grid(input);
+        static string[] input = File.ReadAllLines("input.txt");
 
-        var items = new Dictionary<string, int>();
+        internal static Result Part1() => Run(() => Part1(input));
+        internal static Result Part2() => Run(() => Part2(input));
 
-        string gridAsString = string.Empty;
 
-        int i = 0;
-        while (true)
+        public static int Part1(string[] input) => new Grid(input).Step(10).Value;
+
+        public static int Part2(string[] input)
         {
-            grid = grid.Step();
-            i++;
-            gridAsString = grid.ToString();
-            if (items.ContainsKey(gridAsString))
-                break;
-            items[gridAsString] = i;
+            var grid = new Grid(input);
+
+            var items = new Dictionary<string, int>();
+
+            string gridAsString = string.Empty;
+
+            int i = 0;
+            while (true)
+            {
+                grid = grid.Step();
+                i++;
+                gridAsString = grid.ToString();
+                if (items.ContainsKey(gridAsString))
+                    break;
+                items[gridAsString] = i;
+            }
+
+            var patternStartsAt = items[grid.ToString()];
+
+            var patternSize = items.Count - patternStartsAt + 1;
+
+            var nofsteps = patternStartsAt + (1000000000 - patternStartsAt) % patternSize;
+
+            return new Grid(input).Step(nofsteps).Value;
         }
-
-        var patternStartsAt = items[grid.ToString()];
-
-        var patternSize = items.Count - patternStartsAt + 1;
-
-        var nofsteps = patternStartsAt + (1000000000 - patternStartsAt) % patternSize;
-
-        return new Grid(input).Step(nofsteps).Value;
     }
 }
+
 static class Ex
-{ 
+{
 
     public static IEnumerable<T> Surroundings<T>(this T[,] _grid, int x, int y)
     {

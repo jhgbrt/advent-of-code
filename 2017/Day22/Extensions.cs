@@ -1,3 +1,5 @@
+namespace AdventOfCode.Year2017.Day22;
+
 static class Extensions
 {
     public static IEnumerable<string> ReadLines(this string s)
@@ -58,7 +60,7 @@ static class Extensions
         {
             for (var col = 0; col < cols; col++)
             {
-                yield return (row, col, input[row,col]);
+                yield return (row, col, input[row, col]);
             }
         }
 

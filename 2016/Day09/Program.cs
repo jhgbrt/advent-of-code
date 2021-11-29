@@ -1,21 +1,23 @@
-﻿
-using static AoC;
+using static AdventOfCode.Year2016.Day09.AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-partial class AoC
+namespace AdventOfCode.Year2016.Day09
 {
-    public static string input = File.ReadLines("input.txt").First();
-
-    internal static Result Part1() => Run(() => input.GetDecompressedSize(0));
-    internal static Result Part2() => Run(() => input.GetDecompressedSize2(0, input.Length));
-
-    static Result Run<T>(int part, Func<T> f)
+    partial class AoC
     {
-        var sw = Stopwatch.StartNew();
-        var result = f();
-        return new(result, sw.Elapsed);
+        public static string input = File.ReadLines("input.txt").First();
+
+        internal static Result Part1() => Run(() => input.GetDecompressedSize(0));
+        internal static Result Part2() => Run(() => input.GetDecompressedSize2(0, input.Length));
+
+        static Result Run<T>(int part, Func<T> f)
+        {
+            var sw = Stopwatch.StartNew();
+            var result = f();
+            return new(result, sw.Elapsed);
+        }
     }
 }
 

@@ -1,3 +1,5 @@
+namespace AdventOfCode.Year2017.Day20;
+
 // pos(t) = p + vt + t(t+1)/2*a
 public class Specs
 {

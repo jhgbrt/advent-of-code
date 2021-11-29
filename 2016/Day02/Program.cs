@@ -1,25 +1,26 @@
-using System.Text;
 
-using static AoC;
+using static AdventOfCode.Year2016.Day02.AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-partial class AoC
+namespace AdventOfCode.Year2016.Day02
 {
-    static bool test = false;
-    public static string[] input = File.ReadAllLines(test ? "sample.txt" : "input.txt").Where(l => !string.IsNullOrEmpty(l)).ToArray();
+    partial class AoC
+    {
+        static bool test = false;
+        public static string[] input = File.ReadAllLines(test ? "sample.txt" : "input.txt").Where(l => !string.IsNullOrEmpty(l)).ToArray();
 
-    internal static Result Part1() => Run(() => GetCode(input, keypad1));
-    internal static Result Part2() => Run(() => GetCode(input, keypad2));
+        internal static Result Part1() => Run(() => GetCode(input, keypad1));
+        internal static Result Part2() => Run(() => GetCode(input, keypad2));
 
-    internal static readonly Keypad keypad1 = new (new char?[,] {
+        internal static readonly Keypad keypad1 = new(new char?[,] {
                 { '1', '2', '3'},
                 { '4', '5', '6'},
                 { '7', '8', '9'},
             }, new Coordinate(1, 1));
 
-    internal static readonly Keypad keypad2 = new (new char?[,] {
+        internal static readonly Keypad keypad2 = new(new char?[,] {
                 { null, null, '1', null, null},
                 { null, '2', '3', '4', null},
                 { '5', '6', '7', '8', '9'},
@@ -27,18 +28,19 @@ partial class AoC
                 { null, null, 'D', null, null},
             }, new Coordinate(2, 0));
 
-    internal static string GetCode(string[] inputs, Keypad keypad)
-    {
-        var sb = new StringBuilder();
-        foreach (var input in inputs)
+        internal static string GetCode(string[] inputs, Keypad keypad)
         {
-            foreach (var c in input)
+            var sb = new StringBuilder();
+            foreach (var input in inputs)
             {
-                keypad.Move(c);
+                foreach (var c in input)
+                {
+                    keypad.Move(c);
+                }
+                sb.Append(keypad.Current);
             }
-            sb.Append(keypad.Current);
+            return sb.ToString();
         }
-        return sb.ToString();
     }
 }
 
@@ -54,7 +56,7 @@ public class Tests
     [Fact]
     public void ExamplesPart1()
     {
-        var code = AoC.GetCode(testinputs, AoC.keypad1);
+        var code = GetCode(testinputs, keypad1);
         Assert.Equal("1985", code);
     }
 
@@ -62,7 +64,7 @@ public class Tests
     [Fact]
     public void ExamplesPart2()
     {
-        var code = AoC.GetCode(testinputs, AoC.keypad2);
+        var code = GetCode(testinputs, keypad2);
         Assert.Equal("5DB3", code);
     }
 

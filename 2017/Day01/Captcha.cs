@@ -1,4 +1,6 @@
-﻿class Captcha
+namespace AdventOfCode.Year2017.Day01;
+
+class Captcha
 {
     public static int Calculate(string input, int lookahead)
         => input.Select((c, i) => (character: c, index: i))

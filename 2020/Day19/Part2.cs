@@ -1,7 +1,5 @@
-﻿using static Part2.AoC;
-using System.Collections.Immutable;
-using System.Text.RegularExpressions;
-namespace Part2;
+﻿using static AdventOfCode.Year2020.Day19.Part2.AoC;
+namespace AdventOfCode.Year2020.Day19.Part2;
 public static class Runner
 {
     public static object Run()

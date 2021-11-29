@@ -1,4 +1,6 @@
-public class CPU2 
+namespace AdventOfCode.Year2017.Day18;
+
+public class CPU2
 {
     private readonly int _id;
     private readonly Queue<long> _incoming;
@@ -64,7 +66,7 @@ public class CPU2
                     break;
                 case "jgz":
                     if (_registers[register] > 0)
-                        offset = (int) value;
+                        offset = (int)value;
                     break;
             }
 

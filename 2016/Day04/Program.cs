@@ -1,31 +1,25 @@
-using System.Text;
-using System.Text.RegularExpressions;
 
-using static AoC;
+using static AdventOfCode.Year2016.Day04.AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-partial class AoC
+namespace AdventOfCode.Year2016.Day04
 {
-    static bool test = false;
-    public static string[] input = File.ReadAllLines(test ? "sample.txt" : "input.txt");
-
-    internal static Result Part1() => Run(() => (from line in input
-                                                       let room = Room.Parse(line)
-                                                       where room.IsValid()
-                                                       select room).Sum(r => r.SectorId));
-    internal static Result Part2() => Run(() => (from line in input
-                                                       let room = Room.Parse(line)
-                                                       let name = room.Name
-                                                       where name.Contains("northpole")
-                                                       select room.SectorId).Single());
-
-    static Result Run<T>(int part, Func<T> f)
+    partial class AoC
     {
-        var sw = Stopwatch.StartNew();
-        var result = f();
-        return new(result, sw.Elapsed);
+        static bool test = false;
+        public static string[] input = File.ReadAllLines(test ? "sample.txt" : "input.txt");
+
+        internal static Result Part1() => Run(() => (from line in input
+                                                     let room = Room.Parse(line)
+                                                     where room.IsValid()
+                                                     select room).Sum(r => r.SectorId));
+        internal static Result Part2() => Run(() => (from line in input
+                                                     let room = Room.Parse(line)
+                                                     let name = room.Name
+                                                     where name.Contains("northpole")
+                                                     select room.SectorId).Single());
     }
 }
 
@@ -87,7 +81,8 @@ public class Tests
 
 
 record Room(string Id, int SectorId, string Checksum)
-{   public static Room Parse(string s)
+{
+    public static Room Parse(string s)
     {
         var regex = new Regex(@"(?<id>[a-z\-]+)-(?<sectorid>\d+)\[(?<checksum>.+)\]");
         var match = regex.Match(s);

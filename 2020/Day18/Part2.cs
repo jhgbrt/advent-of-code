@@ -2,7 +2,7 @@
 
 using System.Linq.Expressions;
 
-namespace Part2;
+namespace AdventOfCode.Year2020.Day18.Part2;
 public static class Runner
 {
     public static object Run()

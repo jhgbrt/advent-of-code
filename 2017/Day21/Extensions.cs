@@ -1,3 +1,5 @@
+namespace AdventOfCode.Year2017.Day21;
+
 static class Extensions
 {
     public static IEnumerable<string> ReadLines(this string s)
@@ -82,7 +84,7 @@ static class Extensions
 
     public static bool AllEqual(this char[,] src, char[,] other)
     {
-        if (src.GetUpperBound(0) != other.GetUpperBound(0) 
+        if (src.GetUpperBound(0) != other.GetUpperBound(0)
             || src.GetUpperBound(1) != other.GetUpperBound(1))
             return false;
         var width = src.GetUpperBound(0) + 1;
@@ -112,8 +114,8 @@ static class Extensions
             {
                 var result = new T[size, size];
                 for (int row = 0; row < size; row++)
-                for (int col = 0; col < size; col++)
-                    result[col, row] = src[col + colOffset * size, row + rowOffset * size];
+                    for (int col = 0; col < size; col++)
+                        result[col, row] = src[col + colOffset * size, row + rowOffset * size];
                 yield return result;
             }
     }
@@ -123,17 +125,17 @@ static class Extensions
         var result = new T[totalSquareSize, totalSquareSize];
         using (var enumerator = items.GetEnumerator())
         {
-            for (var rowOffset = 0; rowOffset < totalSquareSize/smallSquareSize; rowOffset++)
-            for (var colOffset = 0; colOffset < totalSquareSize / smallSquareSize; colOffset++)
-            {
-                enumerator.MoveNext();
-                var input = enumerator.Current;
-                for (int row = 0; row < smallSquareSize; row++)
-                for (int col = 0; col < smallSquareSize; col++)
+            for (var rowOffset = 0; rowOffset < totalSquareSize / smallSquareSize; rowOffset++)
+                for (var colOffset = 0; colOffset < totalSquareSize / smallSquareSize; colOffset++)
                 {
-                    result[col + colOffset * smallSquareSize, row + rowOffset * smallSquareSize] = input[col, row];
+                    enumerator.MoveNext();
+                    var input = enumerator.Current;
+                    for (int row = 0; row < smallSquareSize; row++)
+                        for (int col = 0; col < smallSquareSize; col++)
+                        {
+                            result[col + colOffset * smallSquareSize, row + rowOffset * smallSquareSize] = input[col, row];
+                        }
                 }
-            }
         }
         return result;
     }
@@ -143,14 +145,14 @@ static class Extensions
         if (!input.IsSquare())
             throw new Exception("should be square");
         var size = input.GetUpperBound(0) + 1;
-        var result = new T[size*i, size*i];
+        var result = new T[size * i, size * i];
         for (var rowOffset = 0; rowOffset < i; rowOffset++)
-        for (var colOffset = 0; colOffset < i; colOffset++)
-        {
-            for (int row = 0; row < size; row++)
-            for (int col = 0; col < size; col++)
-                result[col + colOffset * size, row + rowOffset * size] = input[col, row];
-        }
+            for (var colOffset = 0; colOffset < i; colOffset++)
+            {
+                for (int row = 0; row < size; row++)
+                    for (int col = 0; col < size; col++)
+                        result[col + colOffset * size, row + rowOffset * size] = input[col, row];
+            }
         return result;
     }
 }

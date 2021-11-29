@@ -1,3 +1,5 @@
+namespace AdventOfCode.Year2017.Day25;
+
 enum ReadState
 {
     Begin,

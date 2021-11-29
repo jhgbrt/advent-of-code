@@ -1,9 +1,10 @@
-namespace AdventOfCode
+
+namespace AdventOfCode.Year2019.Day06;
+
+public class Specs
 {
-    public class Specs
+    string[] input = new[]
     {
-        string[] input = new[]
-        {
             "COM)B",
             "B)C",
             "C)D",
@@ -20,27 +21,26 @@ namespace AdventOfCode
         };
 
 
-        [Fact]
-        public void TestPart1()
-        {
-            var result = AoC.Part1(input.Take(11).ToArray());
-            Assert.Equal(42, result);
+    [Fact]
+    public void TestPart1()
+    {
+        var result = AoC.Part1(input.Take(11).ToArray());
+        Assert.Equal(42, result);
 
-        }
-        [Theory]
-        [InlineData("D", 3)]
-        [InlineData("L", 7)]
-        public void TestSomePaths(string node, int expectedDistance)
-        {
-            var result = input.CreateGraph().CountDistance("COM", node);
-            Assert.Equal(expectedDistance, result);
-        }
+    }
+    [Theory]
+    [InlineData("D", 3)]
+    [InlineData("L", 7)]
+    public void TestSomePaths(string node, int expectedDistance)
+    {
+        var result = input.CreateGraph().CountDistance("COM", node);
+        Assert.Equal(expectedDistance, result);
+    }
 
-        [Fact]
-        public void TestPart2()
-        {
-            var result = AoC.Part2(input);
-            Assert.Equal(4, result);
-        }
+    [Fact]
+    public void TestPart2()
+    {
+        var result = AoC.Part2(input);
+        Assert.Equal(4, result);
     }
 }

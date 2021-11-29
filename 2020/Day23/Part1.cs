@@ -1,5 +1,4 @@
-﻿using System.Text;
-namespace Part1;
+﻿namespace AdventOfCode.Year2020.Day23.Part1;
 public static class Runner
 {
     public static object Run()

@@ -1,23 +1,18 @@
-﻿using System.Text;
 
-using static AoC;
+using static AdventOfCode.Year2016.Day06.AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-partial class AoC
+namespace AdventOfCode.Year2016.Day06
 {
-    static bool test = false;
-    static string[] input = File.ReadAllLines(test ? "sample.txt" : "input.txt");
-
-    internal static Result Part1() => Run(() => new Accumulator().Decode(input, 8, false));
-    internal static Result Part2() => Run(() => new Accumulator().Decode(input, 8, true));
-
-    static Result Run<T>(int part, Func<T> f)
+    partial class AoC
     {
-        var sw = Stopwatch.StartNew();
-        var result = f();
-        return new(result, sw.Elapsed);
+        static bool test = false;
+        static string[] input = File.ReadAllLines(test ? "sample.txt" : "input.txt");
+
+        internal static Result Part1() => Run(() => new Accumulator().Decode(input, 8, false));
+        internal static Result Part2() => Run(() => new Accumulator().Decode(input, 8, true));
     }
 }
 

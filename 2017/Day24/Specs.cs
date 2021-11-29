@@ -1,4 +1,4 @@
-using System.Collections.Immutable;
+namespace AdventOfCode.Year2017.Day24;
 
 public class Specs
 {
@@ -11,7 +11,7 @@ public class Specs
             from line in input.ReadLines()
             select Component.Parse(line) into component
             orderby component.Smallest
-            select component 
+            select component
         ).ToImmutableList();
 
         var strength = Bridge.Strongest(components);

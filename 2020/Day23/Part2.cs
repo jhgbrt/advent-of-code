@@ -1,4 +1,4 @@
-﻿namespace Part2;
+﻿namespace AdventOfCode.Year2020.Day23.Part2;
 public static class Runner
 {
     public static object Run()

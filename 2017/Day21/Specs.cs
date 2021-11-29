@@ -1,3 +1,5 @@
+namespace AdventOfCode.Year2017.Day21;
+
 public class Specs
 {
     [Theory]

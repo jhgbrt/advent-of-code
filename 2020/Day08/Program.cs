@@ -1,23 +1,25 @@
-﻿using System.Collections.Immutable;
 
-using static AoC;
+using static AdventOfCode.Year2020.Day08.AoC;
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-partial class AoC
+namespace AdventOfCode.Year2020.Day08
 {
-    static Prog program = ReadProgram("input.txt");
+    partial class AoC
+    {
+        static Prog program = ReadProgram("input.txt");
 
-    internal static Result Part1() => Run(() => program.Part1());
-    internal static Result Part2() => Run(() => program.Part2());
+        internal static Result Part1() => Run(() => program.Part1());
+        internal static Result Part2() => Run(() => program.Part2());
 
-    internal static Prog ReadProgram(string file) => new Prog((
-        from line in File.ReadAllLines(file)
-        let instruction = line[0..3]
-        let arg = int.Parse(line[3..])
-        select new Instruction(instruction, arg)
-    ).ToImmutableArray());
+        internal static Prog ReadProgram(string file) => new Prog((
+            from line in File.ReadAllLines(file)
+            let instruction = line[0..3]
+            let arg = int.Parse(line[3..])
+            select new Instruction(instruction, arg)
+        ).ToImmutableArray());
 
+    }
 }
 
 public class Tests

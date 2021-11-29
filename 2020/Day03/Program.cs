@@ -1,13 +1,15 @@
-﻿using static AoC;
+using static AdventOfCode.Year2020.Day03.AoC;
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-partial class AoC
+namespace AdventOfCode.Year2020.Day03
 {
-    internal static Result Part1() => Run(() => Driver.Part1("input.txt"));
-    internal static Result Part2() => Run(() => Driver.Part2("input.txt"));
+    partial class AoC
+    {
+        internal static Result Part1() => Run(() => Driver.Part1("input.txt"));
+        internal static Result Part2() => Run(() => Driver.Part2("input.txt"));
+    }
 }
-
 
 static class Driver
 {
@@ -49,8 +51,8 @@ static class Driver
         var lines = File.ReadLines(input).ToList();
         var set = lines.GetTrees().ToHashSet();
 
-        var query = 
-            from slope in new (int dx, int dy)[] {(1, 1), (3, 1), (5,1), (7,1),(1,2) }
+        var query =
+            from slope in new (int dx, int dy)[] { (1, 1), (3, 1), (5, 1), (7, 1), (1, 2) }
             select (
                 from point in Path(slope).TakeWhile(c => c.y < lines.Count)
                 where set.Contains((point.x % lines[0].Length, point.y))
@@ -81,10 +83,10 @@ namespace AdventOfCode
         [Fact]
         public void GetTreesTest()
         {
-            var input = 
+            var input =
                 "#.#\r\n" +
                 ".#.";
-            var expected = new [] { (0,0), (2,0), (1,1) };
+            var expected = new[] { (0, 0), (2, 0), (1, 1) };
             var trees = input.Split(Environment.NewLine).GetTrees().ToList();
             Assert.Equal(expected, trees);
         }

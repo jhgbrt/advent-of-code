@@ -1,7 +1,5 @@
-﻿using System.Collections.Immutable;
-using System.Text;
 using static Direction;
-using static AoC;
+using static AdventOfCode.Year2020.Day24.AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
@@ -9,8 +7,8 @@ Console.WriteLine(Part2());
 
 record Tile(int x, int y, int z)
 {
-    public Tile East()      => this with { x = x + 1, y = y - 1 };
-    public Tile West()      => this with { x = x - 1, y = y + 1 };
+    public Tile East() => this with { x = x + 1, y = y - 1 };
+    public Tile West() => this with { x = x - 1, y = y + 1 };
     public Tile SouthEast() => this with { y = y - 1, z = z + 1 };
     public Tile SouthWest() => this with { x = x - 1, z = z + 1 };
     public Tile NorthEast() => this with { x = x + 1, z = z - 1 };
@@ -27,57 +25,62 @@ record Tile(int x, int y, int z)
 }
 
 enum Direction { E, W, SE, SW, NE, NW };
-partial class AoC
+
+namespace AdventOfCode.Year2020.Day24
 {
-    static string[] input = File.ReadAllLines("input.txt");
-
-    internal static Result Part1() => Run(() =>
+    partial class AoC
     {
-        var tiles = from line in input select line.ToTile();
+        static string[] input = File.ReadAllLines("input.txt");
 
-        var flippedTiles = tiles.Aggregate(
-            ImmutableHashSet<Tile>.Empty,
-            (set, tile) => set.Contains(tile) ? set.Remove(tile) : set.Add(tile)
-            );
-
-        return flippedTiles.Count;
-    });
-    internal static Result Part2() => Run(() =>
-    {
-        var tiles =
-            from line in File.ReadLines("input.txt")
-            select line.ToTile();
-
-        var flippedTiles = tiles.Aggregate(
-            ImmutableHashSet<Tile>.Empty,
-            (set, tile) => set.Contains(tile) ? set.Remove(tile) : set.Add(tile)
-            );
-
-        for (int i = 0; i < 100; i++)
+        internal static Result Part1() => Run(() =>
         {
-            var grid = (
-                from x in flippedTiles
-                from tile in new[] { x }.Concat(x.Neighbors())
-                select (tile, flipped: flippedTiles.Contains(tile))
-                ).Distinct();
+            var tiles = from line in input select line.ToTile();
 
-            flippedTiles = grid.Aggregate(
-                flippedTiles,
-                (set, item) =>
-                    item switch
-                    {
-                        { flipped: true } when item.tile.Neighbors().Where(flippedTiles.Contains).Count() is 0 or > 2 => set.Remove(item.tile),
-                        { flipped: false } when item.tile.Neighbors().Where(flippedTiles.Contains).Count() is 2 => set.Add(item.tile),
-                        _ => set
-                    }
+            var flippedTiles = tiles.Aggregate(
+                ImmutableHashSet<Tile>.Empty,
+                (set, tile) => set.Contains(tile) ? set.Remove(tile) : set.Add(tile)
                 );
-        }
-        return flippedTiles.Count;
-    });
 
+            return flippedTiles.Count;
+        });
+        internal static Result Part2() => Run(() =>
+        {
+            var tiles =
+                from line in File.ReadLines("input.txt")
+                select line.ToTile();
+
+            var flippedTiles = tiles.Aggregate(
+                ImmutableHashSet<Tile>.Empty,
+                (set, tile) => set.Contains(tile) ? set.Remove(tile) : set.Add(tile)
+                );
+
+            for (int i = 0; i < 100; i++)
+            {
+                var grid = (
+                    from x in flippedTiles
+                    from tile in new[] { x }.Concat(x.Neighbors())
+                    select (tile, flipped: flippedTiles.Contains(tile))
+                    ).Distinct();
+
+                flippedTiles = grid.Aggregate(
+                    flippedTiles,
+                    (set, item) =>
+                        item switch
+                        {
+                            { flipped: true } when item.tile.Neighbors().Where(flippedTiles.Contains).Count() is 0 or > 2 => set.Remove(item.tile),
+                            { flipped: false } when item.tile.Neighbors().Where(flippedTiles.Contains).Count() is 2 => set.Add(item.tile),
+                            _ => set
+                        }
+                    );
+            }
+            return flippedTiles.Count;
+        });
+
+    }
 }
-static class Ex 
-{ 
+
+static class Ex
+{
     public static Tile ToTile(this string line)
     {
         var tile = new Tile(0, 0, 0);

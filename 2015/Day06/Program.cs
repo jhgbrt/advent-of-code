@@ -1,75 +1,76 @@
-﻿using System.Text.RegularExpressions;
 
-using static AoC;
+using static AdventOfCode.Year2015.Day06.AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-partial class AoC
+namespace AdventOfCode.Year2015.Day06
 {
-    static IReadOnlyCollection<string> lines = File.ReadAllLines("input.txt");
-    internal static Result Part1() => Run(
-            (grid, c) => grid[c.x, c.y] = 1,
-            (grid, c) => grid[c.x, c.y] = 0,
-            (grid, c) => grid[c.x, c.y] = grid[c.x, c.y] == 0 ? 1 : 0);
-
-    internal static Result Part2() => Run(
-            (grid, c) => grid[c.x, c.y] += 1,
-            (grid, c) => grid[c.x, c.y] = Math.Max(0, grid[c.x, c.y]-1),
-            (grid, c) => grid[c.x, c.y] = grid[c.x, c.y] += 2);
-
-    static Result Run(
-        Action<int[,], Coordinate> turnon,
-        Action<int[,], Coordinate> turnoff,
-        Action<int[,], Coordinate> toggle
-        )
+    partial class AoC
     {
-        var sw = Stopwatch.StartNew();
-        var lights = new int[1000,1000];
-        foreach (var line in lines)
+        static IReadOnlyCollection<string> lines = File.ReadAllLines("input.txt");
+        internal static Result Part1() => Run(
+                (grid, c) => grid[c.x, c.y] = 1,
+                (grid, c) => grid[c.x, c.y] = 0,
+                (grid, c) => grid[c.x, c.y] = grid[c.x, c.y] == 0 ? 1 : 0);
+
+        internal static Result Part2() => Run(
+                (grid, c) => grid[c.x, c.y] += 1,
+                (grid, c) => grid[c.x, c.y] = Math.Max(0, grid[c.x, c.y] - 1),
+                (grid, c) => grid[c.x, c.y] = grid[c.x, c.y] += 2);
+
+        static Result Run(
+            Action<int[,], Coordinate> turnon,
+            Action<int[,], Coordinate> turnoff,
+            Action<int[,], Coordinate> toggle
+            )
         {
-            var instruction = Instruction.Parse(line);
-            ApplyInstruction(lights, instruction, turnon, turnoff, toggle);
-        }
-        return new(Sum(lights), sw.Elapsed);
-    }
-    static int Sum(int[,] lights)
-    {
-        var sum = 0;
-        for (int x = 0; x < 1000; x++)
-            for (int y = 0; y < 1000; y++)
-                sum += lights[x, y];
-        return sum;
-    }
-
-    static void ApplyInstruction(
-        int[,] grid,
-        Instruction instruction,
-        Action<int[,], Coordinate> turnon,
-        Action<int[,], Coordinate> turnoff,
-        Action<int[,], Coordinate> toggle
-        )
-    {
-        for (var i = instruction.TopLeft.x; i <= instruction.BottomRight.x; i++)
-            for (var j = instruction.TopLeft.y; j <= instruction.BottomRight.y; j++)
+            var sw = Stopwatch.StartNew();
+            var lights = new int[1000, 1000];
+            foreach (var line in lines)
             {
-                switch (instruction.WhatToDo)
-                {
-                    case InstructionEnum.TurnOn:
-                        turnon(grid, new(i, j));
-                        break;
-                    case InstructionEnum.TurnOff:
-                        turnoff(grid, new(i, j));
-                        break;
-                    case InstructionEnum.Toggle:
-                        toggle(grid, new(i, j));
-                        break;
-                }
+                var instruction = Instruction.Parse(line);
+                ApplyInstruction(lights, instruction, turnon, turnoff, toggle);
             }
+            return new(Sum(lights), sw.Elapsed);
+        }
+        static int Sum(int[,] lights)
+        {
+            var sum = 0;
+            for (int x = 0; x < 1000; x++)
+                for (int y = 0; y < 1000; y++)
+                    sum += lights[x, y];
+            return sum;
+        }
+
+        static void ApplyInstruction(
+            int[,] grid,
+            Instruction instruction,
+            Action<int[,], Coordinate> turnon,
+            Action<int[,], Coordinate> turnoff,
+            Action<int[,], Coordinate> toggle
+            )
+        {
+            for (var i = instruction.TopLeft.x; i <= instruction.BottomRight.x; i++)
+                for (var j = instruction.TopLeft.y; j <= instruction.BottomRight.y; j++)
+                {
+                    switch (instruction.WhatToDo)
+                    {
+                        case InstructionEnum.TurnOn:
+                            turnon(grid, new(i, j));
+                            break;
+                        case InstructionEnum.TurnOff:
+                            turnoff(grid, new(i, j));
+                            break;
+                        case InstructionEnum.Toggle:
+                            toggle(grid, new(i, j));
+                            break;
+                    }
+                }
+        }
+
     }
-
 }
-
 
 enum InstructionEnum
 {

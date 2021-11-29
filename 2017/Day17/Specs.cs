@@ -1,3 +1,5 @@
+namespace AdventOfCode.Year2017.Day17;
+
 public class Specs
 {
     [Fact]

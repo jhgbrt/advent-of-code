@@ -1,3 +1,5 @@
+namespace AdventOfCode.Year2015.Day18;
+
 public class Tests
 {
     Grid grid;

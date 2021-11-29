@@ -1,16 +1,18 @@
-﻿using System.Collections.Immutable;
 
-using static AoC;
+using static AdventOfCode.Year2020.Day09.AoC;
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-partial class AoC
+namespace AdventOfCode.Year2020.Day09
 {
-    static long[] input = File.ReadLines("input.txt").Select(long.Parse).ToArray();
+    partial class AoC
+    {
+        static long[] input = File.ReadLines("input.txt").Select(long.Parse).ToArray();
 
-    internal static Result Part1() => Run(() => input.InvalidNumbers(25).First());
-    internal static Result Part2() => Run(() => input.FindEncryptionWeakness((long)Part1().Value));
+        internal static Result Part1() => Run(() => input.InvalidNumbers(25).First());
+        internal static Result Part2() => Run(() => input.FindEncryptionWeakness((long)Part1().Value));
 
+    }
 }
 
 public class Tests
@@ -23,7 +25,7 @@ public class Tests
 
 static class Ex
 {
-    public static long FindEncryptionWeakness(this long[] array, long invalid) 
+    public static long FindEncryptionWeakness(this long[] array, long invalid)
         => (
             from i in Enumerable.Range(0, array.Length)
             from p in (

@@ -1,3 +1,5 @@
+namespace AdventOfCode.Year2017.Day17;
+
 public class Spinlock
 {
     public static (int index, IList<int> buffer) Find(int steps, int maxValue)
@@ -12,7 +14,7 @@ public class Spinlock
             currentPosition++;
             buffer.Insert(currentPosition, currentValue);
         }
-        return (currentPosition,buffer);
+        return (currentPosition, buffer);
     }
 
     public static int FindFast(int steps, int maxValue)

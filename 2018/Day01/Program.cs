@@ -1,33 +1,37 @@
-using static AoC;
+using static AdventOfCode.Year2018.Day01.AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-partial class AoC
+namespace AdventOfCode.Year2018.Day01
 {
-    static string[] input = File.ReadAllLines("input.txt");
-
-    internal static Result Part1() => Run(() => Part1(input));
-    internal static Result Part2() => Run(() => Part2(input));
-
-    public static int Part1(string[] input) => input.Select(int.Parse).Sum();
-
-    public static int Part2(string[] input)
+    partial class AoC
     {
-        var ints = input.Select(int.Parse);
-        var frequency = 0;
-        var hashSet = new HashSet<int>();
-        ints.EndlessRepeat().TakeWhile(i =>
+        static string[] input = File.ReadAllLines("input.txt");
+
+        internal static Result Part1() => Run(() => Part1(input));
+        internal static Result Part2() => Run(() => Part2(input));
+
+        public static int Part1(string[] input) => input.Select(int.Parse).Sum();
+
+        public static int Part2(string[] input)
         {
-            hashSet.Add(frequency);
-            frequency += i;
-            return !hashSet.Contains(frequency);
-        }).Last();
-        return frequency;
+            var ints = input.Select(int.Parse);
+            var frequency = 0;
+            var hashSet = new HashSet<int>();
+            ints.EndlessRepeat().TakeWhile(i =>
+            {
+                hashSet.Add(frequency);
+                frequency += i;
+                return !hashSet.Contains(frequency);
+            }).Last();
+            return frequency;
+        }
     }
 }
+
 static class Ex
-{ 
+{
     public static IEnumerable<int> EndlessRepeat(this IEnumerable<int> input)
     {
         while (true) foreach (var i in input) yield return i;

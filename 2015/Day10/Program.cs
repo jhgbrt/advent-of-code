@@ -1,46 +1,50 @@
-﻿using System.Text;
 
-using static AoC;
+using static AdventOfCode.Year2015.Day10.AoC;
 
 Console.WriteLine(Part1());
 Console.WriteLine(Part2());
 
-partial class AoC
+namespace AdventOfCode.Year2015.Day10
 {
-    static readonly string input = "1113222113";
-
-    internal static Result Part1() => Run(input, 40);
-    internal static Result Part2() => Run(input, 50);
-
-    static Result Run(string input, int times)
+    partial class AoC
     {
-        var sw = Stopwatch.StartNew();
-        var sb = new StringBuilder();
+        static readonly string input = "1113222113";
 
-        for (int i = 0; i < times; i++)
+        internal static Result Part1() => Run(input, 40);
+        internal static Result Part2() => Run(input, 50);
+
+        static Result Run(string input, int times)
         {
-            sb.Clear();
-            char last = default;
-            int n = 0;
-            foreach (var c in input)
+            var sw = Stopwatch.StartNew();
+            var sb = new StringBuilder();
+
+            for (int i = 0; i < times; i++)
             {
-                if (last == c)
+                sb.Clear();
+                char last = default;
+                int n = 0;
+                foreach (var c in input)
                 {
-                    n++;
+                    if (last == c)
+                    {
+                        n++;
+                    }
+                    else
+                    {
+                        if (last != default) sb.Append(n).Append(last);
+                        last = c;
+                        n = 1;
+                    }
                 }
-                else
-                {
-                    if (last != default) sb.Append(n).Append(last);
-                    last = c;
-                    n = 1;
-                }
+                sb.Append(n).Append(last);
+                input = sb.ToString();
             }
-            sb.Append(n).Append(last);
-            input = sb.ToString();
+            return new(sb.Length, sw.Elapsed);
         }
-        return new(sb.Length, sw.Elapsed);
     }
-}public class Tests
+}
+
+public class Tests
 {
     [Fact]
     public void Test1() => Assert.Equal(252594, Part1().Value);

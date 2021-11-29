@@ -1,13 +1,16 @@
-﻿using static AoC;
+using static AdventOfCode.Year2020.Day14.AoC;
 
-using P1 = Part1.Part1;
-using P2 = Part2.Part2;
+using P1 = AdventOfCode.Year2020.Day14.Part1.Part1;
+using P2 = AdventOfCode.Year2020.Day14.Part2.Part2;
 
-Console.WriteLine(AoC.Part1());
-Console.WriteLine(AoC.Part2());
+Console.WriteLine(Part1());
+Console.WriteLine(Part2());
 
-partial class AoC
+namespace AdventOfCode.Year2020.Day14
 {
-    internal static Result Part1() => Run(() => P1.Run());
-    internal static Result Part2() => Run(() => P2.Run());
+    partial class AoC
+    {
+        internal static Result Part1() => Run(() => P1.Run());
+        internal static Result Part2() => Run(() => P2.Run());
+    }
 }

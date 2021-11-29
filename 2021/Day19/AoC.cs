@@ -1,4 +1,6 @@
-﻿record Result(object Value, TimeSpan Elapsed);
+namespace AdventOfCode.Year2021.Day19;
+
+record Result(object Value, TimeSpan Elapsed);
 record Answer(object? part1, object? part2);
 
 public partial class AoC

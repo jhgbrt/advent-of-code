@@ -1,3 +1,5 @@
+namespace AdventOfCode.Year2017.Day18;
+
 public class CPU1
 {
     private readonly Dictionary<char, long> _registers
