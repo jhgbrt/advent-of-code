@@ -1,44 +1,107 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using Microsoft.Build.Locator;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.MSBuild;
 
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 
-var aoccsproj = Path.Combine("src", "aoc.csproj");
-var dir = new DirectoryInfo("src");
-var doc = XDocument.Load(aoccsproj);
-var itemGroup = (
-    from node in doc.Descendants()
-    where node.Name == "ItemGroup"
-    select node
-    ).First();
+
+//var aoccsproj = Path.Combine("src", "aoc.csproj");
+//var dir = new DirectoryInfo("src");
+//var doc = XDocument.Load(aoccsproj);
+//var itemGroup = (
+//    from node in doc.Descendants()
+//    where node.Name == "ItemGroup"
+//    select node
+//    ).First();
 
 
 
-foreach (var f in dir.GetFiles("*.json", SearchOption.AllDirectories))
+//foreach (var f in dir.GetFiles("*.json", SearchOption.AllDirectories))
+//{
+//    //    <EmbeddedResource Include="Year2015\Day01\input.txt" />
+
+//    var embeddedResource = new XElement("EmbeddedResource");
+//    embeddedResource.SetAttributeValue("Include", f.FullName.Substring(dir.FullName.Length + 1));
+//    itemGroup.Add(embeddedResource);
+//}
+
+//doc.Save(aoccsproj);
+//return;
+MSBuildLocator.RegisterDefaults();
+using var workspace = MSBuildWorkspace.Create();
+Console.WriteLine("Loading solution...");
+var solution = await workspace.OpenSolutionAsync(Path.Combine("src", "aoc.sln"));
+Console.WriteLine("Done");
+var project = solution.Projects.Single();
+
+Console.WriteLine("Get compilation");
+var compilation = await project.GetCompilationAsync() ?? throw new Exception();
+
+foreach (var document in project.Documents)
 {
-    //    <EmbeddedResource Include="Year2015\Day01\input.txt" />
-
-    var embeddedResource = new XElement("EmbeddedResource");
-    embeddedResource.SetAttributeValue("Include", f.FullName.Substring(dir.FullName.Length + 1));
-    itemGroup.Add(embeddedResource);
+    Console.WriteLine($"Document: {document.FilePath}");
+    var tree = await document.GetSyntaxTreeAsync() ?? throw new Exception();
+    var model = compilation.GetSemanticModel(tree);
 }
 
-doc.Save(aoccsproj);
+
 return;
 
 for (var year = 2015; year < DateTime.Now.Year; year++)
 {
     for (var day = 1; day <= 25; day++)
     {
+        Refactor(Path.Combine("src", $"Year{year}", $"Day{day}"));
         //Console.WriteLine($"{year}/{day}");
         //UpdateProject(year, day);
         //UpdateProgramCs(year, day);
         //UpdateNamespaces(year, day);
     }
 }
+
+static async Task Refactor(string path)
+{
+    foreach (var file in Directory.GetFiles(path, "*.cs"))
+    {
+        var content = File.ReadAllText(file);
+        var editor = CreateEditor(content);
+
+        // ... make changes using editor ...
+
+        var changedRoot = editor.GetChangedRoot();
+        var updatedContent = FormatChanges(changedRoot);
+        File.WriteAllText(file, updatedContent);
+    }
+
+}
+
+static SyntaxEditor CreateEditor(string content)
+{
+    var syntaxRoot = SyntaxFactory.ParseCompilationUnit(content);
+    return new SyntaxEditor(syntaxRoot, new AdhocWorkspace());
+}
+
+static string FormatChanges(SyntaxNode node)
+{
+    var workspace = new AdhocWorkspace();
+    var options = workspace.Options
+        .WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, value: "\r\n");
+    return Formatter.Format(node, workspace, options).ToFullString();
+}
+
+static void ReplaceNode<TNode>(
+    SyntaxEditor editor,
+    TNode node,
+    Func<TNode, SyntaxNode> computeReplacement)
+    where TNode : SyntaxNode =>
+    editor.ReplaceNode(node, (n, _) => computeReplacement((TNode)n));
 
 static void UpdateProject(int year, int day)
 {
@@ -239,5 +302,47 @@ class ProgramCsWalker : CSharpSyntaxWalker
     public override void VisitInterfaceDeclaration(InterfaceDeclarationSyntax node)
     {
         Interfaces.Add(node);
+    }
+}
+
+public class C
+{
+    static Regex regex = new Regex(@"AdventOfCode\.Year(?<year>\d+)\.Day(?<day>\d+)");
+    public bool IsMatch(ISymbol symbol)
+    {
+        if (symbol.Name is not "AoCImpl") return false;
+        if (symbol is not INamedTypeSymbol namedType) return false;
+        var ns = GetNamespace(namedType);
+        Console.WriteLine(ns);
+        if (!regex.IsMatch(ns))
+        {
+            Console.WriteLine("regex does not match");
+            return false;
+        }
+
+        return false;
+    }
+
+    public string GetNewName(ISymbol symbol)
+    {
+        var namedType = symbol as INamedTypeSymbol;
+        var ns = GetNamespace(namedType);
+        var match = regex.Match(ns);
+        var year = match.Groups["year"].Value;
+        var day = int.Parse(match.Groups["day"].Value).ToString("00");
+        return $"AoC{year}{day}";
+    }
+
+    private string GetNamespace(INamedTypeSymbol symbol)
+    {
+        var parts = new List<string>();
+        var s = symbol.ContainingNamespace;
+        while (s != null)
+        {
+            parts.Add(s);
+            s = s.ContainingNamespace;
+        }
+        parts.Reverse();
+        return string.Join(".", parts);
     }
 }
