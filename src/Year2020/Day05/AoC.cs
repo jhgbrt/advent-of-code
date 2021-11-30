@@ -2,9 +2,9 @@ using static System.Convert;
 
 namespace AdventOfCode.Year2020.Day05;
 
-public class AoCImpl : AoCBase
+public class AoC202005 : AoCBase
 {
-    static List<Seat> seats = Read.InputLines(typeof(AoCImpl)).Select(Seat.Parse).OrderBy(s => s.SeatID).ToList();
+    static List<Seat> seats = Read.InputLines(typeof(AoC202005)).Select(Seat.Parse).OrderBy(s => s.SeatID).ToList();
     public override object Part1() => seats.Max(s => s.SeatID);
     public override object Part2()
     {

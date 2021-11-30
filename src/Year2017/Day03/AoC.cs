@@ -2,7 +2,7 @@ using static AdventOfCode.Year2017.Day03.Spiral;
 
 namespace AdventOfCode.Year2017.Day03;
 
-public class AoCImpl : AoCBase
+public class AoC201703 : AoCBase
 {
     public const int input = 265149;
 

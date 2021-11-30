@@ -6,7 +6,7 @@ static class Part2
 {
     public static long Run()
     {
-        var query = from line in Read.InputLines(typeof(AoCImpl))
+        var query = from line in Read.InputLines(typeof(AoC202014))
                     select Factory.Create(line);
 
         var memory = query.Aggregate((mask: Mask.Empty, memory: Memory.Empty), (t, item) => item switch

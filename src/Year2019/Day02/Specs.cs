@@ -10,14 +10,14 @@ public class Specs
     [InlineData("1,1,1,4,99,5,6,0,99", 1, 1, 30, 0)]
     public void TestPart1(string input, int p1, int p2, int expected, int index)
     {
-        var result = AoCImpl.Part1(new[] { input }, p1, p2);
+        var result = AoC201902.Part1(new[] { input }, p1, p2);
         Assert.Equal(expected, result[index]);
     }
 
     [Fact]
     public void TestPart2()
     {
-        var result = AoCImpl.Part2(Read.InputLines(typeof(Specs)), 3895705);
+        var result = AoC201902.Part2(Read.InputLines(typeof(Specs)), 3895705);
         Assert.Equal(1202, result);
     }
 }

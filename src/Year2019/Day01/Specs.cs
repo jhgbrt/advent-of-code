@@ -7,14 +7,14 @@ public class Specs
     [Fact]
     public void TestPart1()
     {
-        var result = AoCImpl.Part1(input);
+        var result = AoC201901.Part1(input);
         Assert.Equal(2 + 2 + 654 + 33583, result);
     }
 
     [Fact]
     public void TestPart2()
     {
-        var result = AoCImpl.Part2(input);
+        var result = AoC201901.Part2(input);
         Assert.Equal(2 + 2 + 966 + 50346, result);
     }
 
@@ -25,7 +25,7 @@ public class Specs
     [InlineData(100756, 33583)]
     public void Fuel(int input, int result)
     {
-        Assert.Equal(result, AoCImpl.CalculateFuel1(input));
+        Assert.Equal(result, AoC201901.CalculateFuel1(input));
     }
 
     [Theory]
@@ -35,6 +35,6 @@ public class Specs
     [InlineData(100756, 50346)]
     public void Fuel2(int input, int result)
     {
-        Assert.Equal(result, AoCImpl.CalculateFuel2(input));
+        Assert.Equal(result, AoC201901.CalculateFuel2(input));
     }
 }

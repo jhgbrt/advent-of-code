@@ -6,7 +6,7 @@ public class Specs
     [InlineData("#123 @ 3,2: 5x4")]
     public void ToRectangle(string input)
     {
-        var (left, top, width, height, id) = AoCImpl.ToRectangle(input);
+        var (left, top, width, height, id) = AoC201803.ToRectangle(input);
         Assert.Equal(3, left);
         Assert.Equal(2, top);
         Assert.Equal(5, width);
@@ -23,7 +23,7 @@ public class Specs
     [Fact]
     public void TestPart1()
     {
-        var result = AoCImpl.Part1(input);
+        var result = AoC201803.Part1(input);
         Assert.Equal(4, result);
     }
 
@@ -31,7 +31,7 @@ public class Specs
     [Fact]
     public void TestPart2()
     {
-        var result = AoCImpl.Part2(input);
+        var result = AoC201803.Part2(input);
         Assert.Equal(3, result);
     }
 }

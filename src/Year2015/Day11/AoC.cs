@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2015.Day11;
 
-public class AoCImpl : AoCBase
+public class AoC201511 : AoCBase
 {
     static string input = "cqjxjnds";
 

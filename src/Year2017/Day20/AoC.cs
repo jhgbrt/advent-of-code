@@ -3,9 +3,9 @@ using static System.Math;
 
 namespace AdventOfCode.Year2017.Day20;
 
-public class AoCImpl : AoCBase
+public class AoC201720 : AoCBase
 {
-    static Particle[] particles = Read.InputLines(typeof(AoCImpl)).Select(Particle.Parse).ToArray();
+    static Particle[] particles = Read.InputLines(typeof(AoC201720)).Select(Particle.Parse).ToArray();
     static readonly double t = particles.Sum(p => Abs(p.Acceleration.x) + Abs(p.Acceleration.y) + Abs(p.Acceleration.z));
     public override object Part1() => (
         from x in particles.Select((p, i) => (p: p, i: i))

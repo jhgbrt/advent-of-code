@@ -1,13 +1,13 @@
 namespace AdventOfCode.Year2020.Day07;
 
-public class AoCImpl : AoCBase
+public class AoC202007 : AoCBase
 {
     static string key = "shiny gold";
 
     public override object Part1() => Part1("input.txt");
     public override object Part2() => Part2("input.txt");
     static IEnumerable<Relation> relations(string input) =>
-            from line in Read.Lines(typeof(AoCImpl), input)
+            from line in Read.Lines(typeof(AoC202007), input)
             let parent = line[0..line.IndexOf(" bags contain ")]
             from substr in line[(parent.Length + 14)..line.Length].Split(", ")
             let n = substr[0..2] switch

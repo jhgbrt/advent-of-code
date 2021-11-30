@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2020.Day08;
 
-public class AoCImpl : AoCBase 
+public class AoC202008 : AoCBase 
 {
     static Prog program = ReadProgram("input.txt");
 
@@ -8,7 +8,7 @@ public class AoCImpl : AoCBase
     override public object Part2() => program.Part2();
 
     internal static Prog ReadProgram(string file) => new Prog((
-        from line in Read.Lines(typeof(AoCImpl), file)
+        from line in Read.Lines(typeof(AoC202008), file)
         let instruction = line[0..3]
         let arg = int.Parse(line[3..])
         select new Instruction(instruction, arg)

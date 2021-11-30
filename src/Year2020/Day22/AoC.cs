@@ -1,8 +1,8 @@
-using static AdventOfCode.Year2020.Day22.AoCImpl.Input;
+using static AdventOfCode.Year2020.Day22.AoC202022.Input;
 
 namespace AdventOfCode.Year2020.Day22;
 
-public class AoCImpl : AoCBase
+public class AoC202022 : AoCBase
 {
 
     public override object Part1()

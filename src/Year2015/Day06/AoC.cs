@@ -1,8 +1,8 @@
 namespace AdventOfCode.Year2015.Day06;
 
-public class AoCImpl : AoCBase
+public class AoC201506 : AoCBase
 {
-    static IReadOnlyCollection<string> lines = Read.Lines(typeof(AoCImpl), "input.txt").ToList();
+    static IReadOnlyCollection<string> lines = Read.Lines(typeof(AoC201506), "input.txt").ToList();
     public override object Part1() => Run(
             (grid, c) => grid[c.x, c.y] = 1,
             (grid, c) => grid[c.x, c.y] = 0,

@@ -1,8 +1,8 @@
 namespace AdventOfCode.Year2016.Day03;
 
-public class AoCImpl : AoCBase
+public class AoC201603 : AoCBase
 {
-    public static string[] input = Read.InputLines(typeof(AoCImpl));
+    public static string[] input = Read.InputLines(typeof(AoC201603));
 
     public override object Part1() => (from triangle in GetTriangles()
                                                  where triangle.IsValid

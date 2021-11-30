@@ -57,7 +57,7 @@ public class Specs
                 result = "....." + result + ".....";
                 zero += 5;
             }
-            result = AoCImpl.Transform(result, rules);
+            result = AoC201812.Transform(result, rules);
         }
         result = result.Substring(result.IndexOf('#'));
         expected = expected.Substring(expected.IndexOf('#'));
@@ -69,7 +69,7 @@ public class Specs
     [Fact]
     public void TestPart1()
     {
-        var result = AoCImpl.Part1(input, 20);
+        var result = AoC201812.Part1(input, 20);
         Assert.Equal(325, result);
     }
 

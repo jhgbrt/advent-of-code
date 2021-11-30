@@ -36,14 +36,14 @@ public class Specs
     [Fact]
     public void TestPart1()
     {
-        var result = AoCImpl.Part1(testinput);
+        var result = AoC201819.Part1(testinput);
         Assert.Equal(6, result);
     }
 
     [Fact]
     public void TestPart2()
     {
-        var result = AoCImpl.Part2(testinput);
+        var result = AoC201819.Part2(testinput);
         Assert.Equal(11106760, result);
     }
 
@@ -65,7 +65,7 @@ public class Specs
     [Fact]
     public void Test()
     {
-        var instructions = Read.InputLines(typeof(AoCImpl)).GetInstructions();
+        var instructions = Read.InputLines(typeof(AoC201819)).GetInstructions();
         var result = new CPU(1, instructions, new[] { 0L }).RunReverseEngineered();
         Assert.Equal(11106760, result.A);
     }

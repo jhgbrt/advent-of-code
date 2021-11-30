@@ -4,10 +4,10 @@ using static System.Math;
 
 namespace AdventOfCode.Year2017.Day23;
 
-public class AoCImpl : AoCBase
+public class AoC201723 : AoCBase
 {
     static ReadOnlyCollection<(string instruction, string arg1, string arg2)> program = (
-        from line in Read.InputLines(typeof(AoCImpl))
+        from line in Read.InputLines(typeof(AoC201723))
         let s = line.Split()
         select (instruction: s[0], arg1: s[1], arg2: s[2])
     ).ToList().AsReadOnly();

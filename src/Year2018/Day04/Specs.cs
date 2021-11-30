@@ -96,14 +96,14 @@ public class Specs
     [Fact]
     public void TestPart1()
     {
-        var result = AoCImpl.Part1(input);
+        var result = AoC201804.Part1(input);
         Assert.Equal(24 * 10, result);
     }
 
     [Fact]
     public void TestPart2()
     {
-        var result = AoCImpl.Part2(input);
+        var result = AoC201804.Part2(input);
         Assert.Equal(99 * 45, result);
     }
 

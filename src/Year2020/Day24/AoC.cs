@@ -1,8 +1,8 @@
 namespace AdventOfCode.Year2020.Day24;
 
-public class AoCImpl : AoCBase
+public class AoC202024 : AoCBase
 {
-    static string[] input = Read.InputLines(typeof(AoCImpl));
+    static string[] input = Read.InputLines(typeof(AoC202024));
 
     public override object Part1()
     {
@@ -18,7 +18,7 @@ public class AoCImpl : AoCBase
     public override object Part2()
     {
         var tiles =
-            from line in Read.InputLines(typeof(AoCImpl))
+            from line in Read.InputLines(typeof(AoC202024))
             select line.ToTile();
 
         var flippedTiles = tiles.Aggregate(

@@ -8,7 +8,7 @@ public class Specs
     public void TestPart1()
     {
         Assert.Equal(2, input.ToIntegers().Last());
-        var result = AoCImpl.Part1(input);
+        var result = AoC201808.Part1(input);
         Assert.Equal(138, result);
     }
 
@@ -34,7 +34,7 @@ public class Specs
     [Fact]
     public void TestPart2()
     {
-        var result = AoCImpl.Part2(input);
+        var result = AoC201808.Part2(input);
         Assert.Equal(66, result);
     }
 }

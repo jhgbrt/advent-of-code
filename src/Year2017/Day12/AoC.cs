@@ -1,8 +1,8 @@
 namespace AdventOfCode.Year2017.Day12;
 
-public class AoCImpl : AoCBase
+public class AoC201712 : AoCBase
 {
-    static string[] input = Read.InputLines(typeof(AoCImpl));
+    static string[] input = Read.InputLines(typeof(AoC201712));
     static IEnumerable<(int vertex1, int vertex2)> edges = (
                 from line in input
                 let parts = line.Split("<->").Select(s => s.Trim()).ToArray()

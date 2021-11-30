@@ -1,8 +1,8 @@
 ﻿namespace AdventOfCode.Year2020.Day01;
 
-public class AoCImpl : AoCBase
+public class AoC202001 : AoCBase
 {
-    static string[] input = Read.InputLines(typeof(AoCImpl));
+    static string[] input = Read.InputLines(typeof(AoC202001));
     static int[] numbers = input.Select(int.Parse).ToArray();
 
     public override object Part1() => numbers.Part1();

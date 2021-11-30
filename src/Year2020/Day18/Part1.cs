@@ -7,7 +7,7 @@ public static class Runner
     public static object Run()
     {
         var result = (
-            from line in Read.InputLines(typeof(AoCImpl))
+            from line in Read.InputLines(typeof(AoC202018))
             select Calculator.Calculate(line)
             ).Aggregate(0L, (x, y) => x + y);
         return result;

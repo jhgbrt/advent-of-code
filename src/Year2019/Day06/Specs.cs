@@ -24,7 +24,7 @@ public class Specs
     [Fact]
     public void TestPart1()
     {
-        var result = AoCImpl.Part1(input.Take(11).ToArray());
+        var result = AoC201906.Part1(input.Take(11).ToArray());
         Assert.Equal(42, result);
 
     }
@@ -40,7 +40,7 @@ public class Specs
     [Fact]
     public void TestPart2()
     {
-        var result = AoCImpl.Part2(input);
+        var result = AoC201906.Part2(input);
         Assert.Equal(4, result);
     }
 }

@@ -4,7 +4,7 @@ using Ticket = System.Collections.Immutable.ImmutableArray<int>;
 
 namespace AdventOfCode.Year2020.Day16;
 
-public class AoCImpl : AoCBase
+public class AoC202016 : AoCBase
 {
     static (ImmutableArray<FieldDef> fields, Ticket myticket, ImmutableArray<Ticket> othertickets) input = ParseFile("input.txt");
 
@@ -66,7 +66,7 @@ public class AoCImpl : AoCBase
 
     internal static (ImmutableArray<FieldDef> fields, Ticket myticket, ImmutableArray<Ticket> othertickets) ParseFile(string input)
     {
-        using var sr = new StreamReader(Read.Stream(typeof(AoCImpl), input));
+        using var sr = new StreamReader(Read.Stream(typeof(AoC202016), input));
 
         var fields = (
             from line in sr.ReadWhile(s => !string.IsNullOrEmpty(s))

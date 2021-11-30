@@ -24,7 +24,7 @@ public class Specs
     [Fact]
     public void TestPart1()
     {
-        var result = AoCImpl.Part1(input);
+        var result = AoC201807.Part1(input);
 
         Assert.Equal("CABDFE", result);
     }

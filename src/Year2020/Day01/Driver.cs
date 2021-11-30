@@ -17,7 +17,7 @@ static class Driver
             ).Distinct().Aggregate(1L, (i, m) => m * i);
 
     public static IEnumerable<int> LinesToNumbers(this string filename)
-        => from line in Read.Lines(typeof(AoCImpl), filename)
+        => from line in Read.Lines(typeof(AoC202001), filename)
            select int.Parse(line);
 
     public static IEnumerable<Pair> GetPairs(this IEnumerable<int> numbers)

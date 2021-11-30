@@ -4,7 +4,7 @@ static class Driver
 {
     public static long Part1(string input)
     {
-        var lines = Read.Lines(typeof(AoCImpl), input).ToList();
+        var lines = Read.Lines(typeof(AoC202003), input).ToList();
         var set = lines.GetTrees().ToHashSet();
         return (
             from point in Path((3, 1)).TakeWhile(c => c.y < lines.Count)
@@ -37,7 +37,7 @@ static class Driver
 
     public static long Part2(string input)
     {
-        var lines = Read.Lines(typeof(AoCImpl), input).ToList();
+        var lines = Read.Lines(typeof(AoC202003), input).ToList();
         var set = lines.GetTrees().ToHashSet();
 
         var query =

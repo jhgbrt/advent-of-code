@@ -7,7 +7,7 @@ static class Driver
     internal static long Part1(string input) => Parse(input).Count(RequiredFieldsPresent);
     internal static long Part2(string input) => Parse(input).Where(RequiredFieldsPresent).Count(IsValid);
     internal static IEnumerable<IReadOnlyDictionary<string, string>> Parse(string path, Action<string>? log = null)
-        => Parse(new StringReader(Read.Text(typeof(AoCImpl), path).Replace("\r\n", "\n")), log);
+        => Parse(new StringReader(Read.Text(typeof(AoC202004), path).Replace("\r\n", "\n")), log);
 
     internal static IEnumerable<IReadOnlyDictionary<string, string>> Parse(TextReader reader, Action<string>? log = null)
     {

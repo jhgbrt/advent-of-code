@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2017.Day14;
 
-public class AoCImpl : AoCBase
+public class AoC201714 : AoCBase
 {
     static string key = "hxtvlmkl";
     public override object Part1() => Defrag.CountBitsInGrid(key);

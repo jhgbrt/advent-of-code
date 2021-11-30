@@ -237,7 +237,7 @@ public class Specs
     [Fact]
     public void TestPart1()
     {
-        var result = AoCImpl.Part1(input);
+        var result = AoC201818.Part1(input);
         Assert.Equal(1147, result);
     }
 
@@ -245,9 +245,9 @@ public class Specs
     public void TestPart2()
     {
         var testValue = 1000;
-        var input = Read.InputLines(typeof(AoCImpl));
+        var input = Read.InputLines(typeof(AoC201818));
         var expected = new Grid(input).Step(testValue).Value;
-        var result = AoCImpl.Part2(input);
+        var result = AoC201818.Part2(input);
         Assert.Equal(expected, result);
     }
 }

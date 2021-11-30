@@ -1,9 +1,9 @@
 namespace AdventOfCode.Year2015.Day25;
 
-public class AoCImpl : AoCBase
+public class AoC201525 : AoCBase
 {
     
-    public static string[] input = Read.InputLines(typeof(AoCImpl));
+    public static string[] input = Read.InputLines(typeof(AoC201525));
     const int row = 3010;
     const int column = 3019;
     const long code = 20151125;

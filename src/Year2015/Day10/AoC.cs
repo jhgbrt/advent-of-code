@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2015.Day10;
 
-public class AoCImpl : AoCBase
+public class AoC201510 : AoCBase
 {
     static readonly string input = "1113222113";
 

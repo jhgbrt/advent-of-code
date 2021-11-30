@@ -2,9 +2,9 @@ using System.Numerics;
 
 namespace AdventOfCode.Year2015.Day24;
 
-public class AoCImpl : AoCBase
+public class AoC201524 : AoCBase
 {
-    public static string[] input = Read.InputLines(typeof(AoCImpl));
+    public static string[] input = Read.InputLines(typeof(AoC201524));
     static int[] weights = (from line in input select int.Parse(line)).ToArray();
 
     public override object Part1() => CalculateRecursive(weights, weights.Sum() / 3, 0, 1, 0);

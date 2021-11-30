@@ -5,14 +5,14 @@ public class Specs
     [Fact]
     public void TestPart1()
     {
-        var result = AoCImpl.Part1(Read.InputLines(typeof(Specs)));
+        var result = AoC201816.Part1(Read.InputLines(typeof(Specs)));
         Assert.Equal(500, result);
     }
 
     [Fact]
     public void TestPart2()
     {
-        var result = AoCImpl.Part2(Read.InputLines(typeof(Specs)));
+        var result = AoC201816.Part2(Read.InputLines(typeof(Specs)));
         Assert.Equal(533, result);
     }
 

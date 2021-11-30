@@ -1,8 +1,8 @@
 namespace AdventOfCode.Year2018.Day11;
 
-public class AoCImpl : AoCBase
+public class AoC201811 : AoCBase
 {
-    static int input = int.Parse(Read.InputText(typeof(AoCImpl)));
+    static int input = int.Parse(Read.InputText(typeof(AoC201811)));
 
     public override object Part1()
     {

@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2015.Day20;
 
-public class AoCImpl : AoCBase
+public class AoC201520 : AoCBase
 {
     static int input = 34000000;
 

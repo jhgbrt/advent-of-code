@@ -1,8 +1,8 @@
 namespace AdventOfCode.Year2016.Day02;
 
-public class AoCImpl : AoCBase
+public class AoC201602 : AoCBase
 {
-    public static string[] input = Read.InputLines(typeof(AoCImpl)).Where(l => !string.IsNullOrEmpty(l)).ToArray();
+    public static string[] input = Read.InputLines(typeof(AoC201602)).Where(l => !string.IsNullOrEmpty(l)).ToArray();
 
     public override object Part1() => GetCode(input, Keypad1);
     public override object Part2() => GetCode(input, Keypad2);

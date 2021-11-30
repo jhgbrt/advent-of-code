@@ -110,14 +110,14 @@ public class Specs
     [Fact]
     public void TestPart1()
     {
-        var result = AoCImpl.ToGrid(input).FindGridWithLowestHeight().ToString();
+        var result = AoC201810.ToGrid(input).FindGridWithLowestHeight().ToString();
         Assert.Equal(Expected, result);
     }
 
     [Fact]
     public void TestPart2()
     {
-        var result = AoCImpl.Part2(input);
+        var result = AoC201810.Part2(input);
         Assert.Equal(3, result);
     }
 }

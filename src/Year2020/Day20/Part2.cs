@@ -198,7 +198,7 @@ static class AoC
 {
     internal static IEnumerable<Tile> ReadInput(string fileName)
     {
-        var enumerator = Read.Lines(typeof(AoCImpl), fileName).ToList().GetEnumerator();
+        var enumerator = Read.Lines(typeof(AoC202020), fileName).ToList().GetEnumerator();
         foreach (var tile in ReadTiles(enumerator)) yield return tile;
     }
 

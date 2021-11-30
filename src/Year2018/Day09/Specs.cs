@@ -12,7 +12,7 @@ public class Specs
     [InlineData(30, 5807, 37305)]
     public void TestPart1(int players, int marbles, int expected)
     {
-        var result = AoCImpl.Part1(players, marbles);
+        var result = AoC201809.Part1(players, marbles);
         Assert.Equal(expected, result);
     }
 

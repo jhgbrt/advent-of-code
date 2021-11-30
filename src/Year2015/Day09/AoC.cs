@@ -1,8 +1,8 @@
 namespace AdventOfCode.Year2015.Day09;
 
-public class AoCImpl : AoCBase
+public class AoC201509 : AoCBase
 {
-    static string[] lines = Read.InputLines(typeof(AoCImpl));
+    static string[] lines = Read.InputLines(typeof(AoC201509));
 
     public override object Part1() => MinMax().min;
     public override object Part2() => MinMax().max;

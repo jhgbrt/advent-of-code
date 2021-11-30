@@ -1,8 +1,8 @@
 namespace AdventOfCode.Year2015.Day08;
 
-public class AoCImpl : AoCBase
+public class AoC201508 : AoCBase
 {
-    static string[] lines = Read.InputLines(typeof(AoCImpl));
+    static string[] lines = Read.InputLines(typeof(AoC201508));
 
     public override object Part1() => lines.Sum<string>(l => l.Length) - lines.Sum<string>(CountChars);
     public override object Part2() => lines.Sum<string>(CountEscaped) - lines.Sum<string>(l => l.Length);

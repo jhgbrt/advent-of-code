@@ -1,8 +1,8 @@
 namespace AdventOfCode.Year2016.Day04;
 
-public class AoCImpl : AoCBase
+public class AoC201604 : AoCBase
 {
-    public static string[] input = Read.InputLines(typeof(AoCImpl));
+    public static string[] input = Read.InputLines(typeof(AoC201604));
 
     public override object Part1() => (from line in input
                                                  let room = Room.Parse(line)

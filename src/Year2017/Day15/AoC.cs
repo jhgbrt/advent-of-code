@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2017.Day15;
 
-public class AoCImpl : AoCBase
+public class AoC201715 : AoCBase
 {
     static int seedA = 722;
     static int seedB = 354;

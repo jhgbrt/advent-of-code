@@ -28,13 +28,13 @@ static class Driver
     }
 
     public static long Part1(string input)
-        => Read.Lines(typeof(AoCImpl), input)
+        => Read.Lines(typeof(AoC202002), input)
         .Select(ToEntry)
         .Where(e => IsValid1(e))
         .Count();
 
     public static long Part2(string input)
-        => Read.Lines(typeof(AoCImpl), input)
+        => Read.Lines(typeof(AoC202002), input)
         .Select(ToEntry)
         .Where(e => IsValid2(e))
         .Count();

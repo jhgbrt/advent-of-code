@@ -1,4 +1,4 @@
-using static AdventOfCode.Year2015.Day17.AoCImpl;
+using static AdventOfCode.Year2015.Day17.AoC201517;
 
 namespace AdventOfCode.Year2015.Day17;
 

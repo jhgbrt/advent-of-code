@@ -1,8 +1,8 @@
 namespace AdventOfCode.Year2016.Day10;
 
-public class AoCImpl : AoCBase
+public class AoC201610 : AoCBase
 {
-    static string[] input = Read.InputLines(typeof(AoCImpl)).Where(s => !string.IsNullOrEmpty(s)).ToArray();
+    static string[] input = Read.InputLines(typeof(AoC201610)).Where(s => !string.IsNullOrEmpty(s)).ToArray();
     static Regex re1 = new Regex(@"bot (?<id>\d+) gives low to (?<ltype>bot|output) (?<low>\d+) and high to (?<htype>bot|output) (?<high>\d+)");
     static Regex re2 = new Regex(@"value (?<value>\d+) goes to bot (?<destination>\d+)");
     public override object Part1() => RunInstructions().part1;

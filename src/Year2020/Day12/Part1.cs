@@ -4,7 +4,7 @@ class Part1
 {
     public static int Run()
     {
-        var input = from line in Read.InputLines(typeof(AoCImpl))
+        var input = from line in Read.InputLines(typeof(AoC202012))
                     let c = line[0]
                     let i = int.Parse(line.Substring(1))
                     select (c, i);

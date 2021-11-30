@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2020.Day11;
 
 public class Tests
 {
-    Grid example = Grid.Parse(Read.SampleLines(typeof(AoCImpl)));
+    Grid example = Grid.Parse(Read.SampleLines(typeof(AoC202011)));
     [Fact]
     public void Test1()
     {

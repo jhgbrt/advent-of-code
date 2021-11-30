@@ -24,14 +24,14 @@ public class Specs
     [Fact]
     public void TestPart1()
     {
-        var result = AoCImpl.Part1(input);
+        var result = AoC201806.Part1(input);
         Assert.Equal(17, result);
     }
 
     [Fact]
     public void TestPart2()
     {
-        var result = AoCImpl.Part2(input, 32);
+        var result = AoC201806.Part2(input, 32);
         Assert.Equal(16, result);
     }
 }

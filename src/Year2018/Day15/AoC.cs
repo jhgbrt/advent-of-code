@@ -1,8 +1,8 @@
 namespace AdventOfCode.Year2018.Day15;
 
-public class AoCImpl : AoCBase
+public class AoC201815 : AoCBase
 {
-    static string[] input = Read.InputLines(typeof(AoCImpl)).TakeWhile(s => !string.IsNullOrEmpty(s)).ToArray();
+    static string[] input = Read.InputLines(typeof(AoC201815)).TakeWhile(s => !string.IsNullOrEmpty(s)).ToArray();
     static string[] grid = input.Select(l => l.Replace('G', '.').Replace('E', '.')).ToArray();
     static ImmutableList<Unit> Units(int power) => (
             from y in Enumerable.Range(0, input.Length)

@@ -1,8 +1,8 @@
 namespace AdventOfCode.Year2017.Day04;
 
-public class AoCImpl : AoCBase
+public class AoC201704 : AoCBase
 {
-    public static string[] input = Read.InputLines(typeof(AoCImpl));
+    public static string[] input = Read.InputLines(typeof(AoC201704));
 
     public override object Part1() => input.Count(IsValidPassword1);
     public override object Part2() => input.Count(IsValidPassword2);

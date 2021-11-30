@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2020.Day11;
 
-public class AoCImpl : AoCBase
+public class AoC202011 : AoCBase
 {
     static Grid grid = Grid.FromFile("input.txt");
 

@@ -9,7 +9,7 @@ public class Specs
     [InlineData(101, 153, 71, 4)]
     public void GetCellPowerTest(int x, int y, int serialNumber, int power)
     {
-        var result = AoCImpl.GetCellPower(x, y, serialNumber);
+        var result = AoC201811.GetCellPower(x, y, serialNumber);
         Assert.Equal(power, result);
     }
 
@@ -17,7 +17,7 @@ public class Specs
     [InlineData(33, 45, 18, 29)]
     public void GetSquarePowerTest(int x, int y, int serialNumber, int expected)
     {
-        var result = AoCImpl.GetSquarePower((x, y), serialNumber);
+        var result = AoC201811.GetSquarePower((x, y), serialNumber);
         Assert.Equal(expected, result);
     }
 
@@ -26,7 +26,7 @@ public class Specs
     [InlineData(42, 21, 61, 30)]
     public void TestPart1(int serialNumber, int left, int top, int power)
     {
-        var result = AoCImpl.Part1(serialNumber);
+        var result = AoC201811.Part1(serialNumber);
         Assert.Equal((left, top, power), result);
     }
 
@@ -35,7 +35,7 @@ public class Specs
     [InlineData(42, 232, 251, 12, 119)]
     public void TestPart2(int serialNumber, int left, int top, int size, int power)
     {
-        var result = AoCImpl.Part2(serialNumber);
+        var result = AoC201811.Part2(serialNumber);
         Assert.Equal((left, top, size, power), result);
     }
 }

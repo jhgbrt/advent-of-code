@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 
 namespace AdventOfCode.Year2015.Day04;
 
-public class AoCImpl : AoCBase
+public class AoC201504 : AoCBase
 {
     static string key = "bgvyzdsv";
     public override object Part1() => Solve(key, 5);

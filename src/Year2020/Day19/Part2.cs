@@ -17,7 +17,7 @@ static class AoC
 {
     internal static (ImmutableDictionary<int, Rule>, string[]) ReadFile(string fileName)
     {
-        var enumerator = Read.Lines(typeof(AoCImpl), fileName).GetEnumerator();
+        var enumerator = Read.Lines(typeof(AoC202019), fileName).GetEnumerator();
         return (ReadRules(enumerator).ToImmutableDictionary(r => r.Number), ReadLines(enumerator).ToArray());
     }
 

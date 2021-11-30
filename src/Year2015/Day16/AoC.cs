@@ -1,8 +1,8 @@
 namespace AdventOfCode.Year2015.Day16;
 
-public class AoCImpl : AoCBase
+public class AoC201516 : AoCBase
 {
-    static string[] lines = Read.InputLines(typeof(AoCImpl));
+    static string[] lines = Read.InputLines(typeof(AoC201516));
     static Regex regex = new Regex(@"Sue (?<number>\d+): (?<properties>.*)");
 
     static ImmutableList<Sue> sues = (

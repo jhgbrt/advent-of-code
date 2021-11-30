@@ -7,7 +7,7 @@ public class Specs
     public void Test1()
     {
         string[] input = new[] { "abcdef", "bababc", "abbcde", "abcccd", "aabcdd", "abcdee", "ababab" };
-        var result = AoCImpl.Part1(input);
+        var result = AoC201802.Part1(input);
         Assert.Equal(12, result);
     }
 
@@ -24,18 +24,18 @@ public class Specs
                 "axcye",
                 "wvxyz"
             };
-        Assert.Equal("fgij", AoCImpl.Part2(input));
+        Assert.Equal("fgij", AoC201802.Part2(input));
     }
 
     [Fact]
     public void DiffCount_SimilarStrings()
     {
-        Assert.Equal(1, AoCImpl.DiffCount("abcd", "abed"));
+        Assert.Equal(1, AoC201802.DiffCount("abcd", "abed"));
     }
     [Fact]
     public void DiffCount_DifferentStrings_All()
     {
-        Assert.Equal(4, AoCImpl.DiffCount("abcd", "efgh"));
+        Assert.Equal(4, AoC201802.DiffCount("abcd", "efgh"));
     }
 }
 

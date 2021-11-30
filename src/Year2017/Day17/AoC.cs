@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2017.Day17;
 
-public class AoCImpl : AoCBase
+public class AoC201717 : AoCBase
 {
     const int input = 377;
     public override object Part1()

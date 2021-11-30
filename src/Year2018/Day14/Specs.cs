@@ -26,7 +26,7 @@ public class Specs
     [InlineData(2018, 5941429882)]
     public void TestPart1(int n, long expected)
     {
-        var result = AoCImpl.Part1(n);
+        var result = AoC201814.Part1(n);
         Assert.Equal(expected, result);
     }
 
@@ -38,7 +38,7 @@ public class Specs
     //[InlineData(2018, 327901)]
     public void TestPart2(int expected, int input)
     {
-        var result = AoCImpl.Part2(input);
+        var result = AoC201814.Part2(input);
         Assert.Equal(expected, result);
     }
 }

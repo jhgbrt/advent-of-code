@@ -2,9 +2,9 @@ using Newtonsoft.Json.Linq;
 
 namespace AdventOfCode.Year2015.Day12;
 
-public class AoCImpl : AoCBase
+public class AoC201512 : AoCBase
 {
-    static string input = Read.InputText(typeof(AoCImpl));
+    static string input = Read.InputText(typeof(AoC201512));
 
     public override object Part1() => Traverse(Root(), false);
     public override object Part2() => Traverse(Root(), true);

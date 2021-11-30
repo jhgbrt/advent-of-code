@@ -1,8 +1,8 @@
 namespace AdventOfCode.Year2015.Day23;
 
-public class AoCImpl : AoCBase
+public class AoC201523 : AoCBase
 {
-    static string[] input = Read.InputLines(typeof(AoCImpl));
+    static string[] input = Read.InputLines(typeof(AoC201523));
     static ImmutableList<Instruction> instructions = (
         from line in input
         let split = line.Split(' ')
