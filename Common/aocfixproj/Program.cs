@@ -6,13 +6,36 @@ using Microsoft.CodeAnalysis.Formatting;
 using System.Xml.Linq;
 
 
+var aoccsproj = Path.Combine("src", "aoc.csproj");
+var dir = new DirectoryInfo("src");
+var doc = XDocument.Load(aoccsproj);
+var itemGroup = (
+    from node in doc.Descendants()
+    where node.Name == "ItemGroup"
+    select node
+    ).First();
+
+
+
+foreach (var f in dir.GetFiles("*.json", SearchOption.AllDirectories))
+{
+    //    <EmbeddedResource Include="Year2015\Day01\input.txt" />
+
+    var embeddedResource = new XElement("EmbeddedResource");
+    embeddedResource.SetAttributeValue("Include", f.FullName.Substring(dir.FullName.Length + 1));
+    itemGroup.Add(embeddedResource);
+}
+
+doc.Save(aoccsproj);
+return;
+
 for (var year = 2015; year < DateTime.Now.Year; year++)
 {
     for (var day = 1; day <= 25; day++)
     {
         //Console.WriteLine($"{year}/{day}");
         //UpdateProject(year, day);
-        UpdateProgramCs(year, day);
+        //UpdateProgramCs(year, day);
         //UpdateNamespaces(year, day);
     }
 }

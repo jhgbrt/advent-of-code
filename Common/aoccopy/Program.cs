@@ -1,20 +1,35 @@
 ﻿
 //var content = File.ReadAllText(Path.Combine("Common", "AdventOfCode.Template.CSharp", "AdventOfCode.Template.CSharp.csproj"));
 //var answers = Path.Combine("Common", "AdventOfCode.Template.CSharp", "Answers.cs");
-var aoc = Path.Combine("Common", "AdventOfCode.Template.CSharp", "AoC.cs");
+//var aoc = Path.Combine("Common", "AdventOfCode.Template.CSharp", "AoC.cs");
 
-for (var year = 2015; year <= DateTime.Now.Year; year++)
+for (var year = 2015; year <= DateTime.Now.Year - 1; year++)
 {
     for (var day = 1; day <= 25; day++)
     {
-        var dir = Path.Combine(year.ToString(), $"Day{day:00}");
-        if (Directory.Exists(dir))
+        var source = new DirectoryInfo(Path.Combine(year.ToString(), $"Day{day:00}"));
+        var target = new DirectoryInfo(Path.Combine("src", $"Year{year}", $"Day{day:00}"));
+
+        if (!target.Exists) target.Create();
+
+        //foreach (var file in source.GetFiles("*.cs"))
+        //{
+        //    if (file.Name == "Program.cs") continue;
+        //    file.CopyTo(Path.Combine(target.FullName, file.Name));
+        //}
+
+        foreach (var file in source.GetFiles("*.json"))
         {
-            //var csproj = Path.Combine(year.ToString(), $"Day{day:00}", $"AoC.{year}.Day{day:00}.csproj");
-            //File.WriteAllText(csproj, content);
-            File.Copy(aoc, Path.Combine(dir, "AoC.cs"), true);
+            file.CopyTo(Path.Combine(target.FullName, file.Name));
         }
-  //      if (File.Exists(answers)) File.Delete(answers);
+
+        //if (Directory.Exists(dir))
+        //{
+        //var csproj = Path.Combine(year.ToString(), $"Day{day:00}", $"AoC.{year}.Day{day:00}.csproj");
+        //File.WriteAllText(csproj, content);
+        //File.Copy(aoc, Path.Combine(dir, "AoC.cs"), true);
+        //}
+        //      if (File.Exists(answers)) File.Delete(answers);
     }
 
 }
