@@ -398,6 +398,7 @@
     <Using Include="System.Text.Json" />
     <Using Include="System.Text.RegularExpressions" />
     <Using Include="System.Collections.Immutable" />
+    <Using Include="Microsoft.FSharp.Collections" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FSharp.Core" Version="6.0.1" />

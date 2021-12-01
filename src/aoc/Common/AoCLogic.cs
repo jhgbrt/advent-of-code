@@ -4,9 +4,13 @@ using NodaTime;
 
 static class AoCLogic
 {
+
+    public static IClock Clock = SystemClock.Instance;
+    static ZonedDateTime Now = Clock.GetCurrentInstant().InZone(DateTimeZoneProviders.Tzdb["EST"]);
+
     internal static int MaxDay(int year, IClock clock)
     {
-        var now = clock.GetCurrentInstant().InZone(DateTimeZoneProviders.Tzdb["EST"]);
+        var now = Now;
 
         // for past years, all 25 puzzles are available
         if (year < now.Year) return 25;
@@ -29,10 +33,17 @@ static class AoCLogic
     internal static FileInfo GetFile(int year, int day, string fileName) => new FileInfo(Path.Combine(Environment.CurrentDirectory, $"Year{year}", $"Day{day:00}", fileName));
     internal static string GetFileName(int year, int day, string fileName) => Path.Combine(Environment.CurrentDirectory, $"Year{year}", $"Day{day:00}", fileName);
 
-    public static IClock Clock = SystemClock.Instance;
+    internal static IEnumerable<(int year, int day)> Puzzles()
+    {
+        var now = Now;
+        for (int year = 2015; year <= now.Year; year++)
+            for (int day = 1; (year < now.Year && day <= 25) || (now.Month == 12 && day <= now.Day); day++)
+                yield return (year, day);
+    }
+
     internal static bool IsValidAndUnlocked(int year, int day)
     {
-        var now = Clock.GetCurrentInstant().InZone(DateTimeZoneProviders.Tzdb["EST"]);
+        var now = Now;
 
         // no puzzles before 2015, nor in the future
         if (year < 2015) return false;
@@ -45,6 +56,6 @@ static class AoCLogic
         if (12 > now.Month) return false;
 
         // current year, december
-        return day >= 1 && day <= 25;
+        return day >= 1 && day <= now.Day;
     }
 }

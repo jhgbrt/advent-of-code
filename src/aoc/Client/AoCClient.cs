@@ -24,6 +24,23 @@ class AoCClient : IDisposable
         if (!cacheDirectory.Exists) cacheDirectory.Create();
     }
 
+    public async Task<(HttpStatusCode status, string content)> PostAnswerAsync(int year, int day, int part, string value)
+    {
+        var formValues = new Dictionary<string, string>()
+        {
+            ["level"] = part.ToString(),
+            ["answer"] = value.ToString()
+        };
+        var content = new FormUrlEncodedContent(formValues);
+        var result = await PostAsync($"{year}/day/{day}/answer", content);
+
+        var document = new HtmlDocument();
+        document.LoadHtml(result.Content);
+        var articles = document.DocumentNode.SelectNodes("//article").ToArray();
+
+        return (result.StatusCode, articles.First().InnerText);
+    }
+
     public async Task<LeaderBoard?> GetLeaderBoardAsync(int year, int id, bool usecache = true)
     {
         (var statusCode, var content) = await GetAsync($"{year}-{id}.json", $"{year}/leaderboard/private/view/{id}.json", usecache);
@@ -32,7 +49,7 @@ class AoCClient : IDisposable
         return Deserialize(year, content);
     }
 
-    private LeaderBoard Deserialize(int year, string content)
+    private static LeaderBoard Deserialize(int year, string content)
     {
         var jobject = JsonDocument.Parse(content).RootElement;
 
@@ -113,18 +130,26 @@ class AoCClient : IDisposable
         if (!File.Exists(filepath) || !usecache)
         {
             var response = await client.GetAsync(path);
-            Console.WriteLine($"GET: {path} - {response.StatusCode}");
-            if (response.StatusCode != HttpStatusCode.OK)
-                return (response.StatusCode, string.Empty);
             content = await response.Content.ReadAsStringAsync();
+            Trace.WriteLine($"GET: {path} - {response.StatusCode}");
+            Trace.WriteLine($"{content}");
+            if (response.StatusCode != HttpStatusCode.OK)
+                return (response.StatusCode, content);
             await File.WriteAllTextAsync(filepath, content);
         }
         else
         {
-            Console.WriteLine($"CACHE: {path}");
+            Trace.WriteLine($"CACHE: {path}");
             content = await File.ReadAllTextAsync(filepath);
         }
         return (HttpStatusCode.OK, content);
+    }
+    private async Task<(HttpStatusCode StatusCode, string Content)> PostAsync(string path, HttpContent body)
+    {
+        var response = await client.PostAsync(path, body);
+        Trace.WriteLine($"GET: {path} - {response.StatusCode}");
+        var content = await response.Content.ReadAsStringAsync();
+        return (response.StatusCode, content);
     }
 
     public async Task<string> GetPuzzleInputAsync(int year, int day)

@@ -23,7 +23,7 @@ class RunPuzzle
         var aoc = (AoCBase)Activator.CreateInstance(type)!;
 
         Console.WriteLine($"Part 1: {Run(aoc.Part1)}");
-        Console.WriteLine($"Party 2: {Run(aoc.Part2)}");
+        Console.WriteLine($"Part 2: {Run(aoc.Part2)}");
 
         return Task.CompletedTask;
     }

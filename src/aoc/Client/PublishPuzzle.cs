@@ -1,5 +1,9 @@
 ﻿using AdventOfCode.Common;
 
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
 namespace AdventOfCode.Client;
 
 class PublishPuzzle
@@ -15,57 +19,119 @@ class PublishPuzzle
         var publishLocation = new DirectoryInfo(output ?? "publish");
         if (!publishLocation.Exists) publishLocation.Create();
 
-        foreach (var extension in new[] {"*.cs", "*.txt", "*.json"})
-        foreach (var file in dir.GetFiles(extension))
+        var aoc = await File.ReadAllTextAsync(Path.Combine(dir.FullName, "AoC.cs"));
+        var tree = CSharpSyntaxTree.ParseText(aoc);
+
+        var implementations = (
+            from node in tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>()
+            where node.Identifier.ToString().StartsWith("Part")
+            from arrow in node.ChildNodes().OfType<ArrowExpressionClauseSyntax>()
+            from impl in arrow.ChildNodes().OfType<MemberAccessExpressionSyntax>()
+            select (name: node.Identifier.ToString(), impl)
+            ).ToDictionary(x => x.name, x => x.impl);
+
+        var fields = (
+            from node in tree.GetRoot().DescendantNodes().OfType<FieldDeclarationSyntax>()
+            let fieldname = node.DescendantNodes().OfType<VariableDeclaratorSyntax>().Single().Identifier.ToString()
+            select SyntaxFactory.LocalDeclarationStatement(
+                    SyntaxFactory.VariableDeclaration(
+                        SyntaxFactory.IdentifierName(
+                            SyntaxFactory.Identifier(SyntaxFactory.TriviaList(), SyntaxKind.VarKeyword, "var", "var", SyntaxFactory.TriviaList())
+                            )
+                        ).WithVariables(
+                            SyntaxFactory.SingletonSeparatedList(
+                                fieldname != "input" 
+                                ? node.DescendantNodes().OfType<VariableDeclaratorSyntax>().Single()
+                                : SyntaxFactory.VariableDeclarator(SyntaxFactory.Identifier("input")).WithInitializer(
+                                    SyntaxFactory.EqualsValueClause(
+                                        CreateInvocationExpression(node.DescendantNodes().OfType<MemberAccessExpressionSyntax>().Single())
+                                    ) 
+                                )
+                            )
+                        )
+                    )
+            );
+
+        var result = SyntaxFactory.CompilationUnit()
+            .WithMembers(SyntaxFactory.List<MemberDeclarationSyntax>(
+                fields
+                .Select(f => SyntaxFactory.GlobalStatement(f))
+                .Concat(new[] { "Part1", "Part2" }.Select(name => 
+                    SyntaxFactory.GlobalStatement(
+                            SyntaxFactory.LocalDeclarationStatement(
+                                SyntaxFactory.VariableDeclaration(
+                                    SyntaxFactory.IdentifierName(
+                                        SyntaxFactory.Identifier(
+                                            SyntaxFactory.TriviaList(),
+                                            SyntaxKind.VarKeyword,
+                                            "var",
+                                            "var",
+                                            SyntaxFactory.TriviaList()
+                                        )
+                                    )
+                                )
+                                .WithVariables(
+                                    SyntaxFactory.SingletonSeparatedList<VariableDeclaratorSyntax>(
+                                        SyntaxFactory.VariableDeclarator(
+                                            SyntaxFactory.Identifier(name.ToLower())
+                                        )
+                                        .WithInitializer(
+                                            SyntaxFactory.EqualsValueClause(implementations[name])
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    ).Concat(new[]
+                    {
+                        SyntaxFactory.GlobalStatement(
+                                SyntaxFactory.ExpressionStatement(
+                                    SyntaxFactory.InvocationExpression(
+                                        SyntaxFactory
+                                            .MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.IdentifierName("Console"), SyntaxFactory.IdentifierName("WriteLine"))
+                                            .WithOperatorToken(SyntaxFactory.Token(SyntaxKind.DotToken)
+                                        )
+                                    )
+                                    .WithArgumentList(
+                                        SyntaxFactory.ArgumentList(
+                                            SyntaxFactory.SingletonSeparatedList<ArgumentSyntax>(
+                                                SyntaxFactory.Argument(
+                                                    SyntaxFactory.TupleExpression(
+                                                        SyntaxFactory.SeparatedList<ArgumentSyntax>(
+                                                            new SyntaxNodeOrToken[] {
+                                                                SyntaxFactory.Argument(SyntaxFactory.IdentifierName("part1")),
+                                                                SyntaxFactory.Token(SyntaxKind.CommaToken),
+                                                                SyntaxFactory.Argument(SyntaxFactory.IdentifierName("part2"))
+                                                            }
+                                                        )
+                                                    )
+                                                    .WithOpenParenToken(SyntaxFactory.Token(SyntaxKind.OpenParenToken))
+                                                    .WithCloseParenToken(SyntaxFactory.Token(SyntaxKind.CloseParenToken))
+                                                )
+                                            )
+                                        )
+                                        .WithOpenParenToken(SyntaxFactory.Token(SyntaxKind.OpenParenToken))
+                                        .WithCloseParenToken(SyntaxFactory.Token(SyntaxKind.CloseParenToken))
+                                    )
+                                )
+                                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
+                            )
+
+                    }
+                    )
+                )
+            );
+
+        File.WriteAllText(Path.Combine(publishLocation.FullName, $"aoc.cs"), result.NormalizeWhitespace().ToString());
+
+        foreach (var file in dir.GetFiles("*.cs").Where(f => f.Name != "AoC.cs"))
         {
-            Console.WriteLine(file);
             file.CopyTo(Path.Combine(publishLocation.FullName, file.Name));
         }
+        File.Copy(Path.Combine(dir.FullName, "input.txt"), Path.Combine(publishLocation.FullName, "input.txt"));
 
-        var aoc = await File.ReadAllTextAsync(Path.Combine(publishLocation.FullName, "AoC.cs"));
-        aoc = aoc
-            .Replace($"namespace AdventOfCode.Year{year}.Day{day:00};", "")
-            .Replace($"public class AoC{year}{day:00} : AoCBase", "public class AoC")
-            .Replace($"typeof(AoC{year}{day:00})", string.Empty)
-            .Replace("public override object", "public object");
 
-        await File.WriteAllTextAsync(Path.Combine(publishLocation.FullName, "AoC.cs"), aoc);
-
-        await File.WriteAllTextAsync(Path.Combine(publishLocation.FullName, "Program.cs"), $@"Console.WriteLine(Run(aoc => aoc.Part1()));
-Console.WriteLine(Run(aoc => aoc.Part2()));
-
-(T, TimeSpan) Run<T>(Func<AoC, T> f)
-{{
-    var sw = Stopwatch.StartNew();
-    return (f(new AoC()), sw.Elapsed);
-}}");
-
-        await File.WriteAllTextAsync(Path.Combine(publishLocation.FullName, "Read.cs"), @"
-internal class Read
-{
-	public static string InputText() => Text(""input.txt"");
-	public static string[] InputLines() => Lines(""input.txt"").ToArray();
-	public static StreamReader InputStream() => new StreamReader(Stream(""input.txt""));
-
-	public static string Text(string name)
-	{
-		using var stream = Stream(name);
-		using var sr = new StreamReader(stream);
-		return sr.ReadToEnd();
-	}
-	public static IEnumerable<string> Lines(string name)
-	{
-		using var stream = Stream(name);
-		using var sr = new StreamReader(stream);
-		{
-			while (sr.Peek() >= 0)
-				yield return sr.ReadLine()!;
-		}
-	}
-
-	public static Stream Stream(string name) => File.OpenRead(name);
-}
-");
         await File.WriteAllTextAsync(Path.Combine(publishLocation.FullName, "aoc.csproj"), @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
@@ -75,6 +141,7 @@ internal class Read
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <Using Include=""Microsoft.FSharp.Collections"" />
     <Using Include=""System.Diagnostics"" />
     <Using Include=""System.Reflection"" />
     <Using Include=""System.Text"" />
@@ -82,8 +149,44 @@ internal class Read
     <Using Include=""System.Text.RegularExpressions"" />
     <Using Include=""System.Collections.Immutable"" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include=""FSharp.Core"" Version=""6.0.1"" />
+  </ItemGroup>
 </Project>");
 
+    }
+
+    private InvocationExpressionSyntax CreateInvocationExpression(MemberAccessExpressionSyntax memberAccessExpression)
+    {
+        if (!memberAccessExpression.IsKind(SyntaxKind.SimpleMemberAccessExpression))
+            throw new NotSupportedException($"Can not convert expression {memberAccessExpression}");
+
+        var identifier2 = memberAccessExpression.ToString() switch
+        {
+            "Read.InputLines" => "ReadAllLines",
+            "Read.InputText" => "ReadAllText",
+            _ => throw new NotSupportedException($"Can not convert expression {memberAccessExpression}")
+        };
+
+        return SyntaxFactory.InvocationExpression(
+            SyntaxFactory.MemberAccessExpression(
+                SyntaxKind.SimpleMemberAccessExpression,
+                SyntaxFactory.IdentifierName("File"),
+                SyntaxFactory.IdentifierName(identifier2)
+                )
+            )
+        .WithArgumentList(
+            SyntaxFactory.ArgumentList(
+            SyntaxFactory.SingletonSeparatedList(
+                SyntaxFactory.Argument(
+                    SyntaxFactory.LiteralExpression(
+                        SyntaxKind.StringLiteralExpression,
+                        SyntaxFactory.Literal("input.txt")
+                        )
+                    )
+                )
+            )
+        );
     }
 }
 

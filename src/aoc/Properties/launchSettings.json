@@ -2,7 +2,7 @@
   "profiles": {
     "aoc": {
       "commandName": "Project",
-      "commandLineArgs": "sync --year 2015 --day 1",
+      "commandLineArgs": "post --year=2019 --day 10 --part 1 --value 123",
       "workingDirectory": "$(SolutionDir)"
     }
   }
