@@ -12,7 +12,7 @@ class InitPuzzle
     {
         this.client = client;
     }
-    public record Options(int year, int day, bool force);
+    public record Options(int year, int day, bool? force);
     public async Task Run(Options options)
     {
         (var year, var day, var force) = options;
@@ -26,7 +26,16 @@ class InitPuzzle
         Console.WriteLine("Puzzle is unlocked");
 
         var dir = AoCLogic.GetDirectory(year, day);
-        if (!dir.Exists) dir.Create();
+        if (dir.Exists && (!force.HasValue || !force.Value))
+        {
+            Console.WriteLine("Puzzle for {year}/{day} already initialized. Use --force to re-initialize.");
+            return;
+        }
+
+        if (dir.Exists && (force??false))
+            dir.Delete(true);
+
+        dir.Create();
 
         var aoc = AoCLogic.GetFile(year, day, "AoC.cs");
         if (!aoc.Exists)
@@ -64,7 +73,7 @@ class InitPuzzle
         Console.WriteLine("Retrieving puzzle data");
 
         var answers = AoCLogic.GetFileName(year, day, "answers.json");
-        var puzzle = await client.GetPuzzleAsync(year, day, !force);
+        var puzzle = await client.GetPuzzleAsync(year, day, !(force??false));
         var answer = puzzle.Answer;
         File.WriteAllText(answers, JsonSerializer.Serialize(answer));
         AddEmbeddedResource(answers);
@@ -80,10 +89,10 @@ class InitPuzzle
             select node
             ).First();
 
-        if (!itemGroup.Elements().Select(e => e.Attribute("Include")).Where(a => a != null && a.Value == path).Any())
+        var relativePath = path.Substring(Environment.CurrentDirectory.Length + 1);
+        if (!itemGroup.Elements().Select(e => e.Attribute("Include")).Where(a => a != null && a.Value == relativePath).Any())
         {
             var embeddedResource = new XElement("EmbeddedResource");
-            var relativePath = path.Substring(Environment.CurrentDirectory.Length + 1);
             embeddedResource.SetAttributeValue("Include", relativePath);
             itemGroup.Add(embeddedResource);
         }

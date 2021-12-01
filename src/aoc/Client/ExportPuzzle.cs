@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace AdventOfCode.Client;
 
-class PublishPuzzle
+class ExportPuzzle
 {
     public record Options(int year, int day, string? output = null);
     public async Task Run(Options options)

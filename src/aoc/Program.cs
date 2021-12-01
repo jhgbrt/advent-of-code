@@ -10,7 +10,7 @@ var root = new RootCommand
     CommandHelper.CreateCommand<InitPuzzle.Options>("init", InitPuzzle),
     CommandHelper.CreateCommand<SyncPuzzle.Options>("sync", SyncPuzzle),
     CommandHelper.CreateCommand<PostSolution.Options>("post", PostSolution),
-    CommandHelper.CreateCommand<PublishPuzzle.Options>("publish", PublishPuzzle),
+    CommandHelper.CreateCommand<ExportPuzzle.Options>("export", ExportPuzzle),
     CommandHelper.CreateCommand<Report.Options>("report", Report),
 };
 
@@ -20,7 +20,7 @@ static async Task RunPuzzle(RunPuzzle.Options options) => await new RunPuzzle().
 static async Task InitPuzzle(InitPuzzle.Options options) => await new InitPuzzle(Factory.CreateClient()).Run(options);
 static async Task SyncPuzzle(SyncPuzzle.Options options) => await new SyncPuzzle(Factory.CreateClient()).Run(options);
 static async Task PostSolution(PostSolution.Options options) => await new PostSolution(Factory.CreateClient()).Run(options);
-static async Task PublishPuzzle(PublishPuzzle.Options options) => await new PublishPuzzle().Run(options);
+static async Task ExportPuzzle(ExportPuzzle.Options options) => await new ExportPuzzle().Run(options);
 static async Task Report(Report.Options options) => await new Report(Factory.CreateClient()).Run(options);
 
 static class Factory

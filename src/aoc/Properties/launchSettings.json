@@ -2,7 +2,7 @@
   "profiles": {
     "aoc": {
       "commandName": "Project",
-      "commandLineArgs": "post --year=2019 --day 10 --part 1 --value 123",
+      "commandLineArgs": "export --year=2019 --day 10",
       "workingDirectory": "$(SolutionDir)"
     }
   }
