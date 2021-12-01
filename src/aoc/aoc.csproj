@@ -236,6 +236,8 @@
     <EmbeddedResource Include="Year2020\Day24\example.txt" />
     <EmbeddedResource Include="Year2020\Day24\input.txt" />
     <EmbeddedResource Include="Year2020\Day25\input.txt" />
+    <EmbeddedResource Include="Year2021\Day01\input.txt" />
+    <EmbeddedResource Include="Year2021\Day01\sample.txt" />
     <EmbeddedResource Include="Year2015\Day02\answers.json" />
     <EmbeddedResource Include="Year2015\Day03\answers.json" />
     <EmbeddedResource Include="Year2015\Day04\answers.json" />
@@ -385,6 +387,7 @@
     <EmbeddedResource Include="Year2020\Day23\answers.json" />
     <EmbeddedResource Include="Year2020\Day24\answers.json" />
     <EmbeddedResource Include="Year2020\Day25\answers.json" />
+    <EmbeddedResource Include="Year2021\Day01\answers.json" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="System.Diagnostics" />
@@ -397,6 +400,7 @@
     <Using Include="System.Collections.Immutable" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="FSharp.Core" Version="6.0.1" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.38" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0" />

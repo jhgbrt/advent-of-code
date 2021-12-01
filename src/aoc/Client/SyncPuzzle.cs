@@ -12,10 +12,10 @@ class SyncPuzzle
     {
         this.client = client;
     }
-    public record Options(int year, int day);
+    public record Options(int year, int day, bool force);
     public async Task Run(Options options)
     {
-        (var year, var day) = options;
+        (var year, var day, var force) = options;
 
         var dir = AoCLogic.GetDirectory(year, day);
         if (!dir.Exists) dir.Create();
@@ -71,7 +71,7 @@ class SyncPuzzle
             File.WriteAllText(input, content);
         }
 
-        var puzzle = await client.GetPuzzleAsync(year, day);
+        var puzzle = await client.GetPuzzleAsync(year, day, !force);
         var answer = puzzle.Answer;
         File.WriteAllText(answers, JsonSerializer.Serialize(answer));
     }
