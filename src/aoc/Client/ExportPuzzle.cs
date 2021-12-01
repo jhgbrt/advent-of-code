@@ -123,13 +123,18 @@ class ExportPuzzle
                 )
             );
 
-        File.WriteAllText(Path.Combine(publishLocation.FullName, $"aoc.cs"), result.NormalizeWhitespace().ToString());
+        var aoccs = Path.Combine(publishLocation.FullName, "aoc.cs");
+        if (File.Exists(aoccs)) File.Delete(aoccs);
+        File.WriteAllText(aoccs, result.NormalizeWhitespace().ToString());
 
-        foreach (var file in dir.GetFiles("*.cs").Where(f => f.Name != "AoC.cs"))
+        foreach (var file in dir.GetFiles("*.cs").Where(f => !f.Name.ToLower().Equals("aoc.cs")))
         {
-            file.CopyTo(Path.Combine(publishLocation.FullName, file.Name));
+            file.CopyTo(Path.Combine(publishLocation.FullName, file.Name), true);
         }
-        File.Copy(Path.Combine(dir.FullName, "input.txt"), Path.Combine(publishLocation.FullName, "input.txt"));
+
+        var inputtxt = Path.Combine(publishLocation.FullName, "input.txt");
+        if (File.Exists(inputtxt)) File.Delete(inputtxt);
+        File.Copy(Path.Combine(dir.FullName, "input.txt"), inputtxt);
 
 
         await File.WriteAllTextAsync(Path.Combine(publishLocation.FullName, "aoc.csproj"), @"<?xml version=""1.0"" encoding=""utf-8""?>
