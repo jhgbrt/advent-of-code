@@ -1,6 +1,5 @@
 namespace AdventOfCode;
 
-record Result(object Value, TimeSpan Elapsed);
 record Answer(object? part1, object? part2)
 {
     public static Answer Empty = new Answer(null, null);

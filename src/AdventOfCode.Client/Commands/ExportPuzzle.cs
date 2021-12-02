@@ -1,6 +1,11 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Formatting;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.Options;
+
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace AdventOfCode.Client;
 
@@ -31,52 +36,55 @@ class ExportPuzzle
         var fields = (
             from node in tree.GetRoot().DescendantNodes().OfType<FieldDeclarationSyntax>()
             let fieldname = node.DescendantNodes().OfType<VariableDeclaratorSyntax>().Single().Identifier.ToString()
-            select SyntaxFactory.LocalDeclarationStatement(
-                    SyntaxFactory.VariableDeclaration(
-                        SyntaxFactory.IdentifierName(
-                            SyntaxFactory.Identifier(SyntaxFactory.TriviaList(), SyntaxKind.VarKeyword, "var", "var", SyntaxFactory.TriviaList())
+            select LocalDeclarationStatement(
+                    VariableDeclaration(
+                        IdentifierName(
+                            Identifier(TriviaList(), SyntaxKind.VarKeyword, "var", "var", TriviaList())
                             )
                         ).WithVariables(
-                            SyntaxFactory.SingletonSeparatedList(
-                                fieldname != "input" 
+                            SingletonSeparatedList(
+                                fieldname != "input"
                                 ? node.DescendantNodes().OfType<VariableDeclaratorSyntax>().Single()
-                                : SyntaxFactory.VariableDeclarator(SyntaxFactory.Identifier("input")).WithInitializer(
-                                    SyntaxFactory.EqualsValueClause(
-                                        CreateInvocationExpression(node.DescendantNodes().OfType<MemberAccessExpressionSyntax>().Single())
-                                    ) 
+                                : VariableDeclarator(
+                                    Identifier("input")
+                                    ).WithInitializer(
+                                        EqualsValueClause(
+                                            CreateInvocationExpression(node.DescendantNodes().OfType<MemberAccessExpressionSyntax>().Single()
+                                        )
+                                    )
                                 )
                             )
                         )
                     )
-            );
+                );
 
         var records = tree.GetRoot().DescendantNodes().OfType<RecordDeclarationSyntax>();
 
-        var result = SyntaxFactory.CompilationUnit()
-            .WithMembers(SyntaxFactory.List<MemberDeclarationSyntax>(
+        var result = CompilationUnit()
+            .WithMembers(List(
                 fields
-                .Select(f => SyntaxFactory.GlobalStatement(f))
-                .Concat(new[] { "Part1", "Part2" }.Select(name => 
-                    SyntaxFactory.GlobalStatement(
-                            SyntaxFactory.LocalDeclarationStatement(
-                                SyntaxFactory.VariableDeclaration(
-                                    SyntaxFactory.IdentifierName(
-                                        SyntaxFactory.Identifier(
-                                            SyntaxFactory.TriviaList(),
+                .Select(f => GlobalStatement(f))
+                .Concat(new[] { "Part1", "Part2" }.Select(name =>
+                    GlobalStatement(
+                            LocalDeclarationStatement(
+                                VariableDeclaration(
+                                    IdentifierName(
+                                        Identifier(
+                                            TriviaList(),
                                             SyntaxKind.VarKeyword,
                                             "var",
                                             "var",
-                                            SyntaxFactory.TriviaList()
+                                            TriviaList()
                                         )
                                     )
                                 )
                                 .WithVariables(
-                                    SyntaxFactory.SingletonSeparatedList<VariableDeclaratorSyntax>(
-                                        SyntaxFactory.VariableDeclarator(
-                                            SyntaxFactory.Identifier(name.ToLower())
+                                    SingletonSeparatedList(
+                                        VariableDeclarator(
+                                            Identifier(name.ToLower())
                                         )
                                         .WithInitializer(
-                                            SyntaxFactory.EqualsValueClause(implementations[name])
+                                            EqualsValueClause(implementations[name])
                                             )
                                         )
                                     )
@@ -85,47 +93,50 @@ class ExportPuzzle
                         )
                     ).Concat(new[]
                     {
-                        SyntaxFactory.GlobalStatement(
-                                SyntaxFactory.ExpressionStatement(
-                                    SyntaxFactory.InvocationExpression(
-                                        SyntaxFactory
-                                            .MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.IdentifierName("Console"), SyntaxFactory.IdentifierName("WriteLine"))
-                                            .WithOperatorToken(SyntaxFactory.Token(SyntaxKind.DotToken)
+                        GlobalStatement(
+                                ExpressionStatement(
+                                    InvocationExpression(
+
+                                            MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("Console"), IdentifierName("WriteLine"))
+                                            .WithOperatorToken(Token(SyntaxKind.DotToken)
                                         )
                                     )
                                     .WithArgumentList(
-                                        SyntaxFactory.ArgumentList(
-                                            SyntaxFactory.SingletonSeparatedList<ArgumentSyntax>(
-                                                SyntaxFactory.Argument(
-                                                    SyntaxFactory.TupleExpression(
-                                                        SyntaxFactory.SeparatedList<ArgumentSyntax>(
+                                        ArgumentList(
+                                            SingletonSeparatedList(
+                                                Argument(
+                                                    TupleExpression(
+                                                        SeparatedList<ArgumentSyntax>(
                                                             new SyntaxNodeOrToken[] {
-                                                                SyntaxFactory.Argument(SyntaxFactory.IdentifierName("part1")),
-                                                                SyntaxFactory.Token(SyntaxKind.CommaToken),
-                                                                SyntaxFactory.Argument(SyntaxFactory.IdentifierName("part2"))
+                                                                Argument(IdentifierName("part1")),
+                                                                Token(SyntaxKind.CommaToken),
+                                                                Argument(IdentifierName("part2"))
                                                             }
                                                         )
                                                     )
-                                                    .WithOpenParenToken(SyntaxFactory.Token(SyntaxKind.OpenParenToken))
-                                                    .WithCloseParenToken(SyntaxFactory.Token(SyntaxKind.CloseParenToken))
+                                                    .WithOpenParenToken(Token(SyntaxKind.OpenParenToken))
+                                                    .WithCloseParenToken(Token(SyntaxKind.CloseParenToken))
                                                 )
                                             )
                                         )
-                                        .WithOpenParenToken(SyntaxFactory.Token(SyntaxKind.OpenParenToken))
-                                        .WithCloseParenToken(SyntaxFactory.Token(SyntaxKind.CloseParenToken))
+                                        .WithOpenParenToken(Token(SyntaxKind.OpenParenToken))
+                                        .WithCloseParenToken(Token(SyntaxKind.CloseParenToken))
                                     )
                                 )
-                                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
+                                .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
                             )
 
                     }
-                    ).Concat(SyntaxFactory.List<MemberDeclarationSyntax>(records))
+                    ).Concat(List<MemberDeclarationSyntax>(records))
                 )
             );
 
         var aoccs = Path.Combine(publishLocation.FullName, "aoc.cs");
         if (File.Exists(aoccs)) File.Delete(aoccs);
-        File.WriteAllText(aoccs, result.NormalizeWhitespace().ToString());
+        var workspace = new AdhocWorkspace();
+        File.WriteAllText(aoccs, Formatter.Format(result.NormalizeWhitespace(), workspace, workspace.Options
+            .WithChangedOption(CSharpFormattingOptions.IndentBlock, true)
+            ).ToString());
 
         foreach (var file in dir.GetFiles("*.cs").Where(f => !f.Name.ToLower().Equals("aoc.cs")))
         {
@@ -173,20 +184,20 @@ class ExportPuzzle
             _ => throw new NotSupportedException($"Can not convert expression {memberAccessExpression}")
         };
 
-        return SyntaxFactory.InvocationExpression(
-            SyntaxFactory.MemberAccessExpression(
+        return InvocationExpression(
+            MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,
-                SyntaxFactory.IdentifierName("File"),
-                SyntaxFactory.IdentifierName(identifier2)
+                IdentifierName("File"),
+                IdentifierName(identifier2)
                 )
             )
         .WithArgumentList(
-            SyntaxFactory.ArgumentList(
-            SyntaxFactory.SingletonSeparatedList(
-                SyntaxFactory.Argument(
-                    SyntaxFactory.LiteralExpression(
+            ArgumentList(
+            SingletonSeparatedList(
+                Argument(
+                    LiteralExpression(
                         SyntaxKind.StringLiteralExpression,
-                        SyntaxFactory.Literal("input.txt")
+                        Literal("input.txt")
                         )
                     )
                 )

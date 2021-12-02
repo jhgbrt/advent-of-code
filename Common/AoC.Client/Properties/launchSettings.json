@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "AoC.Client": {
-      "commandName": "Project",
-      "commandLineArgs": "puzzle get",
-      "workingDirectory": "$(SolutionDir)"
-    }
-  }
-}

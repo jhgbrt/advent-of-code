@@ -1,4 +1,6 @@
-﻿namespace AdventOfCode.Client;
+﻿using System.Diagnostics;
+
+namespace AdventOfCode.Client;
 
 class RunPuzzle 
 {
@@ -11,16 +13,14 @@ class RunPuzzle
 
         Console.WriteLine($"{year}, day {day}");
 
-
-        Type? type = Type.GetType($"AdventOfCode.Year{year}.Day{day:00}.AoCImpl")
-            ?? Type.GetType($"AdventOfCode.Year{year}.Day{day:00}.AoC{year}{day:00}");
+        Type? type = Type.GetType($"AdventOfCode.Year{year}.Day{day:00}.AoC{year}{day:00}");
         if (type is null)
         {
             Console.WriteLine($"No implementation found for {year}, {day}");
             return Task.CompletedTask;
         }
 
-        var aoc = (AoCBase)Activator.CreateInstance(type)!;
+        dynamic aoc = Activator.CreateInstance(type)!;
 
         Console.WriteLine($"Part 1: {Run(aoc.Part1)}");
         Console.WriteLine($"Part 2: {Run(aoc.Part2)}");
@@ -33,6 +33,7 @@ class RunPuzzle
         return new(f(), sw.Elapsed);
     }
 }
+record Result(object Value, TimeSpan Elapsed);
 
 
 

@@ -1,5 +1,6 @@
 ﻿namespace AdventOfCode.Client;
 
+using System.Text.Json;
 using System.Xml.Linq;
 
 class InitPuzzle
@@ -75,6 +76,8 @@ class InitPuzzle
         var answer = puzzle.Answer;
         File.WriteAllText(answers, JsonSerializer.Serialize(answer));
         AddEmbeddedResource(answers);
+
+        Console.WriteLine(puzzle.Text);
     }
 
     void AddEmbeddedResource(string path)

@@ -7,7 +7,7 @@ class Report
     {
         this.client = client;
     }
-    public record Options(int? year, int? day, bool unsolved);
+    public record Options(int? year, int? day, bool? unsolved);
 
     public async Task Run(Options options)
     {
@@ -19,7 +19,7 @@ class Report
             if (day.HasValue && day != d) continue;
 
             var puzzle = await client.GetPuzzleAsync(y, d);
-            if (unsolved && puzzle.Status == Status.Completed) continue;
+            if ((unsolved??false) && puzzle.Status == Status.Completed) continue;
 
             Console.WriteLine((y, d, puzzle.Status, puzzle.Answer.part1, puzzle.Answer.part2));
         }

@@ -4,6 +4,7 @@ using HtmlAgilityPack;
 using System.Net;
 using NodaTime;
 using System.Text.Json;
+using System.Diagnostics;
 
 class AoCClient : IDisposable
 {

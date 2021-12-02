@@ -1,4 +1,6 @@
-﻿namespace AdventOfCode.Client;
+﻿using System.Text.Json;
+
+namespace AdventOfCode.Client;
 
 class SyncPuzzle
 {
@@ -8,10 +10,10 @@ class SyncPuzzle
     {
         this.client = client;
     }
-    public record Options(int year, int day, bool force);
+    public record Options(int year, int day);
     public async Task Run(Options options)
     {
-        (var year, var day, var force) = options;
+        (var year, var day) = options;
 
         if (!AoCLogic.IsValidAndUnlocked(year, day))
         {
@@ -31,5 +33,6 @@ class SyncPuzzle
         var puzzle = await client.GetPuzzleAsync(year, day, false);
         var answer = puzzle.Answer;
         File.WriteAllText(answers, JsonSerializer.Serialize(answer));
+        Console.WriteLine(puzzle.Text);
     }
 }
