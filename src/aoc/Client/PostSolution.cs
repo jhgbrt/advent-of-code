@@ -1,7 +1,5 @@
 ﻿namespace AdventOfCode.Client;
 
-using AdventOfCode.Common;
-
 class PostSolution
 {
     private readonly AoCClient client;
@@ -21,7 +19,7 @@ class PostSolution
             return;
         }
 
-        if (part is not 1 or 2)
+        if (part is not (1 or 2))
         {
             Console.WriteLine("use --part 1 or --part 2");
             return;

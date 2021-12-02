@@ -1,6 +1,4 @@
-﻿using AdventOfCode.Common;
-
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -51,6 +49,8 @@ class ExportPuzzle
                         )
                     )
             );
+
+        var records = tree.GetRoot().DescendantNodes().OfType<RecordDeclarationSyntax>();
 
         var result = SyntaxFactory.CompilationUnit()
             .WithMembers(SyntaxFactory.List<MemberDeclarationSyntax>(
@@ -119,7 +119,7 @@ class ExportPuzzle
                             )
 
                     }
-                    )
+                    ).Concat(SyntaxFactory.List<MemberDeclarationSyntax>(records))
                 )
             );
 

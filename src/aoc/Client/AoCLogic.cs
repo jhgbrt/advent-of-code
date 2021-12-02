@@ -1,5 +1,5 @@
 ﻿
-namespace AdventOfCode.Common;
+namespace AdventOfCode.Client;
 using NodaTime;
 
 static class AoCLogic

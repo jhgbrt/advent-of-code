@@ -1,7 +1,5 @@
 ﻿namespace AdventOfCode.Client;
 
-using AdventOfCode.Common;
-
 class SyncPuzzle
 {
     private readonly AoCClient client;

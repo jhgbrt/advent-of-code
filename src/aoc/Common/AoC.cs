@@ -1,5 +1,3 @@
-using AdventOfCode.Common;
-
 namespace AdventOfCode;
 
 record Result(object Value, TimeSpan Elapsed);
@@ -21,7 +19,6 @@ public abstract class AoCBase
     [SkippableFact]
     public void TestPart1()
     {
-        if (!AoCLogic.IsValidAndUnlocked(Year, Day)) return;
         Skip.If(answer.part1 is null, $"Puzzle 1 for {Year}/{Day} has not yet been answered");
         var result = Part1();
         Skip.If(result is -1, $"Puzzle 1 for for {Year}/{Day} has an answer but no code");
@@ -31,7 +28,6 @@ public abstract class AoCBase
     [SkippableFact]
     public void TestPart2()
     {
-        if (!AoCLogic.IsValidAndUnlocked(Year, Day)) return;
         if (Day == 25) return;
         Skip.If(answer.part2 is null, $"Puzzle 2 for {Year}/{Day} has not yet been answered");
         var result = Part2();
@@ -41,5 +37,4 @@ public abstract class AoCBase
 
     public abstract object Part1();
     public abstract object Part2();
-
 }

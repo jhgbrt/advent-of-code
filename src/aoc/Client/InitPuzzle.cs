@@ -1,7 +1,5 @@
 ﻿namespace AdventOfCode.Client;
 
-using AdventOfCode.Common;
-
 using System.Xml.Linq;
 
 class InitPuzzle
