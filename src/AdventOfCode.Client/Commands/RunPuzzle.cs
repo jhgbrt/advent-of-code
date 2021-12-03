@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Reflection;
 
 namespace AdventOfCode.Client;
 
@@ -13,7 +14,11 @@ class RunPuzzle
 
         Console.WriteLine($"{year}, day {day}");
 
-        Type? type = Type.GetType($"AdventOfCode.Year{year}.Day{day:00}.AoC{year}{day:00}");
+        string typeName = $"AdventOfCode.Year{year}.Day{day:00}.AoC{year}{day:00}";
+        var assembly = Assembly.GetEntryAssembly();
+        if (assembly == null) throw new Exception("no entry assembly?");
+        var type = assembly.GetType(typeName);
+
         if (type is null)
         {
             Console.WriteLine($"No implementation found for {year}, {day}");
@@ -22,8 +27,8 @@ class RunPuzzle
 
         dynamic aoc = Activator.CreateInstance(type)!;
 
-        Console.WriteLine($"Part 1: {Run(aoc.Part1)}");
-        Console.WriteLine($"Part 2: {Run(aoc.Part2)}");
+        Console.WriteLine($"Part 1: {Run(() => aoc.Part1())}");
+        Console.WriteLine($"Part 2: {Run(() => aoc.Part2())}");
 
         return Task.CompletedTask;
     }

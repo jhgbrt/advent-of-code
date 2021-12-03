@@ -10,12 +10,9 @@
     <UserSecretsId>cd1c8a1e-0d6e-4552-b229-c2832fbbf40b</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="C:\Users\jeroe\.nuget\packages\fsharp.core\6.0.1\contentFiles\any\netstandard2.1\FSharp.Core.xml" />
-  </ItemGroup>
-  <ItemGroup>
-	<EmbeddedResource Include="Year2015\Day01\input.txt" />
-	<EmbeddedResource Include="Year2015\Day01\sample.txt" />
-	<EmbeddedResource Include="Year2015\Day02\input.txt" />
+    <EmbeddedResource Include="Year2015\Day01\input.txt" />
+    <EmbeddedResource Include="Year2015\Day01\sample.txt" />
+    <EmbeddedResource Include="Year2015\Day02\input.txt" />
     <EmbeddedResource Include="Year2015\Day02\sample.txt" />
     <EmbeddedResource Include="Year2015\Day03\input.txt" />
     <EmbeddedResource Include="Year2015\Day03\sample.txt" />
@@ -397,6 +394,9 @@
     <EmbeddedResource Include="Year2021\Day02\sample.txt" />
     <EmbeddedResource Include="Year2021\Day02\input.txt" />
     <EmbeddedResource Include="Year2021\Day02\answers.json" />
+    <EmbeddedResource Include="Year2021\Day03\sample.txt" />
+    <EmbeddedResource Include="Year2021\Day03\input.txt" />
+    <EmbeddedResource Include="Year2021\Day03\answers.json" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="System.Diagnostics" />
@@ -408,6 +408,7 @@
     <Using Include="System.Text.RegularExpressions" />
     <Using Include="System.Collections.Immutable" />
     <Using Include="Microsoft.FSharp.Collections" />
+    <Using Include="System.Linq.Enumerable" Static="true" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FSharp.Core" Version="6.0.1" />
