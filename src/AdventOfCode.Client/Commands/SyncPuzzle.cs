@@ -10,10 +10,10 @@ class SyncPuzzle
     {
         this.client = client;
     }
-    public record Options(int year, int day);
+    public record Options(int? year, int? day);
     public async Task Run(Options options)
     {
-        (var year, var day) = options;
+        (var year, var day) = (options.year??DateTime.Now.Year, options.day??DateTime.Now.Day);
 
         if (!AoCLogic.IsValidAndUnlocked(year, day))
         {

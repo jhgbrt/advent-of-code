@@ -8,10 +8,10 @@ class PostSolution
     {
         this.client = client;
     }
-    public record Options(int year, int day, int part, string value);
+    public record Options(int? year, int? day, int? part, string value);
     public async Task Run(Options options)
     {
-        (var year, var day, var part, var value) = options;
+        (var year, var day, var part, var value) = (options.year??DateTime.Now.Year, options.day??DateTime.Now.Day, options.part, options.value);
 
         if (!AoCLogic.IsValidAndUnlocked(year, day))
         {
@@ -19,17 +19,31 @@ class PostSolution
             return;
         }
 
-        if (part is not (1 or 2))
-        {
-            Console.WriteLine("use --part 1 or --part 2");
-            return;
-        }
         if (string.IsNullOrEmpty(value))
         {
             Console.WriteLine("No value provided. Use --value [value]");
         }
 
-        var result = await client.PostAnswerAsync(year, day, part, value);
+        var puzzle = await client.GetPuzzleAsync(year, day);
+        if (puzzle.Status == Status.Locked)
+        {
+            // should not happen
+            Console.WriteLine("Puzzle is locked. Did you initialize it?");
+            return;
+        }
+        if (puzzle.Status == Status.Completed)
+        {
+            Console.WriteLine("Already completed");
+            return;
+        }
+
+        if (part is not (1 or 2))
+        {
+            part = puzzle.Status == Status.Unlocked ? 1 : 2;
+        }
+
+
+        var result = await client.PostAnswerAsync(year, day, part.Value, value);
 
         Console.WriteLine(result.status);
         Console.WriteLine(result.content);

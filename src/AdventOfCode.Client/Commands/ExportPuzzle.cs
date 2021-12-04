@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Formatting;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.Options;
 
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -11,13 +10,13 @@ namespace AdventOfCode.Client;
 
 class ExportPuzzle
 {
-    public record Options(int year, int day, string? output = null);
+    public record Options(int? year, int? day, string? output = null);
     public async Task Run(Options options)
     {
-        (var year, var day, var output) = options;
+        (var year, var day, var output) = (options.year??DateTime.Now.Year, options.day??DateTime.Now.Day, options.output);
         var dir = AoCLogic.GetDirectory(year, day);
 
-        Console.WriteLine($"Publishing puzzle: {year}/{day}");
+        Console.WriteLine($"Exporting puzzle: {year}/{day} to {dir.FullName}");
 
         var publishLocation = new DirectoryInfo(output ?? "publish");
         if (!publishLocation.Exists) publishLocation.Create();
