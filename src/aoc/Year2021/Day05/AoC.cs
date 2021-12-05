@@ -2,28 +2,14 @@ namespace AdventOfCode.Year2021.Day05;
 
 public class AoC202105 : AoCBase
 {
-    static string[] input = Read.SampleLines(typeof(AoC202105));
+    static string[] input = Read.InputLines(typeof(AoC202105));
     ImmutableArray<Line> lines = input.Select(Line.Parse).ToImmutableArray();
-    public override object Part1()
-    {
-        var grid = new Grid();
-
-        var straighlines = from line in lines
-                           where line.@from.x == line.to.x || line.@from.y == line.to.y
-                           select line;
-
-        foreach (var line in lines)
-        {
-            grid.AddLine(line);
-        }
-
-
-        return grid.Overlaps;
-    }
-    public override object Part2() => -1;
+    static int CountOverlaps(IEnumerable<Line> lines) => lines.SelectMany(l => l.Points()).GroupBy(p => p).Select(g => g.Count()).Where(c => c >= 2).Sum();
+    public override object Part1() => CountOverlaps(lines.Where(l => l.IsStraightLine));
+    public override object Part2() => CountOverlaps(lines);
 }
 
-record Line(Point from, Point to)
+readonly record struct Line(Point from, Point to)
 {
     static Regex regex = new Regex(@"(?<x1>\d+),(?<y1>\d+) -> (?<x2>\d+),(?<y2>\d+)");
     internal static Line Parse(string s)
@@ -34,45 +20,24 @@ record Line(Point from, Point to)
 
         return new Line(p1, p2);
     }
-    internal bool IsHorizontal => from.y == to.y;
-    internal bool IsVertical => from.x == to.x;
-
-}
-record Point(int x, int y)
-{
-    internal Point NextHorizontal() => this with { x = x + 1 };
-    internal Point NextVertical() => this with { y = y + 1 };
-
-    public static explicit operator bool <(Point p1, Point p2) => p1.x + p1.y < p2.x + p2.y; 
-
-}
-
-class Grid
-{
-    Dictionary<Point, int> _points = new();
-    public void AddLine(Line line)
+    internal bool IsStraightLine => (to.y - from.y, to.x - from.x) is (_, 0) or (0, _);
+    internal IEnumerable<Point> Points()
     {
-        Console.WriteLine($"adding line: {line}");
-        switch (line)
+        var p = from;
+        while (true)
         {
-            case { IsHorizontal: true }:
-                for (var p = line.from; p.x <= line.to.x; p = p.NextHorizontal())
-                {
-                    Console.WriteLine($"adding point: {p}");
-                    if (!_points.ContainsKey(p)) _points[p] = 0;
-                    _points[p]++;
-                }
-                break;
-            case { IsVertical: true }:
-                for (var p = line.from; p.y <= line.to.y; p = p.NextVertical())
-                {
-                    Console.WriteLine($"adding point: {p}");
-                    if (!_points.ContainsKey(p)) _points[p] = 0;
-                    _points[p]++;
-                }
-                break;
-        }
+            yield return p;
+            if (p == to) break;
+            p = p.Next(to);
+        } 
     }
 
-    public int Overlaps => _points.Values.Where(i => i >= 2).Count();
+}
+readonly record struct Point(int x, int y)
+{
+    internal Point Next(Point end) => this with 
+    { 
+        x = (end.x - x) switch { < 0 => x - 1, 0 => x, > 0 => x + 1 }, 
+        y = (end.y - y) switch { < 0 => y - 1, 0 => y, > 0 => y + 1 } 
+    }; 
 }

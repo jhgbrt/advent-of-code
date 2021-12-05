@@ -7,14 +7,8 @@ public class AoC202103 : AoCBase
 
     public override object Part1() => GetBitmasks(numbers).Multiply();
 
+    public override object Part2() => DoPart2();
 
-    public override object Part2()
-    {
-        int v1 = FindNumberByBitCounts(numbers, (x, y) => x >= y ? 1 : 0);
-        int v0 = FindNumberByBitCounts(numbers, (x, y) => x >= y ? 0 : 1);
-        return v1 * v0;
-
-    }
     private static (int max, int min) GetBitmasks(IEnumerable<int> numbers) => (
                 from p in
                     from n in numbers
@@ -29,6 +23,12 @@ public class AoC202103 : AoCBase
                 select (max: p.max << p.shift, min: p.min << p.shift)
             ).Aggregate((max: 0, min: 0), (n, i) => (n.max | i.max, n.min | i.min));
 
+    private static int DoPart2()
+    {
+        int v1 = FindNumberByBitCounts(numbers, (x, y) => x >= y ? 1 : 0);
+        int v0 = FindNumberByBitCounts(numbers, (x, y) => x >= y ? 0 : 1);
+        return v1 * v0;
+    }
     private static int FindNumberByBitCounts(IEnumerable<int> numbers, Func<int, int, int> selectBit)
     {
         var shift = input[0].Length - 1;
@@ -45,7 +45,6 @@ public class AoC202103 : AoCBase
         }
         return numbers.Single();
     }
-
     static ILookup<(int bit, int shift), int> GetBitCounts(IEnumerable<int> numbers) => (
             from n in numbers
             from shift in Range(0, input[0].Length)
