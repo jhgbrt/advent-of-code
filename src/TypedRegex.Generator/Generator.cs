@@ -2,8 +2,9 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
-
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -42,7 +43,7 @@ using System.Text.RegularExpressions;
 
 namespace System.Text.RegularExpressions.Typed
 {
-    internal class TypedRegexAttribute : Attribute
+    public class TypedRegexAttribute : Attribute
     {
         public Regex Regex { get; }
         public TypedRegexAttribute(string pattern) => Regex = new Regex(pattern);
@@ -71,7 +72,7 @@ namespace System.Text.RegularExpressions.Typed
               let constructor = symbol.Constructors.First()
               let attribute = symbol.GetAttributes().FirstOrDefault(a => a.AttributeClass.Equals(attributeSymbol, SymbolEqualityComparer.Default))
               where attribute is not null
-              let pattern = (string)attribute.ConstructorArguments.First().Value
+              let pattern = (string)attribute.ConstructorArguments.First().Value // this gets the regex pattern at compile time, so we can check it and emit compiler errors!
               let regex = new Regex(pattern)
               let groupNames = regex.GetGroupNames().Skip(1)
               let propertyNames = constructor.Parameters.Select(p => p.Name)
@@ -96,9 +97,9 @@ namespace System.Text.RegularExpressions.Typed
                 let constructor = symbol.Constructors.First()
                 let attribute = symbol.GetAttributes().FirstOrDefault(a => a.AttributeClass.Equals(attributeSymbol, SymbolEqualityComparer.Default))
                 where attribute is not null
-                let pattern = (string)attribute.ConstructorArguments.First().Value // this gets the regex pattern at compile time, so we can check it and emit compiler errors!
+                let pattern = (string)attribute.ConstructorArguments.First().Value 
                 let regex = new Regex(pattern)
-                let @namespace = symbol.ContainingNamespace.Name
+                let @namespace = symbol.ContainingNamespace.ToString()
                 let typedName = $"{symbol.Name}TypedRegex"
                 let parameters = (
                     from parameter in record.ParameterList.Parameters
@@ -116,9 +117,9 @@ namespace System.Text.RegularExpressions.Typed
                     ).FirstOrDefault()
                     let parameterName = parameterSymbol.Name
                     let variableName = parameterName.ToLowerInvariant()
-                    select (parameterName, parameterType, parseMethod, variableName)
+                    select new RecordParameterInfo(parameterName, parameterType, parseMethod, variableName)
                 ).ToArray()
-                select (record, regex, symbol.Name, @namespace, typedName, parameters)
+                select (record, pattern, regex, symbol.Name, @namespace, typedName, parameters)
             ).ToArray();
 
             //var diagnostics = from item in q
@@ -126,10 +127,73 @@ namespace System.Text.RegularExpressions.Typed
 
             //context.ReportDiagnostic(Diagnostic.Create(context))
 
+            
 
 
-            foreach (var (record, regex, recordName, @namespace, typedName, parameters) in q)
+            foreach (var (record, pattern, regex, recordName, @namespace, typedName, parameters) in q)
             {
+                var tree = SyntaxTree(
+                    CompilationUnit()
+                    .WithUsings(SingletonList(UsingDirective("System.Text.RegularExpressions".AsQualifiedName())))
+                    .WithMembers(
+                        SingletonList<MemberDeclarationSyntax>(
+                            NamespaceDeclaration(@namespace.AsQualifiedName())
+                            .WithMembers(
+                                    SingletonList<MemberDeclarationSyntax>(
+                                        RecordDeclaration(Token(SyntaxKind.RecordKeyword), Identifier(recordName))
+                                        .WithModifiers(record.Modifiers)
+                                        .WithClassOrStructKeyword(record.ClassOrStructKeyword)
+                                        .WithOpenBraceToken(Token(SyntaxKind.OpenBraceToken))
+                                        .WithMembers(List(new MemberDeclarationSyntax[] {
+                                            FieldDeclaration(
+                                                VariableDeclaration(IdentifierName("Regex"))
+                                                .WithVariables(
+                                                    SingletonSeparatedList(
+                                                        VariableDeclarator(
+                                                            Identifier("_regex"))
+                                                        .WithInitializer(
+                                                            EqualsValueClause(
+                                                                ObjectCreationExpression(
+                                                                    IdentifierName("Regex"))
+                                                                .WithArgumentList(
+                                                                    ArgumentList(
+                                                                        SingletonSeparatedList(
+                                                                            Argument(
+                                                                                LiteralExpression(SyntaxKind.StringLiteralExpression,Literal(pattern))
+                                                                                )
+                                                                            )
+                                                                        )
+                                                                    )
+                                                                )
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                            .WithModifiers(TokenList( new [] { Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.ReadOnlyKeyword)})),
+                                            MethodDeclaration(
+                                                IdentifierName(recordName),
+                                                Identifier("Parse"))
+                                            .WithModifiers(TokenList(new []{ Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword)}))
+                                            .WithParameterList(
+                                                ParameterList(SingletonSeparatedList(Parameter(Identifier("s")).WithType(PredefinedType(Token(SyntaxKind.StringKeyword)))))
+                                                )
+                                            .WithBody(
+                                                Block(
+                                                    RegexInvocation(recordName, parameters)
+                                                )
+                                            )
+                                        }
+                                    )
+                                )
+                                .WithCloseBraceToken(
+                                    Token(SyntaxKind.CloseBraceToken)
+                                )
+                            )
+                        )
+                    )
+                )
+                .NormalizeWhitespace()
+                );
                 var sb = new StringBuilder();
                 sb
                     .AppendLine($@"using System.Text.RegularExpressions;
@@ -168,9 +232,146 @@ namespace {@namespace}
                 sb.AppendLine(@$"        }}
     }}
 }}");
+                if (!Debugger.IsAttached)
+                    Debugger.Launch();
                 context.AddSource($"{recordName}.generated.cs", sb.ToString());
             }
 
         }
+
+        private static IEnumerable<StatementSyntax> RegexInvocation(string recordName, RecordParameterInfo[] parameters)
+        {
+            yield return LocalDeclarationStatement(
+                VariableDeclaration(
+                    IdentifierName(
+                        Identifier(
+                            TriviaList(),
+                            SyntaxKind.VarKeyword,
+                            "var",
+                            "var",
+                            TriviaList()
+                        )
+                    )
+                )
+                .WithVariables(
+                    SingletonSeparatedList(
+                        VariableDeclarator(
+                            Identifier("match")
+                        )
+                        .WithInitializer(
+                            EqualsValueClause(
+                                InvocationExpression(
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        IdentifierName("_regex"),
+                                        IdentifierName("Match")
+                                    )
+                                )
+                                .WithArgumentList(
+                                    ArgumentList(
+                                        SingletonSeparatedList(
+                                            Argument(
+                                                IdentifierName("s")
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+
+            foreach (var (parameterName, parameterType, parseMethod, variableName) in parameters)
+            {
+                yield return LocalDeclarationStatement(
+                    VariableDeclaration(IdentifierName(Identifier(TriviaList(), SyntaxKind.VarKeyword, "var", "var", TriviaList())))
+                    .WithVariables(
+                        SingletonSeparatedList(
+                            VariableDeclarator(
+                                Identifier(parameterName)
+                                )
+                        .WithInitializer(
+                                EqualsValueClause( // TODO call Parse method if relevant
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        ElementAccessExpression(
+                                            MemberAccessExpression(
+                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                IdentifierName("match"),
+                                                IdentifierName("Groups")
+                                            )
+                                        )
+                                        .WithArgumentList(
+                                            BracketedArgumentList(
+                                                SingletonSeparatedList<ArgumentSyntax>(
+                                                    Argument(
+                                                        LiteralExpression(
+                                                            SyntaxKind.StringLiteralExpression,
+                                                            Literal(parameterName)
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        ),
+                                        IdentifierName("Value")
+                                    )
+                                )
+                        )
+                    )
+                        )
+                    );
+            }
+
+            
+            yield return
+                                                    ReturnStatement(
+                                                        ObjectCreationExpression(
+                                                            IdentifierName(recordName)
+                                                        )
+                                                        .WithArgumentList(
+                                                            ArgumentList(
+                                                                SeparatedList<ArgumentSyntax>(
+                                                                    new SyntaxNodeOrToken[]{
+                                                                        Argument(
+                                                                            IdentifierName(
+                                                                                Identifier(
+                                                                                    TriviaList(),
+                                                                                    SyntaxKind.FromKeyword,
+                                                                                    "from",
+                                                                                    "from",
+                                                                                    TriviaList()
+                                                                                )
+                                                                            )
+                                                                        ),
+                                                                        Token(SyntaxKind.CommaToken),
+                                                                        Argument(
+                                                                            IdentifierName("to")
+                                                                        )
+                                                                    }
+                                                                )
+                                                            )
+                                                        )
+                                                    );
+
+        }
+
+    }
+
+    static class Helpers
+    {
+        public static NameSyntax AsQualifiedName(this string @namespace)
+        {
+            var parts = @namespace.Split('.').Select(s => IdentifierName(s)).ToArray();
+            NameSyntax name = parts[0];
+            for (int i = 1; i < parts.Length; i++)
+                name = QualifiedName(name, parts[i]);
+            return name;
+        }
+
+    }
+
+    internal record struct RecordParameterInfo(string parameterName, ITypeSymbol parameterType, IMethodSymbol parseMethod, string variableName)
+    {
     }
 }
