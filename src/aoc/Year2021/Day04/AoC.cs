@@ -5,45 +5,8 @@ public class AoC202104 : AoCBase
     static string[] input = Read.InputLines(typeof(AoC202104));
     static int[] numbers = input[0].Split(",").Select(int.Parse).ToArray();
     static IEnumerable<Board> ReadBoards() => input.Skip(2).GetBoards().ToArray();
-    public override object Part1()
-    {
-        var boards = ReadBoards();
-
-        foreach (var draw in numbers)
-        {
-            int i = 0;
-            foreach (var board in boards)
-            {
-                board.Apply(draw);
-                if (board.Won) return draw * board.Sum();
-                i++;
-            }
-        }
-
-        return -1;
-    }
-    public override object Part2()
-    {
-        var boards = ReadBoards().ToList();
-        int lastwinning = 0;
-        int winningdraw = 0;
-
-        foreach (var draw in numbers)
-        {
-            foreach (var board in boards)
-            {
-                if (!board.Won)
-                {
-                    board.Apply(draw);
-                    winningdraw = draw;
-                    lastwinning = board.Sum();
-                }
-            }
-        }
-
-
-        return lastwinning * winningdraw;
-    }
+    public override object Part1() => ReadBoards().Play(numbers).First();
+    public override object Part2() => ReadBoards().Play(numbers).Last();
 }
 
 
@@ -90,12 +53,17 @@ class Board
     }
 }
 
-
-
 static class Extensions
 {
-    public static IEnumerable<Board> GetBoards(this IEnumerable<string> input) => from chunk in input.Chunk(6)
-                                                                                   select CreateBoard(chunk.Take(5));
+    public static IEnumerable<int> Play(this IEnumerable<Board> boards, IEnumerable<int> numbers) => from draw in numbers
+                                                                                                     from board in boards
+                                                                                                     where !board.Won // required for part 2
+                                                                                                     let win = board.Apply(draw)
+                                                                                                     where win
+                                                                                                     select (draw * board.Sum());
+
+
+    public static IEnumerable<Board> GetBoards(this IEnumerable<string> input) => from chunk in input.Chunk(6) select CreateBoard(chunk.Take(5));
 
     static Board CreateBoard(IEnumerable<string> chunk)
     {
