@@ -2,7 +2,7 @@
   "profiles": {
     "aoc": {
       "commandName": "Project",
-      "commandLineArgs": "export -y 2021 -d 4",
+      "commandLineArgs": "run",
       "workingDirectory": "$(SolutionDir)aoc"
     }
   }

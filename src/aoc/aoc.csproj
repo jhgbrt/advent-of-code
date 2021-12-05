@@ -418,6 +418,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FSharp.Core" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" />
     <PackageReference Include="Microsoft.NET.Test.SDK" Version="17.0.0" />
     <PackageReference Include="Sandwych.QuickGraph.Core" Version="1.0.0" />
