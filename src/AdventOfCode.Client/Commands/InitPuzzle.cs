@@ -1,8 +1,10 @@
 ﻿namespace AdventOfCode.Client;
 
+using System.ComponentModel;
 using System.Text.Json;
 using System.Xml.Linq;
 
+[Description("initialize the code for a specific puzzle. Requires AOC_SESSION set as an environment variable")]
 class InitPuzzle
 {
     private readonly AoCClient client;
@@ -11,7 +13,10 @@ class InitPuzzle
     {
         this.client = client;
     }
-    public record Options(int? year, int? day, bool? force);
+    public record Options(
+        [property: Description("Year (default: current year)")] int? year,
+        [property: Description("Day (default: current day)")] int? day,
+        [property: Description("Force (if true, refresh cache)")]bool? force);
     public async Task Run(Options options)
     {
         (var year, var day, var force) = (options.year??DateTime.Now.Year, options.day??DateTime.Now.Day, options.force??false);

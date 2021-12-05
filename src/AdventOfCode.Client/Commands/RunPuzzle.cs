@@ -1,11 +1,18 @@
-﻿using System.Diagnostics;
+﻿using BenchmarkDotNet.Running;
+
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace AdventOfCode.Client;
 
+[Description("run the code for a specific puzzle")]
 class RunPuzzle 
 {
-    public record Options(int? year, int? day);
+    public record Options(
+        [property: Description("Year (default: current year)")] int? year,
+        [property: Description("Day (default: current day)")] int? day
+        );
 
     public Task Run(Options options)
     {

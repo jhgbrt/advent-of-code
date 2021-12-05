@@ -1,5 +1,8 @@
-﻿namespace AdventOfCode.Client;
+﻿using System.ComponentModel;
 
+namespace AdventOfCode.Client;
+
+[Description("show a list of all puzzles, their status (unlocked, answered), and the answers posted")]
 class Report
 {
     AoCClient client;
@@ -7,7 +10,10 @@ class Report
     {
         this.client = client;
     }
-    public record Options(int? year, int? day, bool? unsolved);
+    public record Options(
+        [property: Description("Year (default: current year)")] int? year,
+        [property: Description("Day (default: current day)")] int? day,
+        [property: Description("Only list unsolved puzzles")] bool? unsolved);
 
     public async Task Run(Options options)
     {

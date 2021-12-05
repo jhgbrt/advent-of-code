@@ -1,17 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
 
-using System.Reflection;
-
 namespace AdventOfCode.Client;
 
 static class Factory
 {
-    static IConfigurationRoot config = new ConfigurationBuilder()
-        .AddEnvironmentVariables()
-        .AddUserSecrets(Assembly.GetEntryAssembly())
-        .Build();
-
-    public static AoCClient CreateClient()
+    public static AoCClient CreateClient(IConfigurationRoot config)
     {
         var cookieValue = config["AOC_SESSION"] ?? throw new Exception("This operation requires AOC_SESSION to be set as an environment variable.");
         var baseAddress = new Uri("https://adventofcode.com");

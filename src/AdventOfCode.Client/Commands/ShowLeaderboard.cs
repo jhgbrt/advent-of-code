@@ -4,6 +4,7 @@ using System.ComponentModel;
 
 namespace AdventOfCode.Client;
 
+[Description("show some stats from the configured private leaderboard. Set AOC_LEADERBOARD_ID as a environment variable.")]
 class ShowLeaderboard
 {
     AoCClient client;
@@ -12,7 +13,9 @@ class ShowLeaderboard
     {
         this.client = client;
     }
-    public record Options(int? year, [Description("The leaderboard ID")]int id);
+    public record Options(
+        [property: Description("Year (default: current year)")] int? year, 
+        [property:Description("The leaderboard ID")]int id);
 
     public async Task Run(Options options)
     {

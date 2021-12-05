@@ -4,19 +4,26 @@ using Microsoft.CodeAnalysis.CSharp.Formatting;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
 
+using System.ComponentModel;
+using System.Reflection;
+
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace AdventOfCode.Client;
 
+[Description("export the code for a puzzle to a stand-alone C# project")]
 class ExportPuzzle
 {
-    public record Options(int? year, int? day, string? output = null);
+    public record Options(
+        [property: Description("Year (default: current year)")] int? year,
+        [property: Description("Day (default: current day)")] int? day,
+        [property: Description("output location. If empty, exported code is written to stdout")] string? output = null);
 
     public async Task Run(Options options)
     {
         (var year, var day, var output) = (options.year ?? DateTime.Now.Year, options.day ?? DateTime.Now.Day, options.output);
         var dir = AoCLogic.GetDirectory(year, day);
-
+        
 
         var aoc = await File.ReadAllTextAsync(Path.Combine(dir.FullName, "AoC.cs"));
         string code = GenerateCode(aoc);
@@ -27,12 +34,14 @@ class ExportPuzzle
             return;
         }
 
-        var publishLocation = new DirectoryInfo(output ?? "publish");
-        if (!publishLocation.Exists) publishLocation.Create();
+        var publishLocation = new DirectoryInfo(output);
+        if (!publishLocation.Exists) 
+            publishLocation.Create();
         Console.WriteLine($"Exporting puzzle: {year}/{day} to {publishLocation}");
 
         var aoccs = Path.Combine(publishLocation.FullName, "aoc.cs");
-        if (File.Exists(aoccs)) File.Delete(aoccs);
+        if (File.Exists(aoccs))
+            File.Delete(aoccs);
         File.WriteAllText(aoccs, code);
 
         foreach (var file in dir.GetFiles("*.cs").Where(f => !f.Name.ToLower().Equals("aoc.cs")))
@@ -44,29 +53,11 @@ class ExportPuzzle
         if (File.Exists(inputtxt)) File.Delete(inputtxt);
         File.Copy(Path.Combine(dir.FullName, "input.txt"), inputtxt);
 
+        var content = await new StreamReader(
+            Assembly.GetExecutingAssembly().GetManifestResourceStream(typeof(ExportPuzzle), "aoc.csproj.txt")!
+            ).ReadToEndAsync();
 
-        await File.WriteAllTextAsync(Path.Combine(publishLocation.FullName, "aoc.csproj"), @"<?xml version=""1.0"" encoding=""utf-8""?>
-<Project Sdk=""Microsoft.NET.Sdk"">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-  <ItemGroup>
-    <Using Include=""Microsoft.FSharp.Collections"" />
-    <Using Include=""System.Diagnostics"" />
-    <Using Include=""System.Reflection"" />
-    <Using Include=""System.Text"" />
-    <Using Include=""System.Text.Json"" />
-    <Using Include=""System.Text.RegularExpressions"" />
-    <Using Include=""System.Collections.Immutable"" />
-    <Using Include=""System.Linq.Enumerable"" Static=""true"" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include=""FSharp.Core"" Version=""6.0.1"" />
-  </ItemGroup>
-</Project>");
+        await File.WriteAllTextAsync(Path.Combine(publishLocation.FullName, "aoc.csproj"), content);
 
     }
 
@@ -74,7 +65,11 @@ class ExportPuzzle
     {
         var tree = CSharpSyntaxTree.ParseText(aoc);
         
-        var aocclass = tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().Where(cd => cd.DescendantNodes().OfType<SimpleBaseTypeSyntax>().Any(b => b.Type.ToString() == "AoCBase")).SingleOrDefault();
+        var aocclass = (
+            from classdecl in tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>()
+            where classdecl.DescendantNodes().OfType<SimpleBaseTypeSyntax>().Any(b => b.Type.ToString() == "AoCBase")
+            select classdecl
+            ).SingleOrDefault();
 
         if (aocclass is null)
         {
@@ -161,7 +156,6 @@ class ExportPuzzle
                         GlobalStatement(
                                 ExpressionStatement(
                                     InvocationExpression(
-
                                             MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("Console"), IdentifierName("WriteLine"))
                                             .WithOperatorToken(Token(SyntaxKind.DotToken)
                                         )
@@ -210,7 +204,7 @@ class ExportPuzzle
         if (!memberAccessExpression.IsKind(SyntaxKind.SimpleMemberAccessExpression))
             throw new NotSupportedException($"Can not convert expression {memberAccessExpression}");
 
-        var identifier2 = memberAccessExpression.ToString() switch
+        var methodName = memberAccessExpression.ToString() switch
         {
             "Read.InputLines" => "ReadAllLines",
             "Read.InputText" => "ReadAllText",
@@ -221,7 +215,7 @@ class ExportPuzzle
             MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,
                 IdentifierName("File"),
-                IdentifierName(identifier2)
+                IdentifierName(methodName)
                 )
             )
         .WithArgumentList(

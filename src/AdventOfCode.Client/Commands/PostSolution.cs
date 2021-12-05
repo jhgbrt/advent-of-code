@@ -1,5 +1,8 @@
-﻿namespace AdventOfCode.Client;
+﻿using System.ComponentModel;
 
+namespace AdventOfCode.Client;
+
+[Description("post an answer for a puzzle part. Requires AOC_SESSION set as an environment variable")]
 class PostSolution
 {
     private readonly AoCClient client;
@@ -8,10 +11,13 @@ class PostSolution
     {
         this.client = client;
     }
-    public record Options(int? year, int? day, int? part, string value);
+    public record Options(
+        [property: Description("Year (default: current year)")] int? year,
+        [property: Description("Day (default: current day)")] int? day,
+        [property: Description("The solution to the puzzle part")] string value);
     public async Task Run(Options options)
     {
-        (var year, var day, var part, var value) = (options.year??DateTime.Now.Year, options.day??DateTime.Now.Day, options.part, options.value);
+        (var year, var day, var value) = (options.year??DateTime.Now.Year, options.day??DateTime.Now.Day, options.value);
 
         if (!AoCLogic.IsValidAndUnlocked(year, day))
         {
@@ -37,13 +43,10 @@ class PostSolution
             return;
         }
 
-        if (part is not (1 or 2))
-        {
-            part = puzzle.Status == Status.Unlocked ? 1 : 2;
-        }
+        var part = puzzle.Status == Status.Unlocked ? 1 : 2;
 
 
-        var result = await client.PostAnswerAsync(year, day, part.Value, value);
+        var result = await client.PostAnswerAsync(year, day, part, value);
 
         Console.WriteLine(result.status);
         Console.WriteLine(result.content);

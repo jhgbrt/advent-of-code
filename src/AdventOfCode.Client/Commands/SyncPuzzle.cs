@@ -1,7 +1,8 @@
-﻿using System.Text.Json;
+﻿using System.ComponentModel;
+using System.Text.Json;
 
 namespace AdventOfCode.Client;
-
+[Description("sync the data (specifically the posted answers) for a puzzle. Requires AOC_SESSION set as an environment variable")]
 class SyncPuzzle
 {
     private readonly AoCClient client;
@@ -10,7 +11,10 @@ class SyncPuzzle
     {
         this.client = client;
     }
-    public record Options(int? year, int? day);
+    public record Options(
+        [property: Description("Year (default: current year)")] int? year,
+        [property: Description("Day (default: current day)")] int? day
+        );
     public async Task Run(Options options)
     {
         (var year, var day) = (options.year??DateTime.Now.Year, options.day??DateTime.Now.Day);
