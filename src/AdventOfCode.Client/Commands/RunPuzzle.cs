@@ -5,12 +5,12 @@ namespace AdventOfCode.Client;
 
 class RunPuzzle 
 {
-    public record Options(int year, int day);
+    public record Options(int? year, int? day);
 
     public Task Run(Options options)
     {
 
-        (var year, var day) = options;
+        (var year, var day) = (options.year??DateTime.Now.Year, options.day??DateTime.Now.Day);
 
         Console.WriteLine($"{year}, day {day}");
 

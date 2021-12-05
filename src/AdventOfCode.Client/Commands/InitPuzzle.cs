@@ -11,10 +11,10 @@ class InitPuzzle
     {
         this.client = client;
     }
-    public record Options(int year, int day, bool? force);
+    public record Options(int? year, int? day, bool? force);
     public async Task Run(Options options)
     {
-        (var year, var day, var force) = options;
+        (var year, var day, var force) = (options.year??DateTime.Now.Year, options.day??DateTime.Now.Day, options.force??false);
 
         if (!AoCLogic.IsValidAndUnlocked(year, day))
         {
@@ -25,13 +25,13 @@ class InitPuzzle
         Console.WriteLine("Puzzle is unlocked");
 
         var dir = AoCLogic.GetDirectory(year, day);
-        if (dir.Exists && (!force.HasValue || !force.Value))
+        if (dir.Exists && !force)
         {
             Console.WriteLine("Puzzle for {year}/{day} already initialized. Use --force to re-initialize.");
             return;
         }
 
-        if (dir.Exists && (force??false))
+        if (dir.Exists && force)
             dir.Delete(true);
 
         dir.Create();
@@ -72,7 +72,7 @@ class InitPuzzle
         Console.WriteLine("Retrieving puzzle data");
 
         var answers = AoCLogic.GetFileName(year, day, "answers.json");
-        var puzzle = await client.GetPuzzleAsync(year, day, !(force??false));
+        var puzzle = await client.GetPuzzleAsync(year, day, !force);
         var answer = puzzle.Answer;
         File.WriteAllText(answers, JsonSerializer.Serialize(answer));
         AddEmbeddedResource(answers);
