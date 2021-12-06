@@ -1,4 +1,4 @@
-﻿namespace AdventOfCode.Client;
+﻿namespace AdventOfCode.Client.Commands;
 
 using Microsoft.Extensions.Configuration;
 

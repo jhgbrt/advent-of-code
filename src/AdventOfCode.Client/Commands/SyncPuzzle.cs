@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Text.Json;
 
-namespace AdventOfCode.Client;
+namespace AdventOfCode.Client.Commands;
 [Description("sync the data (specifically the posted answers) for a puzzle. Requires AOC_SESSION set as an environment variable")]
 class SyncPuzzle
 {

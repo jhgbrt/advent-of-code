@@ -1,4 +1,4 @@
-﻿namespace AdventOfCode.Client;
+﻿namespace AdventOfCode.Client.Commands;
 
 using System.ComponentModel;
 using System.Text.Json;

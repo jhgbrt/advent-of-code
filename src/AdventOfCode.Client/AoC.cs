@@ -1,5 +1,7 @@
 ﻿namespace AdventOfCode.Client;
 
+using AdventOfCode.Client.Commands;
+
 using Microsoft.Extensions.Configuration;
 
 using System.Reflection;

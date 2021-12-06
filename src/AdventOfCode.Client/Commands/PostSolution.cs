@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace AdventOfCode.Client;
+namespace AdventOfCode.Client.Commands;
 
 [Description("post an answer for a puzzle part. Requires AOC_SESSION set as an environment variable")]
 class PostSolution

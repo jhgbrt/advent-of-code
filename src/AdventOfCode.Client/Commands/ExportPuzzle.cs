@@ -9,7 +9,7 @@ using System.Reflection;
 
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace AdventOfCode.Client;
+namespace AdventOfCode.Client.Commands;
 
 [Description("export the code for a puzzle to a stand-alone C# project")]
 class ExportPuzzle
@@ -44,7 +44,7 @@ class ExportPuzzle
             File.Delete(aoccs);
         File.WriteAllText(aoccs, code);
 
-        foreach (var file in dir.GetFiles("*.cs").Where(f => !f.Name.ToLower().Equals("aoc.cs")))
+        foreach (var file in dir.GetFiles("*.cs").Where(f => !f.Name.Equals("aoc.cs", StringComparison.OrdinalIgnoreCase)))
         {
             file.CopyTo(Path.Combine(publishLocation.FullName, file.Name), true);
         }

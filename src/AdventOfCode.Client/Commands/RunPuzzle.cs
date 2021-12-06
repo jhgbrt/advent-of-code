@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
 
-namespace AdventOfCode.Client;
+namespace AdventOfCode.Client.Commands;
 
 [Description("run the code for a specific puzzle")]
 class RunPuzzle 

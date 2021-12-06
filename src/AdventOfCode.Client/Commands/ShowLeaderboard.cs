@@ -2,7 +2,7 @@
 
 using System.ComponentModel;
 
-namespace AdventOfCode.Client;
+namespace AdventOfCode.Client.Commands;
 
 [Description("show some stats from the configured private leaderboard. Set AOC_LEADERBOARD_ID as a environment variable.")]
 class ShowLeaderboard

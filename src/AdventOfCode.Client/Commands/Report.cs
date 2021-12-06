@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace AdventOfCode.Client;
+namespace AdventOfCode.Client.Commands;
 
 [Description("show a list of all puzzles, their status (unlocked, answered), and the answers posted")]
 class Report
