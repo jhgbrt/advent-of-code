@@ -11,13 +11,13 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace AdventOfCode.Client.Commands;
 
-[Description("export the code for a puzzle to a stand-alone C# project")]
-class ExportPuzzle
+[Description("Export the code for a puzzle to a stand-alone C# project")]
+class Export : ICommand<Export.Options>
 {
     public record Options(
         [property: Description("Year (default: current year)")] int? year,
         [property: Description("Day (default: current day)")] int? day,
-        [property: Description("output location. If empty, exported code is written to stdout")] string? output = null);
+        [property: Description("output location. If empty, exported code is written to stdout")] string? output = null) : IOptions;
 
     public async Task Run(Options options)
     {
@@ -54,7 +54,7 @@ class ExportPuzzle
         File.Copy(Path.Combine(dir.FullName, "input.txt"), inputtxt);
 
         var content = await new StreamReader(
-            Assembly.GetExecutingAssembly().GetManifestResourceStream(typeof(ExportPuzzle), "aoc.csproj.txt")!
+            Assembly.GetExecutingAssembly().GetManifestResourceStream(typeof(Export), "aoc.csproj.txt")!
             ).ReadToEndAsync();
 
         await File.WriteAllTextAsync(Path.Combine(publishLocation.FullName, "aoc.csproj"), content);

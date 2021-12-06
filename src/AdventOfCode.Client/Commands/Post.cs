@@ -1,20 +1,21 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace AdventOfCode.Client.Commands;
 
-[Description("post an answer for a puzzle part. Requires AOC_SESSION set as an environment variable")]
-class PostSolution
+[Description("Post an answer for a puzzle part. Requires AOC_SESSION set as an environment variable.")]
+class Post : ICommand<Post.Options>
 {
     private readonly AoCClient client;
 
-    public PostSolution(AoCClient client)
+    public Post(AoCClient client)
     {
         this.client = client;
     }
     public record Options(
         [property: Description("Year (default: current year)")] int? year,
         [property: Description("Day (default: current day)")] int? day,
-        [property: Description("The solution to the puzzle part")] string value);
+        [property: Description("The solution to the puzzle part"), Required] string value) : IOptions;
     public async Task Run(Options options)
     {
         (var year, var day, var value) = (options.year??DateTime.Now.Year, options.day??DateTime.Now.Day, options.value);

@@ -24,5 +24,5 @@ enum Status
 }
 
 record LeaderBoard(int OwnerId, int Year, Member[] Members);
-record Member(int Id, string Name, int TotalStars, int LocalScore, int GlobalScore, Instant LastStarTimeStamp, IReadOnlyDictionary<int, DailyStars> Stars);
+record Member(int Id, string Name, int TotalStars, int LocalScore, int GlobalScore, Instant? LastStarTimeStamp, IReadOnlyDictionary<int, DailyStars> Stars);
 record DailyStars(int Day, Instant? FirstStar, Instant? SecondStar);

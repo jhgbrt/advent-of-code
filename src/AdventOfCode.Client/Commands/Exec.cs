@@ -6,13 +6,13 @@ using System.Reflection;
 
 namespace AdventOfCode.Client.Commands;
 
-[Description("run the code for a specific puzzle")]
-class RunPuzzle 
+[Description("Run the code for a specific puzzle.")]
+class Exec : ICommand<Exec.Options>
 {
     public record Options(
         [property: Description("Year (default: current year)")] int? year,
         [property: Description("Day (default: current day)")] int? day
-        );
+        ) : IOptions;
 
     public Task Run(Options options)
     {

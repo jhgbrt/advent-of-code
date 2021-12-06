@@ -4,19 +4,19 @@ using System.ComponentModel;
 using System.Text.Json;
 using System.Xml.Linq;
 
-[Description("initialize the code for a specific puzzle. Requires AOC_SESSION set as an environment variable")]
-class InitPuzzle
+[Description("Initialize the code for a specific puzzle. Requires AOC_SESSION set as an environment variable")]
+class Init : ICommand<Init.Options>
 {
     private readonly AoCClient client;
 
-    public InitPuzzle(AoCClient client)
+    public Init(AoCClient client)
     {
         this.client = client;
     }
     public record Options(
         [property: Description("Year (default: current year)")] int? year,
         [property: Description("Day (default: current day)")] int? day,
-        [property: Description("Force (if true, refresh cache)")]bool? force);
+        [property: Description("Force (if true, refresh cache)")]bool? force) : IOptions;
     public async Task Run(Options options)
     {
         (var year, var day, var force) = (options.year??DateTime.Now.Year, options.day??DateTime.Now.Day, options.force??false);

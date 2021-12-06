@@ -77,29 +77,22 @@ class AoCClient : IDisposable
             foreach (var item in element.EnumerateObject())
             {
                 var member = item.Value;
-                string name = string.Empty;
-                int id = 0;
-                int stars = 0, localScore = 0, globalScore = 0;
-                Instant lastStarInstant = Instant.MinValue;
-                IReadOnlyDictionary<int, DailyStars>? completions = null;
+                var result = new Member(0, string.Empty, 0, 0, 0, null, new Dictionary<int,DailyStars>());
                 foreach (var property in member.EnumerateObject())
                 {
-                    switch (property.Name)
+                    result = property.Name switch
                     {
-                        case "name": name = property.Value.GetString()!; break;
-                        case "id": id = int.Parse(property.Value.GetString()!); break;
-                        case "stars" when property.Value.ValueKind == JsonValueKind.Number: stars = property.Value.GetInt32(); break;
-                        case "local_score" when property.Value.ValueKind == JsonValueKind.Number: localScore = property.Value.GetInt32(); break;
-                        case "global_score" when property.Value.ValueKind == JsonValueKind.Number: globalScore = property.Value.GetInt32(); break;
-                        case "last_star_ts" when property.Value.ValueKind == JsonValueKind.Number: lastStarInstant = Instant.FromUnixTimeSeconds(property.Value.GetInt32()); break;
-                        case "last_star_ts": break;
-                        case "completion_day_level":
-                            completions = GetCompletions(property).ToDictionary(x => x.Day);
-                            break;
-                        default: throw new Exception($"unhandled property: {property.Name}");
-                    }
+                        "name" => result with { Name = property.Value.GetString()! },
+                        "id" when property.Value.ValueKind is JsonValueKind.Number => result with { Id = property.Value.GetInt32() },
+                        "stars" when property.Value.ValueKind is JsonValueKind.Number => result with { TotalStars = property.Value.GetInt32() },
+                        "local_score" when property.Value.ValueKind is JsonValueKind.Number => result with { LocalScore = property.Value.GetInt32() },
+                        "global_score" when property.Value.ValueKind is JsonValueKind.Number => result with { GlobalScore = property.Value.GetInt32() },
+                        "last_star_ts" when property.Value.ValueKind is JsonValueKind.Number => result with { LastStarTimeStamp = Instant.FromUnixTimeSeconds(property.Value.GetInt32()) },
+                        "completion_day_level" => result with { Stars = GetCompletions(property).ToDictionary(x => x.Day) },
+                        _ => result
+                    };
                 }
-                yield return new Member(id, name, stars, localScore, globalScore, lastStarInstant, completions??new Dictionary<int, DailyStars>());
+                yield return result;
             }
         }
         IEnumerable<DailyStars> GetCompletions(JsonProperty property)
@@ -107,18 +100,18 @@ class AoCClient : IDisposable
             foreach (var compl in property.Value.EnumerateObject())
             {
                 var day = int.Parse(compl.Name);
-
-                (Instant? i1, Instant? i2) = (null, null);
+                var ds = new DailyStars(day, null, null);
                 foreach (var star in compl.Value.EnumerateObject())
                 {
                     var instant = Instant.FromUnixTimeSeconds(star.Value.EnumerateObject().First().Value.GetInt32());
-                    switch (int.Parse(star.Name))
+                    ds = int.Parse(star.Name) switch
                     {
-                        case 1: i1 = instant; break;
-                        case 2: i2 = instant; break;
-                    }
+                        1 => ds with { FirstStar = instant },
+                        2 => ds with { SecondStar= instant },
+                        _ => ds,
+                    };
                 }
-                yield return new DailyStars(day, i1, i2);
+                yield return ds;
             }
 
         }

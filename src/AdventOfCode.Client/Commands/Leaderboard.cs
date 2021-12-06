@@ -4,18 +4,18 @@ using System.ComponentModel;
 
 namespace AdventOfCode.Client.Commands;
 
-[Description("show some stats from the configured private leaderboard. Set AOC_LEADERBOARD_ID as a environment variable.")]
-class ShowLeaderboard
+[Description("Show some stats from the configured private leaderboard. Set AOC_LEADERBOARD_ID as a environment variable.")]
+class Leaderboard : ICommand<Leaderboard.Options>
 {
     AoCClient client;
 
-    public ShowLeaderboard(AoCClient client)
+    public Leaderboard(AoCClient client)
     {
         this.client = client;
     }
     public record Options(
         [property: Description("Year (default: current year)")] int? year, 
-        [property:Description("The leaderboard ID")]int id);
+        [property:Description("The leaderboard ID")]int id) : IOptions;
 
     public async Task Run(Options options)
     {
@@ -35,12 +35,12 @@ class ShowLeaderboard
                      let stars = m.TotalStars
                      let lastStar = m.LastStarTimeStamp
                      where lastStar > Instant.MinValue
-                     let dt = lastStar.InUtc().ToDateTimeOffset().ToLocalTime()
+                     let dt = lastStar?.InUtc().ToDateTimeOffset().ToLocalTime()
                      orderby score descending
                      select (name, score, stars, dt);
 
 
-        Console.WriteLine(string.Join(Environment.NewLine, report.Select(x => $"{x.name,20}{x.score,5} {x.stars,2} {x.dt.TimeOfDay}")));
+        Console.WriteLine(string.Join(Environment.NewLine, report.Select(x => $"{x.name,20}{x.score,5} {x.stars,2} {x.dt?.TimeOfDay}")));
 
         //var report2 = from m in leaderboard.Members
         //              from x in m.Stars
