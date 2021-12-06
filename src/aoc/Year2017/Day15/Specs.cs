@@ -27,16 +27,4 @@ public class Specs
         Assert.True((x.a & 0xFFFFL) == (x.b & 0xFFFFL));
     }
 
-    [Fact]
-    public void TestNofMatchesPart1()
-    {
-        Assert.Equal(588, Generator.GetNofMatches(SeedA, SeedB, 40_000_000));
-    }
-    [Fact]
-    public void TestNofMatchesPart2()
-    {
-        Assert.Equal(309, Generator.GetNofMatches(SeedA, SeedB, 5_000_000, 4, 8));
-    }
-
-
 }

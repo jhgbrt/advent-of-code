@@ -116,13 +116,4 @@ public class Tests
         foreach (var n in c.Neighbors())
             Assert.Equal(Inactive, grid[n]);
     }
-
-    [Fact]
-    public void Example()
-    {
-        var grid = Grid.FromLines(new[] { ".#.", "..#", "###" });
-        for (var i = 0; i < 6; i++)
-            grid = grid.Cycle();
-        Assert.Equal(848, grid.ActiveCells.Count);
-    }
 }
