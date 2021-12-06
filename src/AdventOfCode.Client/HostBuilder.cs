@@ -29,6 +29,7 @@ class HostBuilder
             root = new RootCommand
             {
                 CreateCommand<Exec.Options>("run", GetDescription(typeof(Exec))!, Exec),
+                CreateCommand<Verify.Options>("verify", GetDescription(typeof(Verify))!, Verify),
                 CreateCommand<Init.Options>("init", GetDescription(typeof(Init))!, Init),
                 CreateCommand<Sync.Options>("sync", GetDescription(typeof(Sync))!, Sync),
                 CreateCommand<Post.Options>("post", GetDescription(typeof(Post))!, Post),
@@ -40,6 +41,7 @@ class HostBuilder
         public Task Run(string[] args) => root.InvokeAsync(args);
 
         async Task Exec(Exec.Options options) => await new Exec().Run(options);
+        async Task Verify(Verify.Options options) => await new Verify(Factory.CreateClient(config)).Run(options);
         async Task Init(Init.Options options) => await new Init(Factory.CreateClient(config)).Run(options);
         async Task Sync(Sync.Options options) => await new Sync(Factory.CreateClient(config)).Run(options);
         async Task Post(Post.Options options) => await new Post(Factory.CreateClient(config)).Run(options);

@@ -31,7 +31,7 @@ public class AoC202021 : AoCBase
         {
             foreach (var item in list1)
             {
-                Console.WriteLine($"{item.allergen}: {string.Join(" ", item.ingredients)}");
+                //Console.WriteLine($"{item.allergen}: {string.Join(" ", item.ingredients)}");
                 var ingredients = item.ingredients.Except(list2.Select(x => x.ingredient));
                 if (ingredients.Count() == 1)
                 {
@@ -72,7 +72,7 @@ public class AoC202021 : AoCBase
         {
             foreach (var item in list1)
             {
-                Console.WriteLine($"{item.allergen}: {string.Join(" ", item.ingredients)}");
+                //Console.WriteLine($"{item.allergen}: {string.Join(" ", item.ingredients)}");
                 var ingredients = item.ingredients.Except(list2.Select(x => x.ingredient));
                 if (ingredients.Count() == 1)
                 {

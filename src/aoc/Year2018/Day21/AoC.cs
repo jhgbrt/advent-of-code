@@ -6,7 +6,6 @@ public class AoC201821 : AoCBase
     public override object Part1()
     {
         var cpu = new CPU(int.Parse(input[0].Split(' ').Last()), input.GetInstructions(), new long[] { 0, 0, 0, 0, 0, 0 });
-        Console.WriteLine(cpu.Run(false));
         return cpu.RunReverseEngineered(false);
     }
     public override object Part2()

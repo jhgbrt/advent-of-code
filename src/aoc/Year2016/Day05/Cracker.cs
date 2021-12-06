@@ -20,13 +20,13 @@ class Cracker
             {
                 var str = BitConverter.ToString(hash).Replace("-", "");
                 sb.Append(str[5]);
-                Console.Write(str[5]);
+                //Console.Write(str[5]);
             }
             if (sb.Length == length)
                 break;
             i++;
         }
-        Console.WriteLine();
+        //Console.WriteLine();
         var password = sb.ToString();
         return password.ToLower();
     }
@@ -48,7 +48,7 @@ class Cracker
                     )
                 {
                     sb[position] = str[6];
-                    Console.WriteLine(new String(sb));
+                    //Console.WriteLine(new String(sb));
                 }
             }
             if (sb.All(c => c != '_'))

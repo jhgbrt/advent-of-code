@@ -5,8 +5,11 @@ using System.Net;
 using NodaTime;
 using System.Text.Json;
 using System.Diagnostics;
+interface IAoCClient
+{
 
-class AoCClient : IDisposable
+}
+class AoCClient : IDisposable, IAoCClient
 {
     readonly HttpClientHandler handler;
     readonly HttpClient client;
