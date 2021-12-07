@@ -2,7 +2,35 @@
 
 using NodaTime;
 
-record Answer(object? part1, object? part2) { public static Answer Empty => new Answer(null, null); }
+enum ResultStatus
+{
+    NotImplemented, // not implemented
+    Unknown,        // unknown if correct or not
+    Failed,         // failed after verification
+    Ok              // correct after verification
+}
+record ComparisonResult(ResultStatus part1, ResultStatus part2)
+{
+    public static implicit operator bool(ComparisonResult result) => result.part1 != ResultStatus.Ok || result.part2 != ResultStatus.Ok;
+}
+
+record Answer(string part1, string part2) { public static Answer Empty => new Answer(string.Empty, string.Empty); }
+record DayResult(int year, int day, Result part1, Result part2)
+{
+    public readonly static DayResult Empty = new DayResult(0, 0, Result.Empty, Result.Empty);
+    public TimeSpan Elapsed => part1.Elapsed + part2.Elapsed;
+}
+
+record Result(ResultStatus Status, string Value, TimeSpan Elapsed)
+{
+    public readonly static Result Empty = new Result(ResultStatus.NotImplemented, string.Empty, TimeSpan.Zero);
+    public Result Verify(string answer) => Status switch
+    {
+        ResultStatus.Unknown => this with { Status = answer == Value ? ResultStatus.Ok : ResultStatus.Failed },
+        _ => this
+    };
+}
+
 record Puzzle(int Year, int Day, string Html, string Text, string Input, Answer Answer, Status Status)
 {
     public int Unanswered => Status switch { Status.Completed => 0, Status.AnsweredPart1 => 1, _ => 2 };
@@ -14,6 +42,18 @@ record Puzzle(int Year, int Day, string Html, string Text, string Input, Answer 
         { part1: not null, part2: not null} => Status.Completed,
         _ => throw new Exception($"inconsistent state for {year}/{day}/{answer}")
     });
+
+    public ComparisonResult Compare(DayResult result)
+    {
+        if ((result.year, result.day) != (Year, Day)) throw new InvalidOperationException("Result is for another day");
+
+        return Day switch
+        {
+            25 => new ComparisonResult(result.part1.Verify(Answer.part1).Status, ResultStatus.Ok),
+            _ => new ComparisonResult(result.part1.Verify(Answer.part1).Status, result.part2.Verify(Answer.part2).Status)
+        };
+    }
+
 }
 enum Status
 {

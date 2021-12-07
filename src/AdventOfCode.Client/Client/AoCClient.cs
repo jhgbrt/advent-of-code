@@ -178,8 +178,8 @@ class AoCClient : IDisposable, IAoCClient
         var answer = answers.Length switch
         {
             2 => new Answer(answers[0].InnerText, answers[1].InnerText),
-            1 => new Answer(answers[0].InnerText, null),
-            0 => new Answer(null, null),
+            1 => new Answer(answers[0].InnerText, string.Empty),
+            0 => Answer.Empty,
             _ => throw new Exception($"expected 0, 1 or 2 answers, not {answers.Length}")
         };
 

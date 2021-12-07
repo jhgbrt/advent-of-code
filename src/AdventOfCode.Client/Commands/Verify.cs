@@ -1,6 +1,4 @@
-﻿using BenchmarkDotNet.Running;
-
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json;
@@ -17,96 +15,92 @@ class Verify : ICommand<Verify.Options>
         this.client = client;
     }
 
+    public enum Speed
+    {
+        all,
+        normal,
+        fast
+    }
+
     public record Options(
         [property: Description("Year (default: current year)")] int? year,
         [property: Description("Day (default: current day)")] int? day,
         [property: Description("The fully qualified name of the type containing the code for this puzzle. " +
         "Use a format string with {0} and {1} as placeholders for year and day. " +
-        "(default: AdventOfCode.Year{0}.Day{1:00}.AoC{0}{1:00})")] string? typeName
+        "(default: AdventOfCode.Year{0}.Day{1:00}.AoC{0}{1:00})")] string? typeName,
+        bool? cache,
+        Speed? speed
         ) : IOptions;
 
     public async Task Run(Options options)
     {
 
-        (var year, var day, var typeName) = (
+        (var year, var day, var typeName, var cache, var speed) = (
               options.year
             , options.day
             , string.IsNullOrEmpty(options.typeName) ? "AdventOfCode.Year{0}.Day{1:00}.AoC{0}{1:00}" : options.typeName
+            , options.cache??false
+            , options.speed ?? Speed.fast
             );
 
-        Console.WriteLine($"{year}, day {day}");
-
-        var assembly = Assembly.GetEntryAssembly();
-        if (assembly == null) throw new Exception("no entry assembly?");
-        
-        Console.WriteLine(string.Format(typeName, year, day));
         var sw = Stopwatch.StartNew();
-        List<(int year, int day, object result1, TimeSpan elapsed1, object result2, TimeSpan elapsed2)> result = new();
         foreach (var (y, d) in AoCLogic.Puzzles())
         {
             if (year.HasValue && year != y) continue;
             if (day.HasValue && day != d) continue;
-            var type = assembly.GetType(string.Format(typeName, y, d));
-
-            if (type is null)
+            var puzzle = await client.GetPuzzleAsync(y, d);
+            var cached = JsonSerializer.Deserialize<DayResult>(await File.ReadAllTextAsync(Path.Combine(".cache", $"{y}-{d:00}-result.json")));
+            if (cached != null && speed == Speed.fast && cached.Elapsed > TimeSpan.FromSeconds(1))
             {
-                Console.WriteLine($"Could not find type {typeName} for {year}, {day}. Use --typeName to override.");
+                Write(puzzle, cached, true);
                 continue;
             }
-
-            dynamic aoc = Activator.CreateInstance(type)!;
-
-            var puzzle = await client.GetPuzzleAsync(y, d);
-
-            var part1 = Run(() => aoc.Part1());
-            var part2 = Run(() => aoc.Part2());
-            var duration = part1.Elapsed + part2.Elapsed;
-            Write(y, d, puzzle, part1, part2, duration);
-            result.Add((y, d, part1.Value, part1.Elapsed, part2.Value, part2.Elapsed));
+            var result = cache && cached is not null ? cached : await AoCRunner.Run(typeName, y, d);
+            if (result is not null)
+                Write(puzzle, result, false);
         }
         Console.WriteLine($"done. Total time: {sw.Elapsed}");
-
-        File.WriteAllText(Path.Combine(".cache", "durations.json"), JsonSerializer.Serialize(result));
     }
 
-    private static void Write(int y, int d, Puzzle puzzle, Result part1, Result part2, TimeSpan duration)
+    private static void Write(Puzzle puzzle, DayResult result, bool skipped)
     {
-        Console.Write($"{y}-{d:00}: ");
-        if ((part1.Value.ToString(), part2.Value.ToString()) != (puzzle.Answer.part1?.ToString(), puzzle.Answer.part2?.ToString()))
+        (var duration, var dcolor) = result.Elapsed.TotalMilliseconds switch
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("[FAILED]");
-            Console.ResetColor();
-            Console.Write(" - ");
-            if (duration > TimeSpan.FromSeconds(1))
-            {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-            }
-            Console.Write($"({duration})");
-            Console.ResetColor();
-            Console.Write($" - expected {(puzzle.Answer.part1, puzzle.Answer.part2)} but was {(part1.Value, part2.Value)}");
-            Console.WriteLine();
-        }
-        else
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("[OK]");
-            Console.ResetColor();
-            Console.Write(" - ");
-            if (duration > TimeSpan.FromSeconds(1))
-            {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-            }
-            Console.Write($"({duration})");
-            Console.ResetColor();
-            Console.WriteLine();
-        }
-    }
+            < 10 => ("< 10 ms", Console.ForegroundColor),
+            < 100 => ("< 100 ms", Console.ForegroundColor),
+            < 1000 => ("< 1s", Console.ForegroundColor),
+            double value when value < 3000 => ($"~ {(int)Math.Round(value / 1000)} s", ConsoleColor.Yellow),
+            double value => ($"~ {(int)Math.Round(value / 1000)} s", ConsoleColor.Red)
+        };
 
-    static Result Run(Func<object> f)
-    {
-        var sw = Stopwatch.StartNew();
-        return new(f(), sw.Elapsed);
+        Console.Write($"{result.year}-{result.day:00}: ");
+
+        var comparisonResult = puzzle.Compare(result);
+
+        (var status, var color, var explanation) = comparisonResult switch
+        {
+            { part1: ResultStatus.Failed } or { part2: ResultStatus.Failed } => ("FAILED", ConsoleColor.Red, $"- expected {(puzzle.Answer.part1, puzzle.Answer.part2)} but was ({(result.part1.Value, result.part2.Value)})."),
+            { part1: ResultStatus.NotImplemented, part2: ResultStatus.NotImplemented } => ("SKIPPED", ConsoleColor.Yellow, " - not implemented."),
+            { part1: ResultStatus.NotImplemented, part2: ResultStatus.Ok } => ("SKIPPED", ConsoleColor.Yellow, " - part 1 not implemented."),
+            { part1: ResultStatus.Ok, part2: ResultStatus.NotImplemented } => ("SKIPPED", ConsoleColor.Yellow, " - part 2 not implemented."),
+            _ => ("OK", ConsoleColor.Green, "")
+        };
+
+        if (skipped) 
+            explanation += " Not verified, too slow; use --speed=all to include)";
+
+        Console.Write("[");
+        Console.ForegroundColor = color;
+        Console.Write(status);
+        Console.ResetColor();
+        Console.Write("]");
+        Console.Write(" - ");
+        Console.ForegroundColor = dcolor;
+        Console.Write(duration);
+        Console.ResetColor();
+        Console.Write(explanation);
+        Console.WriteLine();
+
     }
 }
 
