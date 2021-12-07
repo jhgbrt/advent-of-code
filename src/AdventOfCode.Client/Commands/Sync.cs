@@ -25,7 +25,7 @@ class Sync : ICommand<Sync.Options>
             return;
         }
 
-        var dir = AoCLogic.GetDirectory(year, day);
+        var dir = FileSystem.GetDirectory(year, day);
         if (!dir.Exists) 
         {
             Console.WriteLine("Puzzle not yet initialized. Use 'init' first.");
@@ -33,7 +33,7 @@ class Sync : ICommand<Sync.Options>
         }
 
         Console.WriteLine("Updating puzzle answers");
-        var answers = AoCLogic.GetFileName(year, day, "answers.json");
+        var answers = FileSystem.GetFileName(year, day, "answers.json");
         var puzzle = await client.GetPuzzleAsync(year, day, false);
         var answer = puzzle.Answer;
         File.WriteAllText(answers, JsonSerializer.Serialize(answer));

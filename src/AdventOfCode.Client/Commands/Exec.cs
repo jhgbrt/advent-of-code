@@ -28,7 +28,8 @@ class Exec : ICommand<Exec.Options>
 
         DayResult result = await AoCRunner.Run(typeName, year, day);
 
-        Console.WriteLine(result);
+        Console.WriteLine($"{result.part1.Value} - {result.part1.Elapsed}");
+        Console.WriteLine($"{result.part2.Value} - {result.part2.Elapsed}");
     }
 }
 

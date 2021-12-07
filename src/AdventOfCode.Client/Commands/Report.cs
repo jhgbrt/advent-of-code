@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Text.Json;
 
 namespace AdventOfCode.Client.Commands;
 
@@ -25,6 +26,8 @@ class Report : ICommand<Report.Options>
             if (day.HasValue && day != d) continue;
 
             var puzzle = await client.GetPuzzleAsync(y, d);
+            var result = JsonSerializer.Deserialize<DayResult>(await Cache.ReadFromCache(y, d, "result.json"));
+
             if ((unsolved??false) && puzzle.Status == Status.Completed) continue;
 
             Console.WriteLine((y, d, puzzle.Status, puzzle.Answer.part1, puzzle.Answer.part2));

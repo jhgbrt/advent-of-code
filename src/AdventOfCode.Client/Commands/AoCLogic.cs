@@ -1,7 +1,6 @@
 ﻿
 namespace AdventOfCode.Client.Commands;
 using NodaTime;
-
 static class AoCLogic
 {
 
@@ -28,10 +27,6 @@ static class AoCLogic
             _ => throw new Exception("invalid month")
         };
     }
-
-    internal static DirectoryInfo GetDirectory(int year, int day) => new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, $"Year{year}", $"Day{day:00}"));
-    internal static FileInfo GetFile(int year, int day, string fileName) => new FileInfo(Path.Combine(Environment.CurrentDirectory, $"Year{year}", $"Day{day:00}", fileName));
-    internal static string GetFileName(int year, int day, string fileName) => Path.Combine(Environment.CurrentDirectory, $"Year{year}", $"Day{day:00}", fileName);
 
     internal static IEnumerable<(int year, int day)> Puzzles()
     {

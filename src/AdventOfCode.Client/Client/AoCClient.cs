@@ -9,23 +9,31 @@ interface IAoCClient
 {
 
 }
+
+interface IConfiguration
+{
+    string BaseAddress { get; }
+    string SessionCookie { get; }
+}
+
+record Configuration(string BaseAddress, string SessionCookie) : IConfiguration;
+
 class AoCClient : IDisposable, IAoCClient
 {
     readonly HttpClientHandler handler;
     readonly HttpClient client;
-    readonly DirectoryInfo cacheDirectory;
 
-    public AoCClient(Uri baseAddress, string sessionCookie)
+    public AoCClient(IConfiguration configuration)
     {
+        var baseAddress = new Uri(configuration.BaseAddress);
+        var sessionCookie = configuration.SessionCookie;
+
         var cookieContainer = new CookieContainer();
         cookieContainer.Add(baseAddress, new Cookie("session", sessionCookie));
 
         handler = new HttpClientHandler { CookieContainer = cookieContainer };
 
         client = new HttpClient(handler) { BaseAddress = baseAddress };
-
-        this.cacheDirectory = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, ".cache"));
-        if (!cacheDirectory.Exists) cacheDirectory.Create();
     }
 
     public async Task<(HttpStatusCode status, string content)> PostAnswerAsync(int year, int day, int part, string value)
@@ -33,7 +41,7 @@ class AoCClient : IDisposable, IAoCClient
         var formValues = new Dictionary<string, string>()
         {
             ["level"] = part.ToString(),
-            ["answer"] = value.ToString()
+            ["answer"] = value
         };
         var content = new FormUrlEncodedContent(formValues);
         var result = await PostAsync($"{year}/day/{day}/answer", content);
@@ -47,8 +55,8 @@ class AoCClient : IDisposable, IAoCClient
 
     public async Task<LeaderBoard?> GetLeaderBoardAsync(int year, int id, bool usecache = true)
     {
-        (var statusCode, var content) = await GetAsync($"{year}-{id}.json", $"{year}/leaderboard/private/view/{id}.json", usecache);
-        if (statusCode != HttpStatusCode.OK || content.StartsWith("<")) 
+        (var statusCode, var content) = await GetAsync(year, null, $"leaderboard-{id}.json", $"{year}/leaderboard/private/view/{id}.json", usecache);
+        if (statusCode != HttpStatusCode.OK || content.StartsWith("<"))
             return null;
         return Deserialize(year, content);
     }
@@ -59,7 +67,7 @@ class AoCClient : IDisposable, IAoCClient
 
         int ownerid = -1;
         IEnumerable<Member>? members = Enumerable.Empty<Member>();
-        foreach(var p in jobject.EnumerateObject())
+        foreach (var p in jobject.EnumerateObject())
         {
             switch (p.Name)
             {
@@ -80,7 +88,7 @@ class AoCClient : IDisposable, IAoCClient
             foreach (var item in element.EnumerateObject())
             {
                 var member = item.Value;
-                var result = new Member(0, string.Empty, 0, 0, 0, null, new Dictionary<int,DailyStars>());
+                var result = new Member(0, string.Empty, 0, 0, 0, null, new Dictionary<int, DailyStars>());
                 foreach (var property in member.EnumerateObject())
                 {
                     result = property.Name switch
@@ -110,7 +118,7 @@ class AoCClient : IDisposable, IAoCClient
                     ds = int.Parse(star.Name) switch
                     {
                         1 => ds with { FirstStar = instant },
-                        2 => ds with { SecondStar= instant },
+                        2 => ds with { SecondStar = instant },
                         _ => ds,
                     };
                 }
@@ -120,27 +128,26 @@ class AoCClient : IDisposable, IAoCClient
         }
     }
 
-    private async Task<(HttpStatusCode StatusCode, string Content)> GetAsync(string filename, string path, bool usecache)
+    private async Task<(HttpStatusCode StatusCode, string Content)> GetAsync(int? year, int? day, string name, string path, bool usecache)
     {
         string content;
-        var filepath = Path.Combine(cacheDirectory.FullName, filename);
-        if (!File.Exists(filepath) || !usecache)
+        if (!Cache.Exists(year, day, name) || !usecache)
         {
             var response = await client.GetAsync(path);
             content = await response.Content.ReadAsStringAsync();
             Trace.WriteLine($"GET: {path} - {response.StatusCode}");
             Trace.WriteLine($"{content}");
-            if (response.StatusCode != HttpStatusCode.OK)
-                return (response.StatusCode, content);
-            await File.WriteAllTextAsync(filepath, content);
+            if (response.StatusCode != HttpStatusCode.OK) return (response.StatusCode, content);
+            await Cache.WriteToCache(year, day, name, content);
         }
         else
         {
             Trace.WriteLine($"CACHE: {path}");
-            content = await File.ReadAllTextAsync(filepath);
+            content = await Cache.ReadFromCache(year, day, name);
         }
         return (HttpStatusCode.OK, content);
     }
+
     private async Task<(HttpStatusCode StatusCode, string Content)> PostAsync(string path, HttpContent body)
     {
         var response = await client.PostAsync(path, body);
@@ -151,7 +158,7 @@ class AoCClient : IDisposable, IAoCClient
 
     public async Task<string> GetPuzzleInputAsync(int year, int day)
     {
-        (var statusCode, var input) = await GetAsync($"{year}-{day}-input.txt", $"{year}/day/{day}/input", true);
+        (var statusCode, var input) = await GetAsync(year, day, "input.txt", $"{year}/day/{day}/input", true);
         if (statusCode != HttpStatusCode.OK) return string.Empty;
         return input;
     }
@@ -159,7 +166,7 @@ class AoCClient : IDisposable, IAoCClient
     public async Task<Puzzle> GetPuzzleAsync(int year, int day, bool usecache = true)
     {
         HttpStatusCode statusCode;
-        (statusCode, var html) = await GetAsync($"{year}-{day}.html", $"{year}/day/{day}", usecache);
+        (statusCode, var html) = await GetAsync(year, day, "puzzle.html", $"{year}/day/{day}", usecache);
         if (statusCode != HttpStatusCode.OK) return Puzzle.Locked(year, day);
 
         var input = await GetPuzzleInputAsync(year, day);

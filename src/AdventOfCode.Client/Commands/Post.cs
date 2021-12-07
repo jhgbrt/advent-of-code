@@ -46,7 +46,6 @@ class Post : ICommand<Post.Options>
 
         var part = puzzle.Status == Status.Unlocked ? 1 : 2;
 
-
         var result = await client.PostAnswerAsync(year, day, part, value);
 
         Console.WriteLine(result.status);

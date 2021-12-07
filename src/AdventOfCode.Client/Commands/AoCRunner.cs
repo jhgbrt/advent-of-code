@@ -18,11 +18,11 @@ static class AoCRunner
         var t1 = Run(() => aoc.Part1());
         var t2 = Run(() => aoc.Part2());
         await Task.WhenAll(t1, t2);
-        var dayResult = new DayResult(year, day, await t1, await t2);
+        var result = new DayResult(year, day, await t1, await t2);
 
-        await File.WriteAllTextAsync(Path.Combine(".cache", $"{year}-{day:00}-result.json"), JsonSerializer.Serialize(dayResult));
+        await Cache.WriteToCache(year, day, "result.json", JsonSerializer.Serialize(result));
 
-        return dayResult;
+        return result;
     }
     static async Task<Result> Run(Func<object> f)
     {

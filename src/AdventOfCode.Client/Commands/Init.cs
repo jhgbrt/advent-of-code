@@ -29,7 +29,7 @@ class Init : ICommand<Init.Options>
 
         Console.WriteLine("Puzzle is unlocked");
 
-        var dir = AoCLogic.GetDirectory(year, day);
+        var dir = FileSystem.GetDirectory(year, day);
         if (dir.Exists && !force)
         {
             Console.WriteLine("Puzzle for {year}/{day} already initialized. Use --force to re-initialize.");
@@ -41,7 +41,7 @@ class Init : ICommand<Init.Options>
 
         dir.Create();
 
-        var aoc = AoCLogic.GetFile(year, day, "AoC.cs");
+        var aoc = FileSystem.GetFile(year, day, "AoC.cs");
         if (!aoc.Exists)
         {
             Console.WriteLine("Writing file: AoC.cs");
@@ -60,7 +60,7 @@ class Init : ICommand<Init.Options>
                 });
         }
 
-        var sample = AoCLogic.GetFileName(year, day, "sample.txt");
+        var sample = FileSystem.GetFileName(year, day, "sample.txt");
         if (!File.Exists(sample))
         {
             File.Create(sample);
@@ -69,14 +69,14 @@ class Init : ICommand<Init.Options>
 
         Console.WriteLine("Retrieving puzzle input");
 
-        var input = AoCLogic.GetFileName(year, day, "input.txt");
+        var input = FileSystem.GetFileName(year, day, "input.txt");
         var content = await client.GetPuzzleInputAsync(year, day);
         File.WriteAllText(input, content);
         AddEmbeddedResource(input);
 
         Console.WriteLine("Retrieving puzzle data");
 
-        var answers = AoCLogic.GetFileName(year, day, "answers.json");
+        var answers = FileSystem.GetFileName(year, day, "answers.json");
         var puzzle = await client.GetPuzzleAsync(year, day, !force);
         var answer = puzzle.Answer;
         File.WriteAllText(answers, JsonSerializer.Serialize(answer));

@@ -22,7 +22,7 @@ class Export : ICommand<Export.Options>
     public async Task Run(Options options)
     {
         (var year, var day, var output) = (options.year ?? DateTime.Now.Year, options.day ?? DateTime.Now.Day, options.output);
-        var dir = AoCLogic.GetDirectory(year, day);
+        var dir = FileSystem.GetDirectory(year, day);
         
 
         var aoc = await File.ReadAllTextAsync(Path.Combine(dir.FullName, "AoC.cs"));

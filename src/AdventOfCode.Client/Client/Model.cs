@@ -7,7 +7,8 @@ enum ResultStatus
     NotImplemented, // not implemented
     Unknown,        // unknown if correct or not
     Failed,         // failed after verification
-    Ok              // correct after verification
+    Ok,              // correct after verification
+    AnsweredButNotImplemented
 }
 record ComparisonResult(ResultStatus part1, ResultStatus part2)
 {
@@ -27,6 +28,7 @@ record Result(ResultStatus Status, string Value, TimeSpan Elapsed)
     public Result Verify(string answer) => Status switch
     {
         ResultStatus.Unknown => this with { Status = answer == Value ? ResultStatus.Ok : ResultStatus.Failed },
+        ResultStatus.NotImplemented when !string.IsNullOrEmpty(answer) => this with { Status = ResultStatus.AnsweredButNotImplemented },
         _ => this
     };
 }
