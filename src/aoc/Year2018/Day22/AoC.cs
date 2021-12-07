@@ -7,7 +7,10 @@ public class AoC201822 : AoCBase
     const int targety = 785;
 
     public override object Part1() => Points().Select(p => RiskLevel(p)).Sum();
-    public override object Part2() => -1;
+    public override object Part2()
+    {
+        return -1;
+    }
 
     IEnumerable<Point> Points()
     {
@@ -37,4 +40,13 @@ public class AoC201822 : AoCBase
     }
 }
 
-readonly record struct Point(int x, int y);
+readonly record struct Point(int x, int y)
+{
+    internal IEnumerable<Point> Neighbours()
+    {
+        if (x > 0) yield return new Point(x - 1, y);
+        yield return new Point(x, y + 1);
+        if (y > 0) yield return new Point(x, y - 1);
+        yield return new Point(x + 1, y);
+    }
+}
