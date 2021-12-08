@@ -1,96 +1,107 @@
 namespace AdventOfCode.Year2021.Day08;
-
 public class AoC202108 : AoCBase
 {
-    static string[] input = Read.SampleLines(typeof(AoC202108));
+    static string[] input = Read.InputLines(typeof(AoC202108));
     public override object Part1() => (from p in input
                                        from value in p.Split('|').Last().Split(' ')
                                        where value.Length is 2 or 3 or 4 or 7
                                        select value
                                        ).Count();
     public override object Part2() => (
-        from p in input
-        let fragments = p.Split('|')
-        let input = fragments[0].Split(' ')
-        let output = fragments[1].Split(' ')
-        select Decode(input, output)
+            from p in input
+            let fragments = p.Split('|', StringSplitOptions.TrimEntries)
+            let encoding = fragments[0].Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(s => new string(s.OrderBy(c => c).ToArray())).ToArray()
+            let output = fragments[1].Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(s => new string(s.OrderBy(c => c).ToArray())).ToArray()
+            select (long)Decode(encoding, output)
         ).Sum();
 
-    private long Decode(string[] input, string[] output)
+    public static int Decode(string[] encoding, string[] output)
     {
+        // Algorithm applied
 
-        var A = 0b1000000; // <=  
-        var B = 0b0100000;
-        var C = 0b0010000;
-        var D = 0b0001000;
-        var E = 0b0000100;
-        var F = 0b0000010;
-        var G = 0b0000001;
+        //     A
+        //  F     B
+        //     G
+        //  E     C
+        //     D
 
-        var _1 = 0b0110000; Debug.Assert(_1 == (B & C));// n = 2  B & C
-        var _4 = 0b0110011; Debug.Assert(_4 == (B & C & F & G)); // n = 4  
-        var _8 = 0b1111111; // n = 8
-        var _7 = 0b1110000; // n = 3
-        var _2 = 0b1101101; // n = 5
-        var _3 = 0b1111001;
-        var _5 = 0b1011011;
-        var _9 = 0b1111011; // n = 6
-        var _6 = 0b1011111;
+        // D | L |  A B C D E F G      |   algorithm
+        //---|---|---------------------|---------------------------------------------------
+        // 8 | 7 |  A B C D E F G      |   // l = 7 => 8
+        //---|---|---------------------|---------------------------------------------------
+        // 1 | 2 |  . B C . . . .      |   // l = 2 => 1 
+        //   |   |                     |                 => bc
+        //---|---|---------------------|---------------------------------------------------
+        // 7 | 3 |  a B C . . . .      |   // l = 3 => 7 
+        //   |   |                     |                 => [7] except bc => a
+        //---|---|---------------------|---------------------------------------------------
+        // 4 | 4 |  . B C . . F G      |   // l = 4 => 4
+        //   |   |                     |                 => [4] except bc => fg
+        //---|---|---------------------|---------------------------------------------------
+        // 3 | 5 |  A B C D . . G      |   // l = 5 intersect bc == bc => 3
+        //   |   |                     |                 => [3] except abcfg => d
+        //   |   |                     |                 => [8] except abcdfg => e
+        //   |   |                     |                 => [3] except abcd  => g
+        //---|---|---------------------|---------------------------------------------------
+        // 2 | 5 |  a B . d e . g      |   // l = 5 containing e => 2
+        //   |   |                     |                 => [2] except adeg => b
+        //---|---|---------------------|---------------------------------------------------
+        // 5 | 5 |  a . C d . F g      |   // l = 5 not containing b => 5
+        //   |   |                     |                 => [5] intersect bc => c
+        //   |   |                     |                 => [5] intersect fg except g => f
+        //---|---|---------------------|---------------------------------------------------
+        // 0 | 6 |  a b c d e f .      |   // length 6 without g = 0
+        // 9 | 6 |  a b c d . f g      |   // length 6 without e = 9
+        // 6 | 6 |  a . c d e f g      |   // length 6 without b = 6
 
-        return 0;
+        var lookup = encoding.ToLookup(x => x.Length);
+
+        string[] map = new string[10];
+        map[8] = lookup[7].Single();
+        map[4] = lookup[4].Single();
+        map[7] = lookup[3].Single();
+        map[1] = lookup[2].Single();
+        
+        var bc = map[1];
+        var fg = map[4].Except(bc);
+      
+        var a = map[7].Except(bc).Single();
+        
+        var abc = Repeat(a, 1).Concat(bc);
+        var abcfg = abc.Concat(fg);
+
+        map[3] = lookup[5].Single(s=> s.Intersect(bc).SequenceEqual(bc));
+
+        var d = map[3].Except(abcfg).Single();
+        
+        var abcd = abc.Concat(Repeat(d, 1));
+        var abcdfg = abcd.Concat(fg);
+        
+        var e = map[8].Except(abcdfg).Single();
+        var g = map[3].Except(abcd).Single();
+
+        map[2] = lookup[5].Single(s => s.Contains(e));
+        
+        var adeg = new[] { a, d, e, g };
+        
+        var b = map[2].Except(adeg).Single();
+
+        map[5] = lookup[5].Single(s => !s.Contains(b));
+
+        var c = map[5].Intersect(bc).Single();
+        var f = map[5].Intersect(fg).Except(Repeat(g,1)).Single();
+
+        map[0] = lookup[6].Single(s => !s.Contains(g));
+        map[9] = lookup[6].Single(s => !s.Contains(e));
+        map[6] = lookup[6].Single(s => !s.Contains(b));
+
+        var dictionary = Range(0, 10).ToDictionary(i => map[i], i => i);
+
+        return dictionary[output[0]] * 1000 
+             + dictionary[output[1]] * 100 
+             + dictionary[output[2]] * 10 
+             + dictionary[output[3]] * 1;
     }
 
-    /*
-           A
-         F     B
-            G
-         E     C
-            D
-
-        ABCDEFG N    
-    1 0b0110000 2   
-    4 0b0110011 4   
-    8 0b1111111 8
-    7 0b1110000 3
-
-    2 0b1101101 5   
-    3 0b1111001 5   
-    5 0b1011011 5
-
-    9 0b1111011 6
-    6 0b1011111 6
-
-     */
-
-
-    IDictionary<string, int> Decoder(string[] input)
-    {
-        return null;
-
-        var mapping = new[] { 'a', 'b', 'c', 'd', 'e', 'f', 'g' }.ToDictionary(c => c, c => "abcdefg");
-
-
-        while (mapping.Values.Any(s => s.Length > 1))
-        {
-
-        }
-
-
-
-        foreach (var i in input)
-        {
-            var digit = i.Length switch
-            {
-                2 => new[] { 1 },
-                4 => new[] { 4 },
-                3 => new[] { 7 },
-                8 => new[] { 8 },
-                6 => new[] { 6, 9 },
-                5 => new[] { 2, 3, 5 }
-            };
-
-        }
-
-    }
 }
 
