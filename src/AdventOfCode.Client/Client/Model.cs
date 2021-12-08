@@ -39,9 +39,9 @@ record Puzzle(int Year, int Day, string Html, string Text, string Input, Answer 
     public static Puzzle Locked(int year, int day) => new(year, day, string.Empty, string.Empty, string.Empty, Answer.Empty, Status.Locked);
     public static Puzzle Unlocked(int year, int day, string html, string text, string input, Answer answer) => new(year, day, html, text, input, answer, answer switch
     {
-        { part1: null, part2: null} => Status.Unlocked,
-        { part1: not null, part2: null } => day < 25 ? Status.AnsweredPart1 : Status.Completed,
-        { part1: not null, part2: not null} => Status.Completed,
+        { part1: "", part2: ""} => Status.Unlocked,
+        { part1: not "", part2: "" } => day < 25 ? Status.AnsweredPart1 : Status.Completed,
+        { part1: not "", part2: not ""} => Status.Completed,
         _ => throw new Exception($"inconsistent state for {year}/{day}/{answer}")
     });
 
