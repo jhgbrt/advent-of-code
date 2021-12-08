@@ -49,7 +49,9 @@ class Verify : ICommand<Verify.Options>
             if (year.HasValue && year != y) continue;
             if (day.HasValue && day != d) continue;
             var puzzle = await client.GetPuzzleAsync(y, d);
-            var cached = JsonSerializer.Deserialize<DayResult>(await Cache.ReadFromCache(y, d, "result.json"));
+            var cached = Cache.Exists(y,d,"result.json")
+                ? JsonSerializer.Deserialize<DayResult>(await Cache.ReadFromCache(y, d, "result.json"))
+                : null;
             if (cached != null && speed == Speed.fast && cached.Elapsed > TimeSpan.FromSeconds(1))
             {
                 Write(puzzle, cached, true);
