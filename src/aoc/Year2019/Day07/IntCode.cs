@@ -1,15 +1,15 @@
 namespace AdventOfCode.Year2019.Day07;
 
-public static class IntCode
+static class IntCode
 {
-    internal static IEnumerable<int> Run(ImmutableArray<int> program, int input)
+    internal static IEnumerable<int> Run(ImmutableArray<int> program, params int[] inputs)
     {
         int index = 0;
         int opcode;
-        Mode[] modes;
+        var inputEnumerator = (inputs as IEnumerable<int>).GetEnumerator();
         do
         {
-            (opcode, modes) = Decode(program[index]);
+            (opcode, var modes) = Decode(program[index]);
             int? value = null;
             switch (opcode)
             {
@@ -17,7 +17,7 @@ public static class IntCode
                     {
                         const int parameterCount = 3;
                         var parameters = program.GetParameters(index, modes, parameterCount);
-                        (var a, var b) = program.GetValues(parameters, 2);
+                        (var a, var b) = program.GetValues(parameters);
                         var result = a + b;
                         var jump = parameterCount + 1;
                         program = program.SetValue(result, parameters.Last());
@@ -28,7 +28,7 @@ public static class IntCode
                     {
                         const int parameterCount = 3;
                         var parameters = program.GetParameters(index, modes, parameterCount);
-                        (var a, var b) = program.GetValues(parameters, 2);
+                        (var a, var b) = program.GetValues(parameters);
                         var result = a * b;
                         var jump = parameterCount + 1;
                         program = program.SetValue(result, parameters.Last());
@@ -37,10 +37,11 @@ public static class IntCode
                     break;
                 case 3:
                     {
+                        if (!inputEnumerator.MoveNext()) throw new InvalidOperationException("no more inputs");
                         const int parameterCount = 1;
                         var parameters = program.GetParameters(index, modes, parameterCount);
                         var jump = parameterCount + 1;
-                        program = program.SetValue(input, parameters.Last());
+                        program = program.SetValue(inputEnumerator.Current, parameters.Last());
                         index += jump;
                     }
                     break;
@@ -57,7 +58,7 @@ public static class IntCode
                     {
                         const int parameterCount = 2;
                         var parameters = program.GetParameters(index, modes, parameterCount);
-                        (var a, var b) = program.GetValues(parameters, 2);
+                        (var a, var b) = program.GetValues(parameters);
                         index = a == 0 ? index + parameterCount + 1 : b;
                     }
                     break;
@@ -65,7 +66,7 @@ public static class IntCode
                     {
                         const int parameterCount = 2;
                         var parameters = program.GetParameters(index, modes, parameterCount);
-                        (var a, var b) = program.GetValues(parameters, 2);
+                        (var a, var b) = program.GetValues(parameters);
                         index = a == 0 ? b : index + parameterCount + 1;
                     }
                     break;
@@ -73,7 +74,7 @@ public static class IntCode
                     {
                         const int parameterCount = 3;
                         var parameters = program.GetParameters(index, modes, parameterCount);
-                        (var a, var b) = program.GetValues(parameters, 2);
+                        (var a, var b) = program.GetValues(parameters);
                         var result = a < b ? 1 : 0;
                         var jump = parameterCount + 1;
                         program = program.SetValue(result, parameters.Last());
@@ -84,7 +85,7 @@ public static class IntCode
                     {
                         const int parameterCount = 3;
                         var parameters = program.GetParameters(index, modes, parameterCount);
-                        (var a, var b) = program.GetValues(parameters, 2);
+                        (var a, var b) = program.GetValues(parameters);
                         var result = a == b ? 1 : 0;
                         var jump = parameterCount + 1;
                         program = program.SetValue(result, parameters.Last());
@@ -101,12 +102,10 @@ public static class IntCode
         while (opcode != 99);
     }
 
-    static IEnumerable<(int value, Mode mode)> GetParameters(this ImmutableArray<int> program, int index, Mode[] modes, int n)
-    {
-        return program.Skip(index + 1).Take(n).Zip(modes, (l, r) => (value: l, mode: r));
-    }
+    static IEnumerable<(int value, Mode mode)> GetParameters(this IEnumerable<int> program, int index, IEnumerable<Mode> modes, int n) 
+        => program.Skip(index + 1).Take(n).Zip(modes, (l, r) => (value: l, mode: r));
 
-    public static (int opcode, Mode[] modes) Decode(int value)
+    static (int opcode, IReadOnlyCollection<Mode> modes) Decode(int value)
     {
         Mode[] modes = new Mode[3];
         var opcode = value % 100;
@@ -131,7 +130,7 @@ public static class IntCode
         };
     }
 
-    static (int a, int b) GetValues(this ImmutableArray<int> program, IEnumerable<(int, Mode)> parameters, int n)
+    static (int a, int b) GetValues(this ImmutableArray<int> program, IEnumerable<(int, Mode)> parameters)
     {
         var enumerator = parameters.GetEnumerator();
         enumerator.MoveNext();
@@ -140,12 +139,12 @@ public static class IntCode
         var b = program.GetValue(enumerator.Current);
         return (a, b);
     }
+}
 
-    public enum Mode
-    {
-        Position,
-        Immediate
-    }
+enum Mode
+{
+    Position,
+    Immediate
 }
 
 
