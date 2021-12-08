@@ -58,36 +58,30 @@ public class AoC202108 : AoCBase
 
         string[] map = new string[10];
         map[8] = lookup[7].Single();
-        map[4] = lookup[4].Single();
-        map[7] = lookup[3].Single();
+
         map[1] = lookup[2].Single();
-        
         var bc = map[1];
+
+        map[4] = lookup[4].Single();
         var fg = map[4].Except(bc);
-      
+
+        map[7] = lookup[3].Single();
         var a = map[7].Except(bc).Single();
-        
         var abc = Repeat(a, 1).Concat(bc);
         var abcfg = abc.Concat(fg);
 
         map[3] = lookup[5].Single(s=> s.Intersect(bc).SequenceEqual(bc));
-
         var d = map[3].Except(abcfg).Single();
-        
         var abcd = abc.Concat(Repeat(d, 1));
         var abcdfg = abcd.Concat(fg);
-        
         var e = map[8].Except(abcdfg).Single();
         var g = map[3].Except(abcd).Single();
 
         map[2] = lookup[5].Single(s => s.Contains(e));
-        
         var adeg = new[] { a, d, e, g };
-        
         var b = map[2].Except(adeg).Single();
 
         map[5] = lookup[5].Single(s => !s.Contains(b));
-
         var c = map[5].Intersect(bc).Single();
         var f = map[5].Intersect(fg).Except(Repeat(g,1)).Single();
 
@@ -102,6 +96,5 @@ public class AoC202108 : AoCBase
              + dictionary[output[2]] * 10 
              + dictionary[output[3]] * 1;
     }
-
 }
 
