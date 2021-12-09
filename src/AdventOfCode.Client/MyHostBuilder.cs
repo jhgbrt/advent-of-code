@@ -8,11 +8,11 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
-class HostBuilder
+class MyHostBuilder
 {
     private readonly IConfigurationRoot config;
 
-    public HostBuilder(IConfigurationRoot config)
+    public MyHostBuilder(IConfigurationRoot config)
     {
         this.config = config;
     }
