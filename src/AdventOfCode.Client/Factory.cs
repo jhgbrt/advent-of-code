@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using AdventOfCode.Client.Commands;
+
+using Microsoft.Extensions.Configuration;
 
 namespace AdventOfCode.Client;
 
@@ -11,6 +13,7 @@ static class Factory
         return new AoCClient(new Configuration(baseAddress, cookieValue));
     }
 
+    internal static AoCManager CreateManager(IConfigurationRoot config) => new AoCManager(CreateClient(config));
 }
 
 

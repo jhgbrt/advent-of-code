@@ -7,6 +7,13 @@ namespace AdventOfCode.Client.Commands;
 [Description("Run the code for a specific puzzle.")]
 class Exec : ICommand<Exec.Options>
 {
+    AoCManager manager;
+
+    public Exec(AoCManager manager)
+    {
+        this.manager = manager;
+    }
+
     public record Options(
         [property: Description("Year (default: current year)")] int? year,
         [property: Description("Day (default: current day)")] int? day,
@@ -26,7 +33,7 @@ class Exec : ICommand<Exec.Options>
 
         Console.WriteLine($"{year}, day {day}");
 
-        DayResult result = await AoCRunner.Run(typeName, year, day);
+        DayResult result = await manager.Run(typeName, year, day);
 
         Console.WriteLine($"{result.part1.Value} - {result.part1.Elapsed}");
         Console.WriteLine($"{result.part2.Value} - {result.part2.Elapsed}");

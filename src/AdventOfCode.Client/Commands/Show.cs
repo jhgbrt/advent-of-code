@@ -1,16 +1,15 @@
 ﻿using System.ComponentModel;
-using System.Text.Json;
 
 namespace AdventOfCode.Client.Commands;
 
-[Description("Sync the data (specifically the posted answers) for a puzzle. Requires AOC_SESSION set as an environment variable.")]
-class Sync : ICommand<Sync.Options>
+[Description("Show the puzzle instructions.")]
+class Show : ICommand<Show.Options>
 {
-    private readonly AoCManager manager;
+    private readonly AoCClient client;
 
-    public Sync(AoCManager manager)
+    public Show(AoCClient client)
     {
-        this.manager = manager;
+        this.client = client;
     }
     public record Options(
         [property: Description("Year (default: current year)")] int? year,
@@ -26,15 +25,8 @@ class Sync : ICommand<Sync.Options>
             return;
         }
 
-        var dir = FileSystem.GetDirectory(year, day);
-        if (!dir.Exists)
-        {
-            Console.WriteLine("Puzzle not yet initialized. Use 'init' first.");
-            return;
-        }
+        var puzzle = await client.GetPuzzleAsync(year, day);
 
-        Console.WriteLine("Updating puzzle answers");
-        await manager.Sync(year, day);
+        Console.WriteLine(puzzle.Text);
     }
-
 }
