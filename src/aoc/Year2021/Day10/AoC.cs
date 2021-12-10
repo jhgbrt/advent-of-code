@@ -3,32 +3,28 @@ namespace AdventOfCode.Year2021.Day10;
 public class AoC202110 : AoCBase
 {
     static string[] input = Read.InputLines(typeof(AoC202110));
-
-    public override object Part1() => (from line in input
-                                       select Score1(line)).Sum();
+    
+    public override object Part1() => (
+        from line in input
+        select Score1(line)
+    ).Sum();
 
     static int Score1(string line)
     {
-        List<char> open = new();
+        var open = ImmutableStack<char>.Empty;
+
         foreach (var c in line)
         {
-            if (c is '{' or '[' or '(' or '<')
+            (var score, open) = c switch
             {
-                open.Add(c);
-            }
-            else
-            {
-                var score = c switch
-                {
-                    ')' when open.Last() != '(' => 3,
-                    ']' when open.Last() != '[' => 57,
-                    '}' when open.Last() != '{' => 1197,
-                    '>' when open.Last() != '<' => 25137,
-                    _ => 0
-                };
-                if (score != 0) return score;
-                else open.RemoveAt(open.Count-1);
-            }
+                '{' or '[' or '(' or '<' => (0, open.Push(c)),
+                ')' when open.Peek() != '(' => (3, open),
+                ']' when open.Peek() != '[' => (57, open),
+                '}' when open.Peek() != '{' => (1197, open),
+                '>' when open.Peek() != '<' => (25137, open),
+                _ => (0, open.Pop())
+            };
+            if (score != 0) return score;
         }
 
         return 0;
@@ -43,19 +39,11 @@ public class AoC202110 : AoCBase
 
     long Score2(string line)
     {
-        List<char> open = new();
-        foreach (var c in line)
-        {
-            if (c is '{' or '[' or '(' or '<')
-            {
-                open.Add(c);
-            }
-            else
-            {
-                open.RemoveAt(open.Count - 1);
-            }
-        }
-        open.Reverse();
+        var open = line.Aggregate(
+            ImmutableStack<char>.Empty,
+            (stack, c) => c switch { '{' or '[' or '(' or '<' => stack.Push(c), _ => stack.Pop() }
+            );
+
         return (from c in open
                 select c switch
                 {
