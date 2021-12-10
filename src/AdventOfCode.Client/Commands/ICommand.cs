@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-namespace AdventOfCode.Client.Commands;
+﻿namespace AdventOfCode.Client.Commands;
 
 interface ICommand<TOptions> where TOptions : IOptions
 {

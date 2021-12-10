@@ -9,10 +9,12 @@ namespace AdventOfCode.Client.Commands;
 class Verify : ICommand<Verify.Options>
 {
     AoCClient client;
+    private readonly AoCManager manager;
 
-    public Verify(AoCClient client)
+    public Verify(AoCClient client, AoCManager manager)
     {
         this.client = client;
+        this.manager = manager;
     }
 
     public enum Speed
@@ -57,7 +59,7 @@ class Verify : ICommand<Verify.Options>
                 Write(puzzle, cached, true);
                 continue;
             }
-            var result = cache && cached is not null ? cached : await AoCRunner.Run(typeName, y, d);
+            var result = cache && cached is not null ? cached : await manager.Run(typeName, y, d);
             if (result is not null)
                 Write(puzzle, result, false);
         }

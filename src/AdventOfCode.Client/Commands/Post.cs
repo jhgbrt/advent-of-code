@@ -1,16 +1,17 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 
 namespace AdventOfCode.Client.Commands;
 
 [Description("Post an answer for a puzzle part. Requires AOC_SESSION set as an environment variable.")]
 class Post : ICommand<Post.Options>
 {
-    private readonly AoCClient client;
+    private readonly AoCManager manager;
 
-    public Post(AoCClient client)
+    public Post(AoCManager manager)
     {
-        this.client = client;
+        this.manager = manager;
     }
     public record Options(
         [property: Description("Year (default: current year)")] int? year,
@@ -31,25 +32,18 @@ class Post : ICommand<Post.Options>
             Console.WriteLine("No value provided. Use --value [value]");
         }
 
-        var puzzle = await client.GetPuzzleAsync(year, day);
-        if (puzzle.Status == Status.Locked)
+        (var status, var reason, var part) = await manager.PreparePost(year, day);
+        if (!status)
         {
-            // should not happen
-            Console.WriteLine("Puzzle is locked. Did you initialize it?");
-            return;
-        }
-        if (puzzle.Status == Status.Completed)
-        {
-            Console.WriteLine("Already completed");
+            Console.WriteLine(reason);
             return;
         }
 
-        var part = puzzle.Status == Status.Unlocked ? 1 : 2;
-
-        var result = await client.PostAnswerAsync(year, day, part, value);
+        var result = await manager.Post(year, day, part, value);
 
         Console.WriteLine(result.status);
         Console.WriteLine(result.content);
+
     }
 }
 
