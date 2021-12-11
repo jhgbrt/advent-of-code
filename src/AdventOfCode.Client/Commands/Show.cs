@@ -17,7 +17,7 @@ class Show : Spectre.Console.Cli.AsyncCommand<Show.Settings>
     public class Settings : AoCSettings { }
     public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
     {
-        (var year, var day) = (options.year ?? DateTime.Now.Year, options.day ?? DateTime.Now.Day);
+        (var year, var day) = (options.year, options.day);
 
         if (!AoCLogic.IsValidAndUnlocked(year, day))
         {

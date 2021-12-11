@@ -24,7 +24,7 @@ class Post : AsyncCommand<Post.Settings>
     }
     public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
     {
-        (var year, var day, var value) = (options.year??DateTime.Now.Year, options.day??DateTime.Now.Day, options.value);
+        (var year, var day, var value) = (options.year, options.day, options.value);
 
         if (!AoCLogic.IsValidAndUnlocked(year, day))
         {

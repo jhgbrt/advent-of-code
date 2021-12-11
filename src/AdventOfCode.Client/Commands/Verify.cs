@@ -39,24 +39,28 @@ class Verify : Spectre.Console.Cli.AsyncCommand<Verify.Settings>
         [Description("Don't re-execute puzzles that took > 1 second (if they're in the cache)")]
         [CommandOption("-s|--speed")]
         public Speed? speed { get; set; }
+        [Description("Verify all puzzles")]
+        [CommandOption("-a|--all")]
+        public bool all { get; set; }
     }
     
     public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
     {
 
-        (var year, var day, var typeName, var cache, var speed) = (
+        (var year, var day, var typeName, var cache, var speed, var all) = (
               options.year
             , options.day
             , string.IsNullOrEmpty(options.typeName) ? "AdventOfCode.Year{0}.Day{1:00}.AoC{0}{1:00}" : options.typeName
             , options.cache ?? false
             , options.speed ?? Speed.fast
+            , options.all
             );
 
         var sw = Stopwatch.StartNew();
         foreach (var (y, d) in AoCLogic.Puzzles())
         {
-            if (year.HasValue && year != y) continue;
-            if (day.HasValue && day != d) continue;
+            if (!all && year != y) continue;
+            if (!all && day != d) continue;
             var puzzle = await client.GetPuzzleAsync(y, d);
             var cached = Cache.Exists(y,d,"result.json")
                 ? JsonSerializer.Deserialize<DayResult>(await Cache.ReadFromCache(y, d, "result.json"))

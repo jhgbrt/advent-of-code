@@ -24,7 +24,7 @@ class Export : AsyncCommand<Export.Settings>
     }
     public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
     {
-        (var year, var day, var output) = (options.year ?? DateTime.Now.Year, options.day ?? DateTime.Now.Day, options.output);
+        (var year, var day, var output) = (options.year, options.day, options.output);
         var dir = FileSystem.GetDirectory(year, day);
         
 

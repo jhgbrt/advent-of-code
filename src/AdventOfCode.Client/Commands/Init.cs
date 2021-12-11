@@ -23,7 +23,7 @@ class Init : Spectre.Console.Cli.AsyncCommand<Init.Settings>
     }
     public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
     {
-        (var year, var day, var force) = (options.year??DateTime.Now.Year, options.day??DateTime.Now.Day, options.force??false);
+        (var year, var day, var force) = (options.year, options.day, options.force??false);
 
         if (!AoCLogic.IsValidAndUnlocked(year, day))
         {
