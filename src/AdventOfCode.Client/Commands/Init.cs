@@ -7,7 +7,7 @@ using System.Text.Json;
 using System.Xml.Linq;
 
 [Description("Initialize the code for a specific puzzle. Requires AOC_SESSION set as an environment variable")]
-class Init : Spectre.Console.Cli.AsyncCommand<Init.Settings>
+class Init : AsyncCommand<Init.Settings>
 {
     private readonly AoCClient client;
 

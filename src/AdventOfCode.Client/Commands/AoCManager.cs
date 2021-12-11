@@ -4,16 +4,8 @@ using System.Reflection;
 using System.Text.Json;
 
 namespace AdventOfCode.Client.Commands;
-
-class AoCManager
+class AoCRunner
 {
-    public AoCClient client;
-
-    public AoCManager(AoCClient client)
-    {
-        this.client = client;
-    }
-
     internal async Task<DayResult> Run(string typeName, int year, int day)
     {
         var assembly = Assembly.GetEntryAssembly();
@@ -36,7 +28,21 @@ class AoCManager
     {
         var sw = Stopwatch.StartNew();
         var result = await Task.Run(() => f());
-        return result is -1 ? Result.Empty : new Result(ResultStatus.Unknown, result.ToString()??string.Empty, sw.Elapsed);
+        return result is -1 ? Result.Empty : new Result(ResultStatus.Unknown, result.ToString() ?? string.Empty, sw.Elapsed);
+    }
+
+}
+
+
+class AoCManager
+{
+    public AoCClient client;
+    public AoCRunner runner;
+
+    public AoCManager(AoCClient client, AoCRunner runner)
+    {
+        this.client = client;
+        this.runner = runner;
     }
 
     internal async Task<(bool status, string reason, int part)> PreparePost(int year, int day)

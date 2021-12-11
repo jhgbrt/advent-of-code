@@ -5,7 +5,7 @@ using System.ComponentModel;
 namespace AdventOfCode.Client.Commands;
 
 [Description("Show the puzzle instructions.")]
-class Show : Spectre.Console.Cli.AsyncCommand<Show.Settings>
+class Show : AsyncCommand<Show.Settings>
 {
     private readonly AoCClient client;
 

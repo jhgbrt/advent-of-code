@@ -304,7 +304,7 @@ namespace {@namespace}
                                         )
                                         .WithArgumentList(
                                             BracketedArgumentList(
-                                                SingletonSeparatedList<ArgumentSyntax>(
+                                                SingletonSeparatedList(
                                                     Argument(
                                                         LiteralExpression(
                                                             SyntaxKind.StringLiteralExpression,

@@ -7,11 +7,11 @@ using System.ComponentModel;
 namespace AdventOfCode.Client.Commands;
 
 [Description("Run the code for a specific puzzle.")]
-class Exec : Spectre.Console.Cli.AsyncCommand<Exec.Settings>
+class Exec : AsyncCommand<Exec.Settings>
 {
-    AoCManager manager;
+    AoCRunner manager;
 
-    public Exec(AoCManager manager)
+    public Exec(AoCRunner manager)
     {
         this.manager = manager;
     }

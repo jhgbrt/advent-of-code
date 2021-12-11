@@ -55,11 +55,13 @@ public static class AoC
 
         var cookieValue = config["AOC_SESSION"] ?? throw new Exception("This operation requires AOC_SESSION to be set as an environment variable.");
         var baseAddress = "https://adventofcode.com";
+        var configuration = new Configuration(baseAddress, cookieValue);
 
         var services = new ServiceCollection();
-
-        services.AddTransient(_ => new AoCClient(new Configuration(baseAddress, cookieValue)));
+        services.AddSingleton<IConfiguration>(configuration);
+        services.AddTransient<AoCClient>();
         services.AddTransient<AoCManager>();
+        services.AddTransient<AoCRunner>();
         foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsAssignableTo(typeof(ICommand))))
         {
             services.AddTransient(type);

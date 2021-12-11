@@ -8,15 +8,15 @@ using System.Text.Json;
 namespace AdventOfCode.Client.Commands;
 
 [Description("Verify the results for the given puzzle(s).")]
-class Verify : Spectre.Console.Cli.AsyncCommand<Verify.Settings>
+class Verify : AsyncCommand<Verify.Settings>
 {
     AoCClient client;
-    private readonly AoCManager manager;
+    private readonly AoCRunner runner;
 
-    public Verify(AoCClient client, AoCManager manager)
+    public Verify(AoCClient client, AoCRunner runner)
     {
         this.client = client;
-        this.manager = manager;
+        this.runner = runner;
     }
 
     public enum Speed
@@ -70,7 +70,7 @@ class Verify : Spectre.Console.Cli.AsyncCommand<Verify.Settings>
                 Write(puzzle, cached, true);
                 continue;
             }
-            var result = cache && cached is not null ? cached : await manager.Run(typeName, y, d);
+            var result = cache && cached is not null ? cached : await runner.Run(typeName, y, d);
             if (result is not null)
                 Write(puzzle, result, false);
         }
