@@ -4,6 +4,8 @@ using Microsoft.CodeAnalysis.CSharp.Formatting;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
 
+using Spectre.Console.Cli;
+
 using System.ComponentModel;
 using System.Reflection;
 
@@ -12,14 +14,15 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace AdventOfCode.Client.Commands;
 
 [Description("Export the code for a puzzle to a stand-alone C# project")]
-class Export : ICommand<Export.Options>
+class Export : AsyncCommand<Export.Settings>
 {
-    public record Options(
-        [property: Description("Year (default: current year)")] int? year,
-        [property: Description("Day (default: current day)")] int? day,
-        [property: Description("output location. If empty, exported code is written to stdout")] string? output = null) : IOptions;
-
-    public async Task Run(Options options)
+    public class Settings : AoCSettings 
+    {
+        [Description("output location. If empty, exported code is written to stdout")]
+        [CommandOption("-o|--output")]
+        public string? output { get; set; }
+    }
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
     {
         (var year, var day, var output) = (options.year ?? DateTime.Now.Year, options.day ?? DateTime.Now.Day, options.output);
         var dir = FileSystem.GetDirectory(year, day);
@@ -31,7 +34,7 @@ class Export : ICommand<Export.Options>
         if (string.IsNullOrEmpty(output))
         {
             Console.WriteLine(code);
-            return;
+            return 1;
         }
 
         var publishLocation = new DirectoryInfo(output);
@@ -58,6 +61,7 @@ class Export : ICommand<Export.Options>
             ).ReadToEndAsync();
 
         await File.WriteAllTextAsync(Path.Combine(publishLocation.FullName, "aoc.csproj"), content);
+        return 0;
 
     }
 

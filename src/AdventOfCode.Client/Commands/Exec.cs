@@ -1,11 +1,13 @@
 ﻿using BenchmarkDotNet.Running;
 
+using Spectre.Console.Cli;
+
 using System.ComponentModel;
 
 namespace AdventOfCode.Client.Commands;
 
 [Description("Run the code for a specific puzzle.")]
-class Exec : ICommand<Exec.Options>
+class Exec : Spectre.Console.Cli.AsyncCommand<Exec.Settings>
 {
     AoCManager manager;
 
@@ -14,15 +16,16 @@ class Exec : ICommand<Exec.Options>
         this.manager = manager;
     }
 
-    public record Options(
-        [property: Description("Year (default: current year)")] int? year,
-        [property: Description("Day (default: current day)")] int? day,
-        [property: Description("The fully qualified name of the type containing the code for this puzzle. " +
+    public class Settings : AoCSettings
+    {
+        [Description("The fully qualified name of the type containing the code for this puzzle. " +
         "Use a format string with {0} and {1} as placeholders for year and day. " +
-        "(default: AdventOfCode.Year{0}.Day{1:00}.AoC{0}{1:00})")] string? typeName
-        ) : IOptions;
+        "(default: AdventOfCode.Year{0}.Day{1:00}.AoC{0}{1:00})")]
+        [CommandOption("-t|--typename")]
+        public string? typeName { get; set; }
+    }
 
-    public async Task Run(Options options)
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
     {
 
         (var year, var day, var typeName) = (
@@ -37,6 +40,8 @@ class Exec : ICommand<Exec.Options>
 
         Console.WriteLine($"{result.part1.Value} - {result.part1.Elapsed}");
         Console.WriteLine($"{result.part2.Value} - {result.part2.Elapsed}");
+
+        return 0;
     }
 }
 
