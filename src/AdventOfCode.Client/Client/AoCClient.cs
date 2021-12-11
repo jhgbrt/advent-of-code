@@ -162,6 +162,11 @@ class AoCClient : IDisposable, IAoCClient
         if (statusCode != HttpStatusCode.OK) return string.Empty;
         return input;
     }
+    public async IAsyncEnumerable<Puzzle> GetPuzzlesAsync(IEnumerable<(int year, int day)> puzzles)
+    {
+        foreach (var (year, day) in puzzles)
+            yield return await GetPuzzleAsync(year, day, true);
+    }
 
     public async Task<Puzzle> GetPuzzleAsync(int year, int day, bool usecache = true)
     {

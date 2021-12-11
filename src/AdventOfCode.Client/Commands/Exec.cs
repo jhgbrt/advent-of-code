@@ -1,5 +1,5 @@
-﻿using BenchmarkDotNet.Running;
-
+﻿
+using Spectre.Console;
 using Spectre.Console.Cli;
 
 using System.ComponentModel;
@@ -34,12 +34,16 @@ class Exec : AsyncCommand<Exec.Settings>
             , string.IsNullOrEmpty(options.typeName) ? "AdventOfCode.Year{0}.Day{1:00}.AoC{0}{1:00}" : options.typeName
             );
 
-        Console.WriteLine($"{year}, day {day}");
+        AnsiConsole.WriteLine($"{year}, day {day}");
 
-        DayResult result = await manager.Run(typeName, year, day);
 
-        Console.WriteLine($"{result.part1.Value} - {result.part1.Elapsed}");
-        Console.WriteLine($"{result.part2.Value} - {result.part2.Elapsed}");
+        await AnsiConsole.Status()
+            .StartAsync("Running...", async ctx =>
+            {
+                ctx.Spinner(Spinner.Known.Star);
+                ctx.SpinnerStyle(Style.Parse("green"));
+                DayResult result = await manager.Run(typeName, year, day, (part, result) => AnsiConsole.MarkupLine($"part {part}: {result.Value} ({result.Elapsed})"));
+            });
 
         return 0;
     }

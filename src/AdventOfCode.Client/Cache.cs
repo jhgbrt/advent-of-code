@@ -1,7 +1,4 @@
-﻿
-using AdventOfCode.Client.Commands;
-
-namespace AdventOfCode.Client;
+﻿namespace AdventOfCode.Client;
 
 static class Cache
 {

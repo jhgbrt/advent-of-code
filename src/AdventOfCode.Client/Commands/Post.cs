@@ -2,16 +2,15 @@
 
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json;
 
 namespace AdventOfCode.Client.Commands;
 
 [Description("Post an answer for a puzzle part. Requires AOC_SESSION set as an environment variable.")]
 class Post : AsyncCommand<Post.Settings>
 {
-    private readonly AoCManager manager;
+    private readonly PuzzleManager manager;
 
-    public Post(AoCManager manager)
+    public Post(PuzzleManager manager)
     {
         this.manager = manager;
     }

@@ -68,3 +68,48 @@ enum Status
 record LeaderBoard(int OwnerId, int Year, Member[] Members);
 record Member(int Id, string Name, int TotalStars, int LocalScore, int GlobalScore, Instant? LastStarTimeStamp, IReadOnlyDictionary<int, DailyStars> Stars);
 record DailyStars(int Day, Instant? FirstStar, Instant? SecondStar);
+
+
+record ReportLine(int year, int day, ConsoleColor color, string status, ConsoleColor dcolor, string duration, string explanation)
+{
+    public override string ToString() => $"{year}-{day:00}: [[[{color}]{status}[/]]] - [{dcolor}]{duration}[/]{explanation}";
+}
+
+record PuzzleResultStatus(Puzzle puzzle, DayResult result, bool refreshed)
+{
+    public ReportLine ToReportLine()
+    {
+        (var duration, var dcolor) = result.Elapsed.TotalMilliseconds switch
+        {
+            < 10 => ("< 10 ms", Console.ForegroundColor),
+            < 100 => ("< 100 ms", Console.ForegroundColor),
+            < 1000 => ("< 1s", Console.ForegroundColor),
+            double value when value < 3000 => ($"~ {(int)Math.Round(value / 1000)} s", ConsoleColor.Yellow),
+            double value => ($"~ {(int)Math.Round(value / 1000)} s", ConsoleColor.Red)
+        };
+
+
+        var comparisonResult = puzzle.Compare(result);
+
+        (var status, var color, var explanation) = comparisonResult switch
+        {
+            { part1: ResultStatus.Failed } or { part2: ResultStatus.Failed } => ("FAILED", ConsoleColor.Red, $"- expected {(puzzle.Answer.part1, puzzle.Answer.part2)} but was ({(result.part1.Value, result.part2.Value)})."),
+            { part1: ResultStatus.AnsweredButNotImplemented } or { part2: ResultStatus.AnsweredButNotImplemented } => ("SKIPPED", ConsoleColor.Red, " - answered but no implementation."),
+            { part1: ResultStatus.NotImplemented, part2: ResultStatus.NotImplemented } => ("SKIPPED", ConsoleColor.Yellow, " - not implemented."),
+            { part1: ResultStatus.NotImplemented, part2: ResultStatus.Ok } => ("SKIPPED", ConsoleColor.Yellow, " - part 1 not implemented."),
+            { part1: ResultStatus.Ok, part2: ResultStatus.NotImplemented } => ("SKIPPED", ConsoleColor.Yellow, " - part 2 not implemented."),
+            _ => ("OK", ConsoleColor.Green, "")
+        };
+
+        if (!refreshed)
+            explanation += " - from cache; use --force to include)";
+
+        return new ReportLine(result.year, result.day, color, status, dcolor, duration, explanation);
+    }
+}
+record LeaderboardEntry(string name, long score, long stars, DateTimeOffset lastStar);
+record PuzzleReportEntry(
+    int year, int day, string answer1, string answer2, 
+    string result1, TimeSpan elapsed1, ResultStatus status1,
+    string result2, TimeSpan elapsed2, ResultStatus status2,
+    TimeSpan elapsedTotal);

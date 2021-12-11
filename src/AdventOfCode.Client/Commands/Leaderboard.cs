@@ -1,5 +1,5 @@
-﻿using NodaTime;
-
+﻿
+using Spectre.Console;
 using Spectre.Console.Cli;
 
 using System.ComponentModel;
@@ -9,18 +9,18 @@ namespace AdventOfCode.Client.Commands;
 [Description("Show some stats from the configured private leaderboard. Set AOC_LEADERBOARD_ID as a environment variable.")]
 class Leaderboard : AsyncCommand<Leaderboard.Settings>
 {
-    AoCClient client;
+    PuzzleManager manager;
 
-    public Leaderboard(AoCClient client)
+    public Leaderboard(PuzzleManager manager)
     {
-        this.client = client;
+        this.manager = manager;
     }
     public class Settings : CommandSettings
     {
         [Description("Year (default: current year)")]
         [CommandArgument(0, "<YEAR>")]
         public int? year { get; set; }
-        [CommandArgument(2, "<LEADERBOARD_ID>")]
+        [CommandArgument(1, "<LEADERBOARD_ID>")]
         public int id { get; set; }
     }
 
@@ -28,34 +28,23 @@ class Leaderboard : AsyncCommand<Leaderboard.Settings>
     {
         var year = options.year ?? DateTime.Now.Year;
 
-        var leaderboard = await client.GetLeaderBoardAsync(year, options.id, false);
-
-        if (leaderboard == null)
-        {
-            Console.WriteLine("Not found?!?");
-            return 1;
-        }
-
-        var report = from m in leaderboard.Members
-                     let name = m.Name
-                     let score = m.LocalScore
-                     let stars = m.TotalStars
-                     let lastStar = m.LastStarTimeStamp
-                     where lastStar > Instant.MinValue
-                     let dt = lastStar?.InUtc().ToDateTimeOffset().ToLocalTime()
-                     orderby score descending
-                     select (name, score, stars, dt);
+        IEnumerable<LeaderboardEntry> entries = await manager.GetLeaderboardAsync(year, options.id);
 
 
-        Console.WriteLine(string.Join(Environment.NewLine, report.Select(x => $"{x.name,20}{x.score,5} {x.stars,2} {x.dt?.TimeOfDay}")));
+        var table = new Table();
+        table.AddColumns("member", "points", "stars", "lastStar");
 
-        //var report2 = from m in leaderboard.Members
-        //              from x in m.Stars
-        //              let day = x.Key
-        //              let star = x.Value
-        //              select (m.Name, star.Day, first: star.FirstStar.HasValue ? star.FirstStar.Value.InUtc().ToDateTimeOffset() : (DateTimeOffset?)null, second: star.SecondStar.HasValue ? star.SecondStar.Value.InUtc().ToDateTimeOffset() : (DateTimeOffset?)null);
+        foreach (var line in entries)
+            table.AddRow(
+                line.name,
+                line.score.ToString(),
+                line.stars.ToString(),
+                line.lastStar.TimeOfDay.ToString() ?? string.Empty
+                );
 
-        //Console.WriteLine(string.Join(Environment.NewLine, report2));
+        AnsiConsole.Write(table);
+
         return 0;
     }
 }
+

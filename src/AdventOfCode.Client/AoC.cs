@@ -34,6 +34,7 @@ public static class AoC
             AddCommand<Export>(config);
             AddCommand<Report>(config);
             AddCommand<Leaderboard>(config);
+            config.PropagateExceptions();
         });
 
         await app.RunAsync(args);
@@ -60,7 +61,7 @@ public static class AoC
         var services = new ServiceCollection();
         services.AddSingleton<IConfiguration>(configuration);
         services.AddTransient<AoCClient>();
-        services.AddTransient<AoCManager>();
+        services.AddTransient<PuzzleManager>();
         services.AddTransient<AoCRunner>();
         foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsAssignableTo(typeof(ICommand))))
         {

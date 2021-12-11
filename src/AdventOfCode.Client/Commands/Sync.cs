@@ -30,33 +30,31 @@ public class AoCSettings : CommandSettings
 [Description("Sync the data (specifically the posted answers) for a puzzle. Requires AOC_SESSION set as an environment variable.")]
 class Sync : AsyncCommand<Sync.Settings>
 {
-    private readonly AoCManager manager;
+    private readonly PuzzleManager manager;
 
-    public Sync(AoCManager manager)
+    public Sync(PuzzleManager manager)
     {
         this.manager = manager;
     }
-    public class Settings : AoCSettings { }
+    public class Settings : AoCSettings 
+    {
+        public override ValidationResult Validate()
+        {
+            var result = base.Validate();
+            if (!result.Successful) return result;
+            var dir = FileSystem.GetDirectory(year, day);
+            if (!dir.Exists)
+            {
+                return ValidationResult.Error("Puzzle not yet initialized. Use 'init' first.");
+            }
+            return result;
+        }
+    }
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
     {
         (var year, var day) = (options.year, options.day);
-
-        if (!AoCLogic.IsValidAndUnlocked(year, day))
-        {
-            Console.WriteLine("Puzzle not yet unlocked");
-            return 1;
-        }
-
-        var dir = FileSystem.GetDirectory(year, day);
-        if (!dir.Exists)
-        {
-            Console.WriteLine("Puzzle not yet initialized. Use 'init' first.");
-            return 1;
-        }
-
-        Console.WriteLine("Updating puzzle answers");
-        await manager.Sync(year, day);
+        await AnsiConsole.Status().StartAsync($"Retrieving answers for puzzle {year}-{day:00}...", async ctx => await manager.SyncAnswers(year, day));
         return 0;
     }
    
