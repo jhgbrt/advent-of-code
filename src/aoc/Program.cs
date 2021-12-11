@@ -1,2 +1,2 @@
 ﻿using AdventOfCode.Client;
-await AoC.InvokeAsync(args);
+await AoC.RunAsync(args);

@@ -21,35 +21,35 @@ class MyHostBuilder
 
     internal class Host 
     {
-        private readonly RootCommand root;
-        private readonly IConfigurationRoot config;
+        //private readonly RootCommand root;
+        //private readonly IConfigurationRoot config;
         public Host(IConfigurationRoot config)
         {
-            this.config = config;
-            root = new RootCommand
-            {
-                CreateCommand<Exec, Exec.Options>(Exec),
-                CreateCommand<Verify, Verify.Options>(Verify),
-                CreateCommand<Init, Init.Options>(Init),
-                CreateCommand<Sync, Sync.Options>(Sync),
-                CreateCommand<Show, Show.Options>(Show),
-                CreateCommand<Post, Post.Options>(Post),
-                CreateCommand<Export, Export.Options>(Export),
-                CreateCommand<Report, Report.Options>(Report),
-                CreateCommand<Leaderboard, Leaderboard.Options>(Leaderboard),
-            };
+        //    this.config = config;
+        //    root = new RootCommand
+        //    {
+        //        CreateCommand<Exec, Exec.Options>(Exec),
+        //        CreateCommand<Verify, Verify.Options>(Verify),
+        //        CreateCommand<Init, Init.Options>(Init),
+        //        //CreateCommand<Sync, Sync.Options>(Sync),
+        //        CreateCommand<Show, Show.Options>(Show),
+        //        CreateCommand<Post, Post.Options>(Post),
+        //        CreateCommand<Export, Export.Options>(Export),
+        //        CreateCommand<Report, Report.Options>(Report),
+        //        CreateCommand<Leaderboard, Leaderboard.Options>(Leaderboard),
+        //    };
         }
-        public Task Run(string[] args) => root.InvokeAsync(args);
+        //public Task Run(string[] args) => root.InvokeAsync(args);
 
-        async Task Exec(Exec.Options options) => await new Exec(Factory.CreateManager(config)).Run(options);
-        async Task Verify(Verify.Options options) => await new Verify(Factory.CreateClient(config), Factory.CreateManager(config)).Run(options);
-        async Task Init(Init.Options options) => await new Init(Factory.CreateClient(config)).Run(options);
-        async Task Sync(Sync.Options options) => await new Sync(Factory.CreateManager(config)).Run(options);
-        async Task Show(Show.Options options) => await new Show(Factory.CreateClient(config)).Run(options);
-        async Task Post(Post.Options options) => await new Post(Factory.CreateManager(config)).Run(options);
-        async Task Export(Export.Options options) => await new Export().Run(options);
-        async Task Report(Report.Options options) => await new Report(Factory.CreateClient(config)).Run(options);
-        async Task Leaderboard(Leaderboard.Options options) => await new Leaderboard(Factory.CreateClient(config)).Run(options);
+        //async Task Exec(Exec.Options options) => await new Exec(Factory.CreateManager(config)).Run(options);
+        //async Task Verify(Verify.Options options) => await new Verify(Factory.CreateClient(config), Factory.CreateManager(config)).Run(options);
+        //async Task Init(Init.Options options) => await new Init(Factory.CreateClient(config)).Run(options);
+        ////async Task Sync(Sync.Options options) => await new Sync(Factory.CreateManager(config)).Run(options);
+        //async Task Show(Show.Options options) => await new Show(Factory.CreateClient(config)).Run(options);
+        //async Task Post(Post.Options options) => await new Post(Factory.CreateManager(config)).Run(options);
+        //async Task Export(Export.Options options) => await new Export().Run(options);
+        //async Task Report(Report.Options options) => await new Report(Factory.CreateClient(config)).Run(options);
+        //async Task Leaderboard(Leaderboard.Options options) => await new Leaderboard(Factory.CreateClient(config)).Run(options);
     }
 
     static Command CreateCommand<T, TOptions>(Func<TOptions, Task> handler)

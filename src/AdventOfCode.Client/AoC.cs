@@ -7,28 +7,44 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Spectre.Console.Cli;
 
+using System.ComponentModel;
 using System.Reflection;
 
 public static class AoC
 {
-    public static async Task InvokeAsync(string[] args)
+    public static async Task RunAsync(string[] args)
     {
         var config = new ConfigurationBuilder()
             .AddEnvironmentVariables()
             .AddUserSecrets(Assembly.GetEntryAssembly())
             .Build();
 
+        var registrar = RegisterServices();
 
-        var app = new CommandApp();
+        var app = new CommandApp(registrar);
+
         app.Configure(config =>
         {
-            config.AddCommand<Sync>("sync").WithDescription("");
+            AddCommand<Exec>(config);
+            AddCommand<Verify>(config);
+            AddCommand<Init>(config);
+            AddCommand<Sync>(config);
+            AddCommand<Show>(config);
+            AddCommand<Post>(config);
+            AddCommand<Export>(config);
+            AddCommand<Report>(config);
+            AddCommand<Leaderboard>(config);
         });
 
-        var host = new MyHostBuilder(config).Build();
-
-        await host.Run(args.Any() ? args : new[] { "run" });
+        await app.RunAsync(args);
     }
+
+    static ICommandConfigurator AddCommand<T>(IConfigurator config) where T : class, ICommand
+        => config.AddCommand<T>(typeof(T).Name.ToLower()).WithDescription(GetDescription(typeof(T)) ?? typeof(T).Name);
+
+    static string? GetDescription(ICustomAttributeProvider provider)
+        => provider.GetCustomAttributes(typeof(DescriptionAttribute), false).OfType<DescriptionAttribute>().SingleOrDefault()?.Description;
+
     static ITypeRegistrar RegisterServices()
     {
         var config = new ConfigurationBuilder()
@@ -43,6 +59,16 @@ public static class AoC
         var services = new ServiceCollection();
 
         services.AddTransient(_ => new AoCClient(new Configuration(baseAddress, cookieValue)));
+        services.AddTransient<AoCManager>();
+        foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsAssignableTo(typeof(ICommand))))
+        {
+            services.AddTransient(type);
+        }
+        foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsAssignableTo(typeof(CommandSettings))))
+        {
+            services.AddTransient(type);
+        }
+
 
         return new TypeRegistrar(services);
     }
@@ -75,7 +101,7 @@ public sealed class TypeResolver : ITypeResolver
 
     public TypeResolver(IServiceProvider provider) => _provider = provider ?? throw new ArgumentNullException(nameof(provider));
 
-    public object Resolve(Type type) => _provider.GetRequiredService(type);
+    public object Resolve(Type? type) => _provider.GetRequiredService(type??throw new ArgumentNullException(nameof(type)));
 }
 
 
