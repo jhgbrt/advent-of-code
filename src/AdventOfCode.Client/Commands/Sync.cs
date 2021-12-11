@@ -8,14 +8,14 @@ public class AoCSettings : CommandSettings
 {
     [Description("Year (default: current year)")]
     [CommandArgument(0, "[YEAR]")]
-    public int? year { get; set; }
+    public int year { get; set; } = DateTime.Now.Year;
     [Description("Day (default: current day)")]
     [CommandArgument(1, "[DAY]")]
-    public int? day { get; set; }
+    public int day { get; set; } = DateTime.Now.Day;
 
     public override ValidationResult Validate()
     {
-        if (!AoCLogic.IsValidAndUnlocked(year ?? DateTime.Now.Year, day ?? DateTime.Now.Day))
+        if (!AoCLogic.IsValidAndUnlocked(year, day))
         {
             return ValidationResult.Error("Puzzle not unlocked or invalid year/day combination");
         }
@@ -40,7 +40,7 @@ class Sync : AsyncCommand<Sync.Settings>
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
     {
-        (var year, var day) = (options.year ?? DateTime.Now.Year, options.day ?? DateTime.Now.Day);
+        (var year, var day) = (options.year, options.day);
 
         if (!AoCLogic.IsValidAndUnlocked(year, day))
         {

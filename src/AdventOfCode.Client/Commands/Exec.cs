@@ -29,8 +29,8 @@ class Exec : Spectre.Console.Cli.AsyncCommand<Exec.Settings>
     {
 
         (var year, var day, var typeName) = (
-              options.year??DateTime.Now.Year
-            , options.day??DateTime.Now.Day
+              options.year
+            , options.day
             , string.IsNullOrEmpty(options.typeName) ? "AdventOfCode.Year{0}.Day{1:00}.AoC{0}{1:00}" : options.typeName
             );
 
