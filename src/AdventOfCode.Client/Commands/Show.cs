@@ -1,9 +1,11 @@
-﻿using System.ComponentModel;
+﻿using Spectre.Console.Cli;
+
+using System.ComponentModel;
 
 namespace AdventOfCode.Client.Commands;
 
 [Description("Show the puzzle instructions.")]
-class Show : ICommand<Show.Options>
+class Show : Spectre.Console.Cli.AsyncCommand<Show.Settings>
 {
     private readonly AoCClient client;
 
@@ -11,22 +13,21 @@ class Show : ICommand<Show.Options>
     {
         this.client = client;
     }
-    public record Options(
-        [property: Description("Year (default: current year)")] int? year,
-        [property: Description("Day (default: current day)")] int? day
-        ) : IOptions;
-    public async Task Run(Options options)
+
+    public class Settings : AoCSettings { }
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
     {
         (var year, var day) = (options.year ?? DateTime.Now.Year, options.day ?? DateTime.Now.Day);
 
         if (!AoCLogic.IsValidAndUnlocked(year, day))
         {
             Console.WriteLine("Puzzle not yet unlocked");
-            return;
+            return 1;
         }
 
         var puzzle = await client.GetPuzzleAsync(year, day);
 
         Console.WriteLine(puzzle.Text);
+        return 0;
     }
 }

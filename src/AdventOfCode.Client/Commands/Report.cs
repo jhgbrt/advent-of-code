@@ -1,24 +1,27 @@
-﻿using System.ComponentModel;
+﻿using Spectre.Console.Cli;
+
+using System.ComponentModel;
 using System.Text.Json;
 
 namespace AdventOfCode.Client.Commands;
 
 [Description("Show a list of all puzzles, their status (unlocked, answered), and the answers posted.")]
-class Report : ICommand<Report.Options>
+class Report : AsyncCommand<Report.Settings>
 {
     AoCClient client;
     public Report(AoCClient client)
     {
         this.client = client;
     }
-    public record Options(
-        [property: Description("Year (default: current year)")] int? year,
-        [property: Description("Day (default: current day)")] int? day,
-        [property: Description("Only list unsolved puzzles")] bool? unsolved) : IOptions;
-
-    public async Task Run(Options options)
+    public class Settings : AoCSettings
     {
-        (var year, var day, var unsolved) = options;
+        [property: Description("Only list unsolved puzzles")]
+        public bool? unsolved { get; set; }
+    }
+
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
+    {
+        (var year, var day, var unsolved) = (options.year, options.day, options.unsolved);
 
         foreach ((var y, var d) in AoCLogic.Puzzles())
         {
@@ -32,6 +35,7 @@ class Report : ICommand<Report.Options>
 
             Console.WriteLine((y, d, puzzle.Status, puzzle.Answer.part1, puzzle.Answer.part2));
         }
+        return 0;
     }
 
 }

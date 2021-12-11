@@ -1,7 +1,31 @@
-﻿using Spectre.Console.Cli;
+﻿using Spectre.Console;
+using Spectre.Console.Cli;
 using System.ComponentModel;
 
 namespace AdventOfCode.Client.Commands;
+
+public class AoCSettings : CommandSettings
+{
+    [Description("Year (default: current year)")]
+    [CommandArgument(0, "[YEAR]")]
+    public int? year { get; set; }
+    [Description("Day (default: current day)")]
+    [CommandArgument(1, "[DAY]")]
+    public int? day { get; set; }
+
+    public override ValidationResult Validate()
+    {
+        if (!AoCLogic.IsValidAndUnlocked(year ?? DateTime.Now.Year, day ?? DateTime.Now.Day))
+        {
+            return ValidationResult.Error("Puzzle not unlocked or invalid year/day combination");
+        }
+        else
+        {
+            return base.Validate();
+        }
+    }
+
+}
 
 [Description("Sync the data (specifically the posted answers) for a puzzle. Requires AOC_SESSION set as an environment variable.")]
 class Sync : AsyncCommand<Sync.Settings>
@@ -12,16 +36,7 @@ class Sync : AsyncCommand<Sync.Settings>
     {
         this.manager = manager;
     }
-
-    public class Settings : CommandSettings
-    {
-        [Description("Year (default: current year)")]
-        [CommandOption("-y|--year")]
-        public int? year { get; set; }
-        [Description("Day (default: current day)")]
-        [CommandOption("-d|--day")]
-        public int? day { get; set; }
-    }
+    public class Settings : AoCSettings { }
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
     {

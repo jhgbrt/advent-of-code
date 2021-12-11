@@ -1,11 +1,13 @@
 ﻿namespace AdventOfCode.Client.Commands;
 
+using Spectre.Console.Cli;
+
 using System.ComponentModel;
 using System.Text.Json;
 using System.Xml.Linq;
 
 [Description("Initialize the code for a specific puzzle. Requires AOC_SESSION set as an environment variable")]
-class Init : ICommand<Init.Options>
+class Init : Spectre.Console.Cli.AsyncCommand<Init.Settings>
 {
     private readonly AoCClient client;
 
@@ -13,18 +15,20 @@ class Init : ICommand<Init.Options>
     {
         this.client = client;
     }
-    public record Options(
-        [property: Description("Year (default: current year)")] int? year,
-        [property: Description("Day (default: current day)")] int? day,
-        [property: Description("Force (if true, refresh cache)")]bool? force) : IOptions;
-    public async Task Run(Options options)
+    public class Settings : AoCSettings
+    {
+        [property: Description("Force (if true, refresh cache)")] 
+        [CommandOption("-f|--force")]
+        public bool? force { get; set; }
+    }
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
     {
         (var year, var day, var force) = (options.year??DateTime.Now.Year, options.day??DateTime.Now.Day, options.force??false);
 
         if (!AoCLogic.IsValidAndUnlocked(year, day))
         {
             Console.WriteLine("Puzzle not yet unlocked");
-            return;
+            return 1;
         }
 
         Console.WriteLine("Puzzle is unlocked");
@@ -33,7 +37,7 @@ class Init : ICommand<Init.Options>
         if (dir.Exists && !force)
         {
             Console.WriteLine("Puzzle for {year}/{day} already initialized. Use --force to re-initialize.");
-            return;
+            return 1;
         }
 
         if (dir.Exists && force)
@@ -83,6 +87,7 @@ class Init : ICommand<Init.Options>
         AddEmbeddedResource(answers);
 
         Console.WriteLine(puzzle.Text);
+        return 0;
     }
 
     void AddEmbeddedResource(string path)
