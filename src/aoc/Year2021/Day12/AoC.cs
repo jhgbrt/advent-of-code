@@ -4,26 +4,29 @@ public class AoC202112 : AoCBase
 {
     static string[] input = Read.InputLines(typeof(AoC202112));
 
-    static ILookup<string, string> edges = (
+    static ILookup<Node, Node> edges = (
         from line in input
         let s = line.Split('-')
         from edge in new[] {(source: s[0], target: s[1]), (source: s[1], target: s[0])}
         select edge
-        ).ToLookup(x => x.source, x => x.target);
+        ).ToLookup(x => new Node(x.source), x => new Node(x.target));
 
-    public override object Part1() => Count(ImmutableList<string>.Empty.Add("start"));
-    public override object Part2() => Count2(ImmutableList<string>.Empty.Add("start"));
-    static int Count(ImmutableList<string> path) => path[^1] == "end"
-            ? 1
-            : (from n in edges[path[^1]]
-               where n.All(char.IsUpper) || !path.Contains(n)
-               select Count(path.Add(n))).Sum();
-    static int Count2(ImmutableList<string> path) => path[^1] == "end"
-            ? 1
-            : edges[path[^1]].Aggregate(0, (total, n) => total + (largeOrFirst: n.All(char.IsUpper) || !path.Contains(n), secondVisitToSmall: n != "start" && n.All(char.IsLower) && path.Contains(n)) switch
-            {
-                { largeOrFirst: true } => Count2(path.Add(n)),
-                { secondVisitToSmall: true } => Count(path.Add(n)),
-                _ => 0
-            });
+    const string START = "start";
+
+    const string END = "end";
+
+    public override object Part1() => Count(ImmutableList<Node>.Empty.Add(new Node(START)), 1);
+    public override object Part2() => Count(ImmutableList<Node>.Empty.Add(new Node(START)), 2);
+    static int Count(ImmutableList<Node> path, int mode) => path[^1].id == END
+    ? 1
+    : edges[path[^1]].Aggregate(0, (total, node) => total + (mode, node.id, visited: node.CanVisit(path)) switch
+    {
+        (2, not START, false) => Count(path.Add(node), 1),
+        (_, _, true) => Count(path.Add(node), mode),
+        _ => 0
+    });
+}
+record struct Node(string id)
+{
+    public bool CanVisit(IEnumerable<Node> path) => id.Any(char.IsUpper) || !path.Contains(this);
 }
