@@ -3,6 +3,7 @@ using Spectre.Console;
 using Spectre.Console.Cli;
 
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace AdventOfCode.Client.Commands;
 
@@ -36,14 +37,20 @@ class Exec : AsyncCommand<Exec.Settings>
 
         AnsiConsole.WriteLine($"{year}, day {day}");
 
-
-        await AnsiConsole.Status()
-            .StartAsync("Running...", async ctx =>
-            {
-                ctx.Spinner(Spinner.Known.Star);
-                ctx.SpinnerStyle(Style.Parse("green"));
-                DayResult result = await manager.Run(typeName, year, day, (part, result) => AnsiConsole.MarkupLine($"part {part}: {result.Value} ({result.Elapsed})"));
-            });
+        if (Debugger.IsAttached)
+        {
+            DayResult result = await manager.Run(typeName, year, day, (part, result) => AnsiConsole.MarkupLine($"part {part}: {result.Value} ({result.Elapsed})"));
+        }
+        else
+        {
+            await AnsiConsole.Status()
+                .StartAsync("Running...", async ctx =>
+                {
+                    ctx.Spinner(Spinner.Known.Star);
+                    ctx.SpinnerStyle(Style.Parse("green"));
+                    DayResult result = await manager.Run(typeName, year, day, (part, result) => AnsiConsole.MarkupLine($"part {part}: {result.Value} ({result.Elapsed})"));
+                });
+        }
 
         return 0;
     }
