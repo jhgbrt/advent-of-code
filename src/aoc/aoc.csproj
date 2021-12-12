@@ -421,6 +421,9 @@
     <EmbeddedResource Include="Year2021\Day11\sample.txt" />
     <EmbeddedResource Include="Year2021\Day11\input.txt" />
     <EmbeddedResource Include="Year2021\Day11\answers.json" />
+    <EmbeddedResource Include="Year2021\Day12\sample.txt" />
+    <EmbeddedResource Include="Year2021\Day12\input.txt" />
+    <EmbeddedResource Include="Year2021\Day12\answers.json" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="System.Diagnostics" />
