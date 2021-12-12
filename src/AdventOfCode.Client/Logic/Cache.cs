@@ -1,4 +1,4 @@
-﻿namespace AdventOfCode.Client;
+﻿namespace AdventOfCode.Client.Logic;
 
 static class Cache
 {

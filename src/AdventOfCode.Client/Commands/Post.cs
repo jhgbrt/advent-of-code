@@ -1,11 +1,13 @@
-﻿using Spectre.Console;
+﻿namespace AdventOfCode.Client.Commands;
+
+using AdventOfCode.Client.Logic;
+
+using Spectre.Console;
 using Spectre.Console.Cli;
 
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Net;
 
-namespace AdventOfCode.Client.Commands;
 
 [Description("Post an answer for a puzzle part. Requires AOC_SESSION set as an environment variable.")]
 class Post : AsyncCommand<Post.Settings>

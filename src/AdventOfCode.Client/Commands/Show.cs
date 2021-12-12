@@ -1,9 +1,11 @@
-﻿using Spectre.Console;
+﻿namespace AdventOfCode.Client.Commands;
+
+using AdventOfCode.Client.Logic;
+
+using Spectre.Console;
 using Spectre.Console.Cli;
 
 using System.ComponentModel;
-
-namespace AdventOfCode.Client.Commands;
 
 [Description("Show the puzzle instructions.")]
 class Show : AsyncCommand<Show.Settings>

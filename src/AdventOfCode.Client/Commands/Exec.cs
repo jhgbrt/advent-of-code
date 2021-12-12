@@ -1,4 +1,6 @@
 ﻿
+using AdventOfCode.Client.Logic;
+
 using Spectre.Console;
 using Spectre.Console.Cli;
 

@@ -1,4 +1,6 @@
 ﻿
+using AdventOfCode.Client.Logic;
+
 using Spectre.Console;
 using Spectre.Console.Cli;
 
@@ -9,9 +11,9 @@ namespace AdventOfCode.Client.Commands;
 [Description("Show some stats from the configured private leaderboard. Set AOC_LEADERBOARD_ID as a environment variable.")]
 class Leaderboard : AsyncCommand<Leaderboard.Settings>
 {
-    PuzzleManager manager;
+    ReportManager manager;
 
-    public Leaderboard(PuzzleManager manager)
+    public Leaderboard(ReportManager manager)
     {
         this.manager = manager;
     }

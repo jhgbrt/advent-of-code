@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json;
 
-namespace AdventOfCode.Client.Commands;
+namespace AdventOfCode.Client.Logic;
 
 class AoCRunner
 {

@@ -1,6 +1,7 @@
 ﻿namespace AdventOfCode.Client;
 
 using AdventOfCode.Client.Commands;
+using AdventOfCode.Client.Logic;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,7 +22,7 @@ public static class AoC
 
         var registrar = RegisterServices();
 
-        var app = new CommandApp<Exec>(registrar);
+        var app = new CommandApp(registrar);
 
         app.Configure(config =>
         {
@@ -34,6 +35,7 @@ public static class AoC
             AddCommand<Export>(config);
             AddCommand<Report>(config);
             AddCommand<Leaderboard>(config);
+            AddCommand<Stats>(config);
             //config.PropagateExceptions();
         });
 
@@ -63,6 +65,8 @@ public static class AoC
         services.AddTransient<AoCClient>();
         services.AddTransient<PuzzleManager>();
         services.AddTransient<AoCRunner>();
+        services.AddTransient<CodeManager>();
+        services.AddTransient<ReportManager>();
         foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsAssignableTo(typeof(ICommand))))
         {
             services.AddTransient(type);

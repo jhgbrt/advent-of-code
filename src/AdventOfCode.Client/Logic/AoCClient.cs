@@ -1,10 +1,11 @@
-﻿namespace AdventOfCode.Client;
+﻿namespace AdventOfCode.Client.Logic;
 
 using HtmlAgilityPack;
 using System.Net;
 using NodaTime;
 using System.Text.Json;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 record Configuration(string BaseAddress, string SessionCookie);
 
@@ -43,12 +44,21 @@ class AoCClient : IDisposable
         return (result.StatusCode, articles.First().InnerText);
     }
 
-    public async Task<LeaderBoard?> GetLeaderBoardAsync(int year, string id, bool usecache = true)
+    public async Task<LeaderBoard?> GetLeaderBoardAsync(int year, bool usecache = true)
     {
+        var id = await GetMemberId();
         (var statusCode, var content) = await GetAsync(year, null, $"leaderboard-{id}.json", $"{year}/leaderboard/private/view/{id}.json", usecache);
         if (statusCode != HttpStatusCode.OK || content.StartsWith("<"))
             return null;
         return Deserialize(year, content);
+    }
+
+    public async Task<Member?> GetMemberAsync(int year, bool usecache = true)
+    {
+        var id = await GetMemberId();
+        var lb = await GetLeaderBoardAsync(year, usecache);
+        if (lb is null) return null;
+        return lb.Members[id];
     }
 
     private static LeaderBoard Deserialize(int year, string content)
@@ -70,8 +80,7 @@ class AoCClient : IDisposable
             }
         }
 
-        var lb = new LeaderBoard(ownerid, year, members.ToArray());
-        return lb;
+        return new LeaderBoard(ownerid, year, members.ToDictionary(m => m.Id));
 
         IEnumerable<Member> GetMembers(JsonElement element)
         {
@@ -84,7 +93,7 @@ class AoCClient : IDisposable
                     result = property.Name switch
                     {
                         "name" => result with { Name = property.Value.GetString()! },
-                        "id" when property.Value.ValueKind is JsonValueKind.Number => result with { Id = property.Value.GetInt32() },
+                        "id" => result with { Id = int.Parse(property.Value.GetString() ?? throw new Exception("Invalid member id")) },
                         "stars" when property.Value.ValueKind is JsonValueKind.Number => result with { TotalStars = property.Value.GetInt32() },
                         "local_score" when property.Value.ValueKind is JsonValueKind.Number => result with { LocalScore = property.Value.GetInt32() },
                         "global_score" when property.Value.ValueKind is JsonValueKind.Number => result with { GlobalScore = property.Value.GetInt32() },
@@ -191,23 +200,19 @@ class AoCClient : IDisposable
         return Puzzle.Unlocked(year, day, innerHtml, innerText, input, answer);
     }
 
-    public async Task<string> GetLeaderBoardId(int year)
+    public async Task<int> GetMemberId()
     {
-        HttpStatusCode statusCode;
-        (statusCode, var html) = await GetAsync(year, null, "leaderboard.html", $"{year}/leaderboard/private", true);
-        if (statusCode != HttpStatusCode.OK) return string.Empty;
+        (var statusCode, var html) = await GetAsync(null, null, "settings.html", "/settings", true);
+        if (statusCode != HttpStatusCode.OK) return 0;
 
         var document = new HtmlDocument();
         document.LoadHtml(html);
 
-        var a = (from node in document.DocumentNode.SelectNodes("//p")
-                 where node.InnerText.StartsWith("You have a private leaderboard")
-                 from d in node.Descendants("a")
-                 select d.Attributes["href"]).SingleOrDefault();
+        var text = (from node in document.DocumentNode.SelectNodes("//span")
+                    where node.InnerText.Contains("anonymous user #")
+                    select node.InnerText).Single();
 
-        if (a == null) throw new Exception("You don't seem to have an active leaderboard");
-
-        return a.Value.Split('/').Last();
+        return int.Parse(Regex.Match(text, @"#(?<id>\d+)\)").Groups["id"].Value);
     }
 
     public void Dispose()

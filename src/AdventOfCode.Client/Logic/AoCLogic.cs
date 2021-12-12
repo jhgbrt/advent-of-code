@@ -1,5 +1,4 @@
-﻿
-namespace AdventOfCode.Client.Commands;
+﻿namespace AdventOfCode.Client.Logic;
 using NodaTime;
 static class AoCLogic
 {
@@ -32,7 +31,7 @@ static class AoCLogic
     {
         var now = Now;
         for (int year = 2015; year <= now.Year; year++)
-            for (int day = 1; (year < now.Year && day <= 25) || (now.Month == 12 && day <= now.Day); day++)
+            for (int day = 1; year < now.Year && day <= 25 || now.Month == 12 && day <= now.Day; day++)
                 yield return (year, day);
     }
 
@@ -45,13 +44,19 @@ static class AoCLogic
         if (year > now.Year) return false;
 
         // past years: day must be between 1 and 25
-        if (year < now.Year) return day switch { >= 1 and <= 25 => true, _ => false }; 
+        if (year < now.Year) return day switch { >= 1 and <= 25 => true, _ => false };
 
         // current year: no puzzle's if we're not in december yet
         if (12 > now.Month) return false;
 
         // current year, december
         return day >= 1 && day <= now.Day;
+    }
+
+    internal static IEnumerable<int> Years()
+    {
+        for (int year = 2015; year <= DateTime.Now.Year; year++)
+            yield return year;
     }
 
     internal static bool IsToday(int y, int d)

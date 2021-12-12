@@ -1,4 +1,4 @@
-﻿namespace AdventOfCode.Client;
+﻿namespace AdventOfCode.Client.Logic;
 
 using NodaTime;
 
@@ -39,9 +39,9 @@ record Puzzle(int Year, int Day, string Html, string Text, string Input, Answer 
     public static Puzzle Locked(int year, int day) => new(year, day, string.Empty, string.Empty, string.Empty, Answer.Empty, Status.Locked);
     public static Puzzle Unlocked(int year, int day, string html, string text, string input, Answer answer) => new(year, day, html, text, input, answer, answer switch
     {
-        { part1: "", part2: ""} => Status.Unlocked,
+        { part1: "", part2: "" } => Status.Unlocked,
         { part1: not "", part2: "" } => day < 25 ? Status.AnsweredPart1 : Status.Completed,
-        { part1: not "", part2: not ""} => Status.Completed,
+        { part1: not "", part2: not "" } => Status.Completed,
         _ => throw new Exception($"inconsistent state for {year}/{day}/{answer}")
     });
 
@@ -65,7 +65,7 @@ enum Status
     Completed
 }
 
-record LeaderBoard(int OwnerId, int Year, Member[] Members);
+record LeaderBoard(int OwnerId, int Year, IReadOnlyDictionary<int, Member> Members);
 record Member(int Id, string Name, int TotalStars, int LocalScore, int GlobalScore, Instant? LastStarTimeStamp, IReadOnlyDictionary<int, DailyStars> Stars);
 record DailyStars(int Day, Instant? FirstStar, Instant? SecondStar);
 
@@ -109,7 +109,9 @@ record PuzzleResultStatus(Puzzle puzzle, DayResult result, bool refreshed)
 }
 record LeaderboardEntry(string name, long score, long stars, DateTimeOffset lastStar);
 record PuzzleReportEntry(
-    int year, int day, string answer1, string answer2, 
+    int year, int day, string answer1, string answer2,
     string result1, TimeSpan elapsed1, ResultStatus status1,
     string result2, TimeSpan elapsed2, ResultStatus status2,
     TimeSpan elapsedTotal);
+
+record MemberStats(string name, int stars, int score);

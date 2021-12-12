@@ -1,4 +1,6 @@
-﻿using Spectre.Console;
+﻿using AdventOfCode.Client.Logic;
+
+using Spectre.Console;
 using Spectre.Console.Cli;
 
 using System.ComponentModel;
