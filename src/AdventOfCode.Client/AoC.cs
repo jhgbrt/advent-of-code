@@ -21,7 +21,7 @@ public static class AoC
 
         var registrar = RegisterServices();
 
-        var app = new CommandApp(registrar);
+        var app = new CommandApp<Exec>(registrar);
 
         app.Configure(config =>
         {
@@ -34,7 +34,7 @@ public static class AoC
             AddCommand<Export>(config);
             AddCommand<Report>(config);
             AddCommand<Leaderboard>(config);
-            config.PropagateExceptions();
+            //config.PropagateExceptions();
         });
 
         await app.RunAsync(args);
@@ -59,7 +59,7 @@ public static class AoC
         var configuration = new Configuration(baseAddress, cookieValue);
 
         var services = new ServiceCollection();
-        services.AddSingleton<IConfiguration>(configuration);
+        services.AddSingleton(configuration);
         services.AddTransient<AoCClient>();
         services.AddTransient<PuzzleManager>();
         services.AddTransient<AoCRunner>();
@@ -80,7 +80,7 @@ public static class AoC
 
 
 
-public sealed class TypeRegistrar : ITypeRegistrar
+sealed class TypeRegistrar : ITypeRegistrar
 {
     private readonly IServiceCollection _builder;
 
@@ -98,7 +98,7 @@ public sealed class TypeRegistrar : ITypeRegistrar
     public void RegisterLazy(Type service, Func<object> factory) => _builder.AddTransient(service, _ => factory());
 }
 
-public sealed class TypeResolver : ITypeResolver
+sealed class TypeResolver : ITypeResolver
 {
     private readonly IServiceProvider _provider;
 

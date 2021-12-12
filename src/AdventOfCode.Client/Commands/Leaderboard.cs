@@ -18,18 +18,15 @@ class Leaderboard : AsyncCommand<Leaderboard.Settings>
     public class Settings : CommandSettings
     {
         [Description("Year (default: current year)")]
-        [CommandArgument(0, "<YEAR>")]
-        public int? year { get; set; }
-        [CommandArgument(1, "<LEADERBOARD_ID>")]
-        public int id { get; set; }
+        [CommandArgument(0, "[YEAR]")]
+        public int year { get; set; } = DateTime.Now.Year;
     }
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
     {
-        var year = options.year ?? DateTime.Now.Year;
+        var year = options.year;
 
-        IEnumerable<LeaderboardEntry> entries = await manager.GetLeaderboardAsync(year, options.id);
-
+        IEnumerable<LeaderboardEntry> entries = await manager.GetLeaderboardAsync(year);
 
         var table = new Table();
         table.AddColumns("rank", "member", "points", "stars", "lastStar");

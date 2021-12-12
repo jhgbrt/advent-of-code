@@ -5,25 +5,15 @@ using System.Net;
 using NodaTime;
 using System.Text.Json;
 using System.Diagnostics;
-interface IAoCClient
-{
 
-}
+record Configuration(string BaseAddress, string SessionCookie);
 
-interface IConfiguration
-{
-    string BaseAddress { get; }
-    string SessionCookie { get; }
-}
-
-record Configuration(string BaseAddress, string SessionCookie) : IConfiguration;
-
-class AoCClient : IDisposable, IAoCClient
+class AoCClient : IDisposable
 {
     readonly HttpClientHandler handler;
     readonly HttpClient client;
 
-    public AoCClient(IConfiguration configuration)
+    public AoCClient(Configuration configuration)
     {
         var baseAddress = new Uri(configuration.BaseAddress);
         var sessionCookie = configuration.SessionCookie;
@@ -53,7 +43,7 @@ class AoCClient : IDisposable, IAoCClient
         return (result.StatusCode, articles.First().InnerText);
     }
 
-    public async Task<LeaderBoard?> GetLeaderBoardAsync(int year, int id, bool usecache = true)
+    public async Task<LeaderBoard?> GetLeaderBoardAsync(int year, string id, bool usecache = true)
     {
         (var statusCode, var content) = await GetAsync(year, null, $"leaderboard-{id}.json", $"{year}/leaderboard/private/view/{id}.json", usecache);
         if (statusCode != HttpStatusCode.OK || content.StartsWith("<"))
@@ -199,6 +189,25 @@ class AoCClient : IDisposable, IAoCClient
         var innerText = string.Join("", articles.Zip(answers.Select(a => a.ParentNode)).Select(n => n.First.InnerText + n.Second.InnerText));
 
         return Puzzle.Unlocked(year, day, innerHtml, innerText, input, answer);
+    }
+
+    public async Task<string> GetLeaderBoardId(int year)
+    {
+        HttpStatusCode statusCode;
+        (statusCode, var html) = await GetAsync(year, null, "leaderboard.html", $"{year}/leaderboard/private", true);
+        if (statusCode != HttpStatusCode.OK) return string.Empty;
+
+        var document = new HtmlDocument();
+        document.LoadHtml(html);
+
+        var a = (from node in document.DocumentNode.SelectNodes("//p")
+                 where node.InnerText.StartsWith("You have a private leaderboard")
+                 from d in node.Descendants("a")
+                 select d.Attributes["href"]).SingleOrDefault();
+
+        if (a == null) throw new Exception("You don't seem to have an active leaderboard");
+
+        return a.Value.Split('/').Last();
     }
 
     public void Dispose()

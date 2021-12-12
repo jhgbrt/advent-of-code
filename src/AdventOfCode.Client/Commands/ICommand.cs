@@ -1,4 +1,0 @@
-﻿namespace AdventOfCode.Client.Commands;
-
-
-
