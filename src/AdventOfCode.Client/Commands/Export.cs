@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Formatting;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
 
+using Spectre.Console;
 using Spectre.Console.Cli;
 
 using System.ComponentModel;
@@ -33,14 +34,14 @@ class Export : AsyncCommand<Export.Settings>
 
         if (string.IsNullOrEmpty(output))
         {
-            Console.WriteLine(code);
+            AnsiConsole.WriteLine(code.EscapeMarkup());
             return 1;
         }
 
         var publishLocation = new DirectoryInfo(output);
         if (!publishLocation.Exists) 
             publishLocation.Create();
-        Console.WriteLine($"Exporting puzzle: {year}/{day} to {publishLocation}");
+        AnsiConsole.WriteLine($"Exporting puzzle: {year}/{day} to {publishLocation}");
 
         var aoccs = Path.Combine(publishLocation.FullName, "aoc.cs");
         if (File.Exists(aoccs))

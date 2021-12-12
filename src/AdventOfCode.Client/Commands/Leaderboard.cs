@@ -32,16 +32,20 @@ class Leaderboard : AsyncCommand<Leaderboard.Settings>
 
 
         var table = new Table();
-        table.AddColumns("member", "points", "stars", "lastStar");
+        table.AddColumns("rank", "member", "points", "stars", "lastStar");
 
+        int n = 1;
         foreach (var line in entries)
+        {
             table.AddRow(
+                n.ToString(),
                 line.name,
                 line.score.ToString(),
                 line.stars.ToString(),
                 line.lastStar.TimeOfDay.ToString() ?? string.Empty
                 );
-
+            n++;
+        }
         AnsiConsole.Write(table);
 
         return 0;

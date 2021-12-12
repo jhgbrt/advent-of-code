@@ -16,13 +16,6 @@ class Verify : AsyncCommand<Verify.Settings>
         this.manager = manager;
     }
 
-    public enum Speed
-    {
-        all,
-        normal,
-        fast
-    }
-
     public class Settings : AoCSettings
     {
         [Description("The fully qualified name of the type containing the code for this puzzle. " +

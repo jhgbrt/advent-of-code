@@ -1,4 +1,5 @@
-﻿using Spectre.Console.Cli;
+﻿using Spectre.Console;
+using Spectre.Console.Cli;
 
 using System.ComponentModel;
 
@@ -19,15 +20,9 @@ class Show : AsyncCommand<Show.Settings>
     {
         (var year, var day) = (options.year, options.day);
 
-        if (!AoCLogic.IsValidAndUnlocked(year, day))
-        {
-            Console.WriteLine("Puzzle not yet unlocked");
-            return 1;
-        }
-
         var puzzle = await client.GetPuzzleAsync(year, day);
 
-        Console.WriteLine(puzzle.Text);
+        AnsiConsole.WriteLine(puzzle.Text);
         return 0;
     }
 }

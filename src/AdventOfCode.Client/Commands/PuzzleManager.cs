@@ -99,11 +99,12 @@ class PuzzleManager
         }
     }
 
-    internal async Task<(HttpStatusCode status, string content)> Post(int year, int day, int part, string value)
+    internal async Task<(bool success, HttpStatusCode status, string content)> Post(int year, int day, int part, string value)
     {
-        var result = await client.PostAnswerAsync(year, day, part, value);
+        var (status, content) = await client.PostAnswerAsync(year, day, part, value);
+        var success = content.StartsWith("That's the right answer");
         await SyncAnswers(year, day);
-        return result;
+        return (success, status, content);
     }
 
     internal async Task<IEnumerable<LeaderboardEntry>> GetLeaderboardAsync(int year, int id)
