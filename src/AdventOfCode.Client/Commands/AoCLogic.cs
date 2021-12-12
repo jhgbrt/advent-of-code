@@ -53,4 +53,11 @@ static class AoCLogic
         // current year, december
         return day >= 1 && day <= now.Day;
     }
+
+    internal static bool IsToday(int y, int d)
+    {
+        if (y != DateTime.Now.Year) return false;
+        if (d != DateTime.Now.Day) return false;
+        return IsValidAndUnlocked(y, d);
+    }
 }

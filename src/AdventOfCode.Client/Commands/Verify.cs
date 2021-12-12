@@ -16,8 +16,14 @@ class Verify : AsyncCommand<Verify.Settings>
         this.manager = manager;
     }
 
-    public class Settings : AoCSettings
+    public class Settings : CommandSettings
     {
+        [Description("Year (default: current year)")]
+        [CommandArgument(0, "[YEAR]")]
+        public int? year { get; set; }
+        [Description("Day (default: current day)")]
+        [CommandArgument(1, "[DAY]")]
+        public int? day { get; set; }
         [Description("The fully qualified name of the type containing the code for this puzzle. " +
         "Use a format string with {0} and {1} as placeholders for year and day. " +
         "(default: AdventOfCode.Year{0}.Day{1:00}.AoC{0}{1:00})")]
@@ -50,8 +56,9 @@ class Verify : AsyncCommand<Verify.Settings>
 
                 foreach (var (y, d) in AoCLogic.Puzzles())
                 {
-                    if (!all && year != y) continue;
-                    if (!all && day != d) continue;
+                    if (year.HasValue && year != y) continue;
+                    if (day.HasValue && day != d) continue;
+                    if (!all && !year.HasValue && !day.HasValue && !AoCLogic.IsToday(y, d)) continue;
                     ctx.Status($"Running puzzle: {y}-{d:00} (1)");
                     var resultStatus = await manager.GetPuzzleResult(y, d, force, typeName, (_, _) => ctx.Status($"Running puzzle: {y}-{d:00} (2)"));
                     var reportLine = resultStatus.ToReportLine();
