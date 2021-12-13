@@ -44,9 +44,8 @@ class AoCClient : IDisposable
         return (result.StatusCode, articles.First().InnerText);
     }
 
-    public async Task<LeaderBoard?> GetLeaderBoardAsync(int year, bool usecache = true)
+    public async Task<LeaderBoard?> GetLeaderBoardAsync(int year, int id, bool usecache = true)
     {
-        var id = await GetMemberId();
         (var statusCode, var content) = await GetAsync(year, null, $"leaderboard-{id}.json", $"{year}/leaderboard/private/view/{id}.json", usecache);
         if (statusCode != HttpStatusCode.OK || content.StartsWith("<"))
             return null;
@@ -56,7 +55,7 @@ class AoCClient : IDisposable
     public async Task<Member?> GetMemberAsync(int year, bool usecache = true)
     {
         var id = await GetMemberId();
-        var lb = await GetLeaderBoardAsync(year, usecache);
+        var lb = await GetLeaderBoardAsync(year, id, usecache);
         if (lb is null) return null;
         return lb.Members[id];
     }
@@ -202,17 +201,24 @@ class AoCClient : IDisposable
 
     public async Task<int> GetLeaderboardId()
     {
-        (var statusCode, var html) = await GetAsync(null, null, "leaderboard.html", $"{DateTime.Now.Year}/leaderboard/private", true);
+        var year = DateTime.Now.Year;
+        (var statusCode, var html) = await GetAsync(null, null, "leaderboard.html", $"{year}/leaderboard/private", true);
         if (statusCode != HttpStatusCode.OK) return 0;
 
         var document = new HtmlDocument();
         document.LoadHtml(html);
 
-        var text = (from node in document.DocumentNode.SelectNodes("//p")
-                    where node.InnerText.StartsWith("You are a member")
-                    select node.InnerText).Single();
+        var link = new Regex(@"/\d+/leaderboard/private/view/(?<id>\d+)");
 
-        return int.Parse(Regex.Match(text, @"#(?<id>\d+)\)").Groups["id"].Value);
+        var id = (from node in document.DocumentNode.SelectNodes("//a")
+                    where node.InnerText == "[View]"
+                    let href = node.Attributes["href"].Value
+                    let match = link.Match(href)
+                    where match.Success
+                    select int.Parse(match.Groups["id"].Value)
+                    ).Last();
+
+        return id;
     }
 
     public async Task<int> GetMemberId()

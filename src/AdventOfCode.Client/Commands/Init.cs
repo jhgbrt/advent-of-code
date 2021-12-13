@@ -28,7 +28,7 @@ class Init : AsyncCommand<Init.Settings>
 
         AnsiConsole.WriteLine("Puzzle is unlocked");
 
-        await manager.InitializeCodeAsync(year, day, force);
+        await manager.InitializeCodeAsync(year, day, force, AnsiConsole.WriteLine);
 
         return 0;
     }

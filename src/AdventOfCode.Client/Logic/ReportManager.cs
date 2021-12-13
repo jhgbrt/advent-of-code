@@ -18,8 +18,8 @@ class ReportManager
 
     internal async Task<IEnumerable<LeaderboardEntry>> GetLeaderboardAsync(int year)
     {
-        var id = await client.GetMemberId();
-        var leaderboard = await client.GetLeaderBoardAsync(year, false);
+        var id = await client.GetLeaderboardId();
+        var leaderboard = await client.GetLeaderBoardAsync(year, id, false);
 
         if (leaderboard == null)
         {
@@ -76,10 +76,10 @@ class ReportManager
                 p.puzzle.Answer.part2,
                 p.result.part1.Value,
                 p.result.part1.Elapsed,
-                comparisonResult.part1,
+                comparisonResult.part1.GetDisplayName(),
                 p.result.part2.Value,
-                p.result.part2.Elapsed,
-                comparisonResult.part2,
+                p.result.part2.Elapsed, 
+                comparisonResult.part2.GetDisplayName(),
                 p.result.Elapsed
                 );
         }

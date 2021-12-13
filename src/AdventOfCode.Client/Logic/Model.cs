@@ -2,8 +2,11 @@
 
 using NodaTime;
 
+using System.ComponentModel.DataAnnotations;
+
 enum ResultStatus
 {
+    [Display(Name="N/A")]
     NotImplemented, // not implemented
     Unknown,        // unknown if correct or not
     Failed,         // failed after verification
@@ -110,8 +113,8 @@ record PuzzleResultStatus(Puzzle puzzle, DayResult result, bool refreshed)
 record LeaderboardEntry(string name, long score, long stars, DateTimeOffset lastStar);
 record PuzzleReportEntry(
     int year, int day, string answer1, string answer2,
-    string result1, TimeSpan elapsed1, ResultStatus status1,
-    string result2, TimeSpan elapsed2, ResultStatus status2,
+    string result1, TimeSpan elapsed1, string status1,
+    string result2, TimeSpan elapsed2, string status2,
     TimeSpan elapsedTotal);
 
 record MemberStats(string name, int stars, int score);

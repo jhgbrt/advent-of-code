@@ -6,11 +6,12 @@ using Microsoft.CodeAnalysis.Formatting;
 using System.Text.Json;
 using System.Xml.Linq;
 
-using Spectre.Console;
-
 using System.Reflection;
 
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static System.IO.File;
+using static System.IO.Path;
+using static System.Environment;
 using AdventOfCode.Client.Commands;
 using System.Text;
 
@@ -33,8 +34,8 @@ class CodeFolder
     public string SAMPLE => GetFileName(year, day, "sample.txt");
     public string ANSWERS => GetFileName(year, day, "answers.json");
 
-    private Task<string> ReadFile(string name) => File.ReadAllTextAsync(name);
-    private Task WriteFile(string name, string content) => File.WriteAllTextAsync(name, content);
+    private Task<string> ReadFile(string name) => ReadAllTextAsync(name);
+    private Task WriteFile(string name, string content) => WriteAllTextAsync(name, content);
 
     public Task<string> ReadCode() => ReadFile(CODE);
     public Task WriteCode(string content) => WriteFile(CODE, content);
@@ -54,28 +55,32 @@ class CodeFolder
         if (!publishLocation.Exists)
             publishLocation.Create();
 
-        var aoccs = Path.Combine(publishLocation.FullName, "aoc.cs");
+        var aoccs = Combine(publishLocation.FullName, "aoc.cs");
         if (File.Exists(aoccs))
             File.Delete(aoccs);
-        File.WriteAllText(aoccs, code);
+        WriteAllText(aoccs, code);
 
         foreach (var file in dir.GetFiles("*.cs").Where(f => !f.FullName.Equals(CODE, StringComparison.OrdinalIgnoreCase)))
         {
-            file.CopyTo(Path.Combine(publishLocation.FullName, file.Name), true);
+            file.CopyTo(Combine(publishLocation.FullName, file.Name), true);
         }
 
-        var inputtxt = Path.Combine(publishLocation.FullName, "input.txt");
+        var inputtxt = Combine(publishLocation.FullName, "input.txt");
         if (File.Exists(inputtxt)) File.Delete(inputtxt);
-        File.Copy(INPUT, inputtxt);
+        Copy(INPUT, inputtxt);
 
-        await Assembly.GetExecutingAssembly().GetManifestResourceStream(
-            typeof(Export), 
-            "aoc.csproj.txt")!.CopyToAsync(File.OpenWrite(Path.Combine(publishLocation.FullName, "aoc.csproj")
-            ));
+        var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(
+            typeof(Export),
+            "aoc.csproj.txt");
+        if (stream == null) throw new Exception("aoc.csproj.txt not found");
+
+        var csproj = await new StreamReader(stream).ReadToEndAsync();
+
+        await WriteAllTextAsync(Combine(publishLocation.FullName, "aoc.csproj"), csproj);
     }
 
-    static DirectoryInfo GetDirectory(int year, int day) => new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, $"Year{year}", $"Day{day:00}"));
-    static FileInfo GetFile(int year, int day, string fileName) => new FileInfo(Path.Combine(Environment.CurrentDirectory, $"Year{year}", $"Day{day:00}", fileName));
+    static DirectoryInfo GetDirectory(int year, int day) => new(Combine(CurrentDirectory, $"Year{year}", $"Day{day:00}"));
+    static FileInfo GetFile(int year, int day, string fileName) => new(Combine(CurrentDirectory, $"Year{year}", $"Day{day:00}", fileName));
     static string GetFileName(int year, int day, string fileName) => GetFile(year, day, fileName).FullName;
 }
 
@@ -88,7 +93,7 @@ class CodeManager
         this.client = client;
     }
 
-    internal async Task InitializeCodeAsync(int year, int day, bool force)
+    internal async Task InitializeCodeAsync(int year, int day, bool force, Action<string> progress)
     {
         var dir = new CodeFolder(year, day);
         if (dir.Exists && !force)
@@ -116,13 +121,13 @@ class CodeManager
         await dir.WriteSample("");
         AddEmbeddedResource(dir.SAMPLE);
 
-        AnsiConsole.WriteLine("Retrieving puzzle input");
+        progress("Retrieving puzzle input");
 
         var content = await client.GetPuzzleInputAsync(year, day);
         await dir.WriteInput(content);
         AddEmbeddedResource(dir.INPUT);
 
-        AnsiConsole.WriteLine("Retrieving puzzle data");
+        progress("Retrieving puzzle data");
 
         var puzzle = await client.GetPuzzleAsync(year, day, !force);
         var answer = puzzle.Answer;
@@ -139,7 +144,7 @@ class CodeManager
             select node
             ).First();
 
-        var relativePath = path.Substring(Environment.CurrentDirectory.Length + 1);
+        var relativePath = path.Substring(CurrentDirectory.Length + 1);
         if (!itemGroup.Elements().Select(e => e.Attribute("Include")).Where(a => a != null && a.Value == relativePath).Any())
         {
             var embeddedResource = new XElement("EmbeddedResource");
@@ -164,7 +169,6 @@ class CodeManager
         {
             throw new Exception("Could not find an implementation of AoCBase");
         }
-
 
         var implementations = (
             from node in aocclass.DescendantNodes().OfType<MethodDeclarationSyntax>()
