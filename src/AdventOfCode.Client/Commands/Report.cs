@@ -27,29 +27,37 @@ class Report : AsyncCommand<Report.Settings>
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
     {
+        var report = await manager.GetPuzzleReport(options.status, options.slowerthan).ToListAsync();
+        AnsiConsole.Write(report.ToTable());
+        return 0;
+    }
 
-        IEnumerable<PuzzleReportEntry> report = await manager.GetPuzzleReport(options.status, options.slowerthan).ToListAsync();
+}
 
+static class TableFactory
+{
+    public static Table ToTable(this IEnumerable<PuzzleReportEntry> report)
+    {
         var table = new Table();
 
         table.AddColumns(
-            new TableColumn(nameof(PuzzleReportEntry.year        )).RightAligned(),
-            new TableColumn(nameof(PuzzleReportEntry.day         )).RightAligned(),
-            new TableColumn(nameof(PuzzleReportEntry.answer1     )).Width(10)     ,
-            new TableColumn(nameof(PuzzleReportEntry.result1     )).Width(10)     ,
-            new TableColumn(nameof(PuzzleReportEntry.elapsed1    )).RightAligned(),
-            new TableColumn(nameof(PuzzleReportEntry.status1     )).RightAligned(),
-            new TableColumn(nameof(PuzzleReportEntry.answer2     )).Width(10)     ,
-            new TableColumn(nameof(PuzzleReportEntry.result2     )).Width(10)     ,
-            new TableColumn(nameof(PuzzleReportEntry.elapsed2    )).RightAligned(),
-            new TableColumn(nameof(PuzzleReportEntry.status2     )).RightAligned(),
+            new TableColumn(nameof(PuzzleReportEntry.year)).RightAligned(),
+            new TableColumn(nameof(PuzzleReportEntry.day)).RightAligned(),
+            new TableColumn(nameof(PuzzleReportEntry.answer1)).Width(10),
+            new TableColumn(nameof(PuzzleReportEntry.result1)).Width(10),
+            new TableColumn(nameof(PuzzleReportEntry.elapsed1)).RightAligned(),
+            new TableColumn(nameof(PuzzleReportEntry.status1)).RightAligned(),
+            new TableColumn(nameof(PuzzleReportEntry.answer2)).Width(10),
+            new TableColumn(nameof(PuzzleReportEntry.result2)).Width(10),
+            new TableColumn(nameof(PuzzleReportEntry.elapsed2)).RightAligned(),
+            new TableColumn(nameof(PuzzleReportEntry.status2)).RightAligned(),
             new TableColumn(nameof(PuzzleReportEntry.elapsedTotal)).RightAligned()
             );
 
         foreach (var item in report)
         {
             table.AddRow(
-                item.year.ToString(), 
+                item.year.ToString(),
                 item.day.ToString(),
                 item.answer1,
                 item.result1,
@@ -62,9 +70,7 @@ class Report : AsyncCommand<Report.Settings>
                 item.elapsedTotal.ToHumanReadableString()
                 );
         }
-
-        AnsiConsole.Write(table);
-        return 0;
+        return table;
     }
 
 }

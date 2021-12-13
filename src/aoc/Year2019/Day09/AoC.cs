@@ -8,7 +8,7 @@ public class AoC201909 : AoCBase
     {
         foreach (var i in IntCode.Run(input.First().Split(',').Select(long.Parse).Select((n, i) => (n, i: (long)i)).ToImmutableDictionary(x => x.i, x => x.n), 1))
         {
-            Console.WriteLine(i);
+            //Console.WriteLine(i);
         }
         return -1;
     }

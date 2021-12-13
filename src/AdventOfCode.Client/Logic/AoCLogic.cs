@@ -58,6 +58,12 @@ static class AoCLogic
         for (int year = 2015; year <= DateTime.Now.Year; year++)
             yield return year;
     }
+    internal static IEnumerable<int> Days(int year)
+    {
+        var now = Now;
+        for (int day = 1; year < now.Year && day <= 25 || now.Month == 12 && day <= now.Day; day++)
+            yield return day;
+    }
 
     internal static bool IsToday(int y, int d)
     {

@@ -12,10 +12,12 @@ namespace AdventOfCode.Client.Commands;
 class Verify : AsyncCommand<Verify.Settings>
 {
     private readonly PuzzleManager manager;
+    private readonly ReportManager reportManager;
 
-    public Verify(PuzzleManager manager)
+    public Verify(PuzzleManager manager, ReportManager reportManager)
     {
         this.manager = manager;
+        this.reportManager = reportManager;
     }
 
     public class Settings : CommandSettings
@@ -49,6 +51,34 @@ class Verify : AsyncCommand<Verify.Settings>
             , options.force ?? false
             , options.all
             );
+
+        if (!year.HasValue)
+        {
+            await AnsiConsole.Progress()
+                .StartAsync(async ctx =>
+                {
+
+                    var tasks = AoCLogic.Years().Select(y => ctx.AddTask(y.ToString())).ToArray();
+
+                    foreach (var (year, task) in AoCLogic.Years().Zip(tasks))
+                    {
+                        var days = AoCLogic.Days(year).ToArray();
+                        foreach (var day in days)
+                        {
+                            var resultStatus = await manager.GetPuzzleResult(year, day, force, typeName, (_, _) => { });
+                            task.Increment((double)100/ days.Length);
+                        }
+                    }
+                });
+
+
+        }
+
+        var report = await reportManager.GetPuzzleReport(null, null).ToListAsync();
+        AnsiConsole.Write(report.ToTable());
+        return 0;
+
+        return 0;
 
         var sw = Stopwatch.StartNew();
         await AnsiConsole.Status()
