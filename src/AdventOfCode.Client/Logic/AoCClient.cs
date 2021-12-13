@@ -199,10 +199,10 @@ class AoCClient : IDisposable
         return Puzzle.Unlocked(year, day, innerHtml, innerText, input, answer);
     }
 
-    public async Task<IEnumerable<(int id, string description)>> GetLeaderboardIds()
+    public async Task<IEnumerable<(int id, string description)>> GetLeaderboardIds(bool usecache)
     {
         var year = DateTime.Now.Year;
-        (var statusCode, var html) = await GetAsync(null, null, "leaderboard.html", $"{year}/leaderboard/private", true);
+        (var statusCode, var html) = await GetAsync(null, null, "leaderboard.html", $"{year}/leaderboard/private", usecache);
         if (statusCode != HttpStatusCode.OK) return Enumerable.Empty<(int, string)>();
 
         var document = new HtmlDocument();

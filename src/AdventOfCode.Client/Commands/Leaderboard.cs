@@ -8,7 +8,7 @@ using System.ComponentModel;
 
 namespace AdventOfCode.Client.Commands;
 
-[Description("Show some stats from the configured private leaderboard. Set AOC_LEADERBOARD_ID as a environment variable.")]
+[Description("Show some stats from the configured private leaderboard. ")]
 class Leaderboard : AsyncCommand<Leaderboard.Settings>
 {
     ReportManager manager;
@@ -22,44 +22,29 @@ class Leaderboard : AsyncCommand<Leaderboard.Settings>
         [Description("Year (default: current year)")]
         [CommandArgument(0, "[YEAR]")]
         public int year { get; set; } = DateTime.Now.Year;
+        [Description("ID (if not provided, the leaderboard ID is looked up)")]
+        [CommandArgument(0, "[id]")]
+        public int? id { get; set; }
+        [Description("force update")]
+        [CommandOption("-f|--force")]
+        public bool force { get; set; }
     }
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
     {
         var year = options.year;
 
-        int id;
-        var ids = await manager.GetLeaderboardIds();
-        if (ids.Skip(1).Any())
+        var ids = options.id.HasValue ? Enumerable.Repeat((id: options.id.Value, description: ""), 1) : await manager.GetLeaderboardIds(!options.force);
+        var id = ids.Count() switch
         {
-            id = AnsiConsole.Prompt(new SelectionPrompt<(int id, string description)>().Title("Which leaderboard?").AddChoices(ids.Select(x => (x.id, x.description.EscapeMarkup())))).id;
-        }
-        else if (ids.Any())
-        {
-            id = ids.Last().id;
-        }
-        else
-        {
-            throw new Exception("no leaderboards found");
-        }
+            > 1 => AnsiConsole.Prompt(new SelectionPrompt<(int id, string description)>().Title("Which leaderboard?").AddChoices(ids.Select(x => (x.id, x.description.EscapeMarkup())))).id,
+            1 => ids.Single().id,
+            _ => throw new Exception("no leaderboards found")
+        };
 
         IEnumerable<LeaderboardEntry> entries = await manager.GetLeaderboardAsync(year, id);
 
-        var table = new Table();
-        table.AddColumns("rank", "member", "points", "stars", "lastStar");
-
-        int n = 1;
-        foreach (var line in entries)
-        {
-            table.AddRow(
-                n.ToString(),
-                line.name,
-                line.score.ToString(),
-                line.stars.ToString(),
-                line.lastStar.TimeOfDay.ToString() ?? string.Empty
-                );
-            n++;
-        }
+        var table = entries.ToTable();
         AnsiConsole.Write(table);
 
         return 0;

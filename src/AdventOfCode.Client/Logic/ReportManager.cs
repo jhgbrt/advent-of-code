@@ -16,9 +16,9 @@ class ReportManager
         this.manager = manager;
     }
 
-    internal Task<IEnumerable<(int id, string description)>> GetLeaderboardIds()
+    internal Task<IEnumerable<(int id, string description)>> GetLeaderboardIds(bool usecache)
     {
-        return client.GetLeaderboardIds();
+        return client.GetLeaderboardIds(usecache);
     }
 
     internal async Task<IEnumerable<LeaderboardEntry>> GetLeaderboardAsync(int year, int id)
