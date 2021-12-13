@@ -200,6 +200,21 @@ class AoCClient : IDisposable
         return Puzzle.Unlocked(year, day, innerHtml, innerText, input, answer);
     }
 
+    public async Task<int> GetLeaderboardId()
+    {
+        (var statusCode, var html) = await GetAsync(null, null, "leaderboard.html", $"{DateTime.Now.Year}/leaderboard/private", true);
+        if (statusCode != HttpStatusCode.OK) return 0;
+
+        var document = new HtmlDocument();
+        document.LoadHtml(html);
+
+        var text = (from node in document.DocumentNode.SelectNodes("//p")
+                    where node.InnerText.StartsWith("You are a member")
+                    select node.InnerText).Single();
+
+        return int.Parse(Regex.Match(text, @"#(?<id>\d+)\)").Groups["id"].Value);
+    }
+
     public async Task<int> GetMemberId()
     {
         (var statusCode, var html) = await GetAsync(null, null, "settings.html", "/settings", true);

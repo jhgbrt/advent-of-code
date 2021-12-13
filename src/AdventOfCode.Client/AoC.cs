@@ -36,7 +36,7 @@ public static class AoC
             AddCommand<Report>(config);
             AddCommand<Leaderboard>(config);
             AddCommand<Stats>(config);
-            //config.PropagateExceptions();
+            config.PropagateExceptions();
         });
 
         await app.RunAsync(args);

@@ -69,7 +69,7 @@ class PuzzleManager
         await SyncAnswers(year, day);
         if (success)
         {
-            var stats = await client.GetMemberAsync(year);
+            var stats = await client.GetMemberAsync(year, false);
             content = new StringBuilder(content).AppendLine().AppendLine($"You have now {stats?.TotalStars} stars and a score of {stats?.LocalScore}").ToString();
         }
         return (success, status, content);

@@ -18,12 +18,18 @@ class Post : AsyncCommand<Post.Settings>
     {
         this.manager = manager;
     }
-    public class Settings : AoCSettings
+    public class Settings : CommandSettings
     {
 
         [Description("The solution to the current puzzle part"), Required]
-        [CommandArgument(2, "<SOLUTION>")]
+        [CommandArgument(0, "<SOLUTION>")]
         public string? value { get; set; }
+        [Description("Year (default: current year)")]
+        [CommandArgument(1, "[YEAR]")]
+        public int year { get; set; } = DateTime.Now.Year;
+        [Description("Day (default: current day)")]
+        [CommandArgument(2, "[DAY]")]
+        public int day { get; set; } = DateTime.Now.Day;
 
     }
     public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
