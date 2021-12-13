@@ -28,7 +28,22 @@ class Leaderboard : AsyncCommand<Leaderboard.Settings>
     {
         var year = options.year;
 
-        IEnumerable<LeaderboardEntry> entries = await manager.GetLeaderboardAsync(year);
+        int id;
+        var ids = await manager.GetLeaderboardIds();
+        if (ids.Skip(1).Any())
+        {
+            id = AnsiConsole.Prompt(new SelectionPrompt<(int id, string description)>().Title("Which leaderboard?").AddChoices(ids.Select(x => (x.id, x.description.EscapeMarkup())))).id;
+        }
+        else if (ids.Any())
+        {
+            id = ids.Last().id;
+        }
+        else
+        {
+            throw new Exception("no leaderboards found");
+        }
+
+        IEnumerable<LeaderboardEntry> entries = await manager.GetLeaderboardAsync(year, id);
 
         var table = new Table();
         table.AddColumns("rank", "member", "points", "stars", "lastStar");

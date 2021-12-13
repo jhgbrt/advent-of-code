@@ -199,24 +199,26 @@ class AoCClient : IDisposable
         return Puzzle.Unlocked(year, day, innerHtml, innerText, input, answer);
     }
 
-    public async Task<int> GetLeaderboardId()
+    public async Task<IEnumerable<(int id, string description)>> GetLeaderboardIds()
     {
         var year = DateTime.Now.Year;
         (var statusCode, var html) = await GetAsync(null, null, "leaderboard.html", $"{year}/leaderboard/private", true);
-        if (statusCode != HttpStatusCode.OK) return 0;
+        if (statusCode != HttpStatusCode.OK) return Enumerable.Empty<(int, string)>();
 
         var document = new HtmlDocument();
         document.LoadHtml(html);
 
         var link = new Regex(@"/\d+/leaderboard/private/view/(?<id>\d+)");
 
-        var id = (from node in document.DocumentNode.SelectNodes("//a")
-                    where node.InnerText == "[View]"
-                    let href = node.Attributes["href"].Value
-                    let match = link.Match(href)
-                    where match.Success
-                    select int.Parse(match.Groups["id"].Value)
-                    ).Last();
+        var id = (
+            from a in document.DocumentNode.SelectNodes("//a")
+            where a.InnerText == "[View]"
+            let href = a.Attributes["href"].Value
+            let match = link.Match(href)
+            where match.Success
+            let description = a.ParentNode.Name == "div" ? a.ParentNode.InnerText.Trim() : "Your own private leaderboard"
+            select (int.Parse(match.Groups["id"].Value), description)
+            );
 
         return id;
     }

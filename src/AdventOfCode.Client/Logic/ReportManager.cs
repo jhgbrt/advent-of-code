@@ -16,9 +16,13 @@ class ReportManager
         this.manager = manager;
     }
 
-    internal async Task<IEnumerable<LeaderboardEntry>> GetLeaderboardAsync(int year)
+    internal Task<IEnumerable<(int id, string description)>> GetLeaderboardIds()
     {
-        var id = await client.GetLeaderboardId();
+        return client.GetLeaderboardIds();
+    }
+
+    internal async Task<IEnumerable<LeaderboardEntry>> GetLeaderboardAsync(int year, int id)
+    {
         var leaderboard = await client.GetLeaderBoardAsync(year, id, false);
 
         if (leaderboard == null)
