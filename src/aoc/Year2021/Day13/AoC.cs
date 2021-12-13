@@ -1,22 +1,25 @@
 namespace AdventOfCode.Year2021.Day13;
+using Set = ImmutableHashSet<Coordinate>;
 
 public class AoC202113 : AoCBase
 {
     static string[] input = Read.InputLines(typeof(AoC202113));
-    static Regex coordinateRegex = new Regex(@"^(?<x>\d+),(?<y>\d+)$");
-    static Regex foldRegex = new Regex(@"^fold along (?<coordinate>x|y)=(?<value>\d+)$");
     static Grid grid = new Grid(
         from line in input
-        let match = coordinateRegex.Match(line)
-        where match.Success
-        select new Coordinate(int.Parse(match.Groups["x"].Value), int.Parse(match.Groups["y"].Value))
+        let c = Coordinate.TryParse(line)
+        where c.HasValue
+        select c.Value
     );
-    static IEnumerable<(char, int)> folding = from line in input let match = foldRegex.Match(line) where match.Success select (match.Groups["coordinate"].Value[0], int.Parse(match.Groups["value"].Value));
+    static IEnumerable<Instruction> instructions =
+        from line in input
+        let i = Instruction.TryParse(line)
+        where i.HasValue
+        select i.Value;
 
-    public override object Part1() => FoldingCycle(grid, folding).First().Count();
-    public override object Part2() => FoldingCycle(grid, folding).Last().ToString().DecodeAscii(5);
+    public override object Part1() => FoldingCycle(grid, instructions).First().Count();
+    public override object Part2() => FoldingCycle(grid, instructions).Last().ToString().DecodePixels(5);
 
-    static IEnumerable<Grid> FoldingCycle(Grid grid, IEnumerable<(char, int)> instructions)
+    static IEnumerable<Grid> FoldingCycle(Grid grid, IEnumerable<Instruction> instructions)
     {
         foreach (var (c, value) in instructions)
         {
@@ -29,26 +32,22 @@ public class AoC202113 : AoCBase
 
 class Grid
 {
-    ImmutableHashSet<Coordinate> coordinates;
-    int MaxX;
-    int MaxY;
+    Set points;
+    (int x, int y) size;
     public Grid(IEnumerable<Coordinate> coordinates)
     {
-        this.coordinates = coordinates.ToImmutableHashSet();
-        MaxX = coordinates.MaxBy(c => c.x)!.x;
-        MaxY = coordinates.MaxBy(c => c.y)!.y;
+        points = coordinates.ToImmutableHashSet();
+        var max = coordinates.Aggregate((x: 0, y: 0), (p, c) => (Math.Max(p.x, c.x), Math.Max(p.y, c.y)));
+        size = (max.x + 1, max.y + 1);
     }
 
     public override string ToString()
     {
-        
         var sb = new StringBuilder();
-        for (var y = 0; y <= MaxY; y++)
+        for (var y = 0; y < size.y; y++)
         {
-            for (var x = 0; x <= MaxX; x++)
-            {
-                sb.Append(coordinates.Contains(new(x, y)) ? '#' : '.');
-            }
+            for (var x = 0; x < size.x; x++)
+                sb.Append(points.Contains(new(x, y)) ? '#' : '.');
             sb.AppendLine();
         }
         return sb.ToString();
@@ -56,112 +55,52 @@ class Grid
 
     public Grid Fold(char c, int v) => new Grid(c switch
     {
-        'y' => FoldUp(coordinates, v),
-        'x' => FoldLeft(coordinates, v),
+        'y' => FoldUp(points, v),
+        'x' => FoldLeft(points, v),
         _ => throw new Exception()
     });
 
-    private ImmutableHashSet<Coordinate> FoldUp(ImmutableHashSet<Coordinate> coordinates, int v)
-        => Fold(coordinates, from d in Range(1, MaxY - v + 1)
-                             from x in Range(0, MaxX + 1)
-                             where coordinates.Contains(new(x, d + v))
-                             select (src: new Coordinate(x, v + d), to: new Coordinate(x, v - d)));
-    private ImmutableHashSet<Coordinate> FoldLeft(ImmutableHashSet<Coordinate> coordinates, int v)
-        => Fold(coordinates, from d in Range(1, MaxX - v + 1)
-                             from y in Range(0, MaxY + 1)
-                             where coordinates.Contains(new(d + v, y))
-                             select (src: new Coordinate(v + d, y), to: new Coordinate(v - d, y)));
-    private ImmutableHashSet<Coordinate> Fold(ImmutableHashSet<Coordinate> coordinates, IEnumerable<(Coordinate src, Coordinate to)> transformations)
-    {
-        foreach (var c in transformations)
-            coordinates = coordinates.Remove(c.src).Add(c.to);
-        return coordinates;
-    }
+    private Set FoldUp(Set coordinates, int v)
+        => (from d in Range(1, size.y - v)
+            from x in Range(0, size.x)
+            where coordinates.Contains(new(x, d + v))
+            select (d, x)
+            ).Aggregate(coordinates, (c, t) => c.Remove(new(t.x, v + t.d)).Add(new(t.x, v - t.d)));
+    private Set FoldLeft(Set coordinates, int v)
+        => (from d in Range(1, size.x - v)
+            from y in Range(0, size.y)
+            where coordinates.Contains(new(d + v, y))
+            select (d, y)
+            ).Aggregate(coordinates, (c, t) => c.Remove(new(v + t.d, t.y)).Add(new(v - t.d, t.y)));
 
-    internal int Count() => coordinates.Count;
+    internal int Count() => points.Count;
 }
 
-record Coordinate(int x, int y);
+record struct Coordinate(int x, int y)
+{
+    static Regex regex = new Regex(@"^(?<x>\d+),(?<y>\d+)$");
+    internal static Coordinate? TryParse(string s)
+    {
+        var match = regex.Match(s);
+        return match.Success ? new Coordinate(int.Parse(match.Groups["x"].ValueSpan), int.Parse(match.Groups["y"].ValueSpan)) : null;
+    }
+}
+record struct Instruction(char c, int v)
+{
+    static Regex regex = new Regex(@"^fold along (?<c>x|y)=(?<v>\d+)$");
+    internal static Instruction? TryParse(string s)
+    {
+        var match = regex.Match(s);
+        return match.Success ? new Instruction(match.Groups["c"].ValueSpan[0], int.Parse(match.Groups["v"].ValueSpan)) : null;
 
+    }
+}
 static class PixelFontDecoder
 {
-    static readonly string[] _4x6 = new[]
-        {
-            ".##.#..##..######..##..#",
-            "###.#..####.#..##..####.",
-            ".####...#...#...#....###",
-            "###.#..##..##..##..####.",
-            "#####...###.#...#...####",
-            "#####...###.#...#...#...",
-            ".####...#...#.###..#.##.",
-            "#..##..######..##..##..#",
-            "###..#...#...#...#..###.",
-            "..##...#...#...##..#.##.",
-            "#..##.#.##..##..#.#.#..#",
-            "#...#...#...#...#...####",
-            "#..######..##..##..##..#",
-            "#..###.###.##.###.###..#",
-            ".##.#..##..##..##..#.##.",
-            "###.#..##..####.#...#...",
-            ".##.#..##..##..##.##.###",
-            "###.#..##..####.#.#.#..#",
-            ".####...#....##....####.",
-            "####.#...#...#...#...#..",
-            "#..##..##..##..##..#.##.",
-            "#..##..##..#.##..##..##.",
-            "#..##..##..##..######..#",
-            "#..##..#.##.#..##..##..#",
-            "#..##..#.##...#...#..#..",
-            "####...#..#..#..#...####"
-        };
-
-    static readonly string[] _6x10 = new[]
-    {
-        "..##...#..#.#....##....##....########....##....##....##....#",
-        "#####.#....##....##....######.#....##....##....##....######.",
-        ".####.#....##.....#.....#.....#.....#.....#.....#....#.####.",
-        "#####.#....##....##....##....##....##....##....##....######.",
-        "#######.....#.....#.....#####.#.....#.....#.....#.....######",
-        "#######.....#.....#.....#####.#.....#.....#.....#.....#.....",
-        ".######.....#.....#.....#.....#..####....##....##....#.####.",
-        "#....##....##....##....########....##....##....##....##....#",
-        "#####...#.....#.....#.....#.....#.....#.....#.....#...#####.",
-        "...###....#.....#.....#.....#.....#.....#.#...#.#...#..###..",
-        "#....##...#.#..#..#.#...##....##....#.#...#..#..#...#.#....#",
-        "#.....#.....#.....#.....#.....#.....#.....#.....#.....######",
-        "#....###..###.##.##....##....##....##....##....##....##....#",
-        "#....##....###...###...##.#..##..#.##...###...###....##....#",
-        ".####.#....##....##....##....##....##....##....##....#.####.",
-        "#####.#....##....##....######.#.....#.....#.....#.....#.....",
-        ".####.#....##....##....##....##....##....##....##...#..###.#",
-        "#####.#....##....##....######.#..#..#...#.#...#.#....##....#",
-        ".####.#.....#.....#......####......#.....#.....#.....######.",
-        "######..#.....#.....#.....#.....#.....#.....#.....#.....#...",
-        "#....##....##....##....##....##....##....##....##....#.####.",
-        "#....##....##....##....#.#..#..#..#..#. #..#..#...##....##..",
-        "#....##....##....##....##....##....##....##.##.###..###....#",
-        "#....##....#.#..#..#..#...##....##...#..#..#..#.#....##....#",
-        "#....##....#.#..#..#..#...##.....#.....#.....#.....#....#...",
-        "######.....#.....#....#....#....#....#....#.....#.....######"
-
-    };
-    static IReadOnlyDictionary<int, (string s, char c)[]> lettersBySize = new[]
-    {
-        (size: 5, letters: _4x6.Select((s, i) => (s, (char)(i + 'A'))).ToArray()),
-        (size: 7, letters: _6x10.Select((s, i) => (s, (char)(i + 'A'))).ToArray())
-    }.ToDictionary(x => x.size, x => x.letters);
-
-    // use this function to generate a simple string representing the character
-    public static IEnumerable<(string, char)> FlattenLetters(string s, int size, char pixel = '#', char blank = '.')
-        => from letter in FindLetters(s, size)
-           let flattenedValue = letter.Aggregate(new StringBuilder(), (sb, range) => sb.Append(s[range]).Replace(pixel, '#').Replace(blank, '.')).ToString()
-           let result = lettersBySize[size].Where(l => l.s == flattenedValue).Select(l => (char?)l.c).FirstOrDefault() ?? '?'
-           select (flattenedValue, result);
-
-    public static string DecodeAscii(this string s, int size, char pixel = '#', char blank = '.') => (
+    public static string DecodePixels(this string s, int size, char pixel = '#', char blank = '.') => (
             from letter in FindLetters(s, size)
             let chars = from range in letter from c in s[range] select c switch { '#' => pixel, _ => blank }
-            select (from item in lettersBySize[size] where item.s.SequenceEqual(chars) select (char?)item.c).SingleOrDefault() ?? '?'
+            select (from item in letters where item.s.SequenceEqual(chars) select (char?)item.c).SingleOrDefault() ?? '?'
         ).Aggregate(new StringBuilder(), (sb, c) => sb.Append(c)).ToString();
 
     private static IEnumerable<IGrouping<int, Range>> FindLetters(string s, int size)
@@ -192,6 +131,36 @@ static class PixelFontDecoder
             s += size;
         }
     }
+
+    static readonly (string s, char c)[] letters = new[]
+    {
+            ".##.#..##..######..##..#",
+            "###.#..####.#..##..####.",
+            ".####...#...#...#....###",
+            "###.#..##..##..##..####.",
+            "#####...###.#...#...####",
+            "#####...###.#...#...#...",
+            ".####...#...#.###..#.##.",
+            "#..##..######..##..##..#",
+            "###..#...#...#...#..###.",
+            "..##...#...#...##..#.##.",
+            "#..##.#.##..##..#.#.#..#",
+            "#...#...#...#...#...####",
+            "#..######..##..##..##..#",
+            "#..###.###.##.###.###..#",
+            ".##.#..##..##..##..#.##.",
+            "###.#..##..####.#...#...",
+            ".##.#..##..##..##.##.###",
+            "###.#..##..####.#.#.#..#",
+            ".####...#....##....####.",
+            "####.#...#...#...#...#..",
+            "#..##..##..##..##..#.##.",
+            "#..##..##..#.##..##..##.",
+            "#..##..##..##..######..#",
+            "#..##..#.##.#..##..##..#",
+            "#..##..#.##...#...#..#..",
+            "####...#..#..#..#...####"
+        }.Select((s, i) => (s, (char)(i + 'A'))).ToArray();
 
 }
 

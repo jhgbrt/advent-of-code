@@ -52,7 +52,7 @@ class Verify : AsyncCommand<Verify.Settings>
             , options.all
             );
 
-        if (!year.HasValue)
+        if (options.all)
         {
             await AnsiConsole.Progress()
                 .StartAsync(async ctx =>
@@ -70,15 +70,11 @@ class Verify : AsyncCommand<Verify.Settings>
                         }
                     }
                 });
-
-
+            var report = await reportManager.GetPuzzleReport(null, null).ToListAsync();
+            AnsiConsole.Write(report.ToTable());
+            return 0;
         }
 
-        var report = await reportManager.GetPuzzleReport(null, null).ToListAsync();
-        AnsiConsole.Write(report.ToTable());
-        return 0;
-
-        return 0;
 
         var sw = Stopwatch.StartNew();
         await AnsiConsole.Status()
