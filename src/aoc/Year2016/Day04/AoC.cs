@@ -1,14 +1,14 @@
 namespace AdventOfCode.Year2016.Day04;
 
-public class AoC201604 : AoCBase
+public class AoC201604
 {
     public static string[] input = Read.InputLines(typeof(AoC201604));
 
-    public override object Part1() => (from line in input
+    public object Part1() => (from line in input
                                                  let room = Room.Parse(line)
                                                  where room.IsValid()
                                                  select room).Sum(r => r.SectorId);
-    public override object Part2() => (from line in input
+    public object Part2() => (from line in input
                                                  let room = Room.Parse(line)
                                                  let name = room.Name
                                                  where name.Contains("northpole")

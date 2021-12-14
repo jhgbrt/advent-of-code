@@ -1,12 +1,12 @@
 namespace AdventOfCode.Year2016.Day07;
 
-public class AoC201607 : AoCBase
+public class AoC201607
 {
     
     public static string[] input = Read.InputLines(typeof(AoC201607));
 
-    public override object Part1() => input.Select(s => new IPAddress(s)).Where(ip => ip.SupportsTLS()).Count();
-    public override object Part2() => input.Select(s => new IPAddress(s)).Where(ip => ip.SupportsSSL()).Count();
+    public object Part1() => input.Select(s => new IPAddress(s)).Where(ip => ip.SupportsTLS()).Count();
+    public object Part2() => input.Select(s => new IPAddress(s)).Where(ip => ip.SupportsSSL()).Count();
 }
 
 enum WhereAmI

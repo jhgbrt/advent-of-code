@@ -1,14 +1,14 @@
 namespace AdventOfCode.Year2015.Day06;
 
-public class AoC201506 : AoCBase
+public class AoC201506
 {
     static IReadOnlyCollection<string> lines = Read.Lines(typeof(AoC201506), "input.txt").ToList();
-    public override object Part1() => Run(
+    public object Part1() => Run(
             (grid, c) => grid[c.x, c.y] = 1,
             (grid, c) => grid[c.x, c.y] = 0,
             (grid, c) => grid[c.x, c.y] = grid[c.x, c.y] == 0 ? 1 : 0);
 
-    public override object Part2() => Run(
+    public object Part2() => Run(
             (grid, c) => grid[c.x, c.y] += 1,
             (grid, c) => grid[c.x, c.y] = Math.Max(0, grid[c.x, c.y] - 1),
             (grid, c) => grid[c.x, c.y] = grid[c.x, c.y] += 2);

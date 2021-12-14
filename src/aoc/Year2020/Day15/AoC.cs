@@ -1,10 +1,10 @@
 namespace AdventOfCode.Year2020.Day15;
 
-public class AoC202015 : AoCBase
+public class AoC202015
 {
     static int[] input = new[] { 0, 1, 4, 13, 15, 12, 16 };
-    public override object Part1() => Run(input, 2020);
-    public override object Part2() => Run(input, 30000000);
+    public object Part1() => Run(input, 2020);
+    public object Part2() => Run(input, 30000000);
 
     internal static long Run(int[] input, int max)
     {

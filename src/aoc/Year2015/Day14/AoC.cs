@@ -1,12 +1,12 @@
 namespace AdventOfCode.Year2015.Day14;
 
-public class AoC201514 : AoCBase
+public class AoC201514
 {
     static Regex regex = new Regex(@"(?<name>\w+) can fly (?<speed>\d+) km/s for (?<fly>\d+) seconds, but then must rest for (?<rest>\d+) seconds");
     static string[] input = Read.InputLines(typeof(AoC201514)); // "sample.txt"
     static int maxtime = 2503; // 1000
-    public override object Part1() => GetEntries().Select(e => e.GetDistance(maxtime)).Max();
-    public override object Part2()
+    public object Part1() => GetEntries().Select(e => e.GetDistance(maxtime)).Max();
+    public object Part2()
     {
         var entries = GetEntries();
         var points = entries.ToDictionary(e => e, e => 0);

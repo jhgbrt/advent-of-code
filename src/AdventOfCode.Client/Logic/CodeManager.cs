@@ -95,6 +95,11 @@ class CodeManager
 
     internal async Task InitializeCodeAsync(int year, int day, bool force, Action<string> progress)
     {
+        var templateFile = Combine(CurrentDirectory, "Template", "aoc.cs");
+
+        if (!Exists(templateFile))
+            throw new FileNotFoundException("Please provide a template file under Common\\Template\\aoc.cs. Use YYYY and DD as placeholders in the class name for the year and day, and provide two public methods called Part1 and Part2, accepting no arguments and returning a string");
+
         var dir = new CodeFolder(year, day);
         if (dir.Exists && !force)
         {
@@ -105,18 +110,11 @@ class CodeManager
 
         dir.Create();
 
-        Console.WriteLine("Writing file: AoC.cs");
-        await dir.WriteCode(new[]
-            {
-                $"namespace AdventOfCode.Year{year}.Day{day:00};",
-                "",
-                $"public class AoC{year}{day:00} : AoCBase",
-                "{",
-                $"    static string[] input = Read.InputLines(typeof(AoC{year}{day:00}));",
-                "    public override object Part1() => -1;",
-                "    public override object Part2() => -1;",
-                "}",
-            }.Aggregate(new StringBuilder(), (sb, s) => sb.AppendLine(s)).ToString());
+        progress("Writing file: AoC.cs");
+
+        var code = (await ReadAllTextAsync(templateFile)).Replace("YYYY", year.ToString()).Replace("DD", day.ToString("00"));
+
+        await dir.WriteCode(code);
 
         await dir.WriteSample("");
         AddEmbeddedResource(dir.SAMPLE);

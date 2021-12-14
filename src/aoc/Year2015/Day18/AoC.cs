@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2015.Day18;
 
-public class AoC201518 : AoCBase
+public class AoC201518
 {
     static string[] lines = Read.InputLines(typeof(AoC201518));
     static Grid grid = new Grid((
@@ -10,8 +10,8 @@ public class AoC201518 : AoCBase
         select new Coordinate(x, y)
         ).ToHashSet(), lines.Length);
 
-    public override object Part1() => Enumerable.Range(0, 100).Aggregate(grid, (g, i) => g.Next1()).Count();
-    public override object Part2() => Enumerable.Range(0, 100).Aggregate(grid, (g, i) => g.Next2()).Count();
+    public object Part1() => Enumerable.Range(0, 100).Aggregate(grid, (g, i) => g.Next1()).Count();
+    public object Part2() => Enumerable.Range(0, 100).Aggregate(grid, (g, i) => g.Next2()).Count();
 }
 record Coordinate(int x, int y)
 {

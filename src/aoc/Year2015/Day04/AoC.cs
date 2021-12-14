@@ -2,11 +2,11 @@ using System.Security.Cryptography;
 
 namespace AdventOfCode.Year2015.Day04;
 
-public class AoC201504 : AoCBase
+public class AoC201504
 {
     static string key = "bgvyzdsv";
-    public override object Part1() => Solve(key, 5);
-    public override object Part2() => Solve(key, 6);
+    public object Part1() => Solve(key, 5);
+    public object Part2() => Solve(key, 6);
 
     internal static int Solve(string key, int n)
     {

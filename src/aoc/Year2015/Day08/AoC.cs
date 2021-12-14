@@ -1,11 +1,11 @@
 namespace AdventOfCode.Year2015.Day08;
 
-public class AoC201508 : AoCBase
+public class AoC201508
 {
     static string[] lines = Read.InputLines(typeof(AoC201508));
 
-    public override object Part1() => lines.Sum<string>(l => l.Length) - lines.Sum<string>(CountChars);
-    public override object Part2() => lines.Sum<string>(CountEscaped) - lines.Sum<string>(l => l.Length);
+    public object Part1() => lines.Sum<string>(l => l.Length) - lines.Sum<string>(CountChars);
+    public object Part2() => lines.Sum<string>(CountEscaped) - lines.Sum<string>(l => l.Length);
     static int CountChars(string s)
     {
         var n = 0;

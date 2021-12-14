@@ -23,7 +23,7 @@ class Exec : AsyncCommand<Exec.Settings>
     {
         [Description("The fully qualified name of the type containing the code for this puzzle. " +
         "Use a format string with {0} and {1} as placeholders for year and day. " +
-        "(default: AdventOfCode.Year{0}.Day{1:00}.AoC{0}{1:00})")]
+        "(example: MyAdventOfCode.Year{0}.Day{1:00}.AoC{0}{1:00})")]
         [CommandOption("-t|--typename")]
         public string? typeName { get; set; }
     }
@@ -34,7 +34,7 @@ class Exec : AsyncCommand<Exec.Settings>
         (var year, var day, var typeName) = (
               options.year
             , options.day
-            , string.IsNullOrEmpty(options.typeName) ? "AdventOfCode.Year{0}.Day{1:00}.AoC{0}{1:00}" : options.typeName
+            , options.typeName
             );
 
         AnsiConsole.WriteLine($"{year}, day {day}");

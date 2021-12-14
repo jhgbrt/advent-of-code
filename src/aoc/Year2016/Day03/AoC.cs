@@ -1,13 +1,13 @@
 namespace AdventOfCode.Year2016.Day03;
 
-public class AoC201603 : AoCBase
+public class AoC201603
 {
     public static string[] input = Read.InputLines(typeof(AoC201603));
 
-    public override object Part1() => (from triangle in GetTriangles()
+    public object Part1() => (from triangle in GetTriangles()
                                                  where triangle.IsValid
                                                  select triangle).Count();
-    public override object Part2() => (from chunk in GetTriangles().Chunk(3)
+    public object Part2() => (from chunk in GetTriangles().Chunk(3)
                                                  from triangle in Transpose(chunk)
                                                  where triangle.IsValid
                                                  select triangle).Count();

@@ -4,7 +4,7 @@ using static System.Math;
 
 namespace AdventOfCode.Year2017.Day23;
 
-public class AoC201723 : AoCBase
+public class AoC201723
 {
     static ReadOnlyCollection<(string instruction, string arg1, string arg2)> program = (
         from line in Read.InputLines(typeof(AoC201723))
@@ -12,9 +12,9 @@ public class AoC201723 : AoCBase
         select (instruction: s[0], arg1: s[1], arg2: s[2])
     ).ToList().AsReadOnly();
 
-    public override object Part1() => Evaluate("abcdefgh".ToDictionary(c => c, _ => 0), program);
+    public object Part1() => Evaluate("abcdefgh".ToDictionary(c => c, _ => 0), program);
 
-    public override object Part2() => Between(109900, 126900, 17).Count(NotPrime);
+    public object Part2() => Between(109900, 126900, 17).Count(NotPrime);
 
     static bool NotPrime(int n) => !IsPrime(n);
     static bool IsPrime(int n) => n != 1 && (n == 2 || n % 2 != 0 && Between(3, (int)Ceiling(Sqrt(n)), 2).All(i => n % i != 0));

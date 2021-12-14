@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2015.Day25;
 
-public class AoC201525 : AoCBase
+public class AoC201525
 {
     
     public static string[] input = Read.InputLines(typeof(AoC201525));
@@ -10,7 +10,7 @@ public class AoC201525 : AoCBase
     const long m = 252533;
     const long d = 33554393;
 
-    public override object Part1()
+    public object Part1()
     {
         var value = code;
         (var r, var c) = (1, 1);
@@ -22,6 +22,6 @@ public class AoC201525 : AoCBase
             if ((r, c) == (row, column)) return value;
         }
     }
-    public override object Part2() => -1;
+    public object Part2() => -1;
 
 }

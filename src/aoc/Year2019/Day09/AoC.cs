@@ -1,10 +1,10 @@
 namespace AdventOfCode.Year2019.Day09;
 
-public class AoC201909 : AoCBase
+public class AoC201909
 {
     internal static string[] input = Read.InputLines(typeof(AoC201909));
 
-    public override object Part1()
+    public object Part1()
     {
         foreach (var i in IntCode.Run(input.First().Split(',').Select(long.Parse).Select((n, i) => (n, i: (long)i)).ToImmutableDictionary(x => x.i, x => x.n), 1))
         {
@@ -13,7 +13,7 @@ public class AoC201909 : AoCBase
         return -1;
     }
 
-    public override object Part2() => -1;
+    public object Part2() => -1;
 
     [Fact]
     public void ShouldCopyItSelf()

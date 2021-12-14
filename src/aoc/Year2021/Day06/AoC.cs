@@ -1,11 +1,11 @@
 namespace AdventOfCode.Year2021.Day06;
 
-public class AoC202106 : AoCBase
+public class AoC202106
 {
     static string input = Read.InputText (typeof(AoC202106));
     static ImmutableArray<int> numbers = input.Split(',').Select(int.Parse).ToImmutableArray();
-    public override object Part1() => CountFish(80);
-    public override object Part2() => CountFish(256);
+    public object Part1() => CountFish(80);
+    public object Part2() => CountFish(256);
 
     private static long CountFish(int iterations)
     {

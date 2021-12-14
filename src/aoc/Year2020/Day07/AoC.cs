@@ -1,11 +1,11 @@
 namespace AdventOfCode.Year2020.Day07;
 
-public class AoC202007 : AoCBase
+public class AoC202007
 {
     static string key = "shiny gold";
 
-    public override object Part1() => Part1("input.txt");
-    public override object Part2() => Part2("input.txt");
+    public object Part1() => Part1("input.txt");
+    public object Part2() => Part2("input.txt");
     static IEnumerable<Relation> relations(string input) =>
             from line in Read.Lines(typeof(AoC202007), input)
             let parent = line[0..line.IndexOf(" bags contain ")]

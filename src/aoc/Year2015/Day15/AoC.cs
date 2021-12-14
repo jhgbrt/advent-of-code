@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2015.Day15;
 
-public class AoC201515 : AoCBase
+public class AoC201515
 {
     static string[] input = Read.InputLines(typeof(AoC201515));
     static Regex regex = new Regex(@"(?<name>\w+): capacity (?<capacity>[-\d]+), durability (?<durability>[-\d]+), flavor (?<flavor>[-\d]+), texture (?<texture>[-\d]+), calories (?<calories>[-\d]+)");
@@ -17,7 +17,7 @@ public class AoC201515 : AoCBase
         select new Ingredient(name, capacity, durability, flavor, texture, calories)
         ).ToImmutableList();
 
-    public override object Part1() => (
+    public object Part1() => (
             from f in Factors()
             let capacity = Math.Max(0, ingredients.Zip(f).Select(i => i.First.capacity * i.Second).Sum())
             let durability = Math.Max(0, ingredients.Zip(f).Select(i => i.First.durability * i.Second).Sum())
@@ -26,7 +26,7 @@ public class AoC201515 : AoCBase
             select capacity * durability * flavor * texture
         ).Max();
 
-    public override object Part2() => (
+    public object Part2() => (
             from f in Factors()
             let capacity = Math.Max(0, ingredients.Zip(f).Select(i => i.First.capacity * i.Second).Sum())
             let durability = Math.Max(0, ingredients.Zip(f).Select(i => i.First.durability * i.Second).Sum())

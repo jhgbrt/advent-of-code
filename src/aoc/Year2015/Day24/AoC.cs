@@ -2,13 +2,13 @@ using System.Numerics;
 
 namespace AdventOfCode.Year2015.Day24;
 
-public class AoC201524 : AoCBase
+public class AoC201524
 {
     public static string[] input = Read.InputLines(typeof(AoC201524));
     static int[] weights = (from line in input select int.Parse(line)).ToArray();
 
-    public override object Part1() => CalculateRecursive(weights, weights.Sum() / 3, 0, 1, 0);
-    public override object Part2() => CalculateRecursive(weights, weights.Sum() / 4, 0, 1, 0);
+    public object Part1() => CalculateRecursive(weights, weights.Sum() / 3, 0, 1, 0);
+    public object Part2() => CalculateRecursive(weights, weights.Sum() / 4, 0, 1, 0);
 
     static BigInteger CalculateRecursive(int[] weights, int target, int index, BigInteger entanglement, int totalweight)
     {

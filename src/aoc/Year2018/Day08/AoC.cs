@@ -1,11 +1,11 @@
 namespace AdventOfCode.Year2018.Day08;
 
-public class AoC201808 : AoCBase
+public class AoC201808
 {
     static string input = Read.InputText(typeof(AoC201808));
 
-    public override object Part1() => Part1(input);
-    public override object Part2() => Part2(input);
+    public object Part1() => Part1(input);
+    public object Part2() => Part2(input);
 
     public static int Part1(string input) => ToTree(input).AllNodes().SelectMany(n => n.MetaData).Sum();
 

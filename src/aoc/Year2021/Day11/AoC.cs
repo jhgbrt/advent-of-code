@@ -1,12 +1,12 @@
 namespace AdventOfCode.Year2021.Day11;
 using Builder = ImmutableDictionary<Coordinate, int>.Builder;
 
-public class AoC202111 : AoCBase
+public class AoC202111
 {
     static string[] input = Read.InputLines(typeof(AoC202111));
     static Grid grid = Grid.FromLines(input);
-    public override object Part1() => Cycle(grid).Take(100).Sum(g => g.Flashed);
-    public override object Part2() => Cycle(grid).TakeWhile(g => !g.AllFlashed).Count() + 1;
+    public object Part1() => Cycle(grid).Take(100).Sum(g => g.Flashed);
+    public object Part2() => Cycle(grid).TakeWhile(g => !g.AllFlashed).Count() + 1;
 
     private static IEnumerable<Grid> Cycle(Grid grid)
     {

@@ -1,10 +1,10 @@
 namespace AdventOfCode.Year2021.Day07;
 
-public class AoC202107 : AoCBase
+public class AoC202107
 {
     static string input = Read.InputText(typeof(AoC202107));
     static ImmutableArray<int> numbers = input.Split(',').Select(int.Parse).ToImmutableArray();
-    public override object Part1() => (from i in Range(0, numbers.Max())
+    public object Part1() => (from i in Range(0, numbers.Max())
                                        let cost = (from j in numbers select Cost1(i,j)).Sum()
                                        select cost).Min();
 
@@ -15,7 +15,7 @@ public class AoC202107 : AoCBase
         return distance * (distance + 1) / 2;
     }
 
-    public override object Part2() => (from i in Range(0, numbers.Max())
+    public object Part2() => (from i in Range(0, numbers.Max())
                                        let cost = (from j in numbers select Cost2(i, j)).Sum()
                                        select cost).Min();
 }

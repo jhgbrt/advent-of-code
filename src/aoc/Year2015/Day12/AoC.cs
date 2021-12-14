@@ -2,12 +2,12 @@ using Newtonsoft.Json.Linq;
 
 namespace AdventOfCode.Year2015.Day12;
 
-public class AoC201512 : AoCBase
+public class AoC201512
 {
     static string input = Read.InputText(typeof(AoC201512));
 
-    public override object Part1() => Traverse(Root(), false);
-    public override object Part2() => Traverse(Root(), true);
+    public object Part1() => Traverse(Root(), false);
+    public object Part2() => Traverse(Root(), true);
 
     static JToken Root()
     {

@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2018.Day15;
 
-public class AoC201815 : AoCBase
+public class AoC201815
 {
     static string[] input = Read.InputLines(typeof(AoC201815)).TakeWhile(s => !string.IsNullOrEmpty(s)).ToArray();
     static string[] grid = input.Select(l => l.Replace('G', '.').Replace('E', '.')).ToArray();
@@ -14,11 +14,11 @@ public class AoC201815 : AoCBase
 
 
 
-    public override object Part1()
+    public object Part1()
     {
         return Run(Units(3), false)!.Value;
     }
-    public override object Part2()
+    public object Part2()
     {
         for (int attackPower = 4; ; attackPower++)
         {

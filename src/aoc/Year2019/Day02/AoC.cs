@@ -1,11 +1,11 @@
 namespace AdventOfCode.Year2019.Day02;
 
-public class AoC201902 : AoCBase
+public class AoC201902
 {
     static string[] input = Read.InputLines(typeof(AoC201902));
 
-    public override object Part1() => Part1(input);
-    public override object Part2() => Part2(input);
+    public object Part1() => Part1(input);
+    public object Part2() => Part2(input);
     public static long Part1(string[] input) => Part1(input, 12, 2)[0];
     public static long[] Part1(string[] input, int p1, int p2) => Run(Parse(input), p1, p2);
     public static int Part2(string[] input) => Part2(Parse(input), 19690720);

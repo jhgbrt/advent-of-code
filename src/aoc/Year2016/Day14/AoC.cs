@@ -1,7 +1,7 @@
 namespace AdventOfCode.Year2016.Day14;
 
-public class AoC201614 : AoCBase
+public class AoC201614
 {
-    public override object Part1() => -1;
-    public override object Part2() => -1;
+    public object Part1() => -1;
+    public object Part2() => -1;
 }

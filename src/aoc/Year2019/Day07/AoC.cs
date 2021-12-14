@@ -1,11 +1,11 @@
 namespace AdventOfCode.Year2019.Day07;
 
-public class AoC201907 : AoCBase
+public class AoC201907
 {
     internal static string[] input = Read.InputLines(typeof(AoC201907));
     internal static ImmutableArray<int> program = input[0].Split(',').Select(int.Parse).ToImmutableArray();
 
-    public override object Part1() => (
+    public object Part1() => (
         from p in GetPermutations(Range(0, 5), 5)
         select Run(p)
         ).Max();
@@ -20,7 +20,7 @@ public class AoC201907 : AoCBase
         return next;
     }
 
-    public override object Part2() => (
+    public object Part2() => (
         from p in GetPermutations(Range(5, 5), 5)
         select Run2(p)
         ).Max();

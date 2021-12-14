@@ -1,10 +1,10 @@
 namespace AdventOfCode.Year2015.Day07;
 
-public class AoC201507 : AoCBase
+public class AoC201507
 {
     static string[] input = Read.InputLines(typeof(AoC201507));
 
-    public override object Part1()
+    public object Part1()
     {
         var nodes = BuildNodes();
         Resolve(nodes);
@@ -13,7 +13,7 @@ public class AoC201507 : AoCBase
         return v;
     }
 
-    public override object Part2()
+    public object Part2()
     {
         var v1 = Part1();
         var nodes = BuildNodes();

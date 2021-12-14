@@ -1,11 +1,11 @@
 namespace AdventOfCode.Year2020.Day21;
 
-public class AoC202021 : AoCBase
+public class AoC202021
 {
     static string[] input = Read.InputLines(typeof(AoC202021));
 
-    public override object Part1() => Part1Impl();
-    public override object Part2() => Part2Impl();
+    public object Part1() => Part1Impl();
+    public object Part2() => Part2Impl();
 
 
     static Regex regex = new Regex(@"^(?<Ingredients>[^(]+) \(contains (?<Allergens>[^)]+)\)");

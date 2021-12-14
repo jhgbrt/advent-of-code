@@ -4,11 +4,11 @@ using Ticket = System.Collections.Immutable.ImmutableArray<int>;
 
 namespace AdventOfCode.Year2020.Day16;
 
-public class AoC202016 : AoCBase
+public class AoC202016
 {
     static (ImmutableArray<FieldDef> fields, Ticket myticket, ImmutableArray<Ticket> othertickets) input = ParseFile("input.txt");
 
-    public override object Part1()
+    public object Part1()
     {
         (var fields, var myticket, var nearbytickets) = input;
         var part1 = (
@@ -20,7 +20,7 @@ public class AoC202016 : AoCBase
         return part1;
     }
 
-    public override object Part2()
+    public object Part2()
     {
         (var fields, var myticket, var nearbytickets) = input;
 

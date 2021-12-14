@@ -1,9 +1,9 @@
 namespace AdventOfCode.Year2015.Day02;
 
-public class AoC201502 : AoCBase
+public class AoC201502
 {
-    public override object Part1() => GetDimensions().Sum(d => d.WrappingPaperSurface);
-    public override object Part2() => GetDimensions().Sum(d => d.RibbonLength);
+    public object Part1() => GetDimensions().Sum(d => d.WrappingPaperSurface);
+    public object Part2() => GetDimensions().Sum(d => d.RibbonLength);
 
     static IEnumerable<Dimension> GetDimensions()
     {

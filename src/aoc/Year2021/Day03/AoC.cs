@@ -1,13 +1,13 @@
 namespace AdventOfCode.Year2021.Day03;
 
-public class AoC202103 : AoCBase
+public class AoC202103
 {
     static string[] input = Read.InputLines(typeof(AoC202103));
     static ImmutableArray<int> numbers = input.Select(s => Convert.ToInt32(s, 2)).ToImmutableArray();
 
-    public override object Part1() => GetBitmasks(numbers).Multiply();
+    public object Part1() => GetBitmasks(numbers).Multiply();
 
-    public override object Part2() => DoPart2();
+    public object Part2() => DoPart2();
 
     private static (int max, int min) GetBitmasks(IEnumerable<int> numbers) => (
                 from p in

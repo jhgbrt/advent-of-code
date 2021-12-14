@@ -1,11 +1,11 @@
 namespace AdventOfCode.Year2018.Day16;
 
-public class AoC201816 : AoCBase
+public class AoC201816
 {
     static string[] input = Read.InputLines(typeof(AoC201816));
 
-    public override object Part1() => Part1(input);
-    public override object Part2() => Part2(input);
+    public object Part1() => Part1(input);
+    public object Part2() => Part2(input);
     public static int Part1(string[] input)
     {
         var q = from sample in input.Parse()

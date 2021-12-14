@@ -1,12 +1,12 @@
 namespace AdventOfCode.Year2021.Day04;
 
-public class AoC202104 : AoCBase
+public class AoC202104
 {
     static string[] input = Read.InputLines(typeof(AoC202104));
     static int[] numbers = input[0].Split(",").Select(int.Parse).ToArray();
     static IEnumerable<Board> ReadBoards() => input.Skip(2).GetBoards().ToArray();
-    public override object Part1() => ReadBoards().Play(numbers).First();
-    public override object Part2() => ReadBoards().Play(numbers).Last();
+    public object Part1() => ReadBoards().Play(numbers).First();
+    public object Part2() => ReadBoards().Play(numbers).Last();
 }
 
 

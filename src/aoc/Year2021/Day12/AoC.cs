@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2021.Day12;
 
-public class AoC202112 : AoCBase
+public class AoC202112
 {
     static string[] input = Read.InputLines(typeof(AoC202112));
 
@@ -15,8 +15,8 @@ public class AoC202112 : AoCBase
 
     const string END = "end";
 
-    public override object Part1() => Count(ImmutableList<Node>.Empty.Add(new Node(START)), 1);
-    public override object Part2() => Count(ImmutableList<Node>.Empty.Add(new Node(START)), 2);
+    public object Part1() => Count(ImmutableList<Node>.Empty.Add(new Node(START)), 1);
+    public object Part2() => Count(ImmutableList<Node>.Empty.Add(new Node(START)), 2);
     static int Count(ImmutableList<Node> path, int mode) => path[^1].id == END
     ? 1
     : edges[path[^1]].Aggregate(0, (total, node) => total + (mode, node.id, visited: node.CanVisit(path)) switch

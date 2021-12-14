@@ -1,9 +1,9 @@
 namespace AdventOfCode.Year2018.Day13;
 
-public class AoC201813 : AoCBase
+public class AoC201813
 {
     static string[] input = Read.InputLines(typeof(AoC201813));
-    public override object Part1()
+    public object Part1()
     {
         (var grid, var start) = BuildGrid();
 
@@ -30,7 +30,7 @@ public class AoC201813 : AoCBase
         }
     }
 
-    public override object Part2()
+    public object Part2()
     {
         (var grid, var start) = BuildGrid();
 

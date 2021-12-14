@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2021.Day02;
 
-public class AoC202102 : AoCBase
+public class AoC202102
 {
     static string[] input = Read.InputLines(typeof(AoC202102));
     static Regex regex = new Regex(@"(?<direction>\w+) (?<value>\d+)", RegexOptions.Compiled);
@@ -12,7 +12,7 @@ public class AoC202102 : AoCBase
         select new Instruction(m.Groups["direction"].Value, int.Parse(m.Groups["value"].Value))
         ).ToImmutableArray();
 
-    public override object Part1() => instructions.Aggregate(new Pos(0, 0), (p, i) => i.direction[0] switch
+    public object Part1() => instructions.Aggregate(new Pos(0, 0), (p, i) => i.direction[0] switch
     {
         'f' => new(p.x + i.value, p.y),
         'u' => new(p.x, p.y - i.value),
@@ -20,7 +20,7 @@ public class AoC202102 : AoCBase
         _ => throw new Exception()
     }).Value;
 
-    public override object Part2() => instructions.Aggregate((p: new Pos(0, 0), aim: 0), (t, i) => i.direction[0] switch
+    public object Part2() => instructions.Aggregate((p: new Pos(0, 0), aim: 0), (t, i) => i.direction[0] switch
     {
         'f' => (new(t.p.x + i.value, t.p.y + t.aim * i.value), t.aim),
         'u' => (t.p, t.aim - i.value),

@@ -1,10 +1,10 @@
 namespace AdventOfCode.Year2015.Day03;
 
-public class AoC201503 : AoCBase
+public class AoC201503
 {
     static string input = Read.InputText(typeof(AoC201503));
-    public override object Part1() => Points1(input).Distinct().Count();
-    public override object Part2() => Points2(input, 0).Concat(Points2(input, 1)).Distinct().Count();
+    public object Part1() => Points1(input).Distinct().Count();
+    public object Part2() => Points2(input, 0).Concat(Points2(input, 1)).Distinct().Count();
     static IEnumerable<Point> Points1(string s)
     {
         var p = new Point(0, 0);

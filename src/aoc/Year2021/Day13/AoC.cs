@@ -1,7 +1,7 @@
 namespace AdventOfCode.Year2021.Day13;
 using Set = ImmutableHashSet<Coordinate>;
 
-public class AoC202113 : AoCBase
+public class AoC202113
 {
     static string[] input = Read.InputLines(typeof(AoC202113));
     static Grid grid = new Grid(
@@ -16,8 +16,8 @@ public class AoC202113 : AoCBase
         where i.HasValue
         select i.Value;
 
-    public override object Part1() => FoldingCycle(grid, instructions).First().Count();
-    public override object Part2() => FoldingCycle(grid, instructions).Last().ToString().DecodePixels(5);
+    public object Part1() => FoldingCycle(grid, instructions).First().Count();
+    public object Part2() => FoldingCycle(grid, instructions).Last().ToString().DecodePixels(5);
 
     static IEnumerable<Grid> FoldingCycle(Grid grid, IEnumerable<Instruction> instructions)
     {

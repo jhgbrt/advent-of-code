@@ -1,13 +1,13 @@
 namespace AdventOfCode.Year2021.Day05;
 
-public class AoC202105 : AoCBase
+public class AoC202105
 {
     static string[] input = Read.InputLines(typeof(AoC202105));
     ImmutableArray<Line> lines = input.Select(Line.Parse).ToImmutableArray();
     static int CountOverlaps(IEnumerable<Line> lines) => lines.SelectMany(l => l.Points()).GroupBy(p => p).Select(g => g.Count()).Count(c => c >= 2);
 
-    public override object Part1() => CountOverlaps(lines.Where(l => l.IsStraightLine));
-    public override object Part2() => CountOverlaps(lines);
+    public object Part1() => CountOverlaps(lines.Where(l => l.IsStraightLine));
+    public object Part2() => CountOverlaps(lines);
 }
 
 readonly record struct Line(Point from, Point to)

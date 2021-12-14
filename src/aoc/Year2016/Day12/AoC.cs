@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2016.Day12;
 
-public class AoC201612 : AoCBase
+public class AoC201612
 {
     static string[] input = Read.InputLines(typeof(AoC201612));
     static IEnumerable<(string instruction, string first, string second)> instructions = from line in input
@@ -10,9 +10,9 @@ public class AoC201612 : AoCBase
                                                                                          let second = split.Length > 2 ? split[2] : string.Empty
                                                                                          select (instruction, first, second);
 
-    public override object Part1() => new Computer().Compute(instructions.ToImmutableArray(), 0);
+    public object Part1() => new Computer().Compute(instructions.ToImmutableArray(), 0);
 
-    public override object Part2() => new Computer().Compute(instructions.ToImmutableArray(), 1);
+    public object Part2() => new Computer().Compute(instructions.ToImmutableArray(), 1);
 }
 
 

@@ -1,9 +1,9 @@
 namespace AdventOfCode.Year2015.Day21;
 
-public class AoC201521 : AoCBase
+public class AoC201521
 {
-    public override object Part1() => Part1Impl();
-    public override object Part2() => Part2Impl();
+    public object Part1() => Part1Impl();
+    public object Part2() => Part2Impl();
 
     static Catalog catalog = new()
     {

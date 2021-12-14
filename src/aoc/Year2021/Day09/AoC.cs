@@ -1,17 +1,17 @@
 namespace AdventOfCode.Year2021.Day09;
 
-public class AoC202109 : AoCBase
+public class AoC202109
 {
     static Grid grid = new(Read.InputLines(typeof(AoC202109)));
 
-    public override object Part1() => (
+    public object Part1() => (
         from p in grid.Points()
         let value = grid[p]
         where grid.Neighbours(p).All(n => value < grid[n])
         select value + 1
         ).Sum();
 
-    public override object Part2() => (
+    public object Part2() => (
         from low in 
             from p in grid.Points()
             let neighbours = grid.Neighbours(p)

@@ -1,11 +1,11 @@
 namespace AdventOfCode.Year2015.Day17;
 
-public class AoC201517 : AoCBase
+public class AoC201517
 {
     static int[] input = new[] { 43, 3, 4, 10, 21, 44, 4, 6, 47, 41, 34, 17, 17, 44, 36, 31, 46, 9, 27, 38 };
 
-    public override object Part1() => Part1(input, 150);
-    public override object Part2() => Part2(input, 150);
+    public object Part1() => Part1(input, 150);
+    public object Part2() => Part2(input, 150);
     public static int Part1(int[] input, int sum) => Combinations(input).Where(c => c.Sum() == sum).Count();
     public static int Part2(int[] input, int sum)
     {

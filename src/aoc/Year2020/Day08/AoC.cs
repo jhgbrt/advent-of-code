@@ -1,11 +1,11 @@
 namespace AdventOfCode.Year2020.Day08;
 
-public class AoC202008 : AoCBase 
+public class AoC202008 
 {
     static Prog program = ReadProgram("input.txt");
 
-    override public object Part1() => program.Part1();
-    override public object Part2() => program.Part2();
+    public object Part1() => program.Part1();
+    public object Part2() => program.Part2();
 
     internal static Prog ReadProgram(string file) => new Prog((
         from line in Read.Lines(typeof(AoC202008), file)

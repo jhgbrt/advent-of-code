@@ -1,11 +1,11 @@
 namespace AdventOfCode.Year2015.Day20;
 
-public class AoC201520 : AoCBase
+public class AoC201520
 {
     static int input = 34000000;
 
-    public override object Part1() => Part1Impl();
-    public override object Part2() => Part2Impl();
+    public object Part1() => Part1Impl();
+    public object Part2() => Part2Impl();
 
     public static int Part1Impl()
     {

@@ -1,10 +1,10 @@
 namespace AdventOfCode.Year2021.Day10;
 
-public class AoC202110 : AoCBase
+public class AoC202110
 {
     static string[] input = Read.InputLines(typeof(AoC202110));
     
-    public override object Part1() => (
+    public object Part1() => (
         from line in input
         select Score1(line)
     ).Sum();
@@ -30,7 +30,7 @@ public class AoC202110 : AoCBase
         return 0;
     }
 
-    public override object Part2() => (from line in input
+    public object Part2() => (from line in input
                                        where Score1(line) == 0
                                        let score = Score2(line)
                                        orderby score

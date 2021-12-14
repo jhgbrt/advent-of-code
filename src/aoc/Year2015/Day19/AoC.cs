@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2015.Day19;
 
-public class AoC201519 : AoCBase
+public class AoC201519
 {
     static string[] lines = Read.InputLines(typeof(AoC201519));
     static string input = lines.Last();
@@ -10,8 +10,8 @@ public class AoC201519 : AoCBase
         select new Replacement(split[0], split[1])
         ).ToImmutableList();
 
-    public override object Part1() => Part1(input, replacements);
-    public override object Part2() => Part2(input);
+    public object Part1() => Part1(input, replacements);
+    public object Part2() => Part2(input);
     static int Part1(string input, ImmutableList<Replacement> replacements)
     {
         HashSet<string> output = new();

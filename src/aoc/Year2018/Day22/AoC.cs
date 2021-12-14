@@ -1,13 +1,13 @@
 namespace AdventOfCode.Year2018.Day22;
 
-public class AoC201822 : AoCBase
+public class AoC201822
 {
     const int depth = 5616;
     const int targetx = 10;
     const int targety = 785;
 
-    public override object Part1() => Points().Select(p => RiskLevel(p)).Sum();
-    public override object Part2()
+    public object Part1() => Points().Select(p => RiskLevel(p)).Sum();
+    public object Part2()
     {
         return -1;
     }

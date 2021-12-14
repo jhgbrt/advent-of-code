@@ -1,12 +1,12 @@
 ﻿namespace AdventOfCode.Year2020.Day01;
 
-public class AoC202001 : AoCBase
+public class AoC202001
 {
     static string[] input = Read.InputLines(typeof(AoC202001));
     static int[] numbers = input.Select(int.Parse).ToArray();
 
-    public override object Part1() => numbers.Part1();
-    public override object Part2() => numbers.Part2();
+    public object Part1() => numbers.Part1();
+    public object Part2() => numbers.Part2();
 
 }
 record Pair(int i, int j)

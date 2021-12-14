@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2015.Day13;
 
-public class AoC201513 : AoCBase
+public class AoC201513
 {
     static Regex regex = new Regex(@"(?<first>\w+) would (?<action>lose|gain) (?<amount>\d+) happiness units by sitting next to (?<second>\w+).", RegexOptions.Compiled);
     static string[] input = Read.InputLines(typeof(AoC201513));
@@ -17,8 +17,8 @@ public class AoC201513 : AoCBase
     static ImmutableHashSet<string> vertices = edges.Select(e => e.Source).Concat(edges.Select(e => e.Target)).ToImmutableHashSet();
 
 
-    public override object Part1() => CalculateScore(edges, vertices);
-    public override object Part2() => CalculateScore(edges.AddRange(from v in vertices
+    public object Part1() => CalculateScore(edges, vertices);
+    public object Part2() => CalculateScore(edges.AddRange(from v in vertices
                                                                     let edge = new Edge("Jeroen", v, 0)
                                                                     from e in new[] { edge, edge.Reverse() }
                                                                     select e), vertices.Add("Jeroen"));

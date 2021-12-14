@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2021.Day14;
 
-public class AoC202114 : AoCBase
+public class AoC202114
 {
     static string[] input = Read.InputLines(typeof(AoC202114));
 
@@ -17,8 +17,8 @@ public class AoC202114 : AoCBase
         let pair = recipe.Substring(i, 2)
         group pair by pair).ToImmutableDictionary(g => g.Key, g => (long)g.Count());
 
-    public override object Part1() => Compute(10);
-    public override object Part2() => Compute(40);
+    public object Part1() => Compute(10);
+    public object Part2() => Compute(40);
 
     private static long Compute(int iterations)
     {

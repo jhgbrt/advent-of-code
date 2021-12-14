@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2015.Day22;
 
-public class AoC201522 : AoCBase
+public class AoC201522
 {
     static ImmutableArray<Spell> AllSpells = new Spell[]
     {
@@ -13,8 +13,8 @@ public class AoC201522 : AoCBase
 
     static string[] input = Read.InputLines(typeof(AoC201522));
 
-    public override object Part1() => Play(new Player(50, 0, 0, 500), new Player(58, 9, 0, 0), false);
-    public override object Part2() => Play(new Player(50, 0, 0, 500), new Player(58, 9, 0, 0), true);
+    public object Part1() => Play(new Player(50, 0, 0, 500), new Player(58, 9, 0, 0), false);
+    public object Part2() => Play(new Player(50, 0, 0, 500), new Player(58, 9, 0, 0), true);
 
     static int Play(Player player, Player boss, bool hardMode, bool playerTurn = true, int best = 999999, int spent = 0, ImmutableList<Spell>? activeSpells = null)
     {

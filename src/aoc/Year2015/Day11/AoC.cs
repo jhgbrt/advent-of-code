@@ -1,11 +1,11 @@
 namespace AdventOfCode.Year2015.Day11;
 
-public class AoC201511 : AoCBase
+public class AoC201511
 {
     static string input = "cqjxjnds";
 
-    public override object Part1() => Next(input);
-    public override object Part2() => Next(Next(input));
+    public object Part1() => Next(input);
+    public object Part2() => Next(Next(input));
 
     static string Next(string password)
     {

@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2015.Day23;
 
-public class AoC201523 : AoCBase
+public class AoC201523
 {
     static string[] input = Read.InputLines(typeof(AoC201523));
     static ImmutableList<Instruction> instructions = (
@@ -20,8 +20,8 @@ public class AoC201523 : AoCBase
         select instruction).ToImmutableList();
 
 
-    public override object Part1() => Run(instructions, 0);
-    public override object Part2() => Run(instructions, 1);
+    public object Part1() => Run(instructions, 0);
+    public object Part2() => Run(instructions, 1);
 
     static int Run(IReadOnlyCollection<Instruction> instructions, int a)
     {

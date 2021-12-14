@@ -1,13 +1,13 @@
 namespace AdventOfCode.Year2021.Day08;
-public class AoC202108 : AoCBase
+public class AoC202108
 {
     static string[] input = Read.InputLines(typeof(AoC202108));
-    public override object Part1() => (from p in input
+    public object Part1() => (from p in input
                                        from value in p.Split('|').Last().Split(' ')
                                        where value.Length is 2 or 3 or 4 or 7
                                        select value
                                        ).Count();
-    public override object Part2() => (
+    public object Part2() => (
             from p in input
             let fragments = p.Split('|', StringSplitOptions.TrimEntries)
             let encoding = fragments[0].Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(s => new string(s.OrderBy(c => c).ToArray())).ToArray()

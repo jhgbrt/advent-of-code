@@ -1,9 +1,9 @@
 ﻿namespace AdventOfCode.Year2020.Day04
 {
-    public class AoC202004 : AoCBase
+    public class AoC202004
     {
-        public override object Part1() => Driver.Part1("input.txt");
-        public override object Part2() => Driver.Part2("input.txt");
+        public object Part1() => Driver.Part1("input.txt");
+        public object Part2() => Driver.Part2("input.txt");
     }
 
     record Amount(int Value, string Unit)

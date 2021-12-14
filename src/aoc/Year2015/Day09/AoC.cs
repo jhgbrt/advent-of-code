@@ -1,11 +1,11 @@
 namespace AdventOfCode.Year2015.Day09;
 
-public class AoC201509 : AoCBase
+public class AoC201509
 {
     static string[] lines = Read.InputLines(typeof(AoC201509));
 
-    public override object Part1() => MinMax().min;
-    public override object Part2() => MinMax().max;
+    public object Part1() => MinMax().min;
+    public object Part2() => MinMax().max;
 
     static Regex regex = new(@"^(?<from>\w+) to (?<to>\w+) = (?<distance>\d+$)", RegexOptions.Compiled);
 

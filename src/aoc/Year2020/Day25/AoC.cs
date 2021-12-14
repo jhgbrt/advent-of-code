@@ -1,10 +1,10 @@
 namespace AdventOfCode.Year2020.Day25;
 
-public class AoC202025 : AoCBase
+public class AoC202025
 {
     public static string[] input = Read.InputLines(typeof(AoC202025));
 
-    public override object Part1()
+    public object Part1()
     {
         var (key1, key2) = (2084668L, 3704642L);
         long prime = 20201227, value = 1, result = 1;
@@ -14,6 +14,6 @@ public class AoC202025 : AoCBase
         }
         return result;
     }
-    public override object Part2() => -1;
+    public object Part2() => -1;
 
 }

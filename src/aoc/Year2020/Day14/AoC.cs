@@ -4,8 +4,8 @@ using P2 = AdventOfCode.Year2020.Day14.Part2.Part2;
 
 namespace AdventOfCode.Year2020.Day14;
 
-public class AoC202014 : AoCBase
+public class AoC202014
 {
-    public override object Part1() => P1.Run();
-    public override object Part2() => P2.Run();
+    public object Part1() => P1.Run();
+    public object Part2() => P2.Run();
 }

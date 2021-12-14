@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2017.Day12;
 
-public class AoC201712 : AoCBase
+public class AoC201712
 {
     static string[] input = Read.InputLines(typeof(AoC201712));
     static IEnumerable<(int vertex1, int vertex2)> edges = (
@@ -10,8 +10,8 @@ public class AoC201712 : AoCBase
                 from vertex2 in parts[1].Split(',').Select(int.Parse)
                 select (vertex1: vertex1, vertex2: vertex2)
             ).ToArray();
-    public override object Part1() => new Graph(edges).Count(0);
-    public override object Part2() => new Graph(edges).SubGraphs().Count;
+    public object Part1() => new Graph(edges).Count(0);
+    public object Part2() => new Graph(edges).SubGraphs().Count;
 
 
 }

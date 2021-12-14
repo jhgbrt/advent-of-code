@@ -1,11 +1,11 @@
 namespace AdventOfCode.Year2015.Day10;
 
-public class AoC201510 : AoCBase
+public class AoC201510
 {
     static readonly string input = "1113222113";
 
-    public override object Part1() => Run(input, 40);
-    public override object Part2() => Run(input, 50);
+    public object Part1() => Run(input, 40);
+    public object Part2() => Run(input, 50);
 
     static int Run(string input, int times)
     {

@@ -7,7 +7,7 @@ namespace AdventOfCode.Client.Logic;
 
 class AoCRunner
 {
-    internal async Task<DayResult> Run(string typeName, int year, int day, Action<int, Result> progress)
+    internal async Task<DayResult> Run(string? typeName, int year, int day, Action<int, Result> progress)
     {
         dynamic aoc = GetAoC(typeName, year, day);
         var t1 = Run(() => aoc.Part1()).ContinueWith(t =>
@@ -28,12 +28,24 @@ class AoCRunner
         return result;
     }
 
-    private static dynamic GetAoC(string typeName, int year, int day)
+    private static dynamic GetAoC(string? typeName, int year, int day)
     {
         var assembly = Assembly.GetEntryAssembly();
         if (assembly == null) throw new Exception("no entry assembly?");
-        var type = assembly.GetType(string.Format(typeName, year, day));
-        if (type is null) throw new InvalidOperationException($"Could not find type {typeName} for {year}, {day}. Use --typeName to override.");
+
+        var type = (!string.IsNullOrEmpty(typeName)
+            ? assembly.GetType(string.Format(typeName, year, day))
+            : null
+            ) ?? (
+                from t in assembly.GetTypes()
+                let name = t.FullName ?? t.Name
+                where name.Contains($"{year}") && name.Replace($"{year}", "").Contains($"{day:00}")
+                select t
+                ).FirstOrDefault();
+
+        if (type is null) 
+            throw new InvalidOperationException($"Could not find the type containing the code for {year}, {day}. Make sure the fully qualified typename contains the year and day (YYYYDD format), or use --typeName to override the convention.");
+
         dynamic? aoc = Activator.CreateInstance(type);
         if (aoc is null) throw new InvalidOperationException($"Could not instantiate type {typeName}");
         return aoc;

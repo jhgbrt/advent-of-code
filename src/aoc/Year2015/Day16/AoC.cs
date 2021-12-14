@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2015.Day16;
 
-public class AoC201516 : AoCBase
+public class AoC201516
 {
     static string[] lines = Read.InputLines(typeof(AoC201516));
     static Regex regex = new Regex(@"Sue (?<number>\d+): (?<properties>.*)");
@@ -32,13 +32,13 @@ public class AoC201516 : AoCBase
     }.ToImmutableDictionary();
 
 
-    public override object Part1() => (
+    public object Part1() => (
             from sue in sues
             where sue.properties.All(p => p.Value == list[p.Key])
             select sue
             ).Single().number;
 
-    public override object Part2() => (
+    public object Part2() => (
             from sue in sues
             where sue.HasEqual("children", list)
             && sue.HasMore("cats", list)

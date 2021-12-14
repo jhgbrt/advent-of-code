@@ -2,15 +2,15 @@ using static AdventOfCode.Year2020.Day22.AoC202022.Input;
 
 namespace AdventOfCode.Year2020.Day22;
 
-public class AoC202022 : AoCBase
+public class AoC202022
 {
 
-    public override object Part1()
+    public object Part1()
     {
         var (deck1, deck2) = (new Deck(Deck1, 1), new Deck(Deck2, 2));
         return Play1(deck1, deck2).Reverse().Select((n, i) => n * (i + 1)).Sum();
     }
-    public override object Part2()
+    public object Part2()
     {
         var (deck1, deck2) = (new Deck(Deck1, 1), new Deck(Deck2, 2));
         return Play2(deck1, deck2, 1).Reverse().Select((n, i) => n * (i + 1)).Sum();
