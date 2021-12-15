@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2018.Day13;
 
 public class AoC201813
 {
-    static string[] input = Read.InputLines(typeof(AoC201813));
+    static string[] input = Read.InputLines();
     public object Part1()
     {
         (var grid, var start) = BuildGrid();

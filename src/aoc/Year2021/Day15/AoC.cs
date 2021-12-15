@@ -2,7 +2,7 @@
 
 public class AoC202115
 {
-    static readonly string[] input = Read.InputLines(typeof(AoC202115));
+    static readonly string[] input = Read.InputLines();
 
     static readonly int Y = input.Length;
 

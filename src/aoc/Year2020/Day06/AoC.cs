@@ -5,7 +5,7 @@ namespace AdventOfCode.Year2020.Day06;
 
 public class AoC202006
 {
-    static string[] input = Read.InputLines(typeof(AoC202006));
+    static string[] input = Read.InputLines();
 
     public object Part1() => Part1(input.AsBlocks());
     public object Part2() => Part2(input.AsBlocks());

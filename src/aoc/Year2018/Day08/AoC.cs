@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2018.Day08;
 
 public class AoC201808
 {
-    static string input = Read.InputText(typeof(AoC201808));
+    static string input = Read.InputText();
 
     public object Part1() => Part1(input);
     public object Part2() => Part2(input);

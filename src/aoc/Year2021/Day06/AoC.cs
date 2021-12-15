@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2021.Day06;
 
 public class AoC202106
 {
-    static string input = Read.InputText (typeof(AoC202106));
+    static string input = Read.InputText();
     static ImmutableArray<int> numbers = input.Split(',').Select(int.Parse).ToImmutableArray();
     public object Part1() => CountFish(80);
     public object Part2() => CountFish(256);

@@ -4,7 +4,7 @@ namespace AdventOfCode.Year2015.Day24;
 
 public class AoC201524
 {
-    public static string[] input = Read.InputLines(typeof(AoC201524));
+    public static string[] input = Read.InputLines();
     static int[] weights = (from line in input select int.Parse(line)).ToArray();
 
     public object Part1() => CalculateRecursive(weights, weights.Sum() / 3, 0, 1, 0);

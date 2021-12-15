@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2018.Day21;
 
 public class AoC201821
 {
-    static string[] input = Read.InputLines(typeof(AoC201821));
+    static string[] input = Read.InputLines();
     public object Part1()
     {
         var cpu = new CPU(int.Parse(input[0].Split(' ').Last()), input.GetInstructions(), new long[] { 0, 0, 0, 0, 0, 0 });

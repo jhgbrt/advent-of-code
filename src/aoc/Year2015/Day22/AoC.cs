@@ -11,7 +11,7 @@ public class AoC201522
         new("Recharge", 229, 0, 0, 0, 101, 5)
     }.ToImmutableArray();
 
-    static string[] input = Read.InputLines(typeof(AoC201522));
+    static string[] input = Read.InputLines();
 
     public object Part1() => Play(new Player(50, 0, 0, 500), new Player(58, 9, 0, 0), false);
     public object Part2() => Play(new Player(50, 0, 0, 500), new Player(58, 9, 0, 0), true);

@@ -9,15 +9,6 @@ public class Tests
     }
 
     [Fact]
-    public void TestPart1() => Assert.Equal(2, Driver.Part1("sample.txt"));
-    [Fact]
-    public void TestPart2() => Assert.Equal(2, Driver.Part2("sample.txt"));
-    [Fact]
-    public void TestPart2Valid() => Assert.Equal(4, Driver.Part2("valid.txt"));
-    [Fact]
-    public void TestPart2Invalid() => Assert.Equal(0, Driver.Part2("invalid.txt"));
-
-    [Fact]
     public void TestParse()
     {
         var tr = new StringReader("byr:abc def:123\nxyz:asdf\n\nbyr:edf");

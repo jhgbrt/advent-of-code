@@ -3,7 +3,7 @@ namespace AdventOfCode.Year2015.Day25;
 public class AoC201525
 {
     
-    public static string[] input = Read.InputLines(typeof(AoC201525));
+    public static string[] input = Read.InputLines();
     const int row = 3010;
     const int column = 3019;
     const long code = 20151125;

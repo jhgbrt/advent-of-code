@@ -3,7 +3,7 @@ using Builder = ImmutableDictionary<Coordinate, int>.Builder;
 
 public class AoC202111
 {
-    static string[] input = Read.InputLines(typeof(AoC202111));
+    static string[] input = Read.InputLines();
     static Grid grid = Grid.FromLines(input);
     public object Part1() => Cycle(grid).Take(100).Sum(g => g.Flashed);
     public object Part2() => Cycle(grid).TakeWhile(g => !g.AllFlashed).Count() + 1;

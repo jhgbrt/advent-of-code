@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2016.Day02;
 
 public class AoC201602
 {
-    public static string[] input = Read.InputLines(typeof(AoC201602)).Where(l => !string.IsNullOrEmpty(l)).ToArray();
+    public static string[] input = Read.InputLines().Where(l => !string.IsNullOrEmpty(l)).ToArray();
 
     public object Part1() => GetCode(input, Keypad1);
     public object Part2() => GetCode(input, Keypad2);

@@ -6,7 +6,7 @@ public static class Runner
 {
     public static object Run()
     {
-        var input = ReadInput("input.txt").ToImmutableArray();
+        var input = ReadInput().ToImmutableArray();
 
         var q = from tile in input
                 let neighbors = (from n in input
@@ -196,9 +196,9 @@ class Tile
 
 static class AoC
 {
-    internal static IEnumerable<Tile> ReadInput(string fileName)
+    internal static IEnumerable<Tile> ReadInput()
     {
-        var enumerator = Read.Lines(typeof(AoC202020), fileName).ToList().GetEnumerator();
+        var enumerator = Read.InputLines().ToList().GetEnumerator();
         foreach (var tile in ReadTiles(enumerator)) yield return tile;
     }
 
@@ -294,87 +294,4 @@ static class AoC
                                                               select tile.Content[i]))))
             .ToString();
 
-}
-
-public class Tests
-{
-    ITestOutputHelper _output;
-
-    public Tests(ITestOutputHelper output)
-    {
-        _output = output;
-    }
-
-    [Fact]
-    public void Part1()
-    {
-        var input = ReadInput("example.txt").ToArray();
-        Assert.Equal(9, input.Count());
-
-        var q = from tile in input
-                let neighbors = (from n in input
-                                 where tile.IsAdjacentTo(n)
-                                 select n)
-                where neighbors.Count() == 2
-                select (tile, neighbors);
-
-        var result = q.Select(q => q.tile.Id).Aggregate(1L, (x, y) => x * y);
-
-        Assert.Equal(20899048083289, result);
-    }
-   
-    [Fact]
-    public void Part2()
-    {
-        var input = ReadInput("example.txt").ToImmutableArray();
-        var result = input.AssembleImage();
-        Assert.Equal(24, result.Content.Length);
-        Assert.True(result.Content.All(c => c.Length == 24));
-
-        var pattern = new[]
-        {
-            "                  # " ,
-            "#    ##    ##    ###" ,
-            " #  #  #  #  #  #   "
-        };
-        int count = result.CountPattern(pattern);
-        Assert.Equal(2, count);
-        Assert.Equal(273, result.Count('#') - count*15);
-
-    }
-
-
-    [Theory]
-    [InlineData(2311, 1951)]
-    public void IsRightFrom(int right, int left)
-    {
-        var input = ReadInput("example.txt").ToDictionary(x => x.Id);
-        
-        var lefttile = input[left];
-        var righttile = input[right];
-
-        for (int i = 0; i < 4 && !righttile.IsRightFrom(lefttile); i++)
-        {
-            lefttile = lefttile.Rotate();
-        }
-        
-        Assert.True(input[right].IsRightFrom(lefttile));
-    }
-
-    [Theory]
-    [InlineData(1951, 2729)]
-    public void IsBelow(int top, int bottom)
-    {
-        var input = ReadInput("example.txt").ToDictionary(x => x.Id);
-
-        var toptile = input[top];
-        var bottomtile = input[bottom];
-
-        for (int i = 0; i < 4 && !bottomtile.IsBelow(toptile); i++)
-        {
-            toptile = toptile.Rotate();
-        }
-
-        Assert.True(bottomtile.IsBelow(toptile));
-    }
 }

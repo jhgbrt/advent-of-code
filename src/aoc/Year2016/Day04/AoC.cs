@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2016.Day04;
 
 public class AoC201604
 {
-    public static string[] input = Read.InputLines(typeof(AoC201604));
+    public static string[] input = Read.InputLines();
 
     public object Part1() => (from line in input
                                                  let room = Room.Parse(line)

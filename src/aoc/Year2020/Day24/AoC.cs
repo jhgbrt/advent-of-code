@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2020.Day24;
 
 public class AoC202024
 {
-    static string[] input = Read.InputLines(typeof(AoC202024));
+    static string[] input = Read.InputLines();
 
     public object Part1()
     {
@@ -18,7 +18,7 @@ public class AoC202024
     public object Part2()
     {
         var tiles =
-            from line in Read.InputLines(typeof(AoC202024))
+            from line in Read.InputLines()
             select line.ToTile();
 
         var flippedTiles = tiles.Aggregate(

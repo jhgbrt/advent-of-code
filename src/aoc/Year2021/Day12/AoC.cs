@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2021.Day12;
 
 public class AoC202112
 {
-    static string[] input = Read.InputLines(typeof(AoC202112));
+    static string[] input = Read.InputLines();
 
     static ILookup<Node, Node> edges = (
         from line in input

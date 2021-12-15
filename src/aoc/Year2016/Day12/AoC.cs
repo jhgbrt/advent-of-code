@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2016.Day12;
 
 public class AoC201612
 {
-    static string[] input = Read.InputLines(typeof(AoC201612));
+    static string[] input = Read.InputLines();
     static IEnumerable<(string instruction, string first, string second)> instructions = from line in input
                                                                                          let split = line.Split(' ')
                                                                                          let instruction = split[0]

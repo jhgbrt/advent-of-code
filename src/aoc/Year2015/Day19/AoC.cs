@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2015.Day19;
 
 public class AoC201519
 {
-    static string[] lines = Read.InputLines(typeof(AoC201519));
+    static string[] lines = Read.InputLines();
     static string input = lines.Last();
     static ImmutableList<Replacement> replacements = (
         from line in lines.TakeWhile(line => !string.IsNullOrEmpty(line))

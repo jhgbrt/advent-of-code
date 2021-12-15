@@ -5,7 +5,7 @@ public static class Runner
 {
     public static object Run()
     {
-        var (rules, messages) = ReadFile("input.txt");
+        var (rules, messages) = ReadFile(Read.InputLines());
         return messages.Count<string>(rules.ToRegex().IsMatch);
     }
 }
@@ -16,9 +16,9 @@ record RecursiveRule(int Number, ImmutableArray<ImmutableArray<int>> RuleNumberL
 
 static class AoC
 {
-    internal static (ImmutableDictionary<int, Rule>, string[]) ReadFile(string fileName)
+    internal static (ImmutableDictionary<int, Rule>, string[]) ReadFile(IEnumerable<string> input)
     {
-        var enumerator = Read.Lines(typeof(AoC202019), fileName).GetEnumerator();
+        var enumerator = input.GetEnumerator();
         return (ReadRules(enumerator).ToImmutableDictionary(r => r.Number), ReadLines(enumerator).ToArray());
     }
 
@@ -49,15 +49,4 @@ static class AoC
             _ => throw new()
         };
 
-}
-
-public class Tests
-{
-    [Fact]
-    public void ReadExample()
-    {
-        var (rules, messages) = ReadFile("example1.txt");
-        var regex = rules.ToRegex();
-        Assert.Equal(2, messages.Count(regex.IsMatch));
-    }
 }

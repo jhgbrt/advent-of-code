@@ -5,7 +5,7 @@ namespace AdventOfCode.Year2017.Day20;
 
 public class AoC201720
 {
-    static Particle[] particles = Read.InputLines(typeof(AoC201720)).Select(Particle.Parse).ToArray();
+    static Particle[] particles = Read.InputLines().Select(Particle.Parse).ToArray();
     static readonly double t = particles.Sum(p => Abs(p.Acceleration.x) + Abs(p.Acceleration.y) + Abs(p.Acceleration.z));
     public object Part1() => (
         from x in particles.Select((p, i) => (p: p, i: i))

@@ -66,7 +66,7 @@ class GarbageProcessor
 
     public State ProcessFile(string file)
     {
-        using (var reader = Read.InputStream(typeof(GarbageProcessor)))
+        using (var reader = Read.InputStream())
         {
             return Process(reader);
         }

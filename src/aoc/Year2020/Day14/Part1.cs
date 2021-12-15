@@ -6,7 +6,7 @@ public static class Part1
 {
     public static long Run()
     {
-        var input = Read.InputLines(typeof(AoC202014));
+        var input = Read.InputLines();
 
         var query = from line in input
                     select Factory.Create(line);

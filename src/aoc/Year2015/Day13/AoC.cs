@@ -3,7 +3,7 @@ namespace AdventOfCode.Year2015.Day13;
 public class AoC201513
 {
     static Regex regex = new Regex(@"(?<first>\w+) would (?<action>lose|gain) (?<amount>\d+) happiness units by sitting next to (?<second>\w+).", RegexOptions.Compiled);
-    static string[] input = Read.InputLines(typeof(AoC201513));
+    static string[] input = Read.InputLines();
     static readonly ImmutableList<Edge> edges =
         (from line in input
          let match = regex.Match(line)

@@ -30,18 +30,4 @@ public class Tests
     {
         Assert.Equal(expected, Driver.IsValid1(Driver.ToEntry(input)));
     }
-
-    [Fact]
-    public void TestPart1()
-    {
-        var result = Driver.Part1("sample.txt");
-        Assert.Equal(2, result);
-    }
-
-    [Fact]
-    public void TestPart2()
-    {
-        var result = Driver.Part2("sample.txt");
-        Assert.Equal(1, result);
-    }
 }

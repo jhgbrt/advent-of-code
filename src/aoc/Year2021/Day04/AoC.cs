@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2021.Day04;
 
 public class AoC202104
 {
-    static string[] input = Read.InputLines(typeof(AoC202104));
+    static string[] input = Read.InputLines();
     static int[] numbers = input[0].Split(",").Select(int.Parse).ToArray();
     static IEnumerable<Board> ReadBoards() => input.Skip(2).GetBoards().ToArray();
     public object Part1() => ReadBoards().Play(numbers).First();

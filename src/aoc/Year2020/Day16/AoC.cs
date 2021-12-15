@@ -6,7 +6,7 @@ namespace AdventOfCode.Year2020.Day16;
 
 public class AoC202016
 {
-    static (ImmutableArray<FieldDef> fields, Ticket myticket, ImmutableArray<Ticket> othertickets) input = ParseFile("input.txt");
+    static (ImmutableArray<FieldDef> fields, Ticket myticket, ImmutableArray<Ticket> othertickets) input = ParseFile();
 
     public object Part1()
     {
@@ -64,9 +64,9 @@ public class AoC202016
 
     }
 
-    internal static (ImmutableArray<FieldDef> fields, Ticket myticket, ImmutableArray<Ticket> othertickets) ParseFile(string input)
+    internal static (ImmutableArray<FieldDef> fields, Ticket myticket, ImmutableArray<Ticket> othertickets) ParseFile()
     {
-        using var sr = new StreamReader(Read.Stream(typeof(AoC202016), input));
+        using var sr = Read.InputStream();
 
         var fields = (
             from line in sr.ReadWhile(s => !string.IsNullOrEmpty(s))

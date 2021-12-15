@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2019.Day08;
 
 public class AoC201908
 {
-    internal static string[] input = Read.InputLines(typeof(AoC201908));
+    internal static string[] input = Read.InputLines();
     IEnumerable<int[]> layers = input.SelectMany(c => c).Select(c => c - '0').Chunk(25*6);
     public object Part1() => (
         from layer in layers

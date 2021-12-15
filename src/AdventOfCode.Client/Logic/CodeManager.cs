@@ -117,40 +117,19 @@ class CodeManager
         await dir.WriteCode(code);
 
         await dir.WriteSample("");
-        AddEmbeddedResource(dir.SAMPLE);
 
         progress("Retrieving puzzle input");
 
         var content = await client.GetPuzzleInputAsync(year, day);
         await dir.WriteInput(content);
-        AddEmbeddedResource(dir.INPUT);
 
         progress("Retrieving puzzle data");
 
         var puzzle = await client.GetPuzzleAsync(year, day, !force);
         var answer = puzzle.Answer;
         await dir.WriteAnswers(JsonSerializer.Serialize(answer));
-        AddEmbeddedResource(dir.ANSWERS);
     }
-    void AddEmbeddedResource(string path)
-    {
-        var csproj = "aoc.csproj";
-        var doc = XDocument.Load(csproj);
-        var itemGroup = (
-            from node in doc.Descendants()
-            where node.Name == "ItemGroup"
-            select node
-            ).First();
 
-        var relativePath = path.Substring(CurrentDirectory.Length + 1);
-        if (!itemGroup.Elements().Select(e => e.Attribute("Include")).Where(a => a != null && a.Value == relativePath).Any())
-        {
-            var embeddedResource = new XElement("EmbeddedResource");
-            embeddedResource.SetAttributeValue("Include", relativePath);
-            itemGroup.Add(embeddedResource);
-        }
-        doc.Save(csproj);
-    }
     internal async Task<string> GenerateCodeAsync(int year, int day)
     {
         var dir = new CodeFolder(year, day);

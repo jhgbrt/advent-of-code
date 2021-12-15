@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2018.Day14;
 
 public class AoC201814
 {
-    static int input = int.Parse(Read.InputLines(typeof(AoC201814)).First());
+    static int input = int.Parse(Read.InputLines().First());
 
     public object Part1() => Part1(input);
     public object Part2() => Part2(input);

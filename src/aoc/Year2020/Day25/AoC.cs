@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2020.Day25;
 
 public class AoC202025
 {
-    public static string[] input = Read.InputLines(typeof(AoC202025));
+    public static string[] input = Read.InputLines();
 
     public object Part1()
     {

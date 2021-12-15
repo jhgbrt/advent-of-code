@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2021.Day14;
 
 public class AoC202114
 {
-    static string[] input = Read.InputLines(typeof(AoC202114));
+    static string[] input = Read.InputLines();
 
     static string recipe = input[0];
 

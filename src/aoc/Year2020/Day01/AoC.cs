@@ -2,7 +2,7 @@
 
 public class AoC202001
 {
-    static string[] input = Read.InputLines(typeof(AoC202001));
+    static string[] input = Read.InputLines();
     static int[] numbers = input.Select(int.Parse).ToArray();
 
     public object Part1() => numbers.Part1();

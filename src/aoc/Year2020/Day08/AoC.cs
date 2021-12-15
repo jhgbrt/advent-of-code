@@ -2,13 +2,13 @@ namespace AdventOfCode.Year2020.Day08;
 
 public class AoC202008 
 {
-    static Prog program = ReadProgram("input.txt");
+    static Prog program = ReadProgram();
 
     public object Part1() => program.Part1();
     public object Part2() => program.Part2();
 
-    internal static Prog ReadProgram(string file) => new Prog((
-        from line in Read.Lines(typeof(AoC202008), file)
+    internal static Prog ReadProgram() => new Prog((
+        from line in Read.InputLines()
         let instruction = line[0..3]
         let arg = int.Parse(line[3..])
         select new Instruction(instruction, arg)

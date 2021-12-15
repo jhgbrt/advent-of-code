@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2021.Day05;
 
 public class AoC202105
 {
-    static string[] input = Read.InputLines(typeof(AoC202105));
+    static string[] input = Read.InputLines();
     ImmutableArray<Line> lines = input.Select(Line.Parse).ToImmutableArray();
     static int CountOverlaps(IEnumerable<Line> lines) => lines.SelectMany(l => l.Points()).GroupBy(p => p).Select(g => g.Count()).Count(c => c >= 2);
 

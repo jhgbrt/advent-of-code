@@ -5,7 +5,7 @@ public static class Runner
 {
     public static int Run()
     {
-        var grid = Grid.FromFile(@"input.txt");
+        var grid = Grid.FromFile();
 
         for (int i = 0; i < 6; i++)
         {
@@ -30,7 +30,7 @@ record Coordinate(int x, int y, int z, int w)
 
 record Grid(ImmutableHashSet<Coordinate> ActiveCells)
 {
-    public static Grid FromFile(string fileName) => FromLines(Read.Lines(typeof(AoC202017), fileName));
+    public static Grid FromFile() => FromLines(Read.InputLines());
     public static Grid FromLines(IEnumerable<string> lines) => new Grid((
                 from lineindex in lines.Select((line, y) => (line, y))
                 from charindex in lineindex.line.Select((c, x) => (c, x))

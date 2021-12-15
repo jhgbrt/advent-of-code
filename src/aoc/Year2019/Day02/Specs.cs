@@ -17,7 +17,7 @@ public class Specs
     [Fact]
     public void TestPart2()
     {
-        var result = AoC201902.Part2(Read.InputLines(typeof(Specs)), 3895705);
+        var result = AoC201902.Part2(Read.InputLines(), 3895705);
         Assert.Equal(1202, result);
     }
 }

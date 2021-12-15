@@ -3,7 +3,7 @@ using Set = ImmutableHashSet<Coordinate>;
 
 public class AoC202113
 {
-    static string[] input = Read.InputLines(typeof(AoC202113));
+    static string[] input = Read.InputLines();
     static Grid grid = new Grid(
         from line in input
         let c = Coordinate.TryParse(line)

@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2015.Day09;
 
 public class AoC201509
 {
-    static string[] lines = Read.InputLines(typeof(AoC201509));
+    static string[] lines = Read.InputLines();
 
     public object Part1() => MinMax().min;
     public object Part2() => MinMax().max;

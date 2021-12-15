@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2021.Day09;
 
 public class AoC202109
 {
-    static Grid grid = new(Read.InputLines(typeof(AoC202109)));
+    static Grid grid = new(Read.InputLines());
 
     public object Part1() => (
         from p in grid.Points()

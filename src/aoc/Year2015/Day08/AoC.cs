@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2015.Day08;
 
 public class AoC201508
 {
-    static string[] lines = Read.InputLines(typeof(AoC201508));
+    static string[] lines = Read.InputLines();
 
     public object Part1() => lines.Sum<string>(l => l.Length) - lines.Sum<string>(CountChars);
     public object Part2() => lines.Sum<string>(CountEscaped) - lines.Sum<string>(l => l.Length);

@@ -4,7 +4,7 @@ namespace AdventOfCode.Year2020.Day05;
 
 public class AoC202005
 {
-    static List<Seat> seats = Read.InputLines(typeof(AoC202005)).Select(Seat.Parse).OrderBy(s => s.SeatID).ToList();
+    static List<Seat> seats = Read.InputLines().Select(Seat.Parse).OrderBy(s => s.SeatID).ToList();
     public object Part1() => seats.Max(s => s.SeatID);
     public object Part2()
     {

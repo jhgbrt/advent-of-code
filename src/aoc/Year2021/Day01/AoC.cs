@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2021.Day01;
 
 public class AoC202101
 {
-    static string[] input = Read.InputLines(typeof(AoC202101));
+    static string[] input = Read.InputLines();
     static int[] numbers = input.Select(int.Parse).ToArray();
     public object Part1() => numbers.Aggregate(
         (prev: int.MaxValue, count: 0), 

@@ -4,7 +4,7 @@ namespace AdventOfCode.Year2016.Day06;
 
 public class Tests
 {
-    static string[] input = Read.SampleLines(typeof(Tests));
+    static string[] input = Read.SampleLines();
     [Fact]
     public void Part1Test()
     {

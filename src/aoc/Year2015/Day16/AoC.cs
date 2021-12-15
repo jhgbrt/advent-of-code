@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2015.Day16;
 
 public class AoC201516
 {
-    static string[] lines = Read.InputLines(typeof(AoC201516));
+    static string[] lines = Read.InputLines();
     static Regex regex = new Regex(@"Sue (?<number>\d+): (?<properties>.*)");
 
     static ImmutableList<Sue> sues = (

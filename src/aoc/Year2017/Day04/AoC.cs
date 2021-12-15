@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2017.Day04;
 
 public class AoC201704
 {
-    public static string[] input = Read.InputLines(typeof(AoC201704));
+    public static string[] input = Read.InputLines();
 
     public object Part1() => input.Count(IsValidPassword1);
     public object Part2() => input.Count(IsValidPassword2);

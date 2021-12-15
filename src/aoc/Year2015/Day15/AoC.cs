@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2015.Day15;
 
 public class AoC201515
 {
-    static string[] input = Read.InputLines(typeof(AoC201515));
+    static string[] input = Read.InputLines();
     static Regex regex = new Regex(@"(?<name>\w+): capacity (?<capacity>[-\d]+), durability (?<durability>[-\d]+), flavor (?<flavor>[-\d]+), texture (?<texture>[-\d]+), calories (?<calories>[-\d]+)");
 
     static ImmutableList<Ingredient> ingredients = (

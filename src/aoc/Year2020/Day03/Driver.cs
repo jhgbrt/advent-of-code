@@ -2,12 +2,11 @@ namespace AdventOfCode.Year2020.Day03;
 
 static class Driver
 {
-    public static long Part1(string input)
+    public static long Part1(string[] lines)
     {
-        var lines = Read.Lines(typeof(AoC202003), input).ToList();
         var set = lines.GetTrees().ToHashSet();
         return (
-            from point in Path((3, 1)).TakeWhile(c => c.y < lines.Count)
+            from point in Path((3, 1)).TakeWhile(c => c.y < lines.Length)
             where set.Contains((point.x % lines[0].Length, point.y))
             select point
             ).Count();
@@ -35,15 +34,14 @@ static class Driver
            select (p.i, y);
 
 
-    public static long Part2(string input)
+    public static long Part2(string[] lines)
     {
-        var lines = Read.Lines(typeof(AoC202003), input).ToList();
         var set = lines.GetTrees().ToHashSet();
 
         var query =
             from slope in new (int dx, int dy)[] { (1, 1), (3, 1), (5, 1), (7, 1), (1, 2) }
             select (
-                from point in Path(slope).TakeWhile(c => c.y < lines.Count)
+                from point in Path(slope).TakeWhile(c => c.y < lines.Length)
                 where set.Contains((point.x % lines[0].Length, point.y))
                 select point
             ).Count();

@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2021.Day02;
 
 public class AoC202102
 {
-    static string[] input = Read.InputLines(typeof(AoC202102));
+    static string[] input = Read.InputLines();
     static Regex regex = new Regex(@"(?<direction>\w+) (?<value>\d+)", RegexOptions.Compiled);
 
     static ImmutableArray<Instruction> instructions = (

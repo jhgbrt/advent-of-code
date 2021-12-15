@@ -1,7 +1,7 @@
 namespace AdventOfCode.Year2015.Day01;
 public class AoC201501
 {
-    static readonly string input = Read.InputText(typeof(AoC201501));
+    static readonly string input = Read.InputText();
 
     public object Part1() => input.Select(c => c switch { '(' => +1, ')' => -1, _ => throw new Exception() }).Sum();
     public object Part2()

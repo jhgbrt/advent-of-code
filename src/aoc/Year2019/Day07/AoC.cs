@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2019.Day07;
 
 public class AoC201907
 {
-    internal static string[] input = Read.InputLines(typeof(AoC201907));
+    internal static string[] input = Read.InputLines();
     internal static ImmutableArray<int> program = input[0].Split(',').Select(int.Parse).ToImmutableArray();
 
     public object Part1() => (

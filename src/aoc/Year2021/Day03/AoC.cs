@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2021.Day03;
 
 public class AoC202103
 {
-    static string[] input = Read.InputLines(typeof(AoC202103));
+    static string[] input = Read.InputLines();
     static ImmutableArray<int> numbers = input.Select(s => Convert.ToInt32(s, 2)).ToImmutableArray();
 
     public object Part1() => GetBitmasks(numbers).Multiply();

@@ -6,7 +6,7 @@ public static class Runner
 {
     public static object Run()
     {
-        var input = ReadInput("input.txt").ToArray();
+        var input = ReadInput(Read.InputLines()).ToArray();
 
         var q = from tile in input
                 let neighbors = (from n in input
@@ -57,9 +57,9 @@ class Tile
 static class AoC
 {
 
-    internal static IEnumerable<Tile> ReadInput(string fileName)
+    internal static IEnumerable<Tile> ReadInput(IEnumerable<string> input)
     {
-        var enumerator = Read.Lines(typeof(AoC202020), fileName).GetEnumerator();
+        var enumerator = input.GetEnumerator();
         foreach (var tile in ReadTiles(enumerator)) yield return tile;
     }
 
@@ -77,28 +77,6 @@ static class AoC
     static IEnumerable<string> ReadLines(IEnumerator<string> enumerator)
     {
         while (enumerator.MoveNext()) yield return enumerator.Current;
-    }
-
-}
-
-public class Tests
-{
-    [Fact]
-    public void Part1()
-    {
-        var input = ReadInput("example.txt").ToArray();
-        Assert.Equal(9, input.Count());
-
-        var q = from tile in input
-                let neighbors = (from n in input
-                                 where tile.IsAdjacentTo(n)
-                                 select n)
-                where neighbors.Count() == 2
-                select (tile, neighbors);
-
-        var result = q.Select(q => q.tile.Id).Aggregate(1L, (x, y) => x * y);
-
-        Assert.Equal(20899048083289, result);
     }
 
 }

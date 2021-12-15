@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2015.Day06;
 
 public class AoC201506
 {
-    static IReadOnlyCollection<string> lines = Read.Lines(typeof(AoC201506), "input.txt").ToList();
+    static IReadOnlyCollection<string> lines = Read.InputLines().ToList();
     public object Part1() => Run(
             (grid, c) => grid[c.x, c.y] = 1,
             (grid, c) => grid[c.x, c.y] = 0,

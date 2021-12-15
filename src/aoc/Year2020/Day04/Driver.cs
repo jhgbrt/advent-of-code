@@ -4,10 +4,10 @@ namespace AdventOfCode.Year2020.Day04;
 
 static class Driver
 {
-    internal static long Part1(string input) => Parse(input).Count(RequiredFieldsPresent);
-    internal static long Part2(string input) => Parse(input).Where(RequiredFieldsPresent).Count(IsValid);
-    internal static IEnumerable<IReadOnlyDictionary<string, string>> Parse(string path, Action<string>? log = null)
-        => Parse(new StringReader(Read.Text(typeof(AoC202004), path).Replace("\r\n", "\n")), log);
+    internal static long Part1() => Parse(Read.InputText()).Count(RequiredFieldsPresent);
+    internal static long Part2() => Parse(Read.InputText()).Where(RequiredFieldsPresent).Count(IsValid);
+    internal static IEnumerable<IReadOnlyDictionary<string, string>> Parse(string input, Action<string>? log = null)
+        => Parse(new StringReader(input.Replace("\r\n", "\n")), log);
 
     internal static IEnumerable<IReadOnlyDictionary<string, string>> Parse(TextReader reader, Action<string>? log = null)
     {

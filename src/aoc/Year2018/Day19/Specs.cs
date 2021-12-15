@@ -65,7 +65,7 @@ public class Specs
     [Fact]
     public void Test()
     {
-        var instructions = Read.InputLines(typeof(AoC201819)).GetInstructions();
+        var instructions = Read.InputLines().GetInstructions();
         var result = new CPU(1, instructions, new[] { 0L }).RunReverseEngineered();
         Assert.Equal(11106760, result.A);
     }

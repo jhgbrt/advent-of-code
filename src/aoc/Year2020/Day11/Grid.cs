@@ -14,7 +14,7 @@ class Grid
             for (int x = 0; x < Width; x++)
                 yield return (x, y, this[x, y]);
     }
-    public static Grid FromFile(string filename) => Parse(Read.Lines(typeof(AoC202011), filename).ToArray());
+    public static Grid FromFile() => Parse(Read.InputLines().ToArray());
     public static Grid FromString(string grid) => Parse(ReadLines(grid).ToArray());
     private static IEnumerable<string> ReadLines(string input)
     {

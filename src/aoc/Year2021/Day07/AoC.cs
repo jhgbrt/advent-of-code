@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2021.Day07;
 
 public class AoC202107
 {
-    static string input = Read.InputText(typeof(AoC202107));
+    static string input = Read.InputText();
     static ImmutableArray<int> numbers = input.Split(',').Select(int.Parse).ToImmutableArray();
     public object Part1() => (from i in Range(0, numbers.Max())
                                        let cost = (from j in numbers select Cost1(i,j)).Sum()

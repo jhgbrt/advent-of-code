@@ -7,7 +7,7 @@ class Part2
     public static int Run()
     {
 
-        var input = from line in Read.InputLines(typeof(AoC202012))
+        var input = from line in Read.InputLines()
                     let c = line[0]
                     let i = int.Parse(line.Substring(1))
                     select (c, i);

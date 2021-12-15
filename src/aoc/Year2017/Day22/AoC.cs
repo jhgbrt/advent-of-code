@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2017.Day22;
 
 public class AoC201722
 {
-    static string[] input = Read.InputLines(typeof(AoC201722)).ToArray();
+    static string[] input = Read.InputLines().ToArray();
     public object Part1()
     {
         var grid = input.ToRectangular();

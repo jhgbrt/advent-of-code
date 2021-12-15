@@ -1,7 +1,7 @@
 namespace AdventOfCode.Year2021.Day08;
 public class AoC202108
 {
-    static string[] input = Read.InputLines(typeof(AoC202108));
+    static string[] input = Read.InputLines();
     public object Part1() => (from p in input
                                        from value in p.Split('|').Last().Split(' ')
                                        where value.Length is 2 or 3 or 4 or 7
