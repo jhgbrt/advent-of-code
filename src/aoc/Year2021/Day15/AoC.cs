@@ -1,6 +1,6 @@
 ﻿namespace AdventOfCode.Year2021.Day15;
 
-public class AoC202115 : AoCBase
+public class AoC202115 
 {
     static readonly string[] input = Read.InputLines(typeof(AoC202115));
     static readonly ImmutableDictionary<Node, int> graph =
@@ -11,8 +11,8 @@ public class AoC202115 : AoCBase
     static readonly Node origin = new (0, 0);
     static readonly Node target1 = new (input[0].Length - 1, input.Length - 1);
     static readonly Node target2 = new ((target1.x + 1) * 5 - 1, (target1.y + 1) * 5 - 1);
-    public override object Part1() => Dijkstra(graph, origin, target1);
-    public override object Part2() => Dijkstra(graph.Resize((x: target1.x + 1, y: target1.y + 1)), origin, target2);
+    public object Part1() => Dijkstra(graph, origin, target1);
+    public object Part2() => Dijkstra(graph.Resize((x: target1.x + 1, y: target1.y + 1)), origin, target2);
 
     // https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm#Using_a_priority_queue
     int Dijkstra(ImmutableDictionary<Node, int> graph, Node source, Node target)
