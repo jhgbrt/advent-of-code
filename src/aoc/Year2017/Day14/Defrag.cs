@@ -1,7 +1,5 @@
 using System.Globalization;
 
-using static System.Linq.Enumerable;
-
 namespace AdventOfCode.Year2017.Day14;
 
 static class Defrag

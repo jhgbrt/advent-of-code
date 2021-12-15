@@ -1,4 +1,3 @@
-using static AdventOfCode.Year2017.Day03.AoC201703;
 using static AdventOfCode.Year2017.Day03.Spiral;
 
 namespace AdventOfCode.Year2017.Day03;

@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-
 namespace AdventOfCode.Year2018.Day23;
 
 public class AoC201823

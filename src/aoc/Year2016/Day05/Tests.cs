@@ -1,7 +1,5 @@
 using System.Security.Cryptography;
 
-using static AdventOfCode.Year2016.Day05.AoC201605;
-
 namespace AdventOfCode.Year2016.Day05;
 
 public class Tests

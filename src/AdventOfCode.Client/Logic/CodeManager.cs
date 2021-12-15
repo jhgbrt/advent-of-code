@@ -4,7 +4,6 @@ using Microsoft.CodeAnalysis.CSharp.Formatting;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
 using System.Text.Json;
-using System.Xml.Linq;
 
 using System.Reflection;
 
@@ -13,7 +12,6 @@ using static System.IO.File;
 using static System.IO.Path;
 using static System.Environment;
 using AdventOfCode.Client.Commands;
-using System.Text;
 
 namespace AdventOfCode.Client.Logic;
 

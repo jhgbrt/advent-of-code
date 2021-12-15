@@ -1,4 +1,3 @@
-using static System.Linq.Enumerable;
 
 using Ticket = System.Collections.Immutable.ImmutableArray<int>;
 

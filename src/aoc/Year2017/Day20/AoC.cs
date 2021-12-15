@@ -1,4 +1,3 @@
-using static System.Linq.Enumerable;
 using static System.Math;
 
 namespace AdventOfCode.Year2017.Day20;

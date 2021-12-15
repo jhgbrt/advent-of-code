@@ -1,5 +1,3 @@
-using static AdventOfCode.Year2016.Day08.AoC201608;
-
 namespace AdventOfCode.Year2016.Day08;
 
 public class Tests
