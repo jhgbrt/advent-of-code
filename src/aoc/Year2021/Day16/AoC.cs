@@ -88,6 +88,8 @@ static class Decoder
         }
     }
 
+
+
     static (int v, int d, int l) GetHeader(string s, Range r)
     {
         var v = Convert.ToInt32(s[r][0..3], 2);
