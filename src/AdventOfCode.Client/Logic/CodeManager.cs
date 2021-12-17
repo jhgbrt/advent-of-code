@@ -134,10 +134,15 @@ class CodeManager
         var aoc = await dir.ReadCode();
         var tree = CSharpSyntaxTree.ParseText(aoc);
 
-        var aocclass = (
+        (var aocclass, var _) = (
             from classdecl in tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>()
-            where classdecl.DescendantNodes().OfType<SimpleBaseTypeSyntax>().Any(b => b.Type.ToString() == "AoCBase")
-            select classdecl
+            let m = 
+                from m in classdecl.DescendantNodes().OfType<MethodDeclarationSyntax>()
+                where m.Identifier.ToString() == "Part1" || m.Identifier.ToString() == "Part2"
+                && m.ParameterList.Parameters.Count() == 0
+                select m.WithModifiers(TokenList())
+            where m.Count()== 2 
+            select (classdecl, m)
             ).SingleOrDefault();
 
         if (aocclass is null)
@@ -186,7 +191,8 @@ class CodeManager
 
         var records = tree.GetRoot().DescendantNodes().OfType<RecordDeclarationSyntax>();
 
-        var classes = tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().Where(cd => cd != aocclass);
+        var classes = tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>()
+            .Where(cd => cd != aocclass && !cd.Identifier.ToString().Contains("Tests"));
 
         var result = CompilationUnit()
             .WithMembers(List(
