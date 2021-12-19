@@ -4,7 +4,7 @@ namespace AdventOfCode.Year2021.Day19;
 
 public class AoC202119
 {
-    static string[] input = Read.SampleLines();
+    static string[] input = Read.InputLines();
 
     static ImmutableList<Scanner> scanners = Align(
         from s in CreateScanners(input)
@@ -13,9 +13,9 @@ public class AoC202119
 
     public object Part1() => (from s in scanners from b in s.OffsetBeacons select b).Distinct().Count();
 
-    public object Part2() => (from pair in scanners.Zip(scanners.Skip(1))
-                             select pair.First.offset.Distance(pair.Second.offset)).Max();
-
+    public object Part2() => (from s1 in scanners
+                              from s2 in scanners
+                              select s1.offset.Distance(s2.offset)).Max();
     static ImmutableList<Scanner> Align(IEnumerable<Scanner> scanners)
     {
         var remaining = (
@@ -32,7 +32,7 @@ public class AoC202119
             q = q.Dequeue(out int id);
             foreach (var scanner in found[id].FindScannersInRange(remaining.Values))
             {
-                Console.WriteLine($"{id} - {scanner.id}");
+                Console.WriteLine($"{id} - {scanner.id} ({remaining.Count()} remaining)");
                 found = found.SetItem(scanner.id, scanner);
                 q = q.Enqueue(scanner.id);
                 remaining = remaining.Remove(scanner.id);
