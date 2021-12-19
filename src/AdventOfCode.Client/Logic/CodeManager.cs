@@ -56,7 +56,7 @@ class CodeFolder
         var aoccs = Combine(publishLocation.FullName, "aoc.cs");
         if (File.Exists(aoccs))
             File.Delete(aoccs);
-        WriteAllText(aoccs, code);
+        await WriteAllTextAsync(aoccs, code);
 
         foreach (var file in dir.GetFiles("*.cs").Where(f => !f.FullName.Equals(CODE, StringComparison.OrdinalIgnoreCase)))
         {
@@ -67,14 +67,7 @@ class CodeFolder
         if (File.Exists(inputtxt)) File.Delete(inputtxt);
         Copy(INPUT, inputtxt);
 
-        var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(
-            typeof(Export),
-            "aoc.csproj.txt");
-        if (stream == null) throw new Exception("aoc.csproj.txt not found");
-
-        var csproj = await new StreamReader(stream).ReadToEndAsync();
-
-        await WriteAllTextAsync(Combine(publishLocation.FullName, "aoc.csproj"), csproj);
+        Copy(Combine(CurrentDirectory, "Template", "aoc.csproj"), Combine(publishLocation.FullName, "aoc.csproj"));
     }
 
     static DirectoryInfo GetDirectory(int year, int day) => new(Combine(CurrentDirectory, $"Year{year}", $"Day{day:00}"));
