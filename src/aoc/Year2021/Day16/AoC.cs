@@ -33,20 +33,30 @@ static class Decoder
         Convert.ToInt32(c.ToString(), 16), 2).PadLeft(4, '0'))
         );
 
-    public static IEnumerable<Packet> DecodePackets(this string binary)
+    public static IEnumerable<IPacket> DecodePackets(this string binary)
     {
         var index = 0;
 
         while (index < binary.Length)
         {
-            (var v, var id, var delta) = GetHeader(binary, index..6);
-            Console.WriteLine((v, id, delta));
-            index += 6;
+            var v = Convert.ToInt32(binary[index..(index+3)], 2);
+            index += 3;
+            var id = Convert.ToInt32(binary[index..(index+3)], 2);
+            index += 3;
 
             switch (id)
             {
                 case 4:
-                    var literal = Literal(binary, id, v, index..);
+                    StringBuilder sb = new StringBuilder();
+                    while (index < binary.Length && binary[index] == '1')
+                    {
+                        index++;
+                        sb.Append(binary[(index+1)..(index+5)]);
+                        index += 5;
+                    }
+                    sb.Append(binary[(index+1)..(index+5)]);
+                    index += 5;
+                    var literal = new Literal(id, v, Convert.ToInt32(sb.ToString(), 2));
                     yield return literal;
                     break;
                 case 6:
@@ -69,8 +79,7 @@ static class Decoder
                                 Assert.Equal(27, subpacketsLength);
                                 var subpackets = binary[index..(index+ subpacketsLength)];
                                 Assert.Equal("110100010100101001000100100", subpackets);
-                                foreach (var packet in subpackets.DecodePackets())
-                                    yield return packet;
+                                yield return new Packet { SubPackets = subpackets.DecodePackets().ToList() };
                                 Console.WriteLine(subpacketsLength);
                             }
                             break;
@@ -106,9 +115,13 @@ static class Decoder
             );
     }
 }
+interface IPacket { }
+class Packet : IPacket
+{
+    public List<IPacket> SubPackets { get; set; }
+}
 
-interface Packet { }
-record Literal(int id, int version, int value) : Packet;
+record Literal(int id, int version, int value) : IPacket;
 
 public class Tests
 {
@@ -132,7 +145,9 @@ public class Tests
         var binary = hex.ToBinary();
         var decoded = binary.DecodePackets().ToList();
         var count = decoded.Count();
-        //Assert.Equal(2, count);
+        //Assert.Equal(1, count);
+        var p = decoded.Single();
+        //Assert.Equal(2, ((Packet)p).SubPackets.Count);
     }
 
 }
