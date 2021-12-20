@@ -48,11 +48,11 @@ static class Decoder
             {
                 case 4:
                     StringBuilder sb = new StringBuilder();
-                    while (index < binary.Length && binary[index] == '1')
+                    while (binary[index] == '1')
                     {
                         index++;
-                        sb.Append(binary[(index+1)..(index+5)]);
-                        index += 5;
+                        sb.Append(binary[index..(index+4)]);
+                        index += 4;
                     }
                     sb.Append(binary[(index+1)..(index+5)]);
                     index += 5;
@@ -74,13 +74,13 @@ static class Decoder
                             {
                                 index++;
                                 var length = 15;
-                                var subpacketsLength = Decode(binary, index..(index + length));
+                                var subpacketsLength = Convert.ToInt16(binary[index..(index + length)], 2);
                                 index += length;
                                 Assert.Equal(27, subpacketsLength);
                                 var subpackets = binary[index..(index+ subpacketsLength)];
                                 Assert.Equal("110100010100101001000100100", subpackets);
                                 yield return new Packet { SubPackets = subpackets.DecodePackets().ToList() };
-                                Console.WriteLine(subpacketsLength);
+                                index += subpacketsLength;
                             }
                             break;
                         default:
@@ -90,9 +90,9 @@ static class Decoder
                     break;
 
             }
+            index += 4 - index % 4;
 
 
-            break;
         }
     }
 
@@ -145,9 +145,9 @@ public class Tests
         var binary = hex.ToBinary();
         var decoded = binary.DecodePackets().ToList();
         var count = decoded.Count();
-        //Assert.Equal(1, count);
+        Assert.Equal(1, count);
         var p = decoded.Single();
-        //Assert.Equal(2, ((Packet)p).SubPackets.Count);
+        Assert.Equal(2, ((Packet)p).SubPackets.Count);
     }
 
 }

@@ -10,7 +10,7 @@
     <UserSecretsId>cd1c8a1e-0d6e-4552-b229-c2832fbbf40b</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Template\aoc.csproj" />
+    <None Include="Template\aoc.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="System.Diagnostics" />
