@@ -1,3 +1,4 @@
+using static System.Math;
 namespace AdventOfCode.Year2021.Day20;
 
 public class AoC202120
@@ -5,11 +6,25 @@ public class AoC202120
     static string[] input = Read.InputLines();
     static string algorithm = input[0];
     static Grid grid = CreateGrid(input.Skip(2));
-    public object Part1() => Cycle(algorithm).Skip(1).First().Pixels.Values.Count(c => c == '#');
-    public object Part2() => Cycle(algorithm).Skip(49).First().Pixels.Values.Count(c => c == '#');
+    public object Part1() => grid.Enhance(algorithm).Skip(1).First().Pixels.Values.Count(c => c == '#');
+    public object Part2() => grid.Enhance(algorithm).Skip(49).First().Pixels.Values.Count(c => c == '#');
 
-    IEnumerable<Grid> Cycle(string algorithm)
+
+    internal static Grid CreateGrid(IEnumerable<string> input)
+        => new Grid((from line in input.Select((s, y) => (s, y))
+                     from c in line.s.Select((c, x) => (c, x))
+                     select (c.x, line.y, c.c)).ToImmutableDictionary(c => new Coordinate(c.x, c.y), c => c.c)
+                );
+}
+
+readonly record struct Coordinate(int x, int y);
+
+record Grid(ImmutableDictionary<Coordinate, char> Pixels)
+{
+
+    public IEnumerable<Grid> Enhance(string algorithm)
     {
+        var grid = this;
         bool odd = true;
         while (true)
         {
@@ -18,52 +33,36 @@ public class AoC202120
             odd = !odd;
         }
     }
+    (Coordinate min, Coordinate max)? _minmax;
+    (Coordinate min, Coordinate max) MinMax
+        => _minmax
+        ?? (_minmax = Pixels.Keys.Aggregate(
+                (min: new Coordinate(int.MaxValue, int.MaxValue),
+                 max: new Coordinate(int.MinValue, int.MinValue)),
+                (acc, v) => (
+                    new(Min(acc.min.x, v.x), Min(acc.min.y, v.y))
+                  , new(Max(acc.max.x, v.x), Max(acc.max.y, v.y))
+                ))
+           ).Value;
 
-    internal static Grid CreateGrid(IEnumerable<string> input)
-    {
-        var q = from line in input.Select((s, y) => (s, y))
-                from c in line.s.Select((c, x) => (c, x))
-                select (c.x, line.y, c.c);
-        return new Grid(q.ToImmutableDictionary(c => new Coordinate(c.x,c.y), c => c.c));
-
-    }
-}
-
-record Coordinate(int x, int y)
-{
-    public override string ToString() => $"({x}, {y})";
-    public IEnumerable<Coordinate> Neighbors() => from dy in Range(-1, 3)
-                                                  from dx in Range(-1, 3)
-                                                  select new Coordinate(x + dx, y + dy);
-}
+    IEnumerable<Coordinate> FullRange()
+        => from y in Range(MinMax.min.y - 1, MinMax.max.y - MinMax.min.y + 3)
+           from x in Range(MinMax.min.x - 1, MinMax.max.x - MinMax.min.x + 3)
+           select new Coordinate(x, y);
 
 
-record Grid(ImmutableDictionary<Coordinate, char> Pixels)
-{
-    public Grid Enhance(string algorithm, bool odd)
-    {
-        var minx = Pixels.Keys.Min(p => p.x);
-        var miny = Pixels.Keys.Min(p => p.y);
-        var maxx = Pixels.Keys.Max(p => p.x);
-        var maxy = Pixels.Keys.Max(p => p.y);
 
-        var pixels = (from y in Range(miny - 1, maxy - miny + 3)
-                      from x in Range(minx - 1, maxx - minx + 3)
-                      let c = new Coordinate(x, y)
-                      let index = GetAddress(c, odd)
-                      let p = algorithm[index]
-                      select (c,p)).ToImmutableDictionary(x => x.c, x => x.p);
-        return new Grid(pixels);
-    }
+    private Grid Enhance(string algorithm, bool odd)
+        => new Grid((from c in FullRange()
+                     let index = (
+                        from j in Range(-1, 3)
+                        from i in Range(-1, 3)
+                        let n = new Coordinate(c.x + i, c.y + j)
+                        select Pixels.GetValueOrDefault(n, odd ? '.' : '#')
+                     ).Aggregate(0, (index, c) => (index << 1) | (c == '#' ? 1 : 0))
+                     let p = algorithm[index]
+                     select (c, p)).ToImmutableDictionary(x => x.c, x => x.p));
 
-    private int GetAddress(Coordinate c, bool odd)
-    {
-        var defaultValue = odd ? 0 : 1;
-        var key = new string((from n in c.Neighbors() select this[n, odd ? '.' : '#'] == '#' ? '1' : '0').ToArray());
-        return Convert.ToInt32(key, 2);
 
-    }
 
-    private char this[Coordinate c, char defaultValue = '.'] => Pixels.ContainsKey(c) ? Pixels[c] : defaultValue;
-  
 }
