@@ -51,10 +51,10 @@ namespace System.Text.RegularExpressions.Typed
 }";
         public void Execute(GeneratorExecutionContext context)
         {
+            //if (!Debugger.IsAttached) Debugger.Launch();
+
             context.AddSource("TypedRegexAttribute.generated.cs", attributeText);
 
-            // we're going to create a new compilation that contains the attribute.
-            // TODO: we should allow source generators to provide source during initialize, so that this step isn't required.
             CSharpParseOptions options = (context.Compilation as CSharpCompilation).SyntaxTrees[0].Options as CSharpParseOptions;
             Compilation compilation = context.Compilation.AddSyntaxTrees(CSharpSyntaxTree.ParseText(SourceText.From(attributeText, Encoding.UTF8), options));
 
@@ -71,8 +71,9 @@ namespace System.Text.RegularExpressions.Typed
               let symbol = model.GetDeclaredSymbol(record)
               let constructor = symbol.Constructors.First()
               let attribute = symbol.GetAttributes().FirstOrDefault(a => a.AttributeClass.Equals(attributeSymbol, SymbolEqualityComparer.Default))
-              where attribute is not null
-              let pattern = (string)attribute.ConstructorArguments.First().Value // this gets the regex pattern at compile time, so we can check it and emit compiler errors!
+              where attribute is not null && attribute.ConstructorArguments.Any()
+              let pattern = (string)attribute.ConstructorArguments.First().Value
+              where !string.IsNullOrEmpty(pattern)
               let regex = new Regex(pattern)
               let groupNames = regex.GetGroupNames().Skip(1)
               let propertyNames = constructor.Parameters.Select(p => p.Name)
@@ -121,14 +122,6 @@ namespace System.Text.RegularExpressions.Typed
                 ).ToArray()
                 select (record, pattern, regex, symbol.Name, @namespace, typedName, parameters)
             ).ToArray();
-
-            //var diagnostics = from item in q
-            //                  let 
-
-            //context.ReportDiagnostic(Diagnostic.Create(context))
-
-            
-
 
             foreach (var (record, pattern, regex, recordName, @namespace, typedName, parameters) in q)
             {

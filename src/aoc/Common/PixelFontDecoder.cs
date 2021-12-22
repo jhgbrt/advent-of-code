@@ -1,4 +1,4 @@
-﻿namespace AdventOfCode.Common;
+﻿namespace AdventOfCode;
 
 
 static class PixelFontDecoder

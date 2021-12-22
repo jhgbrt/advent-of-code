@@ -44,8 +44,7 @@ public class AoC202122
 
 }
 
-
-record struct Instruction(bool on, Prism prism)
+partial record struct Instruction(bool on, Prism prism)
 {
     static Regex regex = new Regex(@"(?<switch>on|off) x=(?<x1>[-\d]+)..(?<x2>[-\d]+),y=(?<y1>[-\d]+)..(?<y2>[-\d]+),z=(?<z1>[-\d]+)..(?<z2>[-\d]+)", RegexOptions.Compiled);
     public static Instruction? Parse(string s)

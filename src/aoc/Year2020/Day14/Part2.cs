@@ -30,30 +30,25 @@ internal record Mask(int[] Offsets, long Ones, long Floating)
            select Offsets.Select((offset, i) => (offset, i)).Aggregate(Ones | input & ~Floating, (bits, p) => bits | 1L << p.offset & (((1L << p.i) & i) >> p.i) << p.offset);
 }
 
-record MaskInput(string Value)
+record struct MaskInput(string Value)
 {
-    internal Mask ToBitMask() => new(
-        Value.Select((c, i) => (c, i)).Where(x => x.c == 'X').Select(x => Value.Length - 1 - x.i).ToArray(),
-        Convert.ToInt64(Value.Replace('X', '0'), 2),
-        Convert.ToInt64(Value.Replace('1', '0').Replace('X', '1'), 2)
-        );
-    static Regex _regex = new Regex(@"mask = (?<Value>\w+)");
-    public static MaskInput Parse(string line)
+    internal Mask ToBitMask()
     {
-        var match = _regex.Match(line);
-        return new MaskInput(match.Groups["Value"].Value);
+        var v = Value;
+        return new(Value.Select((c, i) => (c, i)).Where(x => x.c == 'X').Select(x => v.Length - 1 - x.i).ToArray(),
+            Convert.ToInt64(Value.Replace('X', '0'), 2),
+            Convert.ToInt64(Value.Replace('1', '0').Replace('X', '1'), 2)
+            );
     }
+
+    static Regex _regex = new Regex(@"mask = (?<Value>\w+)");
+    public static MaskInput Parse(string line) => _regex.As<MaskInput>(line)!.Value;
 }
 
-record WriteMemory(int Address, long Value)
+record struct WriteMemory(int Address, long Value)
 {
     static Regex _regex = new Regex(@"mem\[(?<Address>\d+)\] = (?<Value>\d+)");
-    public static WriteMemory Parse(string line)
-    {
-        var match = _regex.Match(line);
-        return new WriteMemory(int.Parse(match.Groups["Address"].Value), long.Parse(match.Groups["Value"].Value));
-
-    }
+    public static WriteMemory Parse(string line) => _regex.As<WriteMemory>(line)!.Value;
 }
 
 static class Factory
