@@ -64,10 +64,9 @@ class CodeFolder
         }
 
         var inputtxt = Combine(publishLocation.FullName, "input.txt");
-        if (File.Exists(inputtxt)) File.Delete(inputtxt);
-        Copy(INPUT, inputtxt);
+        Copy(INPUT, inputtxt, true);
 
-        Copy(Combine(CurrentDirectory, "Template", "aoc.csproj"), Combine(publishLocation.FullName, "aoc.csproj"));
+        Copy(Combine(CurrentDirectory, "Template", "aoc.csproj"), Combine(publishLocation.FullName, "aoc.csproj"), true);
     }
 
     static DirectoryInfo GetDirectory(int year, int day) => new(Combine(CurrentDirectory, $"Year{year}", $"Day{day:00}"));

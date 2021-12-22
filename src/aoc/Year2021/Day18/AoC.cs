@@ -65,7 +65,7 @@ record SnailFish(ImmutableList<Token> Items)
             var level = 0;
             for (var i = 0; i < builder.Count; i++)
             {
-                level += builder[i].Level;
+                level += builder[i].BraceIncrement;
                 if (level == 5)
                 {
                     Explode(builder, i);
@@ -75,9 +75,7 @@ record SnailFish(ImmutableList<Token> Items)
             }
 
             if (exploded)
-            {
                 continue;
-            }
 
             bool split = false;
             for (var i = 0; i < builder.Count; i++)
@@ -92,9 +90,7 @@ record SnailFish(ImmutableList<Token> Items)
                 }
             }
             if (split)
-            {
                 continue;
-            }
 
             break;
         }
@@ -131,21 +127,43 @@ record SnailFish(ImmutableList<Token> Items)
 
 
 }
-
-record struct Token(int Level, int Value)
+record struct Token
 {
-    public static readonly Token OpenBrace = new(1, 0);
-    public static readonly Token CloseBrace = new(-1, 0);
-    public static readonly Token Zero = new(0, 0);
-    public static Token FromValue(int value) => new(0, value);
-    public static Token Combine(Token left, Token right) => FromValue(left.Value * 3 + right.Value * 2);
-    public bool IsValue => Level == 0;
-    public static Token operator +(Token left, Token right) => (left.Level, right.Level) switch
-    {
-        (0, 0) => FromValue(left.Value + right.Value),
-        _ => throw new InvalidOperationException("Can not calculate sum for braces")
+    enum TokenType { Value, OpenBrace, CloseBrace };
+    private TokenType _type;
+    private int _value;
+    public int Value => _type switch 
+    { 
+        TokenType.Value => _value, 
+        _ => throw new InvalidOperationException("Can not retrieve value from non-value token") 
     };
-    public bool ShouldSplit => Value > 9;
+    private Token(TokenType type, int value)
+    {
+        _type = type;
+        _value = value;
+    }
+    public static readonly Token OpenBrace = new(TokenType.OpenBrace, 0);
+    public static readonly Token CloseBrace = new(TokenType.CloseBrace, 0);
+    public static readonly Token Zero = new(TokenType.Value, 0);
+    public static Token FromValue(int value) => new(0, value);
+    public static Token Combine(Token left, Token right) => (left, right) switch
+    {
+        ({ IsValue: true }, { IsValue: true }) => FromValue(left.Value * 3 + right.Value * 2),
+        _ => throw new InvalidOperationException("only 'Value' tokens can be combined")
+    };
+    public bool IsValue => _type == TokenType.Value;
+    public int BraceIncrement => _type switch
+    {
+        TokenType.OpenBrace => 1,
+        TokenType.CloseBrace => -1,
+        _ => 0
+    };
+    public static Token operator +(Token left, Token right) => (left, right) switch
+    {
+        ({ IsValue: true }, { IsValue: true }) => FromValue(left.Value + right.Value),
+        _ => throw new InvalidOperationException("only 'Value' tokens can be added")
+    };
+    public bool ShouldSplit => IsValue && Value > 9;
     public IEnumerable<Token> Split()
     {
         var left = Value / 2;
