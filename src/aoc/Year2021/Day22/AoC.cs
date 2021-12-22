@@ -5,54 +5,58 @@ public class AoC202122
 {
     static string[] input = Read.InputLines();
 
-    static ImmutableArray<Cuboid> cuboids = (from line in input
-                                             let v = Cuboid.Parse(line)
+    static ImmutableArray<Instruction> instructions = (from line in input
+                                             let v = Instruction.Parse(line)
                                              where v.HasValue
                                              select v.Value).ToImmutableArray();
     public object Part1() => (
-        from instruction in cuboids
-        let c = instruction.cube
-        where c.p1 > new P(-51, -51, -51) && c.p2 < new P(51, 51, 51)
+        from instruction in instructions
+        let c = instruction.prism
+        where c.min >= new P(-50, -50, -50) && c.max <= new P(50, 50, 50)
         from p in c.Points()
         select (instruction.@on, p)
         ).Aggregate(ImmutableHashSet<P>.Empty, (set, p) => p.on ? set.Add(p.p) : set.Remove(p.p)).Count();
 
     public object Part2()
     {
-        var mm = cuboids
-            .Select(c => c.cube.p2)
-            .Aggregate((
-                max: new P(int.MinValue, int.MinValue, int.MinValue),
-                min: new P(int.MaxValue, int.MaxValue, int.MaxValue)
-             ),
-             (m, c) => (
-                max: new P(Max(m.max.x, c.x), Max(m.max.y, c.y), Max(m.max.z, c.z)),
-                min: new P(Min(m.min.x, c.x), Min(m.min.y, c.y), Min(m.min.z, c.z))
-             )
-            );
-        var start = new Cuboid(false, new Cube(mm.min, mm.max));
+        Dictionary<Prism, long> counts = new();
 
-        
+        foreach (var (turnon, n) in instructions)
+        {
+            var newprisms = (from item in counts
+                             let p = item.Key
+                             let count = item.Value
+                             let intersection = p.Intersect(n)
+                             where intersection.HasValue
+                             select (intersection: intersection.Value, count)
+                            ).ToLookup(x => x.intersection, x => -x.count)
+                             .ToDictionary(x => x.Key, x => x.Sum());
 
-        Console.WriteLine(start);
-        return 0;
+            if (turnon)
+                newprisms[n] = newprisms.GetValueOrDefault(n, 0) + 1;
+
+            foreach (var (prism, count) in newprisms)
+                counts[prism] = counts.GetValueOrDefault(prism, 0) + count;
+        }
+        return counts.Sum(a => a.Key.Volume * a.Value);
     }
+
 }
 
 
-record struct Cuboid(bool on, Cube cube)
+record struct Instruction(bool on, Prism prism)
 {
     static Regex regex = new Regex(@"(?<switch>on|off) x=(?<x1>[-\d]+)..(?<x2>[-\d]+),y=(?<y1>[-\d]+)..(?<y2>[-\d]+),z=(?<z1>[-\d]+)..(?<z2>[-\d]+)", RegexOptions.Compiled);
-    public static Cuboid? Parse(string s)
+    public static Instruction? Parse(string s)
     {
         var m = regex.Match(s);
         if (m.Success)
         {
             var p1 = new P(m.GetInt32("x1"), m.GetInt32("y1"), m.GetInt32("z1"));
             var p2 = new P(m.GetInt32("x2"), m.GetInt32("y2"), m.GetInt32("z2"));
-            var c = new Cuboid(
+            var c = new Instruction(
               m.Groups["switch"].Value == "on",
-              new Cube(p1 < p2 ? p1 : p2, p1 < p2 ? p2 : p1)
+              new Prism(p1 < p2 ? p1 : p2, p1 < p2 ? p2 : p1)
             );
             return c;
         }
@@ -61,23 +65,23 @@ record struct Cuboid(bool on, Cube cube)
             return null;
         }
     }
-  
+
 }
 
-record struct Cube(P p1, P p2)
+record struct Prism(P min, P max)
 {
-    public long Volume => (p2.x - p1.x) * (p2.y - p1.y) * (p2.z - p1.z);
-    public Cube? Intersect(Cube other)
+    public long Volume => (max.x - min.x + 1L) * (max.y - min.y + 1L) * (max.z - min.z + 1L);
+    public Prism? Intersect(Prism other)
     {
-        var i1 = new P(Max(p1.x, other.p1.x), Max(p1.y, other.p1.y), Max(p1.z, other.p1.z));
-        var i2 = new P(Min(p2.x, other.p2.x), Min(p2.y, other.p2.y), Min(p2.z, other.p2.z));
-        if (i1 < i2) return new Cube(i1, i2);
+        var i1 = new P(Max(min.x, other.min.x), Max(min.y, other.min.y), Max(min.z, other.min.z));
+        var i2 = new P(Min(max.x, other.max.x), Min(max.y, other.max.y), Min(max.z, other.max.z));
+        if (i1 <= i2) return new Prism(i1, i2);
         else return null;
     }
     public IEnumerable<P> Points()
     {
-        var p1 = this.p1;
-        var p2 = this.p2;
+        var p1 = this.min;
+        var p2 = this.max;
         return from x in Range(p1.x, p2.x - p1.x + 1)
                from y in Range(p1.y, p2.y - p1.y + 1)
                from z in Range(p1.z, p2.z - p1.z + 1)
@@ -103,13 +107,13 @@ public class Tests
     [Fact]
     public void IntersectionTest()
     {
-        var cube1 = new Cube(new P(0, 0, 0), new P(3, 3, 3));
+        var cube1 = new Prism(new P(0, 0, 0), new P(3, 3, 3));
 
-        Assert.Equal(new Cube(new P(1, 1, 1), new P(2, 2, 2)), cube1.Intersect(new Cube(new P(1, 1, 1), new P(2, 2, 2))));
-        Assert.Equal(new Cube(new P(0, 0, 0), new P(2, 2, 2)), cube1.Intersect(new Cube(new P(-1, -1, -1), new P(2, 2, 2))));
-        Assert.Equal(new Cube(new P(0, 0, 0), new P(1, 1, 1)), cube1.Intersect(new Cube(new P(-1, -1, -1), new P(1, 1, 1))));
-        Assert.Equal(new Cube(new P(0, 0, 0), new P(3, 3, 3)), cube1.Intersect(new Cube(new P(-1, -1, -1), new P(4, 4, 4))));
-        Assert.Equal(new Cube(new P(1, 1, 1), new P(3, 3, 3)), cube1.Intersect(new Cube(new P(1, 1, 1), new P(4, 4, 4))));
+        Assert.Equal(new Prism(new P(1, 1, 1), new P(2, 2, 2)), cube1.Intersect(new Prism(new P(1, 1, 1), new P(2, 2, 2))));
+        Assert.Equal(new Prism(new P(0, 0, 0), new P(2, 2, 2)), cube1.Intersect(new Prism(new P(-1, -1, -1), new P(2, 2, 2))));
+        Assert.Equal(new Prism(new P(0, 0, 0), new P(1, 1, 1)), cube1.Intersect(new Prism(new P(-1, -1, -1), new P(1, 1, 1))));
+        Assert.Equal(new Prism(new P(0, 0, 0), new P(3, 3, 3)), cube1.Intersect(new Prism(new P(-1, -1, -1), new P(4, 4, 4))));
+        Assert.Equal(new Prism(new P(1, 1, 1), new P(3, 3, 3)), cube1.Intersect(new Prism(new P(1, 1, 1), new P(4, 4, 4))));
 
     }
 }

@@ -1,9 +1,8 @@
-﻿namespace AdventOfCode.YearYYYY.DayDD
+﻿namespace AdventOfCode.YearYYYY.DayDD;
+
+public class AoCYYYYDD
 {
-    public class AoCYYYYDD
-    {
-        static string[] input = Read.InputLines();
-        public object Part1() => -1;
-        public object Part2() => -1;
-    }
+    static string[] input = Read.InputLines();
+    public object Part1() => -1;
+    public object Part2() => -1;
 }
