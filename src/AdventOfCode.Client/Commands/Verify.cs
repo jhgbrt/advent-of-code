@@ -77,24 +77,16 @@ class Verify : AsyncCommand<Verify.Settings>
 
 
         var sw = Stopwatch.StartNew();
-        await AnsiConsole.Status()
-            .StartAsync("Running...", async ctx =>
-            {
-                ctx.SpinnerStyle(Style.Parse("green"));
+        foreach (var (y, d) in AoCLogic.Puzzles())
+        {
+            if (year.HasValue && year != y) continue;
+            if (day.HasValue && day != d) continue;
+            if (!all && !year.HasValue && !day.HasValue && !AoCLogic.IsToday(y, d)) continue;
+            var resultStatus = await manager.GetPuzzleResult(y, d, force, typeName, (_, _) => { });
+            var reportLine = resultStatus.ToReportLine();
+            AnsiConsole.MarkupLine(reportLine.ToString());
 
-                foreach (var (y, d) in AoCLogic.Puzzles())
-                {
-                    if (year.HasValue && year != y) continue;
-                    if (day.HasValue && day != d) continue;
-                    if (!all && !year.HasValue && !day.HasValue && !AoCLogic.IsToday(y, d)) continue;
-                    ctx.Status($"Running puzzle: {y}-{d:00} (1)");
-                    var resultStatus = await manager.GetPuzzleResult(y, d, force, typeName, (_, _) => ctx.Status($"Running puzzle: {y}-{d:00} (2)"));
-                    var reportLine = resultStatus.ToReportLine();
-                    AnsiConsole.MarkupLine(reportLine.ToString());
-
-                }
-
-            });
+        }
         AnsiConsole.WriteLine($"done. Total time: {sw.Elapsed}");
         return 0;
     }

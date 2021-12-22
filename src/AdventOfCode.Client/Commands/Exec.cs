@@ -39,20 +39,9 @@ class Exec : AsyncCommand<Exec.Settings>
 
         AnsiConsole.WriteLine($"{year}, day {day}");
 
-        if (Debugger.IsAttached)
-        {
-            DayResult result = await manager.Run(typeName, year, day, (part, result) => AnsiConsole.MarkupLine($"part {part}: {result.Value} ({result.Elapsed})"));
-        }
-        else
-        {
-            await AnsiConsole.Status()
-                .StartAsync("Running...", async ctx =>
-                {
-                    ctx.Spinner(Spinner.Known.Star);
-                    ctx.SpinnerStyle(Style.Parse("green"));
-                    DayResult result = await manager.Run(typeName, year, day, (part, result) => AnsiConsole.MarkupLine($"part {part}: {result.Value} ({result.Elapsed})"));
-                });
-        }
+        DayResult result = await manager.Run(typeName, year, day, 
+            (part, result) => AnsiConsole.MarkupLine($"part {part}: {result.Value} ({result.Elapsed})")
+            );
 
         return 0;
     }

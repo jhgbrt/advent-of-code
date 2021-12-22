@@ -22,6 +22,7 @@ record Answer(string part1, string part2) { public static Answer Empty => new An
 record DayResult(int year, int day, Result part1, Result part2)
 {
     public readonly static DayResult Empty = new DayResult(0, 0, Result.Empty, Result.Empty);
+    public static DayResult NotImplemented(int year, int day) => new DayResult(year, day, Result.Empty, Result.Empty);
     public TimeSpan Elapsed => part1.Elapsed + part2.Elapsed;
 }
 
