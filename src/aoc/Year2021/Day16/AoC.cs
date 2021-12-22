@@ -8,29 +8,25 @@ public class AoC202116
     public object Part1()
     {
         var binary = input.ToBinary();
-        Packet2 packet = new Packet2(binary);
-        return GetVersionSum(packet);
+        var packet = new Packet2(binary);
+        return packet.GetVersionSum();
 
 
         //var packets = binary.GetEnumerator().DecodePackets();
 
         //return 0;
     }
-    private static int GetVersionSum(Packet2 packet)
-    {
-        int sum = packet.version;
-        foreach (Packet2 subpacket in packet.subpackets)
-        {
-            sum += GetVersionSum(subpacket);
-        }
-        return sum;
-    }
+          
     public object Part2()
     {
         var binary = input.ToBinary();
         Packet2 packet = new Packet2(binary);
-        return packet.value;
+        return packet.GetValue();
     }
+
+
+    
+
 }
 
 static class Decoder
@@ -204,20 +200,40 @@ public class Tests
 
 }
 
+class PacketDecoder 
+{
+    private IEnumerable<char> bitStream;
+
+    public PacketDecoder(IEnumerable<char> bitStream)
+    {
+        this.bitStream = bitStream;
+    }
+
+    private int bytesRead;
+    public IEnumerable<char> ReadStream(int amount)
+    {
+        IEnumerable<char> result = bitStream.Take(amount);
+        bytesRead += amount;
+        bitStream = bitStream.Skip(amount);
+        return result;
+    }
+
+}
 
 internal class Packet2
 {
-    public int bytesRead;
-    public List<Packet2> subpackets;
-    public int version;
-    public TypeID typeID;
-    public long value = long.MinValue;
-    public IEnumerable<char> bitStream;
-
+    private int bytesRead;
+    private List<Packet2> SubPackets { get; }
+    private int version;
+    private TypeID typeID;
+    private long value = long.MinValue;
+    private IEnumerable<char> bitStream;
+    private PacketDecoder decoder;
     public Packet2(IEnumerable<char> _bitStream)
     {
-        this.bitStream = _bitStream;
-        subpackets = new();
+        decoder = new PacketDecoder(_bitStream);
+        bitStream = _bitStream;
+        SubPackets = new();
 
         // Read header
         version = Convert.ToInt32(new string(ReadStream(3).ToArray()), 2);
@@ -250,7 +266,7 @@ internal class Packet2
             }
 
             // Get value based on subvalues
-            var subValues = subpackets.Select(packet => packet.value);
+            var subValues = SubPackets.Select(packet => packet.value);
             switch (typeID)
             {
                 case TypeID.SUM:
@@ -279,7 +295,16 @@ internal class Packet2
             }
         }
     }
-
+    public long GetValue() => value;
+    public int GetVersionSum()
+    {
+        int sum = version;
+        foreach (var subpacket in SubPackets)
+        {
+            sum += subpacket.GetVersionSum();
+        }
+        return sum;
+    }
     private IEnumerable<char> ReadStream(int amount)
     {
         IEnumerable<char> result = bitStream.Take(amount);
@@ -293,12 +318,12 @@ internal class Packet2
         int packetsAdded = 0;
         while (packetsAdded++ < numberOfSubpackets)
         {
-            subpackets.Add(new Packet2(bitStream));
-            bitStream = bitStream.Skip(subpackets.Last().bytesRead);
+            SubPackets.Add(new Packet2(bitStream));
+            bitStream = bitStream.Skip(SubPackets.Last().bytesRead);
 
         }
 
-        return subpackets.Select(packet => packet.bytesRead).Sum();
+        return SubPackets.Select(packet => packet.bytesRead).Sum();
     }
 
     private int ExtractSubpacketsByLength(int lengthOfSubpackets, IEnumerable<char> bitStream)
@@ -307,7 +332,7 @@ internal class Packet2
         while (bytesRead < lengthOfSubpackets)
         {
             Packet2 subpacket = new Packet2(bitStream);
-            subpackets.Add(subpacket);
+            SubPackets.Add(subpacket);
 
             bitStream = bitStream.Skip(subpacket.bytesRead);
             bytesRead += subpacket.bytesRead;
