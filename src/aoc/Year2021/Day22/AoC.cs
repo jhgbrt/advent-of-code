@@ -17,7 +17,8 @@ public class AoC202122
         select (instruction.@on, p)
         ).Aggregate(ImmutableHashSet<P>.Empty, (set, p) => p.on ? set.Add(p.p) : set.Remove(p.p)).Count();
 
-    public object Part2()
+    public object Part2() => SolvePart2();
+    static long SolvePart2()
     {
         Dictionary<Prism, long> counts = new();
 

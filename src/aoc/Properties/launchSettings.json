@@ -2,7 +2,7 @@
   "profiles": {
     "aoc": {
       "commandName": "Project",
-      "commandLineArgs": "exec",
+      "commandLineArgs": "export -o \"C:\\Users\\jeroe\\source\\repos\\ae-nv\\aedvent-code-2021\\day 22\\JeroenH - C#\"",
       "workingDirectory": "$(SolutionDir)aoc"
     }
   }
