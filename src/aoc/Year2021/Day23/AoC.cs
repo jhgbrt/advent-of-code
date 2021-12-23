@@ -1,5 +1,3 @@
-using System.Collections;
-
 namespace AdventOfCode.Year2021.Day23;
 
 public class AoC202123
