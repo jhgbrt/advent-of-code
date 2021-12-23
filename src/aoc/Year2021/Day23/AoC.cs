@@ -6,12 +6,9 @@ public class AoC202123
 {
     static string[] input = Read.InputLines();
     static GameState initial = GameState.Parse(input);
-    static GameState goal = new GameState(Hall.Empty, Rooms.Create(new[] { "AA", "BB", "CC", "DD" }));
-    static GameState goal2 = new GameState(Hall.Empty, Rooms.Create(new[] { "AAAA", "BBBB", "CCCC", "DDDD" }));
+    public object Part1() => Dijkstra(initial, GameState.Goal(2));
 
-    public object Part1() => Dijkstra(initial, goal);
-
-    public object Part2() => Dijkstra(initial.Part2(), goal2);
+    public object Part2() => Dijkstra(initial.Part2(), GameState.Goal(4));
 
     int Dijkstra(GameState source, GameState target)
     {
@@ -37,7 +34,6 @@ public class AoC202123
                 {
                     queue.Enqueue(next, cost);
                     costs[next] = cost;
-                    if (next == target) Console.WriteLine((next, cost));
                 }
             }
         }
@@ -66,6 +62,14 @@ record GameState(Hall Hall, Rooms Rooms)
             );
         return new GameState(Hall.Empty, rooms);
     }
+    public static GameState Goal(int roomSize)
+    {
+        return new GameState(Hall.Empty, Rooms.Create(
+            from a in Amphipods
+            select new string(Repeat(a.Id, roomSize).ToArray())
+            )
+        );
+    }
     public GameState Part2() => this with
     {
         Rooms = Rooms.Create(new[]
@@ -77,13 +81,13 @@ record GameState(Hall Hall, Rooms Rooms)
             })
     };
 
-    private static Amphipod[] Amphipods = Range(0, 4).Select(x => new Amphipod((char)('A' + x), (int)Math.Pow(10, x))).ToArray();
-    private static int GetEnergyFactor(char c) => Amphipods[c - 'A'].Energy;
-
+    private static ImmutableArray<Amphipod> Amphipods = Range(0, 4).Select(x => new Amphipod((char)('A' + x), (int)Math.Pow(10, x), (x + 1) * 2)).ToImmutableArray();
+    
     public IEnumerable<Move> PossibleMoves()
-        => (from i in new[] {'A','B','C','D'}
-            from pos in AllOpenSpaces(i)
-            let move = TryMoveOut(i, pos)
+        => (from a in Amphipods
+            from pos in Hall.EmptyPositionsAround(a.Position)
+            where !Amphipods.Any(a => a.Position == pos)
+            let move = TryMoveOut(a, pos)
             where move.HasValue
             select move.Value
             ).Concat(
@@ -92,123 +96,97 @@ record GameState(Hall Hall, Rooms Rooms)
             where move.HasValue
             select move.Value);
 
-    private Move? TryMoveOut(char roomID, int target)
+    private Move? TryMoveOut(Amphipod a, int target)
     {
-        var room = Rooms[roomID];
+        var room = Rooms[a.Id];
         if (room.IsEmpty) return null;
 
         var depth = room.Depth;
 
-        var steps = Math.Abs(target - Rooms[roomID].Position) + depth + 1;
         var amphipod = room[depth];
 
-        var hall = new Hall(Hall.Value.Remove(target, 1).Insert(target, amphipod.ToString()));
-
-        room = room.Clear(depth);
-
-        var updatedRooms = Rooms.SetItem(roomID, room);
-
+        var steps = Math.Abs(target - a.Position) + depth + 1;
         return new Move(
-            this with { Hall = hall, Rooms = updatedRooms },
-            steps * GetEnergyFactor(amphipod)
+            this with { Hall = Hall.SetItem(target, amphipod), Rooms = Rooms.SetItem(a.Id, room.Clear(depth)) },
+            steps * Amphipods[amphipod - 'A'].Energy
             );
     }
 
-    private Move? TryMoveIn(int hallwayPosition)
+    private Move? TryMoveIn(int fromhallway)
     {
-        var amphipod = Hall[hallwayPosition];
-        if (amphipod == '.') return null;
+        var id = Hall[fromhallway];
+        if (id == '.') return null;
 
-        var room = Rooms[amphipod];
-        var target = room.Position;
-        var start = target > hallwayPosition ? hallwayPosition + 1 : hallwayPosition - 1;
-        var min = Math.Min(target, start);
-        var max = Math.Max(target, start);
-        if (Hall.Value[min..max].Any(ch => ch != '.'))
+        var room = Rooms[id];
+        var target = Amphipods[id-'A'].Position;
+        var start = target > fromhallway ? fromhallway + 1 : fromhallway - 1;
+        var range = target < start ? target..start : start..target;
+        
+        if (!Hall.IsEmpty(range))
             return null;
 
-        if (!room.CanEnter(amphipod))
+        if (!room.CanEnter(id))
             return null;
 
         var depth = room.LastEmptyPosition;
-        var steps = max - min + 1 + depth + 1;
-
-        var hall = new Hall(Hall.Value.Remove(hallwayPosition, 1).Insert(hallwayPosition, "."));
-
-        return new Move(this with 
-        { 
-            Hall = hall, 
-            Rooms = Rooms.SetItem(amphipod, room.SetItem(depth, amphipod)) 
-        }, steps * GetEnergyFactor(amphipod));
-    }
-
-    private IEnumerable<int> AllOpenSpaces(char roomIndex)
-    {
-        var position = Rooms[roomIndex].Position;
-
-        for (var i = position - 1; i >= 0 && Hall[i] == '.'; --i)
+        
+        return new Move(this with
         {
-            if (!Rooms.IsRoomPosition(i))
-                yield return i;
-        }
-
-        for (var i = position + 1; i < Hall.Length && Hall[i] == '.'; ++i)
-        {
-            if (!Rooms.IsRoomPosition(i))
-                yield return i;
-        }
+            Hall = Hall.Clear(fromhallway),
+            Rooms = Rooms.SetItem(id, room.SetItem(depth, id))
+        }, (range.End.Value - range.Start.Value + depth + 2) * Amphipods[id - 'A'].Energy);
     }
-
 }
-record struct Amphipod(char Id, int Energy);
+readonly record struct Amphipod(char Id, int Energy, int Position);
 
-record struct Rooms(Room A, Room B, Room C, Room D)
+readonly record struct Rooms(Room A, Room B, Room C, Room D)
 {
     public static Rooms Create(IEnumerable<string> values)
     {
-        var v = values.Select((v, i) => new Room(v, (i+1)*2)).ToArray();
+        var v = values.Select((v, i) => new Room(v)).ToArray();
         return new Rooms(v[0], v[1], v[2], v[3]);
     }
-    IEnumerable<Room> All() { yield return A; yield return B; yield return C; yield return D; } 
-    public bool IsRoomPosition(int i) => All().Any(r => r.Position == i);
-
-    internal Rooms SetItem(char index, Room room)
+    internal Rooms SetItem(char index, Room room) => index switch
     {
-        return index switch {
-            'A' => this with { A = room },
-            'B' => this with { B = room },
-            'C' => this with { C = room },
-            'D' => this with { D = room },
-            _ => throw new NotImplementedException()
-        };
-    }
+        'A' => this with { A = room },
+        'B' => this with { B = room },
+        'C' => this with { C = room },
+        'D' => this with { D = room },
+        _ => throw new NotImplementedException()
+    };
 
     internal Room this[char index] => index switch
     {
         'A'=>A,'B'=>B,'C'=>C,'D'=>D,_=>throw new NotImplementedException()
     };
 }
-record struct Hall(string Value)
+readonly record struct Hall(string Value)
 {
-    public readonly static Hall Empty = new Hall("...........");
-    public char this[int i] => Value[i];
-    public int Length => Value.Length;
+    internal readonly static Hall Empty = new("...........");
+    internal IEnumerable<int> EmptyPositionsAround(int position)
+    {
+        for (var i = position - 1; i >= 0 && Value[i] == '.'; --i) yield return i;
+        for (var i = position + 1; i < Value.Length && Value[i] == '.'; ++i) yield return i;
+    }
+    internal char this[int i] => Value[i];
+    internal int Length => Value.Length;
+    internal Hall Clear(int index) => SetItem(index, '.');
+    internal Hall SetItem(int target, char amphipod) => this with { Value = new StringBuilder(Value) { [target] = amphipod }.ToString() };
+    internal bool IsEmpty(Range range) => Value[range].All(ch => ch == '.');
 }
-record struct Room(string Value, int Position)
+readonly record struct Room(string Value)
 {
-    public bool IsEmpty => Value.All(c => c == '.');
+    internal bool IsEmpty => Value.All(c => c == '.');
 
-    public int LastEmptyPosition => Value.Select((c, i) => (c, i)).Last(c => c.c == '.').i;
+    internal int LastEmptyPosition => Value.Select((c, i) => (c, i)).Last(c => c.c == '.').i;
 
-    public int Depth => Value.IndexOfAny(new[] { 'A', 'B', 'C', 'D' });
+    static char[] Values = new[] { 'A', 'B', 'C', 'D' };
+    internal int Depth => Value.IndexOfAny(Values);
 
-    public char this[int depth] => Value[depth];
-    internal Room Clear(int depth) => this with { Value = Value.Remove(depth, 1).Insert(depth, ".") };
-
+    internal char this[int index] => Value[index];
+    internal Room Clear(int index) => SetItem(index, '.');
+    internal Room SetItem(int index, char value) => this with { Value = new StringBuilder(Value) { [index] = value }.ToString() };
     internal bool CanEnter(char amphipod) => Value.All(ch => ch == '.' || ch == amphipod);
-
-    internal Room SetItem(int depth, char amphipod) => this with { Value = Value.Remove(depth, 1).Insert(depth, amphipod.ToString()) };
 }
-record struct Move(GameState NewState, int Cost);
-
+readonly record struct Move(GameState NewState, int Cost);
 

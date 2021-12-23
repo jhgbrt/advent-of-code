@@ -43,7 +43,7 @@ class PuzzleManager
 
     internal async Task<PuzzleResultStatus> GetPuzzleResult(int y, int d, bool force, string typeName, Action<int, Result> status)
     {
-        var puzzle = await client.GetPuzzleAsync(y, d);
+        var puzzle = await client.GetPuzzleAsync(y, d, !force);
 
         var result = Cache.Exists(y, d, "result.json")
             ? JsonSerializer.Deserialize<DayResult>(await Cache.ReadFromCache(y, d, "result.json"))
