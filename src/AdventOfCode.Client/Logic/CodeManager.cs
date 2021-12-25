@@ -139,7 +139,7 @@ class CodeManager
 
         if (aocclass is null)
         {
-            throw new Exception("Could not find an implementation of AoCBase");
+            throw new Exception("Could not find a class with 2 methods called Part1 and Part2");
         }
 
         var implementations = (
