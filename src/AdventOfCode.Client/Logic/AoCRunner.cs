@@ -14,9 +14,11 @@ class AoCRunner
         if (aoc == null) return DayResult.NotImplemented(year, day);
 
         var t1 = Run(() => aoc.Part1());
-            progress(1, t1);
+        progress(1, t1);
 
-        var t2 = Run(() => aoc.Part2());
+        var t2 = day < 25 
+            ? Run(() => aoc.Part2())
+            : new Result(ResultStatus.Ok, "", TimeSpan.Zero);
         progress(2, t2);
 
         var result = new DayResult(year, day, t1, t2);
