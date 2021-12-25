@@ -19,6 +19,9 @@ internal static class RegexHelper
         return (T)constructor.Invoke(j.ToArray());
 
     }
+
+    public static int GetInt32(this Match m, string name) => int.Parse(m.Groups[name].Value);
+
 }
 
 record struct MyRecord1(string s1, string s2);

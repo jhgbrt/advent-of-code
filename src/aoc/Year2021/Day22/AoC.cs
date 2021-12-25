@@ -97,10 +97,6 @@ record struct P(int x, int y, int z)
     public static bool operator >=(P left, P right) => left.x >= right.x && left.y >= right.y && left.z >= right.z;
 }
 
-static class Ext
-{
-    public static int GetInt32(this Match m, string name) => int.Parse(m.Groups[name].Value);
-}
 
 public class Tests
 {
