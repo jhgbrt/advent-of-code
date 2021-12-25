@@ -195,10 +195,9 @@ public class AoC202124
         {
             yield return x / 26 * p1;
         }
-        if (0 <= w - p2 && w - p2 < 26)
+        if ((0..26).Contains(w-p2))
         {
-            var z0 = z * p1;
-            yield return w - p2 + z0;
+            yield return w - p2 + z * p1;
         }
     }
 
@@ -207,8 +206,12 @@ public class AoC202124
         // find possible input values for which result (z) = 0
         // keep a list of digits that, for each parameter combination (in reverse)
         // leads to the final result (0)
-        var zvalues = ImmutableHashSet<int>.Empty.Add(0); // the set of z-values for which to calculate the previous z-value(s) leading to this number
-        var results = ImmutableDictionary<int, ImmutableList<int>>.Empty; // cache the digits which lead to a specific z-value (list will contain 14 values at the end)
+
+        // the set of z-values for which to calculate the previous z-value(s) leading to this number
+        var zvalues = new HashSet<int>() { 0 };
+
+        // cache the digits which lead to a specific z-value (list will contain 14 values at the end)
+        var results = new Dictionary<int, ImmutableList<int>>(); 
         var digits = Range(1, 9).ToArray();
         if (part == 2) digits = digits.Reverse().ToArray();
         foreach (var (p1,p2,p3) in parameters.Reverse())
@@ -219,15 +222,13 @@ public class AoC202124
                     let list = results.ContainsKey(z) ? results[z] : ImmutableList<int>.Empty
                     select (previous, list.Insert(0,w));
 
-            var previousvalues = ImmutableHashSet<int>.Empty.ToBuilder();
-            var resultsBuilder = results.ToBuilder();
+            var previousvalues = new HashSet<int>();
             foreach (var (previous, list) in q)
             {
                 previousvalues.Add(previous);
-                resultsBuilder[previous] = list;
+                results[previous] = list;
             }
-            results = resultsBuilder.ToImmutable();
-            zvalues = previousvalues.ToImmutable();
+            zvalues = previousvalues;
         }
 
         return results[0].Reverse().Select((d, i) => d * (long)Math.Pow(10, i)).Sum();
@@ -272,3 +273,8 @@ readonly record struct Memory(int w, int x, int y, int z)
 }
 
 record Instruction(Func<Memory, IEnumerator<int>, Memory> F, string Name);
+
+static class Ex
+{
+    public static bool Contains(this Range r, int v) => r.Start.Value <= v && v < r.End.Value;
+}
