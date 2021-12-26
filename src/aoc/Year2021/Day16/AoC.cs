@@ -17,9 +17,6 @@ static class Ex
         );
 }
 
-
-
-
 internal class Packet
 {
     private int Length;
