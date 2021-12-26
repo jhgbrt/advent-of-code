@@ -32,7 +32,7 @@ public class AoC202119
             q = q.Dequeue(out int id);
             foreach (var scanner in found[id].FindScannersInRange(remaining.Values))
             {
-                Console.WriteLine($"{id} - {scanner.id} ({remaining.Count()} remaining)");
+                //Console.WriteLine($"{id} - {scanner.id} ({remaining.Count()} remaining)");
                 found = found.SetItem(scanner.id, scanner);
                 q = q.Enqueue(scanner.id);
                 remaining = remaining.Remove(scanner.id);
