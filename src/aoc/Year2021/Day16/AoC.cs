@@ -19,43 +19,36 @@ static class Ex
 
 internal class Packet
 {
+    public long Value { get; set; }
+
     private int Length;
-    public IEnumerable<Packet> Children => children;
-    private List<Packet> children { get; } = new();
+    private List<Packet> Children { get; } = new();
     private int version;
     private int type;
     private string binary;
+
     public Packet(string binary)
     {
         this.binary = binary;
 
         // header
-        version = Convert.ToInt32(Read(3).ToString(), 2);
-        type = Convert.ToInt32(Read(3).ToString(), 2);
+        version = Convert.ToInt32(ReadSpan(3).ToString(), 2);
+        type = Convert.ToInt32(ReadSpan(3).ToString(), 2);
 
         // data
         if (type == 4)
         {
-            StringBuilder result = new();
-            bool readLastGroup = false;
-            while (!readLastGroup)
-            {
-                if (Read(1)[0] == '0')
-                    readLastGroup = true;
-                result.Append(Read(4));
-            }
-            Value = Convert.ToInt64(result.ToString(), 2);
+            Value = ReadValue();
         }
         else
         {
-
-            var subpackets = (Read(1)[0] switch
+            var subpackets = (ReadSpan(1)[0] switch
             {
-                '0' => ReadNumberOfBits(Convert.ToInt32(Read(15).ToString(), 2)),
-                _ => ReadNumberOfPackets(Convert.ToInt32(Read(11).ToString(), 2))
+                '0' => ReadNumberOfBits(Convert.ToInt32(ReadSpan(15).ToString(), 2)),
+                _ => ReadNumberOfPackets(Convert.ToInt32(ReadSpan(11).ToString(), 2))
             }).ToList();
 
-            children.AddRange(subpackets);
+            Children.AddRange(subpackets);
             var subValues = subpackets.Select(packet => packet.Value);
             Value = type switch
             {
@@ -71,39 +64,50 @@ internal class Packet
             };
         }
     }
-    public long Value { get; set; }
-    public int GetVersionSum() => children.Aggregate(version, (s, sub) => s + sub.GetVersionSum());
 
-    private ReadOnlySpan<char> Read(int amount)
+    private long ReadValue()
+    {
+        StringBuilder result = new();
+        bool done = false;
+        while (!done)
+        {
+            if (ReadSpan(1)[0] == '0')
+                done = true;
+            result.Append(ReadSpan(4));
+        }
+        return Convert.ToInt64(result.ToString(), 2);
+    }
+
+    public int GetVersionSum() => Children.Aggregate(version, (s, sub) => s + sub.GetVersionSum());
+
+    private ReadOnlySpan<char> ReadSpan(int amount)
     {
         var span = binary.AsSpan(Length, amount);
         Length += amount;
         return span;
     }
 
+    Packet ReadOnePacket()
+    {
+        var subpacket = new Packet(binary.Substring(Length));
+        Length += subpacket.Length;
+        return subpacket;
+    }
+
     private IEnumerable<Packet> ReadNumberOfPackets(int number)
     {
-        var str = binary.Substring(Length);
         for (int i = 0; i < number; i++)
         {
-            var subpacket = new Packet(str);
-            yield return subpacket;
-            str = str.Substring(subpacket.Length);
-            Length += subpacket.Length;
+            yield return ReadOnePacket();
         }
     }
 
     private IEnumerable<Packet> ReadNumberOfBits(int length)
     {
-        string str = binary.Substring(Length);
-        int bytesRead = 0;
-        while (bytesRead < length)
+        var max = Length + length;
+        while (Length < max)
         {
-            Packet subpacket = new Packet(str);
-            yield return subpacket;
-            str = str.Substring(subpacket.Length);
-            Length += subpacket.Length;
-            bytesRead += subpacket.Length;
+            yield return ReadOnePacket();
         }
     }
 }
