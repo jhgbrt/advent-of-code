@@ -4,8 +4,8 @@ using HtmlAgilityPack;
 using System.Net;
 using NodaTime;
 using System.Text.Json;
-using System.Diagnostics;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
 
 record Configuration(string BaseAddress, string SessionCookie);
 
@@ -13,8 +13,10 @@ class AoCClient : IDisposable
 {
     readonly HttpClientHandler handler;
     readonly HttpClient client;
+    private readonly ILogger<AoCClient> logger;
+    private readonly Cache cache;
 
-    public AoCClient(Configuration configuration)
+    public AoCClient(Configuration configuration, ILogger<AoCClient> logger, Cache cache)
     {
         var baseAddress = new Uri(configuration.BaseAddress);
         var sessionCookie = configuration.SessionCookie;
@@ -25,6 +27,8 @@ class AoCClient : IDisposable
         handler = new HttpClientHandler { CookieContainer = cookieContainer };
 
         client = new HttpClient(handler) { BaseAddress = baseAddress };
+        this.logger = logger;
+        this.cache = cache;
     }
 
     public async Task<(HttpStatusCode status, string content)> PostAnswerAsync(int year, int day, int part, string value)
@@ -129,19 +133,17 @@ class AoCClient : IDisposable
     private async Task<(HttpStatusCode StatusCode, string Content)> GetAsync(int? year, int? day, string name, string path, bool usecache)
     {
         string content;
-        if (!Cache.Exists(year, day, name) || !usecache)
+        if (!cache.Exists(year, day, name) || !usecache)
         {
             var response = await client.GetAsync(path);
             content = await response.Content.ReadAsStringAsync();
-            Trace.WriteLine($"GET: {path} - {response.StatusCode}");
-            Trace.WriteLine($"{content}");
+            logger.LogTrace($"GET: {path} - {response.StatusCode}");
             if (response.StatusCode != HttpStatusCode.OK) return (response.StatusCode, content);
-            await Cache.WriteToCache(year, day, name, content);
+            await cache.WriteToCache(year, day, name, content);
         }
         else
         {
-            Trace.WriteLine($"CACHE: {path}");
-            content = await Cache.ReadFromCache(year, day, name);
+            content = await cache.ReadFromCache(year, day, name);
         }
         return (HttpStatusCode.OK, content);
     }
@@ -149,7 +151,7 @@ class AoCClient : IDisposable
     private async Task<(HttpStatusCode StatusCode, string Content)> PostAsync(string path, HttpContent body)
     {
         var response = await client.PostAsync(path, body);
-        Trace.WriteLine($"GET: {path} - {response.StatusCode}");
+        logger.LogTrace($"GET: {path} - {response.StatusCode}");
         var content = await response.Content.ReadAsStringAsync();
         return (response.StatusCode, content);
     }

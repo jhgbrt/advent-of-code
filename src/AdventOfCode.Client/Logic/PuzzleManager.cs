@@ -10,11 +10,13 @@ class PuzzleManager
 {
     public AoCClient client;
     public AoCRunner runner;
+    private readonly Cache cache;
 
-    public PuzzleManager(AoCClient client, AoCRunner runner)
+    public PuzzleManager(AoCClient client, AoCRunner runner, Cache cache)
     {
         this.client = client;
         this.runner = runner;
+        this.cache = cache;
     }
 
     internal async Task<(bool status, string reason, int part)> PreparePost(int year, int day)
@@ -28,28 +30,20 @@ class PuzzleManager
         };
     }
 
-    internal async Task SyncAnswers(int year, int day)
+    internal async Task Sync(int year, int day)
     {
-        var dir = new CodeFolder(year, day);
-        if (!dir.Exists)
-        {
-            throw new Exception($"Puzzle for {year}/{day} not yet initialized. Use 'init' first.");
-        }
-
-        var puzzle = await client.GetPuzzleAsync(year, day, false);
-        var answer = puzzle.Answer;
-        await dir.WriteAnswers(JsonSerializer.Serialize(answer));
+        await client.GetPuzzleAsync(year, day, false);
     }
 
-    internal async Task<PuzzleResultStatus> GetPuzzleResult(int y, int d, bool force, string typeName, Action<int, Result> status)
+    internal async Task<PuzzleResultStatus> GetPuzzleResult(int y, int d, bool runSlowPuzzles, string? typeName, Action<int, Result> status)
     {
-        var puzzle = await client.GetPuzzleAsync(y, d, !force);
+        var puzzle = await client.GetPuzzleAsync(y, d);
 
-        var result = Cache.Exists(y, d, "result.json")
-            ? JsonSerializer.Deserialize<DayResult>(await Cache.ReadFromCache(y, d, "result.json"))
+        var result = cache.Exists(y, d, "result.json")
+            ? JsonSerializer.Deserialize<DayResult>(await cache.ReadFromCache(y, d, "result.json"))
             : null;
 
-        if (result == null || force || result.Elapsed < TimeSpan.FromSeconds(1) && !string.IsNullOrEmpty(typeName))
+        if (result == null || runSlowPuzzles || result.Elapsed < TimeSpan.FromSeconds(1) && !string.IsNullOrEmpty(typeName))
         {
             result = await runner.Run(typeName, y, d, status);
             return new PuzzleResultStatus(puzzle, result, true);
@@ -64,7 +58,7 @@ class PuzzleManager
     {
         var (status, content) = await client.PostAnswerAsync(year, day, part, value);
         var success = content.StartsWith("That's the right answer");
-        await SyncAnswers(year, day);
+        await Sync(year, day);
         if (success)
         {
             var stats = await client.GetMemberAsync(year, false);

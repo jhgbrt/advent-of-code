@@ -76,7 +76,7 @@ record DailyStars(int Day, Instant? FirstStar, Instant? SecondStar);
 
 record ReportLine(int year, int day, ConsoleColor color, string status, ConsoleColor dcolor, string duration, string explanation)
 {
-    public override string ToString() => $"{year}-{day:00}: [[[{color}]{status}[/]]] - [{dcolor}]{duration}[/]{explanation}";
+    public override string ToString() => $"{year}-{day:00} [[[{color}]{status}[/]]] - [{dcolor}]{duration}[/]{explanation}";
 }
 
 record PuzzleResultStatus(Puzzle puzzle, DayResult result, bool refreshed)
@@ -105,17 +105,14 @@ record PuzzleResultStatus(Puzzle puzzle, DayResult result, bool refreshed)
             _ => ("OK", ConsoleColor.Green, "")
         };
 
-        if (!refreshed)
-            explanation += " - from cache; use --force to include)";
-
         return new ReportLine(result.year, result.day, color, status, dcolor, duration, explanation);
     }
 }
 record LeaderboardEntry(string name, long score, long stars, DateTimeOffset lastStar);
 record PuzzleReportEntry(
     int year, int day, string answer1, string answer2,
-    string result1, TimeSpan elapsed1, string status1,
-    string result2, TimeSpan elapsed2, string status2,
+    string result1, TimeSpan elapsed1, ResultStatus status1,
+    string result2, TimeSpan elapsed2, ResultStatus status2,
     TimeSpan elapsedTotal);
 
 record MemberStats(string name, int stars, int score);

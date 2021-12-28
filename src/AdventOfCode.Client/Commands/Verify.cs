@@ -12,12 +12,10 @@ namespace AdventOfCode.Client.Commands;
 class Verify : AsyncCommand<Verify.Settings>
 {
     private readonly PuzzleManager manager;
-    private readonly ReportManager reportManager;
 
-    public Verify(PuzzleManager manager, ReportManager reportManager)
+    public Verify(PuzzleManager manager)
     {
         this.manager = manager;
-        this.reportManager = reportManager;
     }
 
     public class Settings : CommandSettings
@@ -33,9 +31,6 @@ class Verify : AsyncCommand<Verify.Settings>
         "(default: AdventOfCode.Year{0}.Day{1:00}.AoC{0}{1:00})")]
         [CommandOption("--typename")]
         public string? typeName { get; set; }
-        [Description("Force re-execution of slow puzzles")]
-        [CommandOption("-f|--force")]
-        public bool? force { get; set; }
         [Description("Verify all puzzles")]
         [CommandOption("-a|--all")]
         public bool all { get; set; }
@@ -44,37 +39,12 @@ class Verify : AsyncCommand<Verify.Settings>
     public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
     {
 
-        (var year, var day, var typeName, var force, var all) = (
+        (var year, var day, var typeName, var all) = (
               options.year
             , options.day
-            , string.IsNullOrEmpty(options.typeName) ? "AdventOfCode.Year{0}.Day{1:00}.AoC{0}{1:00}" : options.typeName
-            , options.force ?? false
+            , options.typeName
             , options.all
             );
-
-        if (options.all)
-        {
-            await AnsiConsole.Progress()
-                .StartAsync(async ctx =>
-                {
-
-                    var tasks = AoCLogic.Years().Select(y => ctx.AddTask(y.ToString())).ToArray();
-
-                    foreach (var (year, task) in AoCLogic.Years().Zip(tasks))
-                    {
-                        var days = AoCLogic.Days(year).ToArray();
-                        foreach (var day in days)
-                        {
-                            var resultStatus = await manager.GetPuzzleResult(year, day, force, typeName, (_, _) => { });
-                            task.Increment((double)100/ days.Length);
-                        }
-                    }
-                });
-            var report = await reportManager.GetPuzzleReport(null, null).ToListAsync();
-            AnsiConsole.Write(report.ToTable());
-            return 0;
-        }
-
 
         var sw = Stopwatch.StartNew();
         foreach (var (y, d) in AoCLogic.Puzzles())
@@ -82,7 +52,10 @@ class Verify : AsyncCommand<Verify.Settings>
             if (year.HasValue && year != y) continue;
             if (day.HasValue && day != d) continue;
             if (!all && !year.HasValue && !day.HasValue && !AoCLogic.IsToday(y, d)) continue;
-            var resultStatus = await manager.GetPuzzleResult(y, d, force, typeName, (_, _) => { });
+
+            var resultStatus = await manager.GetPuzzleResult(y, d, true, typeName, 
+                (part, result) => AnsiConsole.MarkupLine($"{y}-{d:00} part {part}: {result.Value} ({result.Elapsed})"));
+
             var reportLine = resultStatus.ToReportLine();
             AnsiConsole.MarkupLine(reportLine.ToString());
 

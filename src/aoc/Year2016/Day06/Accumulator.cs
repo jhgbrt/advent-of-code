@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2016.Day06;
 
-public class Accumulator
+internal class Accumulator
 {
     public string Decode(IEnumerable<string> data, int lineLength, bool ascending = false)
     {

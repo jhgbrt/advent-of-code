@@ -5,13 +5,10 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
 using System.Text.Json;
 
-using System.Reflection;
-
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static System.IO.File;
 using static System.IO.Path;
 using static System.Environment;
-using AdventOfCode.Client.Commands;
 
 namespace AdventOfCode.Client.Logic;
 
@@ -30,7 +27,6 @@ class CodeFolder
     public string CODE => GetFileName(year, day, "AoC.cs");
     public string INPUT => GetFileName(year, day, "input.txt");
     public string SAMPLE => GetFileName(year, day, "sample.txt");
-    public string ANSWERS => GetFileName(year, day, "answers.json");
 
     private Task<string> ReadFile(string name) => ReadAllTextAsync(name);
     private Task WriteFile(string name, string content) => WriteAllTextAsync(name, content);
@@ -41,8 +37,6 @@ class CodeFolder
     public Task WriteInput(string content) => WriteFile(INPUT, content);
     public Task<string> ReadSample() => ReadFile(SAMPLE);
     public Task WriteSample(string content) => WriteFile(SAMPLE, content);
-    public Task<string> ReadAnswers() => ReadFile(ANSWERS);
-    public Task WriteAnswers(string content) => WriteFile(ANSWERS, content);
     public bool Exists => dir.Exists;
     public void Create() => dir.Create();
     public void Delete() => dir.Delete(true);
@@ -115,9 +109,7 @@ class CodeManager
 
         progress("Retrieving puzzle data");
 
-        var puzzle = await client.GetPuzzleAsync(year, day, !force);
-        var answer = puzzle.Answer;
-        await dir.WriteAnswers(JsonSerializer.Serialize(answer));
+        await client.GetPuzzleAsync(year, day, !force);
     }
 
     internal async Task<string> GenerateCodeAsync(int year, int day)

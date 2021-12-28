@@ -16,14 +16,15 @@ class Sync : AsyncCommand<Sync.Settings>
     {
         this.manager = manager;
     }
-    public class Settings : AoCSettings 
+    public class Settings : AoCSettings
     {
     }
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
     {
         (var year, var day) = (options.year, options.day);
-        await AnsiConsole.Status().StartAsync($"Retrieving answers for puzzle {year}-{day:00}...", async ctx => await manager.SyncAnswers(year, day));
+        AnsiConsole.Write($"Retrieving answers for puzzle {year}-{day:00}...");
+        await manager.Sync(year, day);
         return 0;
     }
    

@@ -1,7 +1,16 @@
-﻿namespace AdventOfCode.Client.Logic;
+﻿using Microsoft.Extensions.Logging;
 
-static class Cache
+namespace AdventOfCode.Client.Logic;
+
+class Cache
 {
+    ILogger<Cache> logger;
+
+    public Cache(ILogger<Cache> logger)
+    {
+        this.logger = logger;
+    }
+
     private static string BaseDir => Path.Combine(Environment.CurrentDirectory, ".cache");
     private static string GetDirectory(int? year, int? day)
     {
@@ -17,8 +26,18 @@ static class Cache
     }
 
     private static string GetFileName(int? year, int? day, string name) => Path.Combine(GetDirectory(year, day), name);
-    internal static Task<string> ReadFromCache(int? year, int? day, string name) => File.ReadAllTextAsync(GetFileName(year, day, name));
-    internal static Task WriteToCache(int? year, int? day, string name, string content) => File.WriteAllTextAsync(GetFileName(year, day, name), content);
-    internal static bool Exists(int? year, int? day, string name) => File.Exists(GetFileName(year, day, name));
+    internal Task<string> ReadFromCache(int? year, int? day, string name)
+    {
+        logger.LogTrace($"CACHE-READ: {year} - {day} - {name}");
+        return File.ReadAllTextAsync(GetFileName(year, day, name));
+    }
+
+    internal Task WriteToCache(int? year, int? day, string name, string content)
+    {
+        logger.LogTrace($"CACHE-WRITE: {year} - {day} - {name}");
+        return File.WriteAllTextAsync(GetFileName(year, day, name), content);
+    }
+
+    internal bool Exists(int? year, int? day, string name) => File.Exists(GetFileName(year, day, name));
 }
 

@@ -20,7 +20,10 @@ public class AoCSettings : CommandSettings
     {
         if (!AoCLogic.IsValidAndUnlocked(year, day))
         {
-            return ValidationResult.Error("Puzzle not unlocked or invalid year/day combination");
+            if (day >= 1 && day <= 25 && DateTime.Now.Month == 12)
+                return ValidationResult.Error("Puzzle not unlocked (yet?)");
+            else
+                return ValidationResult.Error("There is no Advent of Code puzzle on this day");
         }
         else
         {

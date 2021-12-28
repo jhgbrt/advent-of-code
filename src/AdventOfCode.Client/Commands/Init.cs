@@ -25,11 +25,8 @@ class Init : AsyncCommand<Init.Settings>
     public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
     {
         (var year, var day, var force) = (options.year, options.day, options.force??false);
-
         AnsiConsole.WriteLine("Puzzle is unlocked");
-
         await manager.InitializeCodeAsync(year, day, force, AnsiConsole.WriteLine);
-
         return 0;
     }
 

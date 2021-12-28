@@ -5,10 +5,12 @@ using AdventOfCode.Client.Logic;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 using Spectre.Console.Cli;
 
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Reflection;
 
 public static class AoC
@@ -20,13 +22,28 @@ public static class AoC
             .AddUserSecrets(Assembly.GetEntryAssembly())
             .Build();
 
-        var registrar = RegisterServices();
+        string? loglevel = null;
+        for (int i = 0; i < args.Length; i++)
+        {
+            if (args[i].StartsWith("--loglevel="))
+            {
+                loglevel = args[i].Split('=')[1];
+                break;
+            }
+            else if (args[i] == "--loglevel" && i < args.Length - 1)
+            {
+                loglevel = args[i + 1];
+                break;
+            }
+        }
+
+        var registrar = RegisterServices(string.IsNullOrEmpty(loglevel) ? LogLevel.Warning : Enum.Parse<LogLevel>(loglevel, true));
 
         var app = new CommandApp(registrar);
 
         app.Configure(config =>
         {
-            AddCommand<Exec>(config);
+            AddCommand<Run>(config);
             AddCommand<Verify>(config);
             AddCommand<Init>(config);
             AddCommand<Sync>(config);
@@ -36,7 +53,8 @@ public static class AoC
             AddCommand<Report>(config);
             AddCommand<Leaderboard>(config);
             AddCommand<Stats>(config);
-            config.PropagateExceptions();
+            if (args.Contains("--debug"))
+                config.PropagateExceptions();
         });
 
         await app.RunAsync(args);
@@ -48,7 +66,7 @@ public static class AoC
     static string? GetDescription(ICustomAttributeProvider provider)
         => provider.GetCustomAttributes(typeof(DescriptionAttribute), false).OfType<DescriptionAttribute>().SingleOrDefault()?.Description;
 
-    static ITypeRegistrar RegisterServices()
+    static ITypeRegistrar RegisterServices(LogLevel loglevel)
     {
         var config = new ConfigurationBuilder()
             .AddEnvironmentVariables()
@@ -61,12 +79,14 @@ public static class AoC
         var configuration = new Configuration(baseAddress, cookieValue);
 
         var services = new ServiceCollection();
+        services.AddLogging(builder => builder.AddInlineSpectreConsole(c => c.LogLevel = LogLevel.Trace).SetMinimumLevel(loglevel));
         services.AddSingleton(configuration);
         services.AddTransient<AoCClient>();
         services.AddTransient<PuzzleManager>();
         services.AddTransient<AoCRunner>();
         services.AddTransient<CodeManager>();
         services.AddTransient<ReportManager>();
+        services.AddTransient<Cache>();
         foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsAssignableTo(typeof(ICommand))))
         {
             services.AddTransient(type);
@@ -75,7 +95,6 @@ public static class AoC
         {
             services.AddTransient(type);
         }
-
 
         return new TypeRegistrar(services);
     }

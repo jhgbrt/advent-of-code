@@ -80,12 +80,13 @@ class ReportManager
                 p.puzzle.Answer.part2,
                 p.result.part1.Value,
                 p.result.part1.Elapsed,
-                comparisonResult.part1.GetDisplayName(),
+                comparisonResult.part1,
                 p.result.part2.Value,
-                p.result.part2.Elapsed, 
-                comparisonResult.part2.GetDisplayName(),
+                p.result.part2.Elapsed,
+                comparisonResult.part2,
                 p.result.Elapsed
                 );
         }
     }
+    
 }

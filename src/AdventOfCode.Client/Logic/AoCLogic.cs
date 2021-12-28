@@ -31,7 +31,8 @@ static class AoCLogic
     {
         var now = Now;
         for (int year = 2015; year <= now.Year; year++)
-            for (int day = 1; year < now.Year && day <= 25 || now.Month == 12 && day <= now.Day; day++)
+            for (int day = 1; (year < now.Year && day <= 25)
+                || now.Month == 12 && day <= now.Day && day <= 25; day++)
                 yield return (year, day);
     }
 
@@ -50,7 +51,7 @@ static class AoCLogic
         if (12 > now.Month) return false;
 
         // current year, december
-        return day >= 1 && day <= now.Day;
+        return day >= 1 && day <= now.Day && day <= 25;
     }
 
     internal static IEnumerable<int> Years()
