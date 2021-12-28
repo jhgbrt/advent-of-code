@@ -11,9 +11,9 @@ namespace AdventOfCode.Client.Commands;
 [Description("Verify the results for the given puzzle(s).")]
 class Verify : AsyncCommand<Verify.Settings>
 {
-    private readonly PuzzleManager manager;
+    private readonly IPuzzleManager manager;
 
-    public Verify(PuzzleManager manager)
+    public Verify(IPuzzleManager manager)
     {
         this.manager = manager;
     }

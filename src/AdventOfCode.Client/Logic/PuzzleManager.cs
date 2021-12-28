@@ -5,21 +5,30 @@ using System.Text.Json;
 
 namespace AdventOfCode.Client.Logic;
 
+interface IPuzzleManager
+{
+    Task<PuzzleResultStatus> GetPuzzleResult(int y, int d, bool runSlowPuzzles, string? typeName, Action<int, Result> status);
+    Task<(bool success, HttpStatusCode status, string content)> Post(int year, int day, int part, string value);
+    Task<(bool status, string reason, int part)> PreparePost(int year, int day);
+    Task Sync(int year, int day);
+}
 
-class PuzzleManager
+
+
+class PuzzleManager : IPuzzleManager
 {
     public AoCClient client;
     public AoCRunner runner;
-    private readonly Cache cache;
+    private readonly ICache cache;
 
-    public PuzzleManager(AoCClient client, AoCRunner runner, Cache cache)
+    public PuzzleManager(AoCClient client, AoCRunner runner, ICache cache)
     {
         this.client = client;
         this.runner = runner;
         this.cache = cache;
     }
 
-    internal async Task<(bool status, string reason, int part)> PreparePost(int year, int day)
+    public async Task<(bool status, string reason, int part)> PreparePost(int year, int day)
     {
         var puzzle = await client.GetPuzzleAsync(year, day);
         return puzzle.Status switch
@@ -30,12 +39,12 @@ class PuzzleManager
         };
     }
 
-    internal async Task Sync(int year, int day)
+    public async Task Sync(int year, int day)
     {
         await client.GetPuzzleAsync(year, day, false);
     }
 
-    internal async Task<PuzzleResultStatus> GetPuzzleResult(int y, int d, bool runSlowPuzzles, string? typeName, Action<int, Result> status)
+    public async Task<PuzzleResultStatus> GetPuzzleResult(int y, int d, bool runSlowPuzzles, string? typeName, Action<int, Result> status)
     {
         var puzzle = await client.GetPuzzleAsync(y, d);
 
@@ -54,7 +63,7 @@ class PuzzleManager
         }
     }
 
-    internal async Task<(bool success, HttpStatusCode status, string content)> Post(int year, int day, int part, string value)
+    public async Task<(bool success, HttpStatusCode status, string content)> Post(int year, int day, int part, string value)
     {
         var (status, content) = await client.PostAnswerAsync(year, day, part, value);
         var success = content.StartsWith("That's the right answer");

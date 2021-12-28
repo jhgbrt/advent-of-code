@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Formatting;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
 using System.Text.Json;
-
+using Microsoft.Extensions.Logging;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static System.IO.File;
 using static System.IO.Path;
@@ -12,83 +12,30 @@ using static System.Environment;
 
 namespace AdventOfCode.Client.Logic;
 
-class CodeFolder
-{
-    DirectoryInfo dir;
-    int year;
-    int day;
-    public CodeFolder(int year, int day)
-    {
-        this.dir = GetDirectory(year, day);
-        this.year = year;
-        this.day = day;
-    }
-
-    public string CODE => GetFileName(year, day, "AoC.cs");
-    public string INPUT => GetFileName(year, day, "input.txt");
-    public string SAMPLE => GetFileName(year, day, "sample.txt");
-
-    private Task<string> ReadFile(string name) => ReadAllTextAsync(name);
-    private Task WriteFile(string name, string content) => WriteAllTextAsync(name, content);
-
-    public Task<string> ReadCode() => ReadFile(CODE);
-    public Task WriteCode(string content) => WriteFile(CODE, content);
-    public Task<string> ReadInput() => ReadFile(INPUT);
-    public Task WriteInput(string content) => WriteFile(INPUT, content);
-    public Task<string> ReadSample() => ReadFile(SAMPLE);
-    public Task WriteSample(string content) => WriteFile(SAMPLE, content);
-    public bool Exists => dir.Exists;
-    public void Create() => dir.Create();
-    public void Delete() => dir.Delete(true);
-
-    internal async Task ExportTo(string code, string output)
-    {
-        var publishLocation = new DirectoryInfo(output);
-        if (!publishLocation.Exists)
-            publishLocation.Create();
-
-        var aoccs = Combine(publishLocation.FullName, "aoc.cs");
-        if (File.Exists(aoccs))
-            File.Delete(aoccs);
-        await WriteAllTextAsync(aoccs, code);
-
-        foreach (var file in dir.GetFiles("*.cs").Where(f => !f.FullName.Equals(CODE, StringComparison.OrdinalIgnoreCase)))
-        {
-            file.CopyTo(Combine(publishLocation.FullName, file.Name), true);
-        }
-
-        var inputtxt = Combine(publishLocation.FullName, "input.txt");
-        Copy(INPUT, inputtxt, true);
-
-        Copy(Combine(CurrentDirectory, "Template", "aoc.csproj"), Combine(publishLocation.FullName, "aoc.csproj"), true);
-    }
-
-    static DirectoryInfo GetDirectory(int year, int day) => new(Combine(CurrentDirectory, $"Year{year}", $"Day{day:00}"));
-    static FileInfo GetFile(int year, int day, string fileName) => new(Combine(CurrentDirectory, $"Year{year}", $"Day{day:00}", fileName));
-    static string GetFileName(int year, int day, string fileName) => GetFile(year, day, fileName).FullName;
-}
-
 class CodeManager
 {
-    AoCClient client;
+    private AoCClient client;
+    private ILogger<CodeManager> logger;
 
-    public CodeManager(AoCClient client)
+    public CodeManager(AoCClient client, ILogger<CodeManager> logger)
     {
         this.client = client;
+        this.logger = logger;
     }
 
     internal async Task InitializeCodeAsync(int year, int day, bool force, Action<string> progress)
     {
+        var dir = new CodeFolder(year, day, logger);
+        if (dir.Exists && !force)
+        {
+            throw new Exception($"Puzzle for {year}/{day} already initialized. Use --force to re-initialize.");
+        }
+        
         var templateFile = Combine(CurrentDirectory, "Template", "aoc.cs");
 
         if (!Exists(templateFile))
             throw new FileNotFoundException("Please provide a template file under Common\\Template\\aoc.cs. Use YYYY and DD as placeholders in the class name for the year and day, and provide two public methods called Part1 and Part2, accepting no arguments and returning a string");
 
-        var dir = new CodeFolder(year, day);
-        if (dir.Exists && !force)
-        {
-            throw new Exception($"Puzzle for {year}/{day} already initialized. Use --force to re-initialize.");
-        }
 
         if (dir.Exists) dir.Delete();
 
@@ -114,7 +61,7 @@ class CodeManager
 
     internal async Task<string> GenerateCodeAsync(int year, int day)
     {
-        var dir = new CodeFolder(year, day);
+        var dir = new CodeFolder(year, day, logger);
         var aoc = await dir.ReadCode();
         var tree = CSharpSyntaxTree.ParseText(aoc);
 
@@ -291,7 +238,7 @@ class CodeManager
 
     internal async Task ExportCode(int year, int day, string code, string output)
     {
-        var dir = new CodeFolder(year, day);
+        var dir = new CodeFolder(year, day, logger);
         await dir.ExportTo(code, output);
     }
 }

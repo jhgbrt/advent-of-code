@@ -10,9 +10,9 @@ namespace AdventOfCode.Client.Logic;
 class AoCRunner
 {
     ILogger<AoCRunner> logger;
-    private readonly Cache cache;
+    private readonly ICache cache;
 
-    public AoCRunner(ILogger<AoCRunner> logger, Cache cache)
+    public AoCRunner(ILogger<AoCRunner> logger, ICache cache)
     {
         this.logger = logger;
         this.cache = cache;
@@ -54,6 +54,9 @@ class AoCRunner
         {
             foreach (var t in assembly.GetTypes().OrderBy(t => t.Name))
             {
+                if (t.Name.Contains('<')) // skip compiler-generated classes
+                    continue;
+
                 var name = t.FullName ?? t.Name;
                 if (t.Namespace is null || !t.Namespace.Contains($"{year}") || !t.Namespace.Replace($"{year}", "").ToLower().Contains($"day{day:00}"))
                 {
@@ -87,7 +90,7 @@ class AoCRunner
             return null;
         }
 
-        logger.LogDebug($"Using implementation type: {type}");
+        logger.LogInformation($"Using implementation type: {type}");
 
         return Activator.CreateInstance(type);
     }

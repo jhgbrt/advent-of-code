@@ -14,9 +14,9 @@ class AoCClient : IDisposable
     readonly HttpClientHandler handler;
     readonly HttpClient client;
     private readonly ILogger<AoCClient> logger;
-    private readonly Cache cache;
+    private readonly ICache cache;
 
-    public AoCClient(Configuration configuration, ILogger<AoCClient> logger, Cache cache)
+    public AoCClient(Configuration configuration, ILogger<AoCClient> logger, ICache cache)
     {
         var baseAddress = new Uri(configuration.BaseAddress);
         var sessionCookie = configuration.SessionCookie;
@@ -162,12 +162,7 @@ class AoCClient : IDisposable
         if (statusCode != HttpStatusCode.OK) return string.Empty;
         return input;
     }
-    public async IAsyncEnumerable<Puzzle> GetPuzzlesAsync(IEnumerable<(int year, int day)> puzzles)
-    {
-        foreach (var (year, day) in puzzles)
-            yield return await GetPuzzleAsync(year, day, true);
-    }
-
+   
     public async Task<Puzzle> GetPuzzleAsync(int year, int day, bool usecache = true)
     {
         HttpStatusCode statusCode;

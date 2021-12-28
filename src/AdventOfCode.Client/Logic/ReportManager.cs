@@ -8,9 +8,9 @@ namespace AdventOfCode.Client.Logic;
 class ReportManager
 {
     AoCClient client;
-    private readonly PuzzleManager manager;
+    private readonly IPuzzleManager manager;
 
-    public ReportManager(AoCClient client, PuzzleManager manager)
+    public ReportManager(AoCClient client, IPuzzleManager manager)
     {
         this.client = client;
         this.manager = manager;

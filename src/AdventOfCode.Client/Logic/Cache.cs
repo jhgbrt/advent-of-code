@@ -2,7 +2,13 @@
 
 namespace AdventOfCode.Client.Logic;
 
-class Cache
+interface ICache
+{
+    bool Exists(int? year, int? day, string name);
+    Task<string> ReadFromCache(int? year, int? day, string name);
+    Task WriteToCache(int? year, int? day, string name, string content);
+}
+class Cache : ICache
 {
     ILogger<Cache> logger;
 
@@ -26,18 +32,18 @@ class Cache
     }
 
     private static string GetFileName(int? year, int? day, string name) => Path.Combine(GetDirectory(year, day), name);
-    internal Task<string> ReadFromCache(int? year, int? day, string name)
+    public Task<string> ReadFromCache(int? year, int? day, string name)
     {
         logger.LogTrace($"CACHE-READ: {year} - {day} - {name}");
         return File.ReadAllTextAsync(GetFileName(year, day, name));
     }
 
-    internal Task WriteToCache(int? year, int? day, string name, string content)
+    public Task WriteToCache(int? year, int? day, string name, string content)
     {
         logger.LogTrace($"CACHE-WRITE: {year} - {day} - {name}");
         return File.WriteAllTextAsync(GetFileName(year, day, name), content);
     }
 
-    internal bool Exists(int? year, int? day, string name) => File.Exists(GetFileName(year, day, name));
+    public bool Exists(int? year, int? day, string name) => File.Exists(GetFileName(year, day, name));
 }
 

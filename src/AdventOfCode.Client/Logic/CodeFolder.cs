@@ -4,9 +4,9 @@ namespace AdventOfCode.Client.Logic;
 
 class CodeFolder
 {
-    DirectoryInfo dir;
-    int year;
-    int day;
+    private readonly DirectoryInfo dir;
+    private readonly int year;
+    private readonly int day;
     private readonly ILogger logger;
 
     public CodeFolder(int year, int day, ILogger logger)

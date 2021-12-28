@@ -82,11 +82,11 @@ public static class AoC
         services.AddLogging(builder => builder.AddInlineSpectreConsole(c => c.LogLevel = LogLevel.Trace).SetMinimumLevel(loglevel));
         services.AddSingleton(configuration);
         services.AddTransient<AoCClient>();
-        services.AddTransient<PuzzleManager>();
+        services.AddTransient<IPuzzleManager, PuzzleManager>();
         services.AddTransient<AoCRunner>();
         services.AddTransient<CodeManager>();
         services.AddTransient<ReportManager>();
-        services.AddTransient<Cache>();
+        services.AddTransient<ICache, Cache>();
         foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsAssignableTo(typeof(ICommand))))
         {
             services.AddTransient(type);

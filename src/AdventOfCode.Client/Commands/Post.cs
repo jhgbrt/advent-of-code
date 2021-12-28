@@ -12,9 +12,9 @@ using System.ComponentModel.DataAnnotations;
 [Description("Post an answer for a puzzle part. Requires AOC_SESSION set as an environment variable.")]
 class Post : AsyncCommand<Post.Settings>
 {
-    private readonly PuzzleManager manager;
+    private readonly IPuzzleManager manager;
 
-    public Post(PuzzleManager manager)
+    public Post(IPuzzleManager manager)
     {
         this.manager = manager;
     }
