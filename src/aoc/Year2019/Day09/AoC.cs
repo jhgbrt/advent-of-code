@@ -13,7 +13,7 @@ public class AoC201909
         return -1;
     }
 
-    public object Part2() => -1;
+    public object Part2() => "";
 
     [Fact]
     public void ShouldCopyItSelf()

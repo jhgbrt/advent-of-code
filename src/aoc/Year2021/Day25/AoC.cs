@@ -29,7 +29,7 @@ public class AoC202125
         }
     }
 
-    public object Part2() => -1;
+    public object Part2() => "";
 
 }
 readonly record struct P(int x, int y)

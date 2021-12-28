@@ -96,7 +96,7 @@ class AoCRunner
     {
         var sw = Stopwatch.StartNew();
         var result = f();
-        return result is -1 ? Result.Empty : new Result(ResultStatus.Unknown, result.ToString() ?? string.Empty, sw.Elapsed);
+        return result is "" ? Result.Empty : new Result(ResultStatus.Unknown, result.ToString() ?? string.Empty, sw.Elapsed);
     }
 
 }

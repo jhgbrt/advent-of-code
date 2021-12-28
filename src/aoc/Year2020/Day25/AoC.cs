@@ -14,6 +14,6 @@ public class AoC202025
         }
         return result;
     }
-    public object Part2() => -1;
+    public object Part2() => "";
 
 }

@@ -15,7 +15,7 @@ public class AoC201823
         //return bots.Count(strongest.InRange);
     }
 
-    public object Part2() => -1;
+    public object Part2() => "";
 }
 
 readonly record struct Bot(Pos position, int r)

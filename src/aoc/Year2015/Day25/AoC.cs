@@ -22,6 +22,6 @@ public class AoC201525
             if ((r, c) == (row, column)) return value;
         }
     }
-    public object Part2() => -1;
+    public object Part2() => "";
 
 }
