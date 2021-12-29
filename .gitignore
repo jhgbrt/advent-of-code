@@ -354,3 +354,5 @@ content/
 #VS folders
 bin/
 obj/
+
+.idea/
