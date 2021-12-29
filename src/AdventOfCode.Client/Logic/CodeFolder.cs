@@ -80,10 +80,10 @@ class CodeFolder
         logger.LogTrace($"COPY: {INPUT} -> {inputtxt}");
         File.Copy(INPUT, inputtxt, true);
 
-        var csprojsrc = Path.Combine(Environment.CurrentDirectory, "Template", "aoc.csproj");
+        var tpl = new TemplateFolder();
         var csprojdest = Path.Combine(publishLocation.FullName, "aoc.csproj");
-        logger.LogTrace($"COPY: {csprojsrc} -> {csprojdest}");
-        File.Copy(csprojsrc, csprojdest, true);
+        logger.LogTrace($"COPY: {tpl.CsProj} -> {csprojdest}");
+        tpl.CsProj.CopyTo(csprojdest, true);
     }
 
     static DirectoryInfo GetDirectory(int year, int day) => new(Path.Combine(Environment.CurrentDirectory, $"Year{year}", $"Day{day:00}"));

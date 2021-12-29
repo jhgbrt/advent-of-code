@@ -6,35 +6,7 @@ static class AoCLogic
     public static IClock Clock = SystemClock.Instance;
     static ZonedDateTime Now = Clock.GetCurrentInstant().InZone(DateTimeZoneProviders.Tzdb["EST"]);
 
-    internal static int MaxDay(int year, IClock clock)
-    {
-        var now = Now;
-
-        // for past years, all 25 puzzles are available
-        if (year < now.Year) return 25;
-
-        // for future years, no puzzles are available
-        if (year > now.Year) return 0;
-
-        return now.Month switch
-        {
-            // before december, nothing is available
-            >= 1 and < 12 => 0,
-            // between 1 - 25 december, puzzles are unlocked at midnight EST, so the nof available puzzles = day of month with max of 25
-            12 => Math.Min(now.Day, 25),
-            // invalid month, impossible
-            _ => throw new Exception("invalid month")
-        };
-    }
-
-    internal static IEnumerable<(int year, int day)> Puzzles()
-    {
-        var now = Now;
-        for (int year = 2015; year <= now.Year; year++)
-            for (int day = 1; (year < now.Year && day <= 25)
-                || now.Month == 12 && day <= now.Day && day <= 25; day++)
-                yield return (year, day);
-    }
+    internal static IEnumerable<(int year, int day)> Puzzles() => from year in Years() from day in Days(year) select (year, day);
 
     internal static bool IsValidAndUnlocked(int year, int day)
     {
@@ -68,8 +40,8 @@ static class AoCLogic
 
     internal static bool IsToday(int y, int d)
     {
-        if (y != DateTime.Now.Year) return false;
-        if (d != DateTime.Now.Day) return false;
+        if (y != Now.Year) return false;
+        if (d != Now.Day) return false;
         return IsValidAndUnlocked(y, d);
     }
 }

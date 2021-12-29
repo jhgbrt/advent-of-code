@@ -5,23 +5,31 @@ using Spectre.Console;
 
 namespace AdventOfCode.Client.Logic;
 
-class ReportManager
+interface IReportManager
 {
-    AoCClient client;
+    Task<IEnumerable<LeaderboardEntry>> GetLeaderboardAsync(int year, int id);
+    Task<IEnumerable<(int id, string description)>> GetLeaderboardIds(bool usecache);
+    IAsyncEnumerable<(int year, MemberStats stats)> GetMemberStats();
+    IAsyncEnumerable<PuzzleReportEntry> GetPuzzleReport(ResultStatus? status, int? slowerthan);
+}
+
+class ReportManager : IReportManager
+{
+    private readonly IAoCClient client;
     private readonly IPuzzleManager manager;
 
-    public ReportManager(AoCClient client, IPuzzleManager manager)
+    public ReportManager(IAoCClient client, IPuzzleManager manager)
     {
         this.client = client;
         this.manager = manager;
     }
 
-    internal Task<IEnumerable<(int id, string description)>> GetLeaderboardIds(bool usecache)
+    public Task<IEnumerable<(int id, string description)>> GetLeaderboardIds(bool usecache)
     {
         return client.GetLeaderboardIds(usecache);
     }
 
-    internal async Task<IEnumerable<LeaderboardEntry>> GetLeaderboardAsync(int year, int id)
+    public async Task<IEnumerable<LeaderboardEntry>> GetLeaderboardAsync(int year, int id)
     {
         var leaderboard = await client.GetLeaderBoardAsync(year, id, false);
 
@@ -41,7 +49,7 @@ class ReportManager
                select new LeaderboardEntry(name, score, stars, dt);
     }
 
-    internal async IAsyncEnumerable<(int year, MemberStats stats)> GetMemberStats()
+    public async IAsyncEnumerable<(int year, MemberStats stats)> GetMemberStats()
     {
         foreach (var y in AoCLogic.Years())
         {
@@ -51,23 +59,11 @@ class ReportManager
         }
     }
 
-    internal async Task<MemberStats?> GetMemberStats(int year)
-    {
-        var m = await client.GetMemberAsync(year);
-        if (m == null) return null;
-        return new MemberStats(m.Name, m.TotalStars, m.LocalScore);
-    }
-
-    internal async IAsyncEnumerable<PuzzleResultStatus> GetPuzzleResults()
+    public async IAsyncEnumerable<PuzzleReportEntry> GetPuzzleReport(ResultStatus? status, int? slowerthan)
     {
         foreach (var (year, day) in AoCLogic.Puzzles())
-            yield return await manager.GetPuzzleResult(year, day, false, string.Empty, (_, _) => { });
-    }
-
-    internal async IAsyncEnumerable<PuzzleReportEntry> GetPuzzleReport(ResultStatus? status, int? slowerthan)
-    {
-        await foreach (var p in GetPuzzleResults())
         {
+            var p = await manager.GetPuzzleResult(year, day, false, string.Empty, (_, _) => { });
             var comparisonResult = p.puzzle.Compare(p.result);
 
             if (status.HasValue && (comparisonResult.part1 != status.Value || comparisonResult.part2 != status.Value)) continue;
@@ -88,5 +84,4 @@ class ReportManager
                 );
         }
     }
-    
 }

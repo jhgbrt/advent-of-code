@@ -11,9 +11,9 @@ namespace AdventOfCode.Client.Commands;
 [Description("Show some stats from the configured private leaderboard. Set AOC_LEADERBOARD_ID as a environment variable.")]
 class Stats : AsyncCommand<Stats.Settings>
 {
-    ReportManager manager;
+    private readonly IReportManager manager;
 
-    public Stats(ReportManager manager)
+    public Stats(IReportManager manager)
     {
         this.manager = manager;
     }

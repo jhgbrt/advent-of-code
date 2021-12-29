@@ -11,9 +11,9 @@ namespace AdventOfCode.Client.Commands;
 [Description("Export the code for a puzzle to a stand-alone C# project")]
 class Export : AsyncCommand<Export.Settings>
 {
-    CodeManager manager;
+    private readonly ICodeManager manager;
 
-    public Export(CodeManager manager)
+    public Export(ICodeManager manager)
     {
         this.manager = manager;
     }

@@ -10,8 +10,8 @@ using System.ComponentModel;
 [Description("Show a list of all puzzles, their status (unlocked, answered), and the answers posted.")]
 class Report : AsyncCommand<Report.Settings>
 {
-    ReportManager manager;
-    public Report(ReportManager manager)
+    private readonly IReportManager manager;
+    public Report(IReportManager manager)
     {
         this.manager = manager;
     }

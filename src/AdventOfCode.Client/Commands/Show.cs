@@ -10,9 +10,9 @@ using System.ComponentModel;
 [Description("Show the puzzle instructions.")]
 class Show : AsyncCommand<Show.Settings>
 {
-    private readonly AoCClient client;
+    private readonly IAoCClient client;
 
-    public Show(AoCClient client)
+    public Show(IAoCClient client)
     {
         this.client = client;
     }

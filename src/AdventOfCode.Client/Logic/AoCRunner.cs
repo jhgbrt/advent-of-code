@@ -7,7 +7,12 @@ using System.Text.Json;
 
 namespace AdventOfCode.Client.Logic;
 
-class AoCRunner
+interface IAoCRunner
+{
+    Task<DayResult> Run(string? typeName, int year, int day, Action<int, Result> progress);
+}
+
+class AoCRunner : IAoCRunner
 {
     ILogger<AoCRunner> logger;
     private readonly ICache cache;
@@ -18,7 +23,7 @@ class AoCRunner
         this.cache = cache;
     }
 
-    internal async Task<DayResult> Run(string? typeName, int year, int day, Action<int, Result> progress)
+    public async Task<DayResult> Run(string? typeName, int year, int day, Action<int, Result> progress)
     {
         dynamic? aoc = GetAoC(typeName, year, day);
 
@@ -31,7 +36,7 @@ class AoCRunner
         logger.LogDebug($"{year}/{day}, Part 1: result = {t1.Value} - {t1.Elapsed}");
         progress(1, t1);
 
-        var t2 = day < 25 
+        var t2 = day < 25
             ? Run(() => aoc.Part2())
             : new Result(ResultStatus.Ok, "", TimeSpan.Zero);
         logger.LogDebug($"{year}/{day}, Part 2: result = {t1.Value} - {t1.Elapsed}");
@@ -49,7 +54,7 @@ class AoCRunner
         var assembly = Assembly.GetEntryAssembly();
         if (assembly == null) throw new Exception("no entry assembly?");
 
-        Type ? type = null;
+        Type? type = null;
         if (string.IsNullOrEmpty(typeName))
         {
             foreach (var t in assembly.GetTypes().OrderBy(t => t.Name))
@@ -62,7 +67,7 @@ class AoCRunner
                 {
                     continue;
                 }
-                
+
                 logger.LogDebug($"considered {t.FullName}");
                 var methods = t.GetMethods();
                 if (!methods.Any(m => m.Name == "Part1" && m.GetParameters().Length == 0))

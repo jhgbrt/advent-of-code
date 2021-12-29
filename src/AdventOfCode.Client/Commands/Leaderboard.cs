@@ -11,9 +11,9 @@ namespace AdventOfCode.Client.Commands;
 [Description("Show some stats from the configured private leaderboard. ")]
 class Leaderboard : AsyncCommand<Leaderboard.Settings>
 {
-    ReportManager manager;
+    private readonly IReportManager manager;
 
-    public Leaderboard(ReportManager manager)
+    public Leaderboard(IReportManager manager)
     {
         this.manager = manager;
     }

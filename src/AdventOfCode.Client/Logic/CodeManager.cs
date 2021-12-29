@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Formatting;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static System.IO.File;
@@ -12,29 +11,53 @@ using static System.Environment;
 
 namespace AdventOfCode.Client.Logic;
 
-class CodeManager
+class TemplateFolder
 {
-    private AoCClient client;
+    private readonly DirectoryInfo dir;
+    public TemplateFolder()
+    {
+        dir = new DirectoryInfo(Combine(Environment.CurrentDirectory, "Template"));
+    }
+    private string GetFileName(string file) => Combine(dir.FullName, file);
+    private string CODE => GetFileName("AoC.cs");
+    private string CSPROJ => GetFileName("aoc.csproj");
+    public FileInfo Code => new FileInfo(CODE);
+    public FileInfo CsProj => new FileInfo(CSPROJ);
+}
+
+interface ICodeManager
+{
+    Task ExportCode(int year, int day, string code, string output);
+    Task<string> GenerateCodeAsync(int year, int day);
+    Task InitializeCodeAsync(int year, int day, bool force, Action<string> progress);
+}
+
+class CodeManager : ICodeManager
+{
+    private IAoCClient client;
     private ILogger<CodeManager> logger;
 
-    public CodeManager(AoCClient client, ILogger<CodeManager> logger)
+    public CodeManager(IAoCClient client, ILogger<CodeManager> logger)
     {
         this.client = client;
         this.logger = logger;
     }
 
-    internal async Task InitializeCodeAsync(int year, int day, bool force, Action<string> progress)
+    public async Task InitializeCodeAsync(int year, int day, bool force, Action<string> progress)
     {
         var dir = new CodeFolder(year, day, logger);
         if (dir.Exists && !force)
         {
             throw new Exception($"Puzzle for {year}/{day} already initialized. Use --force to re-initialize.");
         }
-        
-        var templateFile = Combine(CurrentDirectory, "Template", "aoc.cs");
 
-        if (!Exists(templateFile))
-            throw new FileNotFoundException("Please provide a template file under Common\\Template\\aoc.cs. Use YYYY and DD as placeholders in the class name for the year and day, and provide two public methods called Part1 and Part2, accepting no arguments and returning a string");
+        var tpl = new TemplateFolder();
+
+
+        var templateFile = tpl.Code;
+
+        if (!templateFile.Exists)
+            throw new FileNotFoundException($"Please provide a template file under {templateFile.DirectoryName}. Use YYYY and DD as placeholders in the class name for the year and day, and provide two public methods called Part1 and Part2, accepting no arguments and returning a string");
 
 
         if (dir.Exists) dir.Delete();
@@ -43,7 +66,7 @@ class CodeManager
 
         progress("Writing file: AoC.cs");
 
-        var code = (await ReadAllTextAsync(templateFile)).Replace("YYYY", year.ToString()).Replace("DD", day.ToString("00"));
+        var code = (await ReadAllTextAsync(templateFile.FullName)).Replace("YYYY", year.ToString()).Replace("DD", day.ToString("00"));
 
         await dir.WriteCode(code);
 
@@ -59,7 +82,7 @@ class CodeManager
         await client.GetPuzzleAsync(year, day, !force);
     }
 
-    internal async Task<string> GenerateCodeAsync(int year, int day)
+    public async Task<string> GenerateCodeAsync(int year, int day)
     {
         var dir = new CodeFolder(year, day, logger);
         var aoc = await dir.ReadCode();
@@ -67,12 +90,12 @@ class CodeManager
 
         (var aocclass, var _) = (
             from classdecl in tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>()
-            let m = 
+            let m =
                 from m in classdecl.DescendantNodes().OfType<MethodDeclarationSyntax>()
                 where m.Identifier.ToString() == "Part1" || m.Identifier.ToString() == "Part2"
                 && m.ParameterList.Parameters.Count() == 0
                 select m.WithModifiers(TokenList())
-            where m.Count()== 2 
+            where m.Count() == 2
             select (classdecl, m)
             ).SingleOrDefault();
 
@@ -236,11 +259,12 @@ class CodeManager
         );
     }
 
-    internal async Task ExportCode(int year, int day, string code, string output)
+    public async Task ExportCode(int year, int day, string code, string output)
     {
         var dir = new CodeFolder(year, day, logger);
         await dir.ExportTo(code, output);
     }
+
 }
 
 

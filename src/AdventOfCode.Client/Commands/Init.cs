@@ -10,9 +10,9 @@ using System.ComponentModel;
 [Description("Initialize the code for a specific puzzle. Requires AOC_SESSION set as an environment variable")]
 class Init : AsyncCommand<Init.Settings>
 {
-    private readonly CodeManager manager;
+    private readonly ICodeManager manager;
 
-    public Init(CodeManager manager)
+    public Init(ICodeManager manager)
     {
         this.manager = manager;
     }

@@ -17,11 +17,11 @@ interface IPuzzleManager
 
 class PuzzleManager : IPuzzleManager
 {
-    public AoCClient client;
-    public AoCRunner runner;
+    private readonly IAoCClient client;
+    private readonly IAoCRunner runner;
     private readonly ICache cache;
 
-    public PuzzleManager(AoCClient client, AoCRunner runner, ICache cache)
+    public PuzzleManager(IAoCClient client, IAoCRunner runner, ICache cache)
     {
         this.client = client;
         this.runner = runner;

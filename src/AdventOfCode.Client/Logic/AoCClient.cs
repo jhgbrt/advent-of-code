@@ -9,7 +9,18 @@ using Microsoft.Extensions.Logging;
 
 record Configuration(string BaseAddress, string SessionCookie);
 
-class AoCClient : IDisposable
+interface IAoCClient : IDisposable
+{
+    Task<LeaderBoard?> GetLeaderBoardAsync(int year, int id, bool usecache = true);
+    Task<IEnumerable<(int id, string description)>> GetLeaderboardIds(bool usecache);
+    Task<Member?> GetMemberAsync(int year, bool usecache = true);
+    Task<int> GetMemberId();
+    Task<Puzzle> GetPuzzleAsync(int year, int day, bool usecache = true);
+    Task<string> GetPuzzleInputAsync(int year, int day);
+    Task<(HttpStatusCode status, string content)> PostAnswerAsync(int year, int day, int part, string value);
+}
+
+class AoCClient : IDisposable, IAoCClient
 {
     readonly HttpClientHandler handler;
     readonly HttpClient client;
@@ -162,7 +173,7 @@ class AoCClient : IDisposable
         if (statusCode != HttpStatusCode.OK) return string.Empty;
         return input;
     }
-   
+
     public async Task<Puzzle> GetPuzzleAsync(int year, int day, bool usecache = true)
     {
         HttpStatusCode statusCode;

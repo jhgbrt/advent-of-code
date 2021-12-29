@@ -11,9 +11,9 @@ namespace AdventOfCode.Client.Commands;
 [Description("Run the code for a specific puzzle.")]
 class Run : AsyncCommand<Run.Settings>
 {
-    readonly AoCRunner manager;
+    private readonly IAoCRunner manager;
 
-    public Run(AoCRunner manager)
+    public Run(IAoCRunner manager)
     {
         this.manager = manager;
     }
