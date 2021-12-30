@@ -5,25 +5,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.Extensions.Logging;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static System.IO.File;
-using static System.IO.Path;
-using static System.Environment;
 
 namespace AdventOfCode.Client.Logic;
-
-class TemplateFolder
-{
-    private readonly DirectoryInfo dir;
-    public TemplateFolder()
-    {
-        dir = new DirectoryInfo(Combine(Environment.CurrentDirectory, "Template"));
-    }
-    private string GetFileName(string file) => Combine(dir.FullName, file);
-    private string CODE => GetFileName("AoC.cs");
-    private string CSPROJ => GetFileName("aoc.csproj");
-    public FileInfo Code => new FileInfo(CODE);
-    public FileInfo CsProj => new FileInfo(CSPROJ);
-}
 
 interface ICodeManager
 {
@@ -45,40 +28,23 @@ class CodeManager : ICodeManager
 
     public async Task InitializeCodeAsync(int year, int day, bool force, Action<string> progress)
     {
-        var dir = new CodeFolder(year, day, logger);
-        if (dir.Exists && !force)
+        var codeFolder = new CodeFolder(year, day, logger);
+        var templateDir = new TemplateFolder(logger);
+        
+        if (!templateDir.Exists)
+        {
+            throw new FileNotFoundException($"Please provide a template folder under {templateDir} containing a file named {templateDir.Code.Name}. Use {{YYYY}} and {{DD}} as placeholders in the class name for the year and day, and provide two public methods called Part1 and Part2, accepting no arguments and returning a string");
+        }
+
+        if (codeFolder.Exists && !force)
         {
             throw new Exception($"Puzzle for {year}/{day} already initialized. Use --force to re-initialize.");
         }
 
-        var tpl = new TemplateFolder();
-
-
-        var templateFile = tpl.Code;
-
-        if (!templateFile.Exists)
-            throw new FileNotFoundException($"Please provide a template file under {templateFile.DirectoryName}. Use YYYY and DD as placeholders in the class name for the year and day, and provide two public methods called Part1 and Part2, accepting no arguments and returning a string");
-
-
-        if (dir.Exists) dir.Delete();
-
-        dir.Create();
-
-        progress("Writing file: AoC.cs");
-
-        var code = (await ReadAllTextAsync(templateFile.FullName)).Replace("YYYY", year.ToString()).Replace("DD", day.ToString("00"));
-
-        await dir.WriteCode(code);
-
-        await dir.WriteSample("");
-
-        progress("Retrieving puzzle input");
-
-        var content = await client.GetPuzzleInputAsync(year, day);
-        await dir.WriteInput(content);
-
-        progress("Retrieving puzzle data");
-
+        await codeFolder.CreateIfNotExists();
+        await codeFolder.WriteCode(await templateDir.ReadCode(year, day));
+        await codeFolder.WriteSample("");
+        await codeFolder.WriteInput(await client.GetPuzzleInputAsync(year, day));
         await client.GetPuzzleAsync(year, day, !force);
     }
 
@@ -261,11 +227,15 @@ class CodeManager : ICodeManager
 
     public async Task ExportCode(int year, int day, string code, string output)
     {
-        var dir = new CodeFolder(year, day, logger);
-        await dir.ExportTo(code, output);
+        var codeDir = new CodeFolder(year, day, logger);
+        var outputDir = new OutputFolder(output, logger);
+        var templateDir = new TemplateFolder(logger);
+        await outputDir.CreateIfNotExists();
+        await outputDir.WriteCode(code);
+        outputDir.CopyFiles(codeDir.GetCodeFiles());
+        outputDir.CopyFile(codeDir.Input);
+        outputDir.CopyFile(templateDir.CsProj);
     }
-
 }
-
 
 
