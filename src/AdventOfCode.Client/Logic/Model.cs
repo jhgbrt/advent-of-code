@@ -92,7 +92,6 @@ record PuzzleResultStatus(Puzzle puzzle, DayResult result, bool refreshed)
             double value => ($"~ {(int)Math.Round(value / 1000)} s", ConsoleColor.Red)
         };
 
-
         var comparisonResult = puzzle.Compare(result);
 
         (var status, var color, var explanation) = comparisonResult switch

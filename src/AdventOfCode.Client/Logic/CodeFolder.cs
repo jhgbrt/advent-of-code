@@ -54,14 +54,10 @@ class Folder
     {
         foreach (var source in sources) CopyFile(source);
     }
-    public IEnumerable<FileInfo> GetFiles(string pattern)
-    {
-        return dir.GetFiles(pattern);
-    }
+    public IEnumerable<FileInfo> GetFiles(string pattern) => dir.GetFiles(pattern);
 }
 class OutputFolder : Folder
 {
-
     public OutputFolder(string location, ILogger logger) : base(location, logger) { }
     private string CODE => GetFileName("aoc.cs");
     private string INPUT => GetFileName("input.txt");
@@ -75,15 +71,9 @@ class OutputFolder : Folder
 
 class CodeFolder : Folder
 {
-    private readonly int year;
-    private readonly int day;
-    private readonly ILogger logger;
-
-    public CodeFolder(int year, int day, ILogger logger) : base(GetDirectoryName(year, day), logger)
+    public CodeFolder(int year, int day, ILogger logger) 
+        : base(Path.Combine(Environment.CurrentDirectory, $"Year{year}", $"Day{day:00}"), logger)
     {
-        this.year = year;
-        this.day = day;
-        this.logger = logger;
     }
 
     public string CODE => GetFileName("AoC.cs");
@@ -96,7 +86,6 @@ class CodeFolder : Folder
     public Task WriteSample(string content) => WriteFile(SAMPLE, content);
 
     public IEnumerable<FileInfo> GetCodeFiles() => GetFiles("*.cs").Where(f => !f.FullName.Equals(CODE, StringComparison.OrdinalIgnoreCase));
-    static string GetDirectoryName(int year, int day) => Path.Combine(Environment.CurrentDirectory, $"Year{year}", $"Day{day:00}");
 }
 
 class TemplateFolder : Folder
