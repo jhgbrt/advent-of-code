@@ -2,8 +2,8 @@
   "profiles": {
     "aoc": {
       "commandName": "Project",
-      "commandLineArgs": "verify 2021 1",
-      "workingDirectory": "$(SolutionDir)aoc"
+      "commandLineArgs": "report",
+      "workingDirectory": "$(SolutionDir)AdventOfCode"
     }
   }
 }

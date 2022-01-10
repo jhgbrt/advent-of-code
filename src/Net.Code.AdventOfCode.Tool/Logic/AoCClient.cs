@@ -10,22 +10,13 @@ using Net.Code.AdventOfCode.Tool.Core;
 
 class AoCClient : IDisposable, IAoCClient
 {
-    readonly HttpClientHandler handler;
-    readonly HttpClient client;
+    readonly IHttpClientWrapper client;
     private readonly ILogger<AoCClient> logger;
     private readonly ICache cache;
 
-    public AoCClient(Configuration configuration, ILogger<AoCClient> logger, ICache cache)
+    public AoCClient(IHttpClientWrapper client, ILogger<AoCClient> logger, ICache cache)
     {
-        var baseAddress = new Uri(configuration.BaseAddress);
-        var sessionCookie = configuration.SessionCookie;
-
-        var cookieContainer = new CookieContainer();
-        cookieContainer.Add(baseAddress, new Cookie("session", sessionCookie));
-
-        handler = new HttpClientHandler { CookieContainer = cookieContainer };
-
-        client = new HttpClient(handler) { BaseAddress = baseAddress };
+        this.client = client;
         this.logger = logger;
         this.cache = cache;
     }
@@ -38,13 +29,13 @@ class AoCClient : IDisposable, IAoCClient
             ["answer"] = value
         };
         var content = new FormUrlEncodedContent(formValues);
-        var result = await PostAsync($"{year}/day/{day}/answer", content);
+        (var status, var body) = await client.PostAsync($"{year}/day/{day}/answer", content);
 
         var document = new HtmlDocument();
-        document.LoadHtml(result.Content);
+        document.LoadHtml(body);
         var articles = document.DocumentNode.SelectNodes("//article").ToArray();
 
-        return (result.StatusCode, articles.First().InnerText);
+        return (status, articles.First().InnerText);
     }
 
     public async Task<LeaderBoard?> GetLeaderBoardAsync(int year, int id, bool usecache = true)
@@ -134,10 +125,8 @@ class AoCClient : IDisposable, IAoCClient
         string content;
         if (!cache.Exists(year, day, name) || !usecache)
         {
-            var response = await client.GetAsync(path);
-            content = await response.Content.ReadAsStringAsync();
-            logger.LogTrace($"GET: {path} - {response.StatusCode}");
-            if (response.StatusCode != HttpStatusCode.OK) return (response.StatusCode, content);
+            (var status, content) = await client.GetAsync(path);
+            if (status != HttpStatusCode.OK) return (status, content);
             await cache.WriteToCache(year, day, name, content);
         }
         else
@@ -145,14 +134,6 @@ class AoCClient : IDisposable, IAoCClient
             content = await cache.ReadFromCache(year, day, name);
         }
         return (HttpStatusCode.OK, content);
-    }
-
-    private async Task<(HttpStatusCode StatusCode, string Content)> PostAsync(string path, HttpContent body)
-    {
-        var response = await client.PostAsync(path, body);
-        logger.LogTrace($"GET: {path} - {response.StatusCode}");
-        var content = await response.Content.ReadAsStringAsync();
-        return (response.StatusCode, content);
     }
 
     public async Task<string> GetPuzzleInputAsync(int year, int day)
@@ -237,6 +218,5 @@ class AoCClient : IDisposable, IAoCClient
     public void Dispose()
     {
         client.Dispose();
-        handler.Dispose();
     }
 }

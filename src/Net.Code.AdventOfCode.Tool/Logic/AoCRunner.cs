@@ -9,16 +9,21 @@ using System.Text.Json;
 
 namespace Net.Code.AdventOfCode.Tool.Logic;
 
-
+class AssemblyResolver : IAssemblyResolver
+{
+    public Assembly? GetEntryAssembly() => Assembly.GetEntryAssembly();
+}
 class AoCRunner : IAoCRunner
 {
     ILogger<AoCRunner> logger;
     private readonly ICache cache;
+    private readonly IAssemblyResolver resolver;
 
-    public AoCRunner(ILogger<AoCRunner> logger, ICache cache)
+    public AoCRunner(ILogger<AoCRunner> logger, ICache cache, IAssemblyResolver resolver)
     {
         this.logger = logger;
         this.cache = cache;
+        this.resolver = resolver;
     }
 
     public async Task<DayResult> Run(string? typeName, int year, int day, Action<int, Result> progress)
@@ -49,7 +54,7 @@ class AoCRunner : IAoCRunner
 
     private dynamic? GetAoC(string? typeName, int year, int day)
     {
-        var assembly = Assembly.GetEntryAssembly();
+        var assembly = resolver.GetEntryAssembly();
         if (assembly == null) throw new Exception("no entry assembly?");
 
         Type? type = null;

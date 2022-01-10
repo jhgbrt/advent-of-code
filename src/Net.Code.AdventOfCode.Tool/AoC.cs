@@ -1,4 +1,8 @@
-﻿namespace Net.Code.AdventOfCode.Tool;
+﻿using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("Net.Code.AdventOfCode.Tool.UnitTests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
+namespace Net.Code.AdventOfCode.Tool;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -88,6 +92,8 @@ public static class AoC
         services.AddTransient<IReportManager, ReportManager>();
         services.AddTransient<ICache, Cache>();
         services.AddTransient<IFileSystem, FileSystem>();
+        services.AddTransient<IAssemblyResolver, AssemblyResolver>();
+        services.AddTransient<IHttpClientWrapper, HttpClientWrapper>();
         foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsAssignableTo(typeof(ICommand))))
         {
             services.AddTransient(type);

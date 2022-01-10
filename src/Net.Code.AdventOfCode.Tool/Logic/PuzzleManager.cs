@@ -7,9 +7,6 @@ using System.Text.Json;
 
 namespace Net.Code.AdventOfCode.Tool.Logic;
 
-
-
-
 class PuzzleManager : IPuzzleManager
 {
     private readonly IAoCClient client;
@@ -39,7 +36,9 @@ class PuzzleManager : IPuzzleManager
         await client.GetPuzzleAsync(year, day, false);
     }
 
-    public async Task<PuzzleResultStatus> GetPuzzleResult(int y, int d, bool runSlowPuzzles, string? typeName, Action<int, Result> status)
+    public async Task<PuzzleResultStatus> GetPuzzleResult(
+        int y, int d, bool runSlowPuzzles, string? typeName, Action<int, Result> status
+        )
     {
         var puzzle = await client.GetPuzzleAsync(y, d);
 
@@ -47,7 +46,7 @@ class PuzzleManager : IPuzzleManager
             ? JsonSerializer.Deserialize<DayResult>(await cache.ReadFromCache(y, d, "result.json"))
             : null;
 
-        if (result == null || runSlowPuzzles || result.Elapsed < TimeSpan.FromSeconds(1) && !string.IsNullOrEmpty(typeName))
+        if (result == null || runSlowPuzzles || result.Elapsed < TimeSpan.FromSeconds(1))
         {
             result = await runner.Run(typeName, y, d, status);
             return new PuzzleResultStatus(puzzle, result, true);

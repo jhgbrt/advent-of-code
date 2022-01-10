@@ -18,7 +18,10 @@ record ComparisonResult(ResultStatus part1, ResultStatus part2)
     public static implicit operator bool(ComparisonResult result) => result.part1 != ResultStatus.Ok || result.part2 != ResultStatus.Ok;
 }
 
-record Answer(string part1, string part2) { public static Answer Empty => new Answer(string.Empty, string.Empty); }
+record Answer(string part1, string part2) 
+{
+    public static Answer Empty => new Answer(string.Empty, string.Empty);
+}
 record DayResult(int year, int day, Result part1, Result part2)
 {
     public readonly static DayResult Empty = new DayResult(0, 0, Result.Empty, Result.Empty);

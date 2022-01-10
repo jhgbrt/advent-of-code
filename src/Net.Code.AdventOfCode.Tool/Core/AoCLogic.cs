@@ -4,7 +4,7 @@ static class AoCLogic
 {
 
     public static IClock Clock = SystemClock.Instance;
-    static ZonedDateTime Now = Clock.GetCurrentInstant().InZone(DateTimeZoneProviders.Tzdb["EST"]);
+    static ZonedDateTime Now => Clock.GetCurrentInstant().InZone(DateTimeZoneProviders.Tzdb["EST"]);
 
     internal static IEnumerable<(int year, int day)> Puzzles()
         => from year in Years() from day in Days(year) select (year, day);
@@ -35,7 +35,8 @@ static class AoCLogic
     internal static IEnumerable<int> Days(int year)
     {
         var now = Now;
-        for (int day = 1; year < now.Year && day <= 25 || now.Month == 12 && day <= now.Day; day++)
+        for (int day = 1; (year < now.Year && day <= 25) || 
+                          (now.Month == 12 && day <= Math.Min(25,now.Day)); day++)
             yield return day;
     }
 

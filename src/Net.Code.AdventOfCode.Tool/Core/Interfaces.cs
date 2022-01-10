@@ -1,5 +1,6 @@
 ﻿namespace Net.Code.AdventOfCode.Tool.Core;
 using System.Net;
+using System.Reflection;
 record Configuration(string BaseAddress, string SessionCookie);
 
 interface IAoCClient : IDisposable
@@ -79,4 +80,14 @@ interface ITemplateFolder
 
     Task<string> ReadCode(int year, int day);
     bool Exists { get; }
+}
+interface IHttpClientWrapper : IDisposable
+{
+    Task<(HttpStatusCode status, string content)> PostAsync(string path, HttpContent body);
+    Task<(HttpStatusCode status, string content)> GetAsync(string path);
+}
+
+interface IAssemblyResolver
+{
+    Assembly? GetEntryAssembly();
 }

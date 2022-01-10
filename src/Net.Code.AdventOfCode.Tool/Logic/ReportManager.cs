@@ -20,9 +20,7 @@ class ReportManager : IReportManager
     }
 
     public Task<IEnumerable<(int id, string description)>> GetLeaderboardIds(bool usecache)
-    {
-        return client.GetLeaderboardIds(usecache);
-    }
+        => client.GetLeaderboardIds(usecache);
 
     public async Task<IEnumerable<LeaderboardEntry>> GetLeaderboardAsync(int year, int id)
     {
