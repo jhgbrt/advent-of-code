@@ -1,16 +1,14 @@
 ﻿
 using Microsoft.Extensions.Logging;
 
+using Net.Code.AdventOfCode.Tool.Core;
+
 using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json;
 
-namespace AdventOfCode.Client.Logic;
+namespace Net.Code.AdventOfCode.Tool.Logic;
 
-interface IAoCRunner
-{
-    Task<DayResult> Run(string? typeName, int year, int day, Action<int, Result> progress);
-}
 
 class AoCRunner : IAoCRunner
 {

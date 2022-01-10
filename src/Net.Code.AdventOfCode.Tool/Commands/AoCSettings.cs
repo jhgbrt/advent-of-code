@@ -1,11 +1,12 @@
-﻿using AdventOfCode.Client.Logic;
+﻿
+using Net.Code.AdventOfCode.Tool.Core;
 
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 using System.ComponentModel;
 
-namespace AdventOfCode.Client.Commands;
+namespace Net.Code.AdventOfCode.Tool.Commands;
 
 public class AoCSettings : CommandSettings
 {

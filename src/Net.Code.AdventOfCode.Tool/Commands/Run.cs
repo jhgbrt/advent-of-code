@@ -1,12 +1,12 @@
 ﻿
-using AdventOfCode.Client.Logic;
+using Net.Code.AdventOfCode.Tool.Core;
 
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 using System.ComponentModel;
 
-namespace AdventOfCode.Client.Commands;
+namespace Net.Code.AdventOfCode.Tool.Commands;
 
 [Description("Run the code for a specific puzzle.")]
 class Run : AsyncCommand<Run.Settings>
@@ -38,7 +38,7 @@ class Run : AsyncCommand<Run.Settings>
 
         AnsiConsole.WriteLine($"{year}, day {day}");
 
-        DayResult result = await manager.Run(typeName, year, day, 
+        DayResult result = await manager.Run(typeName, year, day,
             (part, result) => AnsiConsole.MarkupLine($"part {part}: {result.Value} ({result.Elapsed})")
             );
 

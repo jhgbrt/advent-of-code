@@ -1,12 +1,11 @@
-﻿
-using AdventOfCode.Client.Logic;
+﻿using Net.Code.AdventOfCode.Tool.Core;
 
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 using System.ComponentModel;
 
-namespace AdventOfCode.Client.Commands;
+namespace Net.Code.AdventOfCode.Tool.Commands;
 
 [Description("Show some stats from the configured private leaderboard. ")]
 class Leaderboard : AsyncCommand<Leaderboard.Settings>

@@ -1,36 +1,33 @@
-﻿using Microsoft.CodeAnalysis;
+﻿
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Formatting;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.Extensions.Logging;
+
+using Net.Code.AdventOfCode.Tool.Core;
+
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace AdventOfCode.Client.Logic;
-
-interface ICodeManager
-{
-    Task ExportCode(int year, int day, string code, string output);
-    Task<string> GenerateCodeAsync(int year, int day);
-    Task InitializeCodeAsync(int year, int day, bool force, Action<string> progress);
-}
+namespace Net.Code.AdventOfCode.Tool.Logic;
 
 class CodeManager : ICodeManager
 {
     private IAoCClient client;
-    private ILogger<CodeManager> logger;
+    private IFileSystem fileSystem;
 
-    public CodeManager(IAoCClient client, ILogger<CodeManager> logger)
+    public CodeManager(IAoCClient client, IFileSystem fileSystem)
     {
         this.client = client;
-        this.logger = logger;
+        this.fileSystem = fileSystem;
     }
 
     public async Task InitializeCodeAsync(int year, int day, bool force, Action<string> progress)
     {
-        var codeFolder = new CodeFolder(year, day, logger);
-        var templateDir = new TemplateFolder(logger);
-        
+        var codeFolder = fileSystem.GetCodeFolder(year, day);
+        var templateDir = fileSystem.GetTemplateFolder();
+
         if (!templateDir.Exists)
         {
             throw new FileNotFoundException($"Please provide a template folder under {templateDir} containing a file named {templateDir.Code.Name}. Use {{YYYY}} and {{DD}} as placeholders in the class name for the year and day, and provide two public methods called Part1 and Part2, accepting no arguments and returning a string");
@@ -50,7 +47,7 @@ class CodeManager : ICodeManager
 
     public async Task<string> GenerateCodeAsync(int year, int day)
     {
-        var dir = new CodeFolder(year, day, logger);
+        var dir = fileSystem.GetCodeFolder(year, day);
         var aoc = await dir.ReadCode();
         var tree = CSharpSyntaxTree.ParseText(aoc);
 
@@ -227,9 +224,9 @@ class CodeManager : ICodeManager
 
     public async Task ExportCode(int year, int day, string code, string output)
     {
-        var codeDir = new CodeFolder(year, day, logger);
-        var outputDir = new OutputFolder(output, logger);
-        var templateDir = new TemplateFolder(logger);
+        var codeDir = fileSystem.GetCodeFolder(year, day);
+        var outputDir = fileSystem.GetOutputFolder(output);
+        var templateDir = fileSystem.GetTemplateFolder();
         await outputDir.CreateIfNotExists();
         await outputDir.WriteCode(code);
         outputDir.CopyFiles(codeDir.GetCodeFiles());

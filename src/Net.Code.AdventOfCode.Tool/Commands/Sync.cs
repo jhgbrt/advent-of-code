@@ -1,11 +1,12 @@
-﻿using AdventOfCode.Client.Logic;
+﻿
+using Net.Code.AdventOfCode.Tool.Core;
 
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 using System.ComponentModel;
 
-namespace AdventOfCode.Client.Commands;
+namespace Net.Code.AdventOfCode.Tool.Commands;
 
 [Description("Sync the data (specifically the posted answers) for a puzzle. Requires AOC_SESSION set as an environment variable.")]
 class Sync : AsyncCommand<Sync.Settings>
@@ -27,5 +28,5 @@ class Sync : AsyncCommand<Sync.Settings>
         await manager.Sync(year, day);
         return 0;
     }
-   
+
 }

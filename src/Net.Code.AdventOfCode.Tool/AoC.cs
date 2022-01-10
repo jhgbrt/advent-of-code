@@ -1,16 +1,16 @@
-﻿namespace AdventOfCode.Client;
-
-using AdventOfCode.Client.Commands;
-using AdventOfCode.Client.Logic;
+﻿namespace Net.Code.AdventOfCode.Tool;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+using Net.Code.AdventOfCode.Tool.Commands;
+using Net.Code.AdventOfCode.Tool.Core;
+using Net.Code.AdventOfCode.Tool.Logic;
+
 using Spectre.Console.Cli;
 
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Reflection;
 
 public static class AoC
@@ -87,6 +87,7 @@ public static class AoC
         services.AddTransient<ICodeManager, CodeManager>();
         services.AddTransient<IReportManager, ReportManager>();
         services.AddTransient<ICache, Cache>();
+        services.AddTransient<IFileSystem, FileSystem>();
         foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsAssignableTo(typeof(ICommand))))
         {
             services.AddTransient(type);
@@ -127,7 +128,7 @@ sealed class TypeResolver : ITypeResolver
 
     public TypeResolver(IServiceProvider provider) => _provider = provider ?? throw new ArgumentNullException(nameof(provider));
 
-    public object Resolve(Type? type) => _provider.GetRequiredService(type??throw new ArgumentNullException(nameof(type)));
+    public object Resolve(Type? type) => _provider.GetRequiredService(type ?? throw new ArgumentNullException(nameof(type)));
 }
 
 

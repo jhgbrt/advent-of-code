@@ -1,17 +1,12 @@
 ﻿
+using Net.Code.AdventOfCode.Tool.Core;
+
 using NodaTime;
 
 using Spectre.Console;
 
-namespace AdventOfCode.Client.Logic;
+namespace Net.Code.AdventOfCode.Tool.Logic;
 
-interface IReportManager
-{
-    Task<IEnumerable<LeaderboardEntry>> GetLeaderboardAsync(int year, int id);
-    Task<IEnumerable<(int id, string description)>> GetLeaderboardIds(bool usecache);
-    IAsyncEnumerable<(int year, MemberStats stats)> GetMemberStats();
-    IAsyncEnumerable<PuzzleReportEntry> GetPuzzleReport(ResultStatus? status, int? slowerthan);
-}
 
 class ReportManager : IReportManager
 {

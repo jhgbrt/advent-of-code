@@ -1,13 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
+﻿
+using Microsoft.Extensions.Logging;
 
-namespace AdventOfCode.Client.Logic;
+using Net.Code.AdventOfCode.Tool.Core;
 
-interface ICache
-{
-    bool Exists(int? year, int? day, string name);
-    Task<string> ReadFromCache(int? year, int? day, string name);
-    Task WriteToCache(int? year, int? day, string name, string content);
-}
+namespace Net.Code.AdventOfCode.Tool.Logic;
+
+
 class Cache : ICache
 {
     ILogger<Cache> logger;
@@ -15,20 +13,24 @@ class Cache : ICache
     public Cache(ILogger<Cache> logger)
     {
         this.logger = logger;
+        var dir = new DirectoryInfo(BaseDir);
+        if (!dir.Exists) dir.Create();
+        dir.Attributes |= FileAttributes.Hidden;
     }
 
     private static string BaseDir => Path.Combine(Environment.CurrentDirectory, ".cache");
     private static string GetDirectory(int? year, int? day)
     {
-        var dir = (year, day) switch
+        var path = (year, day) switch
         {
             (null, _) => BaseDir,
             (not null, null) => Path.Combine(BaseDir, year.Value.ToString()),
             (not null, not null) => Path.Combine(BaseDir, year.Value.ToString(), day.Value.ToString("00"))
         };
-        if (!Directory.Exists(dir))
-            Directory.CreateDirectory(dir);
-        return dir;
+
+        var dir = new DirectoryInfo(path);
+        if (!dir.Exists) dir.Create();
+        return path;
     }
 
     private static string GetFileName(int? year, int? day, string name) => Path.Combine(GetDirectory(year, day), name);

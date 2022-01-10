@@ -1,4 +1,4 @@
-﻿namespace AdventOfCode.Client.Logic;
+﻿namespace Net.Code.AdventOfCode.Tool.Logic;
 
 using HtmlAgilityPack;
 using System.Net;
@@ -6,19 +6,7 @@ using NodaTime;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
-
-record Configuration(string BaseAddress, string SessionCookie);
-
-interface IAoCClient : IDisposable
-{
-    Task<LeaderBoard?> GetLeaderBoardAsync(int year, int id, bool usecache = true);
-    Task<IEnumerable<(int id, string description)>> GetLeaderboardIds(bool usecache);
-    Task<Member?> GetMemberAsync(int year, bool usecache = true);
-    Task<int> GetMemberId();
-    Task<Puzzle> GetPuzzleAsync(int year, int day, bool usecache = true);
-    Task<string> GetPuzzleInputAsync(int year, int day);
-    Task<(HttpStatusCode status, string content)> PostAnswerAsync(int year, int day, int part, string value);
-}
+using Net.Code.AdventOfCode.Tool.Core;
 
 class AoCClient : IDisposable, IAoCClient
 {
@@ -218,7 +206,7 @@ class AoCClient : IDisposable, IAoCClient
 
         var link = new Regex(@"/\d+/leaderboard/private/view/(?<id>\d+)");
 
-        var id = (
+        var id =
             from a in document.DocumentNode.SelectNodes("//a")
             where a.InnerText == "[View]"
             let href = a.Attributes["href"].Value
@@ -226,7 +214,7 @@ class AoCClient : IDisposable, IAoCClient
             where match.Success
             let description = a.ParentNode.Name == "div" ? a.ParentNode.InnerText.Trim() : "Your own private leaderboard"
             select (int.Parse(match.Groups["id"].Value), description)
-            );
+            ;
 
         return id;
     }

@@ -1,12 +1,12 @@
 ﻿
-using AdventOfCode.Client.Logic;
+using Net.Code.AdventOfCode.Tool.Core;
 
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 using System.ComponentModel;
 
-namespace AdventOfCode.Client.Commands;
+namespace Net.Code.AdventOfCode.Tool.Commands;
 
 [Description("Export the code for a puzzle to a stand-alone C# project")]
 class Export : AsyncCommand<Export.Settings>
@@ -18,7 +18,7 @@ class Export : AsyncCommand<Export.Settings>
         this.manager = manager;
     }
 
-    public class Settings : AoCSettings 
+    public class Settings : AoCSettings
     {
         [Description("output location. If empty, exported code is written to stdout")]
         [CommandOption("-o|--output")]

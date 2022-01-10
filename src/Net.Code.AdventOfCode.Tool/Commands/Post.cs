@@ -1,6 +1,6 @@
-﻿namespace AdventOfCode.Client.Commands;
+﻿namespace Net.Code.AdventOfCode.Tool.Commands;
 
-using AdventOfCode.Client.Logic;
+using Net.Code.AdventOfCode.Tool.Core;
 
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -44,7 +44,7 @@ class Post : AsyncCommand<Post.Settings>
             return 1;
         }
 
-        var result = await manager.Post(year, day, part, value??string.Empty);
+        var result = await manager.Post(year, day, part, value ?? string.Empty);
 
         var color = result.success ? Color.Green : Color.Red;
         AnsiConsole.MarkupLine($"[{color}]{result.content.EscapeMarkup()}[/]");

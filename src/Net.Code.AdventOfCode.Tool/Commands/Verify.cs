@@ -1,4 +1,5 @@
-﻿using AdventOfCode.Client.Logic;
+﻿
+using Net.Code.AdventOfCode.Tool.Core;
 
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -6,7 +7,7 @@ using Spectre.Console.Cli;
 using System.ComponentModel;
 using System.Diagnostics;
 
-namespace AdventOfCode.Client.Commands;
+namespace Net.Code.AdventOfCode.Tool.Commands;
 
 [Description("Verify the results for the given puzzle(s).")]
 class Verify : AsyncCommand<Verify.Settings>
@@ -35,7 +36,7 @@ class Verify : AsyncCommand<Verify.Settings>
         [CommandOption("-a|--all")]
         public bool all { get; set; }
     }
-    
+
     public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
     {
 
@@ -53,7 +54,7 @@ class Verify : AsyncCommand<Verify.Settings>
             if (day.HasValue && day != d) continue;
             if (!all && !year.HasValue && !day.HasValue && !AoCLogic.IsToday(y, d)) continue;
 
-            var resultStatus = await manager.GetPuzzleResult(y, d, true, typeName, 
+            var resultStatus = await manager.GetPuzzleResult(y, d, true, typeName,
                 (part, result) => AnsiConsole.MarkupLine($"{y}-{d:00} part {part}: {result.Value} ({result.Elapsed})"));
 
             var reportLine = resultStatus.ToReportLine();

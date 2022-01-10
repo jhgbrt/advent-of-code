@@ -1,0 +1,82 @@
+﻿namespace Net.Code.AdventOfCode.Tool.Core;
+using System.Net;
+record Configuration(string BaseAddress, string SessionCookie);
+
+interface IAoCClient : IDisposable
+{
+    Task<LeaderBoard?> GetLeaderBoardAsync(int year, int id, bool usecache = true);
+    Task<IEnumerable<(int id, string description)>> GetLeaderboardIds(bool usecache);
+    Task<Member?> GetMemberAsync(int year, bool usecache = true);
+    Task<int> GetMemberId();
+    Task<Puzzle> GetPuzzleAsync(int year, int day, bool usecache = true);
+    Task<string> GetPuzzleInputAsync(int year, int day);
+    Task<(HttpStatusCode status, string content)> PostAnswerAsync(int year, int day, int part, string value);
+}
+
+interface IAoCRunner
+{
+    Task<DayResult> Run(string? typeName, int year, int day, Action<int, Result> progress);
+}
+
+interface ICache
+{
+    bool Exists(int? year, int? day, string name);
+    Task<string> ReadFromCache(int? year, int? day, string name);
+    Task WriteToCache(int? year, int? day, string name, string content);
+}
+
+
+interface ICodeManager
+{
+    Task ExportCode(int year, int day, string code, string output);
+    Task<string> GenerateCodeAsync(int year, int day);
+    Task InitializeCodeAsync(int year, int day, bool force, Action<string> progress);
+}
+
+interface IPuzzleManager
+{
+    Task<PuzzleResultStatus> GetPuzzleResult(int y, int d, bool runSlowPuzzles, string? typeName, Action<int, Result> status);
+    Task<(bool success, HttpStatusCode status, string content)> Post(int year, int day, int part, string value);
+    Task<(bool status, string reason, int part)> PreparePost(int year, int day);
+    Task Sync(int year, int day);
+}
+
+interface IReportManager
+{
+    Task<IEnumerable<LeaderboardEntry>> GetLeaderboardAsync(int year, int id);
+    Task<IEnumerable<(int id, string description)>> GetLeaderboardIds(bool usecache);
+    IAsyncEnumerable<(int year, MemberStats stats)> GetMemberStats();
+    IAsyncEnumerable<PuzzleReportEntry> GetPuzzleReport(ResultStatus? status, int? slowerthan);
+}
+interface IFileSystem
+{
+    ICodeFolder GetCodeFolder(int year, int day);
+    ITemplateFolder GetTemplateFolder();
+    IOutputFolder GetOutputFolder(string output);
+}
+interface IOutputFolder
+{
+    void CopyFile(FileInfo source);
+    void CopyFiles(IEnumerable<FileInfo> sources);
+    Task CreateIfNotExists();
+    Task WriteCode(string code);
+}
+interface ICodeFolder
+{
+    FileInfo Input { get; }
+    Task CreateIfNotExists();
+    IEnumerable<FileInfo> GetCodeFiles();
+    Task<string> ReadCode();
+    Task WriteCode(string content);
+    Task WriteInput(string content);
+    Task WriteSample(string content);
+    bool Exists { get; }
+}
+interface ITemplateFolder
+{
+    FileInfo Code { get; }
+    FileInfo CsProj { get; }
+
+    Task<string> ReadCode(int year, int day);
+    bool Exists { get; }
+}

@@ -1,4 +1,4 @@
-﻿namespace AdventOfCode.Client.Logic;
+﻿namespace Net.Code.AdventOfCode.Tool.Core;
 
 using NodaTime;
 
@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 enum ResultStatus
 {
-    [Display(Name="N/A")]
+    [Display(Name = "N/A")]
     NotImplemented, // not implemented
     Unknown,        // unknown if correct or not
     Failed,         // failed after verification

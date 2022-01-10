@@ -1,4 +1,4 @@
-﻿namespace AdventOfCode.Client.Logic;
+﻿namespace Net.Code.AdventOfCode.Tool.Core;
 using NodaTime;
 static class AoCLogic
 {
@@ -6,7 +6,8 @@ static class AoCLogic
     public static IClock Clock = SystemClock.Instance;
     static ZonedDateTime Now = Clock.GetCurrentInstant().InZone(DateTimeZoneProviders.Tzdb["EST"]);
 
-    internal static IEnumerable<(int year, int day)> Puzzles() => from year in Years() from day in Days(year) select (year, day);
+    internal static IEnumerable<(int year, int day)> Puzzles()
+        => from year in Years() from day in Days(year) select (year, day);
 
     internal static bool IsValidAndUnlocked(int year, int day)
     {
@@ -28,7 +29,7 @@ static class AoCLogic
 
     internal static IEnumerable<int> Years()
     {
-        for (int year = 2015; year <= DateTime.Now.Year; year++)
+        for (int year = 2015; year <= Now.Year; year++)
             yield return year;
     }
     internal static IEnumerable<int> Days(int year)

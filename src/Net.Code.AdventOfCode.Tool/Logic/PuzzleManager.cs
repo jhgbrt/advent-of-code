@@ -1,17 +1,12 @@
 ﻿
+using Net.Code.AdventOfCode.Tool.Core;
+
 using System.Net;
 using System.Text;
 using System.Text.Json;
 
-namespace AdventOfCode.Client.Logic;
+namespace Net.Code.AdventOfCode.Tool.Logic;
 
-interface IPuzzleManager
-{
-    Task<PuzzleResultStatus> GetPuzzleResult(int y, int d, bool runSlowPuzzles, string? typeName, Action<int, Result> status);
-    Task<(bool success, HttpStatusCode status, string content)> Post(int year, int day, int part, string value);
-    Task<(bool status, string reason, int part)> PreparePost(int year, int day);
-    Task Sync(int year, int day);
-}
 
 
 

@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.31911.260
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "aoc", "aoc\aoc.csproj", "{4483AF2A-2437-472E-A2AE-6CE0A66F41D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdventOfCode", "AdventOfCode\AdventOfCode.csproj", "{4483AF2A-2437-472E-A2AE-6CE0A66F41D4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TypedRegex.Generator", "TypedRegex.Generator\TypedRegex.Generator.csproj", "{B02159CE-C549-463A-9532-5ECD7E093439}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdventOfCode.Client", "AdventOfCode.Client\AdventOfCode.Client.csproj", "{BEE8CFFF-6922-4229-A1BA-C52506FBA0A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Code.AdventOfCode.Tool", "Net.Code.AdventOfCode.Tool\Net.Code.AdventOfCode.Tool.csproj", "{BEE8CFFF-6922-4229-A1BA-C52506FBA0A1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
