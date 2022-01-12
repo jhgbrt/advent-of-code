@@ -91,6 +91,4 @@ namespace Net.Code.AdventOfCode.Tool.UnitTests
             AoCLogic.Clock = clock;
         }
     }
-
-
 }

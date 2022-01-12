@@ -93,5 +93,4 @@ namespace Net.Code.AdventOfCode.Tool.UnitTests
             Assert.Equal("", result.Answer.part2);
         }
     }
-
 }

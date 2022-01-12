@@ -101,7 +101,6 @@ class CodeManager : ICodeManager
 
         var methods =
             from node in aocclass.DescendantNodes().OfType<MethodDeclarationSyntax>()
-            where node.Identifier.ToString() is not ("Part1" or "Part2")
             select node.WithModifiers(TokenList())
             ;
 
@@ -114,6 +113,60 @@ class CodeManager : ICodeManager
             .WithMembers(List(
                 fields
                 .Select(f => GlobalStatement(f))
+                .Concat(new[]
+                {
+                    GlobalStatement(
+                        LocalDeclarationStatement(
+                            VariableDeclaration(
+                                IdentifierName(
+                                    Identifier(
+                                        TriviaList(),
+                                        SyntaxKind.VarKeyword,
+                                        "var",
+                                        "var",
+                                        TriviaList()
+                                    )
+                                )
+                            )
+                            .WithVariables(
+                                SingletonSeparatedList<VariableDeclaratorSyntax>(
+                                    VariableDeclarator(
+                                        Identifier("sw")
+                                    )
+                                    .WithInitializer(
+                                        EqualsValueClause(
+                                            InvocationExpression(
+                                                MemberAccessExpression(
+                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                    IdentifierName("Stopwatch"),
+                                                    IdentifierName("StartNew")
+                                                )
+                                                .WithOperatorToken(
+                                                    Token(SyntaxKind.DotToken)
+                                                )
+                                            )
+                                            .WithArgumentList(
+                                                ArgumentList()
+                                                .WithOpenParenToken(
+                                                    Token(SyntaxKind.OpenParenToken)
+                                                )
+                                                .WithCloseParenToken(
+                                                    Token(SyntaxKind.CloseParenToken)
+                                                )
+                                            )
+                                        )
+                                        .WithEqualsToken(
+                                            Token(SyntaxKind.EqualsToken)
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                        .WithSemicolonToken(
+                            Token(SyntaxKind.SemicolonToken)
+                        )
+                    )
+                })
                 .Concat(new[] { "Part1", "Part2" }.Select(name =>
                     GlobalStatement(
                             LocalDeclarationStatement(
@@ -134,7 +187,14 @@ class CodeManager : ICodeManager
                                             Identifier(name.ToLower())
                                         )
                                         .WithInitializer(
-                                            EqualsValueClause(implementations[name])
+                                            EqualsValueClause(
+                                                InvocationExpression(
+                                                    IdentifierName(name)
+                                                    )
+                                                    .WithArgumentList(
+                                                        ArgumentList().WithOpenParenToken(Token(SyntaxKind.OpenParenToken)).WithCloseParenToken(Token(SyntaxKind.CloseParenToken))
+                                                    )
+                                                )
                                             )
                                         )
                                     )
@@ -159,7 +219,18 @@ class CodeManager : ICodeManager
                                                             new SyntaxNodeOrToken[] {
                                                                 Argument(IdentifierName("part1")),
                                                                 Token(SyntaxKind.CommaToken),
-                                                                Argument(IdentifierName("part2"))
+                                                                Argument(IdentifierName("part2")),
+                                                                Token(SyntaxKind.CommaToken),
+                                                                Argument(
+                                                                    MemberAccessExpression(
+                                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                                        IdentifierName("sw"),
+                                                                        IdentifierName("Elapsed")
+                                                                    )
+                                                                    .WithOperatorToken(
+                                                                        Token(SyntaxKind.DotToken)
+                                                                    )
+                                                                )
                                                             }
                                                         )
                                                     )

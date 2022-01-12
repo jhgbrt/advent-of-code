@@ -24,8 +24,11 @@ class Sync : AsyncCommand<Sync.Settings>
     public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
     {
         (var year, var day) = (options.year, options.day);
-        AnsiConsole.WriteLine($"Retrieving answers for puzzle {year}-{day:00}...");
-        await manager.Sync(year, day);
+        foreach (var (y, d) in AoCLogic.Puzzles(year, day))
+        {
+            AnsiConsole.WriteLine($"Retrieving answers for puzzle {y}-{d:00}...");
+            await manager.Sync(y, d);
+        }
         return 0;
     }
 

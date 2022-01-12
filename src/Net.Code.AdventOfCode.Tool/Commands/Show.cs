@@ -2,7 +2,6 @@
 
 using Net.Code.AdventOfCode.Tool.Core;
 
-using Spectre.Console;
 using Spectre.Console.Cli;
 
 using System.ComponentModel;
@@ -22,12 +21,17 @@ class Show : AsyncCommand<Show.Settings>
     public override Task<int> ExecuteAsync(CommandContext context, Settings options)
     {
         (var year, var day) = (options.year, options.day);
+
+        if (!year.HasValue || !day.HasValue)
+            throw new Exception("Please specify year & day explicitly");
+
         ProcessStartInfo psi = new()
         {
             FileName = $"{configuration.BaseAddress}/{year}/day/{day}",
             UseShellExecute = true
         };
         Process.Start(psi);
+
         return Task.FromResult(0);
     }
 }

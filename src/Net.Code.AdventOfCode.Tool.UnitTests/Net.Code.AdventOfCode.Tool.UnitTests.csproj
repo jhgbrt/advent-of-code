@@ -38,6 +38,12 @@
     <None Update="leaderboard.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="puzzle-answered-both-parts.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="puzzle-unanswered.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="settings.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

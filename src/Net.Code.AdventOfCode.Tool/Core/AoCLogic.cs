@@ -5,9 +5,30 @@ static class AoCLogic
 
     public static IClock Clock = SystemClock.Instance;
     static ZonedDateTime Now => Clock.GetCurrentInstant().InZone(DateTimeZoneProviders.Tzdb["EST"]);
-
+    public static int? Year => Now.Year;
+    public static int? Day => Now.Month == 12 && Now.Day >= 1 && Now.Day <= 25 ? Now.Day : null;
     internal static IEnumerable<(int year, int day)> Puzzles()
         => from year in Years() from day in Days(year) select (year, day);
+    internal static IEnumerable<(int year, int day)> Puzzles(int? year, int? day)
+    {
+        if (!year.HasValue && Now.Month == 12 && Now.Day <= 25)
+        {
+            year = Now.Year;
+        }
+        if (!year.HasValue && day.HasValue)
+        {
+            throw new ArgumentException("Outside the advent, it's meaningless to only specify a day");
+        }
+        if (!day.HasValue && Now.Month == 12 && Now.Day <= 25)
+        {
+            day = Now.Day;
+        }
+        return from y in Years()
+               where !year.HasValue || year.Value == y
+               from d in Days(y)
+               where !day.HasValue || day.Value == d
+               select (y, d);
+    }
 
     internal static bool IsValidAndUnlocked(int year, int day)
     {

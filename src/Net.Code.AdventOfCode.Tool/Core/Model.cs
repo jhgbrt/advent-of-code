@@ -64,7 +64,7 @@ record Puzzle(int Year, int Day, string Html, string Text, string Input, Answer 
     }
 
 }
-enum Status
+public enum Status
 {
     Locked,
     Unlocked,

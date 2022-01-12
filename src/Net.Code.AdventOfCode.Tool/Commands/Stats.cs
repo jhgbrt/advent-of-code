@@ -27,7 +27,6 @@ class Stats : AsyncCommand<Stats.Settings>
         await foreach (var (year, m) in manager.GetMemberStats())
         {
             AnsiConsole.WriteLine($"{year}: {m.stars}, {m.score}");
-
         }
 
         return 0;

@@ -48,15 +48,9 @@ class Verify : AsyncCommand<Verify.Settings>
             );
 
         var sw = Stopwatch.StartNew();
-        foreach (var (y, d) in AoCLogic.Puzzles())
+        foreach (var (y, d) in AoCLogic.Puzzles(year, day))
         {
-            if (year.HasValue && year != y) continue;
-            if (day.HasValue && day != d) continue;
-            if (!all && !year.HasValue && !day.HasValue && !AoCLogic.IsToday(y, d)) continue;
-
-            var resultStatus = await manager.GetPuzzleResult(y, d, true, typeName,
-                (part, result) => AnsiConsole.MarkupLine($"{y}-{d:00} part {part}: {result.Value} ({result.Elapsed})"));
-
+            var resultStatus = await manager.GetPuzzleResult(y, d, (part, result) => AnsiConsole.MarkupLine($"{y}-{d:00} part {part}: {result.Value} ({result.Elapsed})"));
             var reportLine = resultStatus.ToReportLine();
             AnsiConsole.MarkupLine(reportLine.ToString());
 

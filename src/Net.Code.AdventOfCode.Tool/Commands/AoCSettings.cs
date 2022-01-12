@@ -12,24 +12,9 @@ public class AoCSettings : CommandSettings
 {
     [Description("Year (default: current year)")]
     [CommandArgument(0, "[YEAR]")]
-    public int year { get; set; } = DateTime.Now.Year;
-    [Description("Day (default: current day)")]
+    public int? year { get; set; } = AoCLogic.Year;
+    [Description("Day (default during advent: current day, null otherwise)")]
     [CommandArgument(1, "[DAY]")]
-    public int day { get; set; } = DateTime.Now.Day;
-
-    public override ValidationResult Validate()
-    {
-        if (!AoCLogic.IsValidAndUnlocked(year, day))
-        {
-            if (day >= 1 && day <= 25 && DateTime.Now.Month == 12)
-                return ValidationResult.Error("Puzzle not unlocked (yet?)");
-            else
-                return ValidationResult.Error("There is no Advent of Code puzzle on this day");
-        }
-        else
-        {
-            return base.Validate();
-        }
-    }
+    public int? day { get; set; } = AoCLogic.Day;
 
 }
