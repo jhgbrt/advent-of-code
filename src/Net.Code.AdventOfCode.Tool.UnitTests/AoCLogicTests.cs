@@ -50,6 +50,54 @@ namespace Net.Code.AdventOfCode.Tool.UnitTests
         }
 
         [Fact]
+        public void Puzzles_DuringAdvent_NoYearNoDay_ReturnsCurrentPuzzle()
+        {
+            SetClock(2017, 12, 23, 0, 0, 0);
+            Assert.Equal(new[] { (2017, 23) }, AoCLogic.Puzzles(null, null).ToArray());
+        }
+        [Fact]
+        public void Puzzles_OutsideAdvent_NoYearNoDay_ReturnsAllPastPuzzles()
+        {
+            SetClock(2018, 1, 26, 0, 0, 0);
+            Assert.Equal(75, AoCLogic.Puzzles(null, null).Count());
+            Assert.Equal((2015, 1), AoCLogic.Puzzles(null, null).First());
+            Assert.Equal((2016, 1), AoCLogic.Puzzles(null, null).Skip(25).First());
+            Assert.Equal((2017, 25), AoCLogic.Puzzles(null, null).Skip(25).Last());
+        }
+        [Fact]
+        public void Puzzles_OutsideAdventInDecember_YearNoDay_ReturnsPuzzlesForYear()
+        {
+            SetClock(2017, 12, 26, 0, 0, 0);
+            var result = AoCLogic.Puzzles(2017, null).ToArray();
+            Assert.Equal(25, result.Count());
+            Assert.Equal((2017, 1), result.First());
+            Assert.Equal((2017, 25), result.Last());
+        }
+        [Fact]
+        public void Puzzles_DuringAdvent_YearWithoutDay_ReturnsAllDaysForCurrentYear()
+        {
+            SetClock(2017, 12, 17, 0, 0, 0);
+            var result = AoCLogic.Puzzles(2017, null).ToArray();
+            Assert.Equal(17, result.Count());
+            Assert.Equal((2017, 1), result.First());
+            Assert.Equal((2017, 17), result.Last());
+        }
+
+        [Fact]
+        public void Puzzles_DuringAdvent_NoYearWithDay_ReturnsSingleDay()
+        {
+            SetClock(2017, 12, 17, 0, 0, 0);
+            Assert.Equal((2017,1), AoCLogic.Puzzles(null, 1).Single());
+        }
+
+        [Fact]
+        public void Puzzles_OutsideAdvent_NoYearWithDay_Throws()
+        {
+            SetClock(2017, 12, 26, 0, 0, 0);
+            Assert.Throws<ArgumentException>(() => AoCLogic.Puzzles(null, 1).ToList());
+        }
+
+        [Fact]
         public void Days_BeforeDecember_ReturnsNothing()
         {
             SetClock(2017, 11, 30, 0, 0, 0);

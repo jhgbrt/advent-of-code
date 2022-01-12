@@ -5,24 +5,26 @@ static class AoCLogic
 
     public static IClock Clock = SystemClock.Instance;
     static ZonedDateTime Now => Clock.GetCurrentInstant().InZone(DateTimeZoneProviders.Tzdb["EST"]);
-    public static int? Year => Now.Year;
+    static bool InAdvent => Now.Month == 12 && Now.Day <= 25;
+    public static int? Year => Now.Month == 12 ? Now.Year : null;
     public static int? Day => Now.Month == 12 && Now.Day >= 1 && Now.Day <= 25 ? Now.Day : null;
     internal static IEnumerable<(int year, int day)> Puzzles()
         => from year in Years() from day in Days(year) select (year, day);
     internal static IEnumerable<(int year, int day)> Puzzles(int? year, int? day)
     {
-        if (!year.HasValue && Now.Month == 12 && Now.Day <= 25)
+
+        (year, day) = (year, day) switch
         {
-            year = Now.Year;
-        }
-        if (!year.HasValue && day.HasValue)
-        {
-            throw new ArgumentException("Outside the advent, it's meaningless to only specify a day");
-        }
-        if (!day.HasValue && Now.Month == 12 && Now.Day <= 25)
-        {
-            day = Now.Day;
-        }
+            (year: null, day: null) when InAdvent => (Now.Year, Now.Day),
+            (year: null, day: null) when !InAdvent && Now.Month == 12 => (Now.Year, null),
+            (year: null, day: null) when !InAdvent => (null, null),
+
+            (year: null, day: not null) when InAdvent => (Now.Year, day.Value),
+            (year: null, day: not null) when !InAdvent => throw new ArgumentException("Outside the advent, it's meaningless to only specify a day"),
+
+            _ => (year, day)
+        };
+
         return from y in Years()
                where !year.HasValue || year.Value == y
                from d in Days(y)

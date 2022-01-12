@@ -12,9 +12,9 @@ public class AoCSettings : CommandSettings
 {
     [Description("Year (default: current year)")]
     [CommandArgument(0, "[YEAR]")]
-    public int? year { get; set; } = AoCLogic.Year;
+    public int? year { get; set; }
     [Description("Day (default during advent: current day, null otherwise)")]
     [CommandArgument(1, "[DAY]")]
-    public int? day { get; set; } = AoCLogic.Day;
+    public int? day { get; set; }
 
 }
