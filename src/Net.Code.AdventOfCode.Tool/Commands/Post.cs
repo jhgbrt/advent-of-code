@@ -36,18 +36,20 @@ class Post : AsyncCommand<Post.Settings>
     {
         (var year, var day, var value) = (options.year, options.day, options.value);
 
-
-        (var status, var reason, var part) = await manager.PreparePost(year, day);
-        if (!status)
+        await PuzzleCommandHelper.RunSinglePuzzle(year, day, async (year, day) =>
         {
-            AnsiConsole.WriteLine(reason);
-            return 1;
-        }
+            (var status, var reason, var part) = await manager.PreparePost(year, day);
+            if (!status)
+            {
+                AnsiConsole.WriteLine(reason);
+                return;
+            }
+            var result = await manager.Post(year, day, part, value ?? string.Empty);
 
-        var result = await manager.Post(year, day, part, value ?? string.Empty);
+            var color = result.success ? Color.Green : Color.Red;
+            AnsiConsole.MarkupLine($"[{color}]{result.content.EscapeMarkup()}[/]");
+        });
 
-        var color = result.success ? Color.Green : Color.Red;
-        AnsiConsole.MarkupLine($"[{color}]{result.content.EscapeMarkup()}[/]");
         return 0;
 
     }

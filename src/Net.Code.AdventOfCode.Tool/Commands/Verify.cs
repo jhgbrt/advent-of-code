@@ -25,20 +25,13 @@ class Verify : AsyncCommand<Verify.Settings>
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
     {
-
-        (var year, var day) = (
-              options.year
-            , options.day
-            );
-
         var sw = Stopwatch.StartNew();
-        foreach (var (y, d) in AoCLogic.Puzzles(year, day))
+        await PuzzleCommandHelper.RunMultiPuzzle(options, async (year, day) =>
         {
-            var resultStatus = await manager.GetPuzzleResult(y, d, (part, result) => AnsiConsole.MarkupLine($"{y}-{d:00} part {part}: {result.Value} ({result.Elapsed})"));
+            var resultStatus = await manager.GetPuzzleResult(year, day, (part, result) => AnsiConsole.MarkupLine($"{year}-{day:00} part {part}: {result.Value} ({result.Elapsed})"));
             var reportLine = resultStatus.ToReportLine();
             AnsiConsole.MarkupLine(reportLine.ToString());
-
-        }
+        });
         AnsiConsole.WriteLine($"done. Total time: {sw.Elapsed}");
         return 0;
     }

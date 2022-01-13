@@ -18,7 +18,7 @@ public class RunCommandTests
         TestClock.SetClock(2021, 12, 26, 0, 0, 0);
         var manager = Substitute.For<IAoCRunner>();
         var run = new Commands.Run(manager);
-        await run.ExecuteAsync(default, new Commands.Run.Settings { year = 2021, typeName = String.Empty, day = 1 });
+        await run.ExecuteAsync(default!, new Commands.Run.Settings { year = 2021, typeName = String.Empty, day = 1 });
         await manager.Received().Run(string.Empty, 2021, 1, Arg.Any<Action<int, Result>>());
     }
 

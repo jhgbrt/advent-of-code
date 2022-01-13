@@ -47,7 +47,7 @@ public class CacheTests
     [InlineData(@"C:\base\.cache\name.txt", null, null)]
     [InlineData(@"C:\base\.cache\2020\name.txt", 2020, null)]
     [InlineData(@"C:\base\.cache\2020\01\name.txt", 2020, 1)]
-    public async Task ExistsTest(string fullpath, int? year, int? day)
+    public void ExistsTest(string fullpath, int? year, int? day)
     {
         ILogger<Cache> logger = Substitute.For<ILogger<Cache>>();
         var fileSystem = Substitute.For<IFileSystem>();

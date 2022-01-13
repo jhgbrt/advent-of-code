@@ -66,6 +66,7 @@ namespace Net.Code.AdventOfCode.Tool.UnitTests
             var m = new PuzzleManager(client, cache);
 
             client.PostAnswerAsync(2021, 1, 1, "answer").Returns(Task.FromResult((statusCode, content)));
+#pragma warning disable CS8620
             client.GetMemberAsync(2021, false).Returns(
                 Task.FromResult(
                     new Member(1, "", 50, 123, 123, NodaTime.SystemClock.Instance.GetCurrentInstant(), new Dictionary<int, DailyStars>())

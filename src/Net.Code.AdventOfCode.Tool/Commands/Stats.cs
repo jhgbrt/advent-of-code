@@ -9,7 +9,7 @@ using System.ComponentModel;
 namespace Net.Code.AdventOfCode.Tool.Commands;
 
 [Description("Show some stats from the configured private leaderboard. Set AOC_LEADERBOARD_ID as a environment variable.")]
-class Stats : AsyncCommand<Stats.Settings>
+class Stats : AsyncCommand<CommandSettings>
 {
     private readonly IReportManager manager;
 
@@ -17,11 +17,8 @@ class Stats : AsyncCommand<Stats.Settings>
     {
         this.manager = manager;
     }
-    public class Settings : CommandSettings
-    {
-    }
 
-    public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
+    public override async Task<int> ExecuteAsync(CommandContext context, CommandSettings _)
     {
 
         await foreach (var (year, m) in manager.GetMemberStats())

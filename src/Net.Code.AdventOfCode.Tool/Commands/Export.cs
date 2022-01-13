@@ -28,21 +28,20 @@ class Export : AsyncCommand<Export.Settings>
     {
         (var year, var day, var output) = (options.year, options.day, options.output);
 
-        if (!year.HasValue || !day.HasValue)
-            throw new Exception("Please specify year & day explicitly");
-
-        string code = await manager.GenerateCodeAsync(year.Value, day.Value);
-
-        if (string.IsNullOrEmpty(output))
+        await PuzzleCommandHelper.RunSinglePuzzle(year, day, async (year, day) =>
         {
-            AnsiConsole.WriteLine(code.EscapeMarkup());
-        }
-        else
-        {
-            AnsiConsole.WriteLine($"Exporting puzzle: {year}/{day} to {output}");
-            await manager.ExportCode(year.Value, day.Value, code, output);
-        }
+            string code = await manager.GenerateCodeAsync(year, day);
 
+            if (string.IsNullOrEmpty(output))
+            {
+                AnsiConsole.WriteLine(code.EscapeMarkup());
+            }
+            else
+            {
+                AnsiConsole.WriteLine($"Exporting puzzle: {year}/{day} to {output}");
+                await manager.ExportCode(year, day, code, output);
+            }
+        });
 
         return 0;
 

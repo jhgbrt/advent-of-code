@@ -29,18 +29,17 @@ class Run : AsyncCommand<Run.Settings>
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
     {
-
         (var year, var day, var typeName) = (
               options.year
             , options.day
             , options.typeName
             );
 
-        foreach (var (y, d) in AoCLogic.Puzzles(year, day))
+        await PuzzleCommandHelper.RunMultiPuzzle(year, day, async (year, day) => 
         {
             AnsiConsole.WriteLine($"{year}, day {day}");
-            DayResult result = await manager.Run(typeName, y, d, (part, result) => AnsiConsole.MarkupLine($"part {part}: {result.Value} ({result.Elapsed})"));
-        }
+            DayResult result = await manager.Run(typeName, year, day, (part, result) => AnsiConsole.MarkupLine($"part {part}: {result.Value} ({result.Elapsed})"));
+        });
 
         return 0;
     }

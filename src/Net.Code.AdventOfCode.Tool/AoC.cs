@@ -132,9 +132,11 @@ sealed class TypeResolver : ITypeResolver
 {
     private readonly IServiceProvider _provider;
 
-    public TypeResolver(IServiceProvider provider) => _provider = provider ?? throw new ArgumentNullException(nameof(provider));
+    public TypeResolver(IServiceProvider provider) 
+        => _provider = provider ?? throw new ArgumentNullException(nameof(provider));
 
-    public object Resolve(Type? type) => _provider.GetRequiredService(type ?? throw new ArgumentNullException(nameof(type)));
+    public object Resolve(Type? type) 
+        => _provider.GetRequiredService(type ?? throw new ArgumentNullException(nameof(type)));
 }
 
 

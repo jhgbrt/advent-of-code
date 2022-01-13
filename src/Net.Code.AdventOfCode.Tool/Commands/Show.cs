@@ -18,20 +18,18 @@ class Show : AsyncCommand<Show.Settings>
     }
 
     public class Settings : AoCSettings { }
-    public override Task<int> ExecuteAsync(CommandContext context, Settings options)
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
     {
-        (var year, var day) = (options.year, options.day);
-
-        if (!year.HasValue || !day.HasValue)
-            throw new Exception("Please specify year & day explicitly");
-
-        ProcessStartInfo psi = new()
+        await PuzzleCommandHelper.RunSinglePuzzle(options, (year, day) =>
         {
-            FileName = $"{configuration.BaseAddress}/{year}/day/{day}",
-            UseShellExecute = true
-        };
-        Process.Start(psi);
-
-        return Task.FromResult(0);
+            ProcessStartInfo psi = new()
+            {
+                FileName = $"{configuration.BaseAddress}/{year}/day/{day}",
+                UseShellExecute = true
+            };
+            Process.Start(psi);
+            return Task.CompletedTask;
+        });
+        return 0;
     }
 }

@@ -45,9 +45,13 @@ public class ReportManagerTests
         var client = Substitute.For<IAoCClient>();
         var manager = Substitute.For<IPuzzleManager>();
 
-        client.GetMemberAsync(Arg.Any<int>(), true)
-            .Returns(callInfo => Task.FromResult(new Member(1, "", 0, 0, 0, AoCLogic.Clock.GetCurrentInstant(), new Dictionary<int,DailyStars>()))
+#pragma warning disable CS8619
+        Task<Member?> task = Task.FromResult(
+            new Member(1, "", 0, 0, 0, AoCLogic.Clock.GetCurrentInstant(), new Dictionary<int, DailyStars>())
             );
+ 
+        client.GetMemberAsync(Arg.Any<int>(), true)
+            .Returns(task);
 
         var rm = new ReportManager(client, manager);
 

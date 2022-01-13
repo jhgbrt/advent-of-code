@@ -17,10 +17,10 @@ public class VerifyCommandTests
         var manager = Substitute.For<IPuzzleManager>();
         foreach (var y in AoCLogic.Years())
             foreach (var d in Enumerable.Range(1, 25))
-                manager.GetPuzzleResult(2021, d, Arg.Any<Action<int, Result>>()).Returns(
+                manager.GetPuzzleResult(y, d, Arg.Any<Action<int, Result>>()).Returns(
                     Task.FromResult(new PuzzleResultStatus(
                         new Puzzle(y, d, String.Empty, string.Empty, string.Empty, Answer.Empty, Status.Unlocked),
-                        DayResult.NotImplemented(2021, d), false))
+                        DayResult.NotImplemented(y, d), false))
                     );
         return manager;
     }
@@ -30,7 +30,7 @@ public class VerifyCommandTests
         TestClock.SetClock(2021, 12, 26, 0, 0, 0);
         IPuzzleManager manager = CreatePuzzleManager();
         var run = new Commands.Verify(manager);
-        await run.ExecuteAsync(default, new Commands.Verify.Settings { year = 2021, day = 1 });
+        await run.ExecuteAsync(default!, new Commands.Verify.Settings { year = 2021, day = 1 });
         await manager.Received().GetPuzzleResult(2021, 1, Arg.Any<Action<int, Result>>());
     }
 
@@ -69,15 +69,15 @@ public class VerifyCommandTests
     }
 
     [Fact]
-    public async Task Run_WhenCalledWithoutArgumentsInDecemberAfterAdvent_RunsAllPuzzlesForCurrentYear()
+    public async Task Verify_WhenCalledWithoutArgumentsInDecemberAfterAdvent_RunsAllPuzzlesForCurrentYear()
     {
         TestClock.SetClock(2018, 12, 26, 0, 0, 0);
-        var manager = Substitute.For<IAoCRunner>();
-        var run = new Commands.Run(manager);
-        await run.ExecuteAsync(default!, new Commands.Run.Settings { });
+        IPuzzleManager manager = CreatePuzzleManager();
+        var run = new Commands.Verify(manager);
+        await run.ExecuteAsync(default!, new Commands.Verify.Settings { });
         foreach (var y in new[] { 2018 })
             foreach (var d in Enumerable.Range(1, 25))
-                await manager.Received(1).Run(Arg.Any<string>(), y, d, Arg.Any<Action<int, Result>>());
-        await manager.Received(25).Run(Arg.Any<string>(), Arg.Any<int>(), Arg.Any<int>(), Arg.Any<Action<int, Result>>());
+                await manager.Received(1).GetPuzzleResult(y, d, Arg.Any<Action<int, Result>>());
+        await manager.Received(25).GetPuzzleResult(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<Action<int, Result>>());
     }
 }
