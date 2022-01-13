@@ -1,7 +1,7 @@
 ﻿
 using Net.Code.AdventOfCode.Tool.Core;
 
-using NodaTime;
+using static Net.Code.AdventOfCode.Tool.UnitTests.TestClock;
 
 using NSubstitute;
 
@@ -128,15 +128,6 @@ namespace Net.Code.AdventOfCode.Tool.UnitTests
         {
             SetClock(2017, 12, 5, 0, 0, 0);
             Assert.False(AoCLogic.IsToday(2017, 3));
-        }
-
-        private static void SetClock(int year, int month, int day, int hour, int min, int sec)
-        {
-            var localdate = new LocalDateTime(year, month, day, hour, min, sec);
-            var instant = localdate.InZoneLeniently(DateTimeZoneProviders.Tzdb["EST"]).ToInstant();
-            var clock = Substitute.For<IClock>();
-            clock.GetCurrentInstant().Returns(instant);
-            AoCLogic.Clock = clock;
         }
     }
 }

@@ -10,19 +10,28 @@ namespace Net.Code.AdventOfCode.Tool.Logic;
 
 class FileSystem : IFileSystem
 {
-    private readonly string currentDirectory;
+    public string CurrentDirectory => Environment.CurrentDirectory;
     private readonly ILogger<FileSystem> logger;
     public FileSystem(ILogger<FileSystem> logger)
     {
         this.logger = logger;
-        this.currentDirectory = Environment.CurrentDirectory; 
     }
 
-    public ICodeFolder GetCodeFolder(int year, int day) => new CodeFolder(Path.Combine(currentDirectory, $"Year{year}", $"Day{day:00}"), logger);
-    public ITemplateFolder GetTemplateFolder() => new TemplateFolder(Path.Combine(currentDirectory, "Template"), logger);
+    public ICodeFolder GetCodeFolder(int year, int day) => new CodeFolder(Path.Combine(CurrentDirectory, $"Year{year}", $"Day{day:00}"), logger);
+    public ITemplateFolder GetTemplateFolder() => new TemplateFolder(Path.Combine(CurrentDirectory, "Template"), logger);
     public IOutputFolder GetOutputFolder(string output) => new OutputFolder(output, logger);
 
-
+    public void CreateDirectoryIfNotExists(string path, FileAttributes? attributes)
+    {
+        var dir = new DirectoryInfo(path);
+        if (!dir.Exists) dir.Create();
+        if (attributes.HasValue)
+            dir.Attributes |= attributes.Value;
+    }
+    public async Task<string> ReadAllTextAsync(string path) => await File.ReadAllTextAsync(path);
+    public async Task WriteAllTextAsync(string path, string content) => await File.WriteAllTextAsync(path, content);
+    public bool FileExists(string path) => File.Exists(path);
+    public bool DirectoryExists(string path) => Directory.Exists(path);
     class Folder
     {
         private readonly DirectoryInfo dir;

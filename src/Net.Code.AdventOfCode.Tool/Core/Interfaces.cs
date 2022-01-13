@@ -51,9 +51,15 @@ interface IReportManager
 }
 interface IFileSystem
 {
+    string CurrentDirectory { get; }
     ICodeFolder GetCodeFolder(int year, int day);
     ITemplateFolder GetTemplateFolder();
     IOutputFolder GetOutputFolder(string output);
+    void CreateDirectoryIfNotExists(string path, FileAttributes? attributes = default);
+    Task<string> ReadAllTextAsync(string path);
+    Task WriteAllTextAsync(string path, string content);
+    bool FileExists(string path);
+    bool DirectoryExists(string path);
 }
 interface IOutputFolder
 {
