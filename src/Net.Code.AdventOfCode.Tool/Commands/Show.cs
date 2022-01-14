@@ -2,13 +2,11 @@
 
 using Net.Code.AdventOfCode.Tool.Core;
 
-using Spectre.Console.Cli;
-
 using System.ComponentModel;
 using System.Diagnostics;
 
 [Description("Show the puzzle instructions.")]
-class Show : AsyncCommand<Show.Settings>
+class Show : SinglePuzzleCommand<AoCSettings>
 {
     private readonly Configuration configuration;
 
@@ -17,19 +15,14 @@ class Show : AsyncCommand<Show.Settings>
         this.configuration = configuration;
     }
 
-    public class Settings : AoCSettings { }
-    public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
+    public override Task ExecuteAsync(int year, int day, AoCSettings options)
     {
-        await PuzzleCommandHelper.RunSinglePuzzle(options, (year, day) =>
+        ProcessStartInfo psi = new()
         {
-            ProcessStartInfo psi = new()
-            {
-                FileName = $"{configuration.BaseAddress}/{year}/day/{day}",
-                UseShellExecute = true
-            };
-            Process.Start(psi);
-            return Task.CompletedTask;
-        });
-        return 0;
+            FileName = $"{configuration.BaseAddress}/{year}/day/{day}",
+            UseShellExecute = true
+        };
+        Process.Start(psi);
+        return Task.CompletedTask;
     }
 }

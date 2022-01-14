@@ -9,7 +9,7 @@ using System.ComponentModel;
 namespace Net.Code.AdventOfCode.Tool.Commands;
 
 [Description("Run the code for a specific puzzle.")]
-class Run : AsyncCommand<Run.Settings>
+class Run : ManyPuzzlesCommand<Run.Settings>
 {
     private readonly IAoCRunner manager;
 
@@ -27,21 +27,11 @@ class Run : AsyncCommand<Run.Settings>
         public string? typeName { get; set; }
     }
 
-    public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
+    public override async Task ExecuteAsync(int year, int day, Settings options)
     {
-        (var year, var day, var typeName) = (
-              options.year
-            , options.day
-            , options.typeName
-            );
-
-        await PuzzleCommandHelper.RunMultiPuzzle(year, day, async (year, day) => 
-        {
-            AnsiConsole.WriteLine($"{year}, day {day}");
-            DayResult result = await manager.Run(typeName, year, day, (part, result) => AnsiConsole.MarkupLine($"part {part}: {result.Value} ({result.Elapsed})"));
-        });
-
-        return 0;
+        var typeName = options.typeName;
+        AnsiConsole.WriteLine($"{year}, day {day}");
+        DayResult result = await manager.Run(typeName, year, day, (part, result) => AnsiConsole.MarkupLine($"part {part}: {result.Value} ({result.Elapsed})"));
     }
 }
 

@@ -2,9 +2,9 @@
 
 using Net.Code.AdventOfCode.Tool.Core;
 
-static class PuzzleCommandHelper 
+static class PuzzleCommandHelper
 {
-    public static Task<int> RunMultiPuzzle<TSettings>(TSettings settings, Func<int, int, Task> action) where TSettings : AoCSettings
+    public static Task<int> RunForAllPuzzles<TSettings>(TSettings settings, Func<int, int, Task> action) where TSettings : AoCSettings
         => RunMultiPuzzle(settings.year, settings.day, action);
     public static async Task<int> RunMultiPuzzle(int? year, int? day, Func<int, int, Task> action)
     {
@@ -14,7 +14,7 @@ static class PuzzleCommandHelper
         }
         return 0;
     }
-    public static Task<int> RunSinglePuzzle<TSettings>(TSettings settings, Func<int, int, Task> action) where TSettings : AoCSettings
+    public static Task<int> RunForSinglePuzzle<TSettings>(TSettings settings, Func<int, int, Task> action) where TSettings : AoCSettings
         => RunSinglePuzzle(settings.year, settings.day, action);
     public static async Task<int> RunSinglePuzzle(int? year, int? day, Func<int, int, Task> action) 
     {

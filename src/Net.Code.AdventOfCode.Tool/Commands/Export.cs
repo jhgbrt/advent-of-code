@@ -9,7 +9,7 @@ using System.ComponentModel;
 namespace Net.Code.AdventOfCode.Tool.Commands;
 
 [Description("Export the code for a puzzle to a stand-alone C# project")]
-class Export : AsyncCommand<Export.Settings>
+class Export : SinglePuzzleCommand<Export.Settings>
 {
     private readonly ICodeManager manager;
 
@@ -24,27 +24,20 @@ class Export : AsyncCommand<Export.Settings>
         [CommandOption("-o|--output")]
         public string? output { get; set; }
     }
-    public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
+    public override async Task ExecuteAsync(int year, int day, Settings options)
     {
-        (var year, var day, var output) = (options.year, options.day, options.output);
+        var output = options.output;
+        string code = await manager.GenerateCodeAsync(year, day);
 
-        await PuzzleCommandHelper.RunSinglePuzzle(year, day, async (year, day) =>
+        if (string.IsNullOrEmpty(output))
         {
-            string code = await manager.GenerateCodeAsync(year, day);
-
-            if (string.IsNullOrEmpty(output))
-            {
-                AnsiConsole.WriteLine(code.EscapeMarkup());
-            }
-            else
-            {
-                AnsiConsole.WriteLine($"Exporting puzzle: {year}/{day} to {output}");
-                await manager.ExportCode(year, day, code, output);
-            }
-        });
-
-        return 0;
-
+            AnsiConsole.WriteLine(code.EscapeMarkup());
+        }
+        else
+        {
+            AnsiConsole.WriteLine($"Exporting puzzle: {year}/{day} to {output}");
+            await manager.ExportCode(year, day, code, output);
+        }
     }
 
 

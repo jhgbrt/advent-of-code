@@ -8,7 +8,7 @@ using Spectre.Console.Cli;
 using System.ComponentModel;
 
 [Description("Initialize the code for a specific puzzle. Requires AOC_SESSION set as an environment variable")]
-class Init : AsyncCommand<Init.Settings>
+class Init : SinglePuzzleCommand<Init.Settings>
 {
     private readonly ICodeManager manager;
 
@@ -22,15 +22,11 @@ class Init : AsyncCommand<Init.Settings>
         [CommandOption("-f|--force")]
         public bool? force { get; set; }
     }
-    public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
+    public override async Task ExecuteAsync(int year, int day, Settings options)
     {
-        (var year, var day, var force) = (options.year, options.day, options.force ?? false);
-        await PuzzleCommandHelper.RunSinglePuzzle(year, day, async (year, day) =>
-        {
-            AnsiConsole.WriteLine("Puzzle is unlocked");
-            await manager.InitializeCodeAsync(year, day, force, AnsiConsole.WriteLine);
-        });
-        return 0;
+        var force = options.force ?? false;
+        AnsiConsole.WriteLine("Puzzle is unlocked");
+        await manager.InitializeCodeAsync(year, day, force, AnsiConsole.WriteLine);
     }
 
 

@@ -33,7 +33,10 @@ class Leaderboard : AsyncCommand<Leaderboard.Settings>
     {
         var year = options.year;
 
-        var ids = options.id.HasValue ? Enumerable.Repeat((id: options.id.Value, description: ""), 1) : await manager.GetLeaderboardIds(!options.force);
+        var ids = options.id.HasValue
+            ? Enumerable.Repeat((id: options.id.Value, description: ""), 1)
+            : await manager.GetLeaderboardIds(!options.force);
+
         var id = ids.Count() switch
         {
             > 1 => AnsiConsole.Prompt(new SelectionPrompt<(int id, string description)>().Title("Which leaderboard?").AddChoices(ids.Select(x => (x.id, x.description.EscapeMarkup())))).id,

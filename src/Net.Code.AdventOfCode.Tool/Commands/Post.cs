@@ -10,7 +10,7 @@ using System.ComponentModel.DataAnnotations;
 
 
 [Description("Post an answer for a puzzle part. Requires AOC_SESSION set as an environment variable.")]
-class Post : AsyncCommand<Post.Settings>
+class Post : SinglePuzzleCommand<Post.Settings>
 {
     private readonly IPuzzleManager manager;
 
@@ -18,7 +18,7 @@ class Post : AsyncCommand<Post.Settings>
     {
         this.manager = manager;
     }
-    public class Settings : CommandSettings
+    public class Settings : CommandSettings, IAoCSettings
     {
 
         [Description("The solution to the current puzzle part"), Required]
@@ -26,32 +26,24 @@ class Post : AsyncCommand<Post.Settings>
         public string? value { get; set; }
         [Description("Year (default: current year)")]
         [CommandArgument(1, "[YEAR]")]
-        public int year { get; set; } = DateTime.Now.Year;
+        public int? year { get; set; } = DateTime.Now.Year;
         [Description("Day (default: current day)")]
         [CommandArgument(2, "[DAY]")]
-        public int day { get; set; } = DateTime.Now.Day;
+        public int? day { get; set; } = DateTime.Now.Day;
 
     }
-    public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
+    public override async Task ExecuteAsync(int year, int day, Settings options)
     {
-        (var year, var day, var value) = (options.year, options.day, options.value);
-
-        await PuzzleCommandHelper.RunSinglePuzzle(year, day, async (year, day) =>
+        (var status, var reason, var part) = await manager.PreparePost(year, day);
+        if (!status)
         {
-            (var status, var reason, var part) = await manager.PreparePost(year, day);
-            if (!status)
-            {
-                AnsiConsole.WriteLine(reason);
-                return;
-            }
-            var result = await manager.Post(year, day, part, value ?? string.Empty);
+            AnsiConsole.WriteLine(reason);
+            return;
+        }
+        var result = await manager.Post(year, day, part, options.value ?? string.Empty);
 
-            var color = result.success ? Color.Green : Color.Red;
-            AnsiConsole.MarkupLine($"[{color}]{result.content.EscapeMarkup()}[/]");
-        });
-
-        return 0;
-
+        var color = result.success ? Color.Green : Color.Red;
+        AnsiConsole.MarkupLine($"[{color}]{result.content.EscapeMarkup()}[/]");
     }
 }
 

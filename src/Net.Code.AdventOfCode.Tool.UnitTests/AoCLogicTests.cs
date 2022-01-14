@@ -3,8 +3,6 @@ using Net.Code.AdventOfCode.Tool.Core;
 
 using static Net.Code.AdventOfCode.Tool.UnitTests.TestClock;
 
-using NSubstitute;
-
 using System;
 using System.Linq;
 

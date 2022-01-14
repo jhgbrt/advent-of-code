@@ -1,14 +1,15 @@
-﻿
-using Net.Code.AdventOfCode.Tool.Core;
-
-using Spectre.Console;
-using Spectre.Console.Cli;
+﻿using Spectre.Console.Cli;
 
 using System.ComponentModel;
 
 namespace Net.Code.AdventOfCode.Tool.Commands;
 
-public class AoCSettings : CommandSettings
+public interface IAoCSettings
+{
+    public int? year { get; }
+    public int? day { get; }
+}
+public class AoCSettings : CommandSettings, IAoCSettings
 {
     [Description("Year (default: current year)")]
     [CommandArgument(0, "[YEAR]")]

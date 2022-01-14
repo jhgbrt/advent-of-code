@@ -78,7 +78,7 @@ public static class AoC
             .Build();
 
 
-        var cookieValue = config["AOC_SESSION"] ?? throw new Exception("This operation requires AOC_SESSION to be set as an environment variable.");
+        var cookieValue = config["AOC_SESSION"] ?? throw new Exception("This operation requires AOC_SESSION to be set as an environment variable or user secret.");
         var baseAddress = "https://adventofcode.com";
         var configuration = new Configuration(baseAddress, cookieValue);
 
@@ -94,11 +94,11 @@ public static class AoC
         services.AddTransient<IFileSystem, FileSystem>();
         services.AddTransient<IAssemblyResolver, AssemblyResolver>();
         services.AddTransient<IHttpClientWrapper, HttpClientWrapper>();
-        foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsAssignableTo(typeof(ICommand))))
+        foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(t => !t.IsAbstract && t.IsAssignableTo(typeof(ICommand))))
         {
             services.AddTransient(type);
         }
-        foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsAssignableTo(typeof(CommandSettings))))
+        foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(t => !t.IsAbstract && t.IsAssignableTo(typeof(CommandSettings))))
         {
             services.AddTransient(type);
         }
@@ -107,8 +107,6 @@ public static class AoC
     }
 
 }
-
-
 
 sealed class TypeRegistrar : ITypeRegistrar
 {

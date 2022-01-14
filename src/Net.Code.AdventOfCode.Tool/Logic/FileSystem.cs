@@ -3,8 +3,6 @@ using Microsoft.Extensions.Logging;
 
 using Net.Code.AdventOfCode.Tool.Core;
 
-using System.Text.RegularExpressions;
-
 namespace Net.Code.AdventOfCode.Tool.Logic;
 
 
