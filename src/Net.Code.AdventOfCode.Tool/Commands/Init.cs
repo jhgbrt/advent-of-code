@@ -11,10 +11,12 @@ using System.ComponentModel;
 class Init : SinglePuzzleCommand<Init.Settings>
 {
     private readonly ICodeManager manager;
+    private readonly IInputOutputService output;
 
-    public Init(ICodeManager manager)
+    public Init(ICodeManager manager, IInputOutputService output)
     {
         this.manager = manager;
+        this.output = output;
     }
     public class Settings : AoCSettings
     {
@@ -25,8 +27,8 @@ class Init : SinglePuzzleCommand<Init.Settings>
     public override async Task ExecuteAsync(int year, int day, Settings options)
     {
         var force = options.force ?? false;
-        AnsiConsole.WriteLine("Puzzle is unlocked");
-        await manager.InitializeCodeAsync(year, day, force, AnsiConsole.WriteLine);
+        output.WriteLine("Puzzle is unlocked");
+        await manager.InitializeCodeAsync(year, day, force, output.WriteLine);
     }
 
 

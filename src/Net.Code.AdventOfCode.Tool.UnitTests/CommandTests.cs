@@ -1,14 +1,14 @@
 ﻿using Net.Code.AdventOfCode.Tool.Commands;
 using Net.Code.AdventOfCode.Tool.Core;
 
+using NodaTime;
+
 using NSubstitute;
 
 using Spectre.Console.Cli;
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 
 using Xunit;
@@ -17,12 +17,18 @@ namespace Net.Code.AdventOfCode.Tool.UnitTests;
 
 public class CommandTests
 {
+    public CommandTests()
+    {
+        Clock = TestClock.Create(2021, 12, 26, 0, 0, 0);
+        AoCLogic = new AoCLogic(Clock);
+    }
+    IClock Clock;
+    AoCLogic AoCLogic;
     [Fact]
     public async Task Init()
     {
-        TestClock.SetClock(2021, 12, 26, 0, 0, 0);
         var manager = CreateCodeManager();
-        var sut = new Init(manager);
+        var sut = new Init(manager, Substitute.For<IInputOutputService>());
         await sut.ExecuteAsync(2021, 1, new());
         await manager.Received(1).InitializeCodeAsync(2021, 1, false, Arg.Any<Action<string>>());
     }
@@ -30,9 +36,8 @@ public class CommandTests
     [Fact]
     public async Task Leaderboard_WithId()
     {
-        TestClock.SetClock(2021, 12, 26, 0, 0, 0);
         var manager = CreateReportManager();
-        var run = new Leaderboard(manager);
+        var run = new Leaderboard(manager, Substitute.For<IInputOutputService>());
         await run.ExecuteAsync(new CommandContext(Substitute.For<IRemainingArguments>(), "leaderboard", default), new Leaderboard.Settings { year = 2021, id = 123 });
         await manager.Received(1).GetLeaderboardAsync(2021, 123);
 
@@ -41,9 +46,8 @@ public class CommandTests
     [Fact]
     public async Task Leaderboard_NoId()
     {
-        TestClock.SetClock(2021, 12, 26, 0, 0, 0);
         var manager = CreateReportManager();
-        var run = new Leaderboard(manager);
+        var run = new Leaderboard(manager, Substitute.For<IInputOutputService>());
         await run.ExecuteAsync(new CommandContext(Substitute.For<IRemainingArguments>(), "leaderboard", default), new Leaderboard.Settings { year = 2021 });
         await manager.Received(1).GetLeaderboardAsync(2021, 123);
     }
@@ -51,18 +55,16 @@ public class CommandTests
     [Fact]
     public async Task Run()
     {
-        TestClock.SetClock(2021, 12, 26, 0, 0, 0);
         var manager = Substitute.For<IAoCRunner>();
-        var run = new Run(manager);
+        var run = new Run(manager, AoCLogic, Substitute.For<IInputOutputService>());
         await run.ExecuteAsync(2021, 1, new());
         await manager.Received(1).Run(null, 2021, 1, Arg.Any<Action<int, Result>>());
     }
     [Fact]
     public async Task Verify()
     {
-        TestClock.SetClock(2021, 12, 26, 0, 0, 0);
         IPuzzleManager manager = CreatePuzzleManager();
-        var run = new Verify(manager);
+        var run = new Verify(manager, AoCLogic, Substitute.For<IInputOutputService>());
         await run.ExecuteAsync(2021, 1, new());
         await manager.Received(1).GetPuzzleResult(2021, 1, Arg.Any<Action<int, Result>>());
     }
@@ -70,9 +72,8 @@ public class CommandTests
     [Fact]
     public async Task Sync()
     {
-        TestClock.SetClock(2021, 12, 26, 0, 0, 0);
         var manager = CreatePuzzleManager();
-        var sut = new Sync(manager);
+        var sut = new Sync(manager, AoCLogic, Substitute.For<IInputOutputService>());
         await sut.ExecuteAsync(2021, 1, new());
         await manager.Received(1).Sync(2021, 1);
     }
@@ -80,9 +81,8 @@ public class CommandTests
     [Fact]
     public async Task Export_NoOutput()
     {
-        TestClock.SetClock(2021, 12, 26, 0, 0, 0);
         var manager = CreateCodeManager();
-        var sut = new Export(manager);
+        var sut = new Export(manager, Substitute.For<IInputOutputService>());
         await sut.ExecuteAsync(2021, 1, new());
         await manager.Received(1).GenerateCodeAsync(2021, 1);
         await manager.DidNotReceive().ExportCode(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<string>(), Arg.Any<string>());
@@ -91,9 +91,8 @@ public class CommandTests
     [Fact]
     public async Task Export_Output()
     {
-        TestClock.SetClock(2021, 12, 26, 0, 0, 0);
         var manager = CreateCodeManager();
-        var sut = new Export(manager);
+        var sut = new Export(manager, Substitute.For<IInputOutputService>());
         await sut.ExecuteAsync(2021, 1, new Export.Settings { output = "output.txt" });
         await manager.Received(1).GenerateCodeAsync(2021, 1);
         await manager.Received(1).ExportCode(2021, 1, "public class AoC202101 {}", "output.txt");
@@ -102,10 +101,9 @@ public class CommandTests
     [Fact]
     public async Task Post_WhenPuzzleIsValid()
     {
-        TestClock.SetClock(2021, 12, 26, 0, 0, 0);
         var manager = CreatePuzzleManager();
         manager.PreparePost(Arg.Any<int>(), Arg.Any<int>()).Returns((true, "reason", 1));
-        var sut = new Post(manager);
+        var sut = new Post(manager, Substitute.For<IInputOutputService>());
         await sut.ExecuteAsync(2021, 5, new Post.Settings { value = "SOLUTION" });
         await manager.Received().Post(2021, 5, 1, "SOLUTION");
     }
@@ -113,10 +111,9 @@ public class CommandTests
     [Fact]
     public async Task Post_WhenPuzzleIsInvalid()
     {
-        TestClock.SetClock(2021, 12, 26, 0, 0, 0);
         var manager = CreatePuzzleManager();
         manager.PreparePost(Arg.Any<int>(), Arg.Any<int>()).Returns((false, "reason", 0));
-        var sut = new Post(manager);
+        var sut = new Post(manager, Substitute.For<IInputOutputService>());
         await sut.ExecuteAsync(2021, 5, new Post.Settings { value = "SOLUTION" });
         await manager.DidNotReceive().Post(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<int>(), Arg.Any<string>());
     }
@@ -124,9 +121,8 @@ public class CommandTests
     [Fact]
     public async Task Report()
     {
-        TestClock.SetClock(2021, 12, 26, 0, 0, 0);
         var manager = CreateReportManager();
-        var run = new Report(manager);
+        var run = new Report(manager, Substitute.For<IInputOutputService>());
         await run.ExecuteAsync(new CommandContext(Substitute.For<IRemainingArguments>(), "report", default), new() );
         manager.Received().GetPuzzleReport(default, default);
     }
@@ -134,21 +130,20 @@ public class CommandTests
     [Fact]
     public async Task Stats()
     {
-        TestClock.SetClock(2021, 12, 26, 0, 0, 0);
         var manager = CreateReportManager();
-        var run = new Stats(manager);
+        var run = new Stats(manager, Substitute.For<IInputOutputService>());
         await run.ExecuteAsync(new CommandContext(Substitute.For<IRemainingArguments>(), "stats", default), default!);
         manager.Received().GetMemberStats();
     }
 
-    private static IReportManager CreateReportManager()
+    private IReportManager CreateReportManager()
     {
         var manager = Substitute.For<IReportManager>();
         manager.GetLeaderboardIds(Arg.Any<bool>()).Returns(new[] { (123, "") });
         return manager;
     }
 
-    private static ICodeManager CreateCodeManager()
+    private ICodeManager CreateCodeManager()
     {
         var manager = Substitute.For<ICodeManager>();
         foreach (var y in AoCLogic.Years())
@@ -159,7 +154,7 @@ public class CommandTests
         return manager;
     }
 
-    private static IPuzzleManager CreatePuzzleManager()
+    private IPuzzleManager CreatePuzzleManager()
     {
         var manager = Substitute.For<IPuzzleManager>();
         foreach (var y in AoCLogic.Years())

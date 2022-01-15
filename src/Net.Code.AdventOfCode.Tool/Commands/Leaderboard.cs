@@ -11,10 +11,12 @@ namespace Net.Code.AdventOfCode.Tool.Commands;
 class Leaderboard : AsyncCommand<Leaderboard.Settings>
 {
     private readonly IReportManager manager;
+    private readonly IInputOutputService io;
 
-    public Leaderboard(IReportManager manager)
+    public Leaderboard(IReportManager manager, IInputOutputService io)
     {
         this.manager = manager;
+        this.io = io;
     }
     public class Settings : CommandSettings
     {
@@ -39,7 +41,7 @@ class Leaderboard : AsyncCommand<Leaderboard.Settings>
 
         var id = ids.Count() switch
         {
-            > 1 => AnsiConsole.Prompt(new SelectionPrompt<(int id, string description)>().Title("Which leaderboard?").AddChoices(ids.Select(x => (x.id, x.description.EscapeMarkup())))).id,
+            > 1 => io.Prompt(new SelectionPrompt<(int id, string description)>().Title("Which leaderboard?").AddChoices(ids.Select(x => (x.id, x.description.EscapeMarkup())))).id,
             1 => ids.Single().id,
             _ => throw new Exception("no leaderboards found")
         };
@@ -47,7 +49,7 @@ class Leaderboard : AsyncCommand<Leaderboard.Settings>
         IEnumerable<LeaderboardEntry> entries = await manager.GetLeaderboardAsync(year, id);
 
         var table = entries.ToTable();
-        AnsiConsole.Write(table);
+        io.Write(table);
 
         return 0;
     }

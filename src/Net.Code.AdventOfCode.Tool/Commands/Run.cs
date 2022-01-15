@@ -12,10 +12,12 @@ namespace Net.Code.AdventOfCode.Tool.Commands;
 class Run : ManyPuzzlesCommand<Run.Settings>
 {
     private readonly IAoCRunner manager;
+    private readonly IInputOutputService io;
 
-    public Run(IAoCRunner manager)
+    public Run(IAoCRunner manager, AoCLogic aocLogic, IInputOutputService io) : base(aocLogic)
     {
         this.manager = manager;
+        this.io = io;
     }
 
     public class Settings : AoCSettings
@@ -30,8 +32,8 @@ class Run : ManyPuzzlesCommand<Run.Settings>
     public override async Task ExecuteAsync(int year, int day, Settings options)
     {
         var typeName = options.typeName;
-        AnsiConsole.WriteLine($"{year}, day {day}");
-        DayResult result = await manager.Run(typeName, year, day, (part, result) => AnsiConsole.MarkupLine($"part {part}: {result.Value} ({result.Elapsed})"));
+        io.WriteLine($"{year}, day {day}");
+        DayResult result = await manager.Run(typeName, year, day, (part, result) => io.MarkupLine($"part {part}: {result.Value} ({result.Elapsed})"));
     }
 }
 

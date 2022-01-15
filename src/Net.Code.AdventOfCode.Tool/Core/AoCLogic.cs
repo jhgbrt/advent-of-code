@@ -1,16 +1,23 @@
 ﻿namespace Net.Code.AdventOfCode.Tool.Core;
 using NodaTime;
-static class AoCLogic
-{
 
-    public static IClock Clock = SystemClock.Instance;
-    static ZonedDateTime Now => Clock.GetCurrentInstant().InZone(DateTimeZoneProviders.Tzdb["EST"]);
-    static bool InAdvent => Now.Month == 12 && Now.Day <= 25;
-    public static int? Year => Now.Month == 12 ? Now.Year : null;
-    public static int? Day => Now.Month == 12 && Now.Day >= 1 && Now.Day <= 25 ? Now.Day : null;
-    internal static IEnumerable<(int year, int day)> Puzzles()
+
+
+class AoCLogic
+{
+    public AoCLogic(IClock clock)
+    {
+        Clock = clock;
+    }
+    public AoCLogic() : this(SystemClock.Instance) { }
+    public IClock Clock { get; }
+    ZonedDateTime Now => Clock.GetCurrentInstant().InZone(DateTimeZoneProviders.Tzdb["EST"]);
+    bool InAdvent => Now.Month == 12 && Now.Day <= 25;
+    public int? Year => Now.Month == 12 ? Now.Year : null;
+    public int? Day => Now.Month == 12 && Now.Day >= 1 && Now.Day <= 25 ? Now.Day : null;
+    public IEnumerable<(int year, int day)> Puzzles()
         => from year in Years() from day in Days(year) select (year, day);
-    internal static IEnumerable<(int year, int day)> Puzzles(int? year, int? day)
+    public IEnumerable<(int year, int day)> Puzzles(int? year, int? day)
     {
 
         (year, day) = (year, day) switch
@@ -32,7 +39,7 @@ static class AoCLogic
                select (y, d);
     }
 
-    internal static bool IsValidAndUnlocked(int year, int day)
+    public bool IsValidAndUnlocked(int year, int day)
     {
         var now = Now;
 
@@ -50,20 +57,20 @@ static class AoCLogic
         return day >= 1 && day <= now.Day && day <= 25;
     }
 
-    internal static IEnumerable<int> Years()
+    public IEnumerable<int> Years()
     {
         for (int year = 2015; year <= Now.Year; year++)
             yield return year;
     }
-    internal static IEnumerable<int> Days(int year)
+    public IEnumerable<int> Days(int year)
     {
         var now = Now;
-        for (int day = 1; (year < now.Year && day <= 25) || 
-                          (now.Month == 12 && day <= Math.Min(25,now.Day)); day++)
+        for (int day = 1; (year < now.Year && day <= 25) ||
+                          (now.Month == 12 && day <= Math.Min(25, now.Day)); day++)
             yield return day;
     }
 
-    internal static bool IsToday(int y, int d)
+    public bool IsToday(int y, int d)
     {
         if (y != Now.Year) return false;
         if (d != Now.Day) return false;

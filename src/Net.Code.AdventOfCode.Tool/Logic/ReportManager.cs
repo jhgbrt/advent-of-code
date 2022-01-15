@@ -12,11 +12,12 @@ class ReportManager : IReportManager
 {
     private readonly IAoCClient client;
     private readonly IPuzzleManager manager;
-
-    public ReportManager(IAoCClient client, IPuzzleManager manager)
+    private readonly AoCLogic AoCLogic;
+    public ReportManager(IAoCClient client, IPuzzleManager manager, AoCLogic aocLogic)
     {
         this.client = client;
         this.manager = manager;
+        this.AoCLogic = aocLogic;
     }
 
     public Task<IEnumerable<(int id, string description)>> GetLeaderboardIds(bool usecache)

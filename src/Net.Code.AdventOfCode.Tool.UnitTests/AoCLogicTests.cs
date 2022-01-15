@@ -1,17 +1,19 @@
 ﻿
 using Net.Code.AdventOfCode.Tool.Core;
 
-using static Net.Code.AdventOfCode.Tool.UnitTests.TestClock;
-
 using System;
 using System.Linq;
 
 using Xunit;
+using NodaTime;
+using NSubstitute;
 
 namespace Net.Code.AdventOfCode.Tool.UnitTests
 {
     public class AoCLogicTests
     {
+        AoCLogic AoCLogic = new AoCLogic();
+
         [Theory]
         [InlineData(2014, 1, 1, 0, 0, 0, 2014, 1)]
         [InlineData(2014, 12, 26, 0, 0, 0, 2014, 3)]
@@ -126,6 +128,14 @@ namespace Net.Code.AdventOfCode.Tool.UnitTests
         {
             SetClock(2017, 12, 5, 0, 0, 0);
             Assert.False(AoCLogic.IsToday(2017, 3));
+        }
+        void SetClock(int year, int month, int day, int hour, int min, int sec)
+        {
+            var localdate = new LocalDateTime(year, month, day, hour, min, sec);
+            var instant = localdate.InZoneLeniently(DateTimeZoneProviders.Tzdb["EST"]).ToInstant();
+            var clock = Substitute.For<IClock>();
+            clock.GetCurrentInstant().Returns(instant);
+            AoCLogic = new AoCLogic(clock);
         }
     }
 }

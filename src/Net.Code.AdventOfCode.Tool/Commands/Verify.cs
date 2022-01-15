@@ -11,17 +11,19 @@ namespace Net.Code.AdventOfCode.Tool.Commands;
 class Verify : ManyPuzzlesCommand<AoCSettings>
 {
     private readonly IPuzzleManager manager;
+    private readonly IInputOutputService io;
 
-    public Verify(IPuzzleManager manager)
+    public Verify(IPuzzleManager manager, AoCLogic aocLogic, IInputOutputService io) : base(aocLogic)
     {
         this.manager = manager;
+        this.io = io;
     }
 
     public override async Task ExecuteAsync(int year, int day, AoCSettings options)
     {
-        var resultStatus = await manager.GetPuzzleResult(year, day, (part, result) => AnsiConsole.MarkupLine($"{year}-{day:00} part {part}: {result.Value} ({result.Elapsed})"));
+        var resultStatus = await manager.GetPuzzleResult(year, day, (part, result) => io.MarkupLine($"{year}-{day:00} part {part}: {result.Value} ({result.Elapsed})"));
         var reportLine = resultStatus.ToReportLine();
-        AnsiConsole.MarkupLine(reportLine.ToString());
+        io.MarkupLine(reportLine.ToString());
     }
 
 }

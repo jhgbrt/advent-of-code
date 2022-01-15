@@ -13,10 +13,12 @@ using System.ComponentModel.DataAnnotations;
 class Post : SinglePuzzleCommand<Post.Settings>
 {
     private readonly IPuzzleManager manager;
+    private readonly IInputOutputService io;
 
-    public Post(IPuzzleManager manager)
+    public Post(IPuzzleManager manager, IInputOutputService io)
     {
         this.manager = manager;
+        this.io = io;
     }
     public class Settings : CommandSettings, IAoCSettings
     {
@@ -37,13 +39,13 @@ class Post : SinglePuzzleCommand<Post.Settings>
         (var status, var reason, var part) = await manager.PreparePost(year, day);
         if (!status)
         {
-            AnsiConsole.WriteLine(reason);
+            io.WriteLine(reason);
             return;
         }
         var result = await manager.Post(year, day, part, options.value ?? string.Empty);
 
         var color = result.success ? Color.Green : Color.Red;
-        AnsiConsole.MarkupLine($"[{color}]{result.content.EscapeMarkup()}[/]");
+        io.MarkupLine($"[{color}]{result.content.EscapeMarkup()}[/]");
     }
 }
 

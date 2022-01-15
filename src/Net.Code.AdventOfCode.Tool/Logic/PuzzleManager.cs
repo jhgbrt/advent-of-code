@@ -43,7 +43,7 @@ class PuzzleManager : IPuzzleManager
 
         var result = cache.Exists(y, d, "result.json")
             ? JsonSerializer.Deserialize<DayResult>(await cache.ReadFromCache(y, d, "result.json"))!
-            : DayResult.Empty;
+            : DayResult.NotImplemented(y, d);
         return new PuzzleResultStatus(puzzle, result, false);
     }
 

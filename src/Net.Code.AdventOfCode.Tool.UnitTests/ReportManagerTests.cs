@@ -10,8 +10,6 @@ using System.Threading.Tasks;
 
 using Xunit;
 
-using static Net.Code.AdventOfCode.Tool.UnitTests.TestClock;
-
 namespace Net.Code.AdventOfCode.Tool.UnitTests;
 
 public class ReportManagerTests 
@@ -19,7 +17,6 @@ public class ReportManagerTests
     [Fact]
     public async Task GetPuzzleReportTest()
     {
-        SetClock(2017,1,1,0,0,0);
         var client = Substitute.For<IAoCClient>();
         var manager = Substitute.For<IPuzzleManager>();
 
@@ -31,7 +28,7 @@ public class ReportManagerTests
                 )
             );
 
-        var rm = new ReportManager(client, manager);
+        var rm = new ReportManager(client, manager, new AoCLogic(TestClock.Create(2017,1,1,0,0,0)));
 
         var report = await rm.GetPuzzleReport(null, null).ToListAsync();
 
@@ -41,19 +38,19 @@ public class ReportManagerTests
     [Fact]
     public async Task GetMemberStatsTest()
     {
-        SetClock(2017, 1, 1, 0, 0, 0);
+        var clock = TestClock.Create(2017, 1, 1, 0, 0, 0);
         var client = Substitute.For<IAoCClient>();
         var manager = Substitute.For<IPuzzleManager>();
 
 #pragma warning disable CS8619
         Task<Member?> task = Task.FromResult(
-            new Member(1, "", 0, 0, 0, AoCLogic.Clock.GetCurrentInstant(), new Dictionary<int, DailyStars>())
+            new Member(1, "", 0, 0, 0, clock.GetCurrentInstant(), new Dictionary<int, DailyStars>())
             );
  
         client.GetMemberAsync(Arg.Any<int>(), true)
             .Returns(task);
 
-        var rm = new ReportManager(client, manager);
+        var rm = new ReportManager(client, manager, new AoCLogic(clock));
 
         var report = await rm.GetMemberStats().ToListAsync();
 

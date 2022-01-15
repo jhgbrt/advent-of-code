@@ -93,7 +93,8 @@ interface IHttpClientWrapper : IDisposable
     Task<(HttpStatusCode status, string content)> GetAsync(string path);
 }
 
-interface IAssemblyResolver
+public interface IAssemblyResolver
 {
     Assembly? GetEntryAssembly();
 }
+

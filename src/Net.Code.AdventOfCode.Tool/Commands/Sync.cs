@@ -12,15 +12,17 @@ namespace Net.Code.AdventOfCode.Tool.Commands;
 class Sync : ManyPuzzlesCommand<AoCSettings>
 {
     private readonly IPuzzleManager manager;
+    private readonly IInputOutputService io;
 
-    public Sync(IPuzzleManager manager)
+    public Sync(IPuzzleManager manager, AoCLogic aocLogic, IInputOutputService io) : base(aocLogic)
     {
         this.manager = manager;
+        this.io = io;
     }
 
     public override async Task ExecuteAsync(int year, int day, AoCSettings _)
     {
-        AnsiConsole.WriteLine($"Synchronizing for puzzle {year}-{day:00}...");
+        io.WriteLine($"Synchronizing for puzzle {year}-{day:00}...");
         await manager.Sync(year, day);
     }
 

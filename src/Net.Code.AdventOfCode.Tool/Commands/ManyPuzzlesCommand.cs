@@ -7,6 +7,13 @@ namespace Net.Code.AdventOfCode.Tool.Commands;
 
 abstract class ManyPuzzlesCommand<TSettings> : AsyncCommand<TSettings> where TSettings : CommandSettings, IAoCSettings
 {
+    private readonly AoCLogic AoCLogic;
+
+    protected ManyPuzzlesCommand(AoCLogic aoCLogic)
+    {
+        AoCLogic = aoCLogic;
+    }
+
     public override async Task<int> ExecuteAsync(CommandContext context, TSettings options)
     {
         (var year, var day) = (options.year, options.day);

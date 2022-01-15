@@ -9,21 +9,23 @@ using System.ComponentModel;
 namespace Net.Code.AdventOfCode.Tool.Commands;
 
 [Description("Show some stats from the configured private leaderboard. Set AOC_LEADERBOARD_ID as a environment variable.")]
-class Stats : AsyncCommand<CommandSettings>
+class Stats : AsyncCommand<AoCSettings>
 {
     private readonly IReportManager manager;
+    private readonly IInputOutputService io;
 
-    public Stats(IReportManager manager)
+    public Stats(IReportManager manager, IInputOutputService io)
     {
         this.manager = manager;
+        this.io = io;
     }
 
-    public override async Task<int> ExecuteAsync(CommandContext context, CommandSettings _)
+    public override async Task<int> ExecuteAsync(CommandContext context, AoCSettings _)
     {
 
         await foreach (var (year, m) in manager.GetMemberStats())
         {
-            AnsiConsole.WriteLine($"{year}: {m.stars}, {m.score}");
+            io.WriteLine($"{year}: {m.stars}, {m.score}");
         }
 
         return 0;

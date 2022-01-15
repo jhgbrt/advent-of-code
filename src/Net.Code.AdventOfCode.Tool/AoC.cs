@@ -12,6 +12,9 @@ using Net.Code.AdventOfCode.Tool.Commands;
 using Net.Code.AdventOfCode.Tool.Core;
 using Net.Code.AdventOfCode.Tool.Logic;
 
+using NodaTime;
+
+using Spectre.Console;
 using Spectre.Console.Cli;
 
 using System.ComponentModel;
@@ -19,11 +22,17 @@ using System.Reflection;
 
 public static class AoC
 {
-    public static async Task RunAsync(string[] args)
+    public static Task<int> RunAsync(string[] args) 
+        => RunAsync(AssemblyResolver.Instance, new InputOutputService(), args);
+    public static async Task<int> RunAsync(
+        IAssemblyResolver resolver,
+        IInputOutputService outputService,
+        string[] args
+        )
     {
         var config = new ConfigurationBuilder()
             .AddEnvironmentVariables()
-            .AddUserSecrets(Assembly.GetEntryAssembly())
+            .AddUserSecrets(resolver.GetEntryAssembly())
             .Build();
 
         string? loglevel = null;
@@ -41,7 +50,34 @@ public static class AoC
             }
         }
 
-        var registrar = RegisterServices(string.IsNullOrEmpty(loglevel) ? LogLevel.Warning : Enum.Parse<LogLevel>(loglevel, true));
+        var cookieValue = config["AOC_SESSION"] ?? throw new Exception("This operation requires AOC_SESSION to be set as an environment variable or user secret.");
+        var baseAddress = "https://adventofcode.com";
+        var configuration = new Configuration(baseAddress, cookieValue);
+        var services = new ServiceCollection();
+        services.AddLogging(builder => builder.AddInlineSpectreConsole(c => c.LogLevel = LogLevel.Trace).SetMinimumLevel(string.IsNullOrEmpty(loglevel) ? LogLevel.Warning : Enum.Parse<LogLevel>(loglevel, true)));
+        services.AddSingleton(configuration);
+        services.AddTransient<IAoCClient, AoCClient>();
+        services.AddTransient<IPuzzleManager, PuzzleManager>();
+        services.AddTransient<IAoCRunner, AoCRunner>();
+        services.AddTransient<ICodeManager, CodeManager>();
+        services.AddTransient<IReportManager, ReportManager>();
+        services.AddTransient<ICache, Cache>();
+        services.AddTransient<IFileSystem, FileSystem>();
+        services.AddTransient<IAssemblyResolver, AssemblyResolver>();
+        services.AddTransient<IHttpClientWrapper, HttpClientWrapper>();
+        services.AddTransient<AoCLogic>();
+        services.AddSingleton(SystemClock.Instance);
+        services.AddSingleton(outputService);
+        foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(t => !t.IsAbstract && t.IsAssignableTo(typeof(ICommand))))
+        {
+            services.AddTransient(type);
+        }
+        foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(t => !t.IsAbstract && t.IsAssignableTo(typeof(CommandSettings))))
+        {
+            services.AddTransient(type);
+        }
+
+        var registrar = new TypeRegistrar(services);
 
         var app = new CommandApp(registrar);
 
@@ -61,7 +97,7 @@ public static class AoC
                 config.PropagateExceptions();
         });
 
-        await app.RunAsync(args);
+        return await app.RunAsync(args);
     }
 
     static ICommandConfigurator AddCommand<T>(IConfigurator config) where T : class, ICommand
@@ -70,41 +106,6 @@ public static class AoC
     static string? GetDescription(ICustomAttributeProvider provider)
         => provider.GetCustomAttributes(typeof(DescriptionAttribute), false).OfType<DescriptionAttribute>().SingleOrDefault()?.Description;
 
-    static ITypeRegistrar RegisterServices(LogLevel loglevel)
-    {
-        var config = new ConfigurationBuilder()
-            .AddEnvironmentVariables()
-            .AddUserSecrets(Assembly.GetEntryAssembly())
-            .Build();
-
-
-        var cookieValue = config["AOC_SESSION"] ?? throw new Exception("This operation requires AOC_SESSION to be set as an environment variable or user secret.");
-        var baseAddress = "https://adventofcode.com";
-        var configuration = new Configuration(baseAddress, cookieValue);
-
-        var services = new ServiceCollection();
-        services.AddLogging(builder => builder.AddInlineSpectreConsole(c => c.LogLevel = LogLevel.Trace).SetMinimumLevel(loglevel));
-        services.AddSingleton(configuration);
-        services.AddTransient<IAoCClient, AoCClient>();
-        services.AddTransient<IPuzzleManager, PuzzleManager>();
-        services.AddTransient<IAoCRunner, AoCRunner>();
-        services.AddTransient<ICodeManager, CodeManager>();
-        services.AddTransient<IReportManager, ReportManager>();
-        services.AddTransient<ICache, Cache>();
-        services.AddTransient<IFileSystem, FileSystem>();
-        services.AddTransient<IAssemblyResolver, AssemblyResolver>();
-        services.AddTransient<IHttpClientWrapper, HttpClientWrapper>();
-        foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(t => !t.IsAbstract && t.IsAssignableTo(typeof(ICommand))))
-        {
-            services.AddTransient(type);
-        }
-        foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(t => !t.IsAbstract && t.IsAssignableTo(typeof(CommandSettings))))
-        {
-            services.AddTransient(type);
-        }
-
-        return new TypeRegistrar(services);
-    }
 
 }
 

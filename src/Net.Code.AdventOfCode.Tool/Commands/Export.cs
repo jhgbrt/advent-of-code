@@ -9,13 +9,15 @@ using System.ComponentModel;
 namespace Net.Code.AdventOfCode.Tool.Commands;
 
 [Description("Export the code for a puzzle to a stand-alone C# project")]
-class Export : SinglePuzzleCommand<Export.Settings>
+partial class Export : SinglePuzzleCommand<Export.Settings>
 {
     private readonly ICodeManager manager;
+    private readonly IInputOutputService output;
 
-    public Export(ICodeManager manager)
+    public Export(ICodeManager manager, IInputOutputService output)
     {
         this.manager = manager;
+        this.output = output;
     }
 
     public class Settings : AoCSettings
@@ -31,16 +33,14 @@ class Export : SinglePuzzleCommand<Export.Settings>
 
         if (string.IsNullOrEmpty(output))
         {
-            AnsiConsole.WriteLine(code.EscapeMarkup());
+            this.output.WriteLine(code.EscapeMarkup());
         }
         else
         {
-            AnsiConsole.WriteLine($"Exporting puzzle: {year}/{day} to {output}");
+            this.output.WriteLine($"Exporting puzzle: {year}/{day} to {output}");
             await manager.ExportCode(year, day, code, output);
         }
     }
-
-
 }
 
 

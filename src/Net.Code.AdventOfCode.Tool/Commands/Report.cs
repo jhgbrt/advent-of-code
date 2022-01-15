@@ -11,9 +11,12 @@ using System.ComponentModel;
 class Report : AsyncCommand<Report.Settings>
 {
     private readonly IReportManager manager;
-    public Report(IReportManager manager)
+    private readonly IInputOutputService io;
+
+    public Report(IReportManager manager, IInputOutputService io)
     {
         this.manager = manager;
+        this.io = io;
     }
     public class Settings : CommandSettings
     {
@@ -28,7 +31,7 @@ class Report : AsyncCommand<Report.Settings>
     public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
     {
         var report = await manager.GetPuzzleReport(options.status, options.slowerthan).ToListAsync();
-        AnsiConsole.Write(report.ToTable());
+        io.Write(report.ToTable());
         return 0;
     }
 
