@@ -2,7 +2,6 @@
 
 using Net.Code.AdventOfCode.Tool.Core;
 
-using Spectre.Console;
 using Spectre.Console.Cli;
 
 using System.ComponentModel;
@@ -13,7 +12,7 @@ class Init : SinglePuzzleCommand<Init.Settings>
     private readonly ICodeManager manager;
     private readonly IInputOutputService output;
 
-    public Init(ICodeManager manager, IInputOutputService output)
+    public Init(ICodeManager manager, AoCLogic logic, IInputOutputService output) : base(logic)
     {
         this.manager = manager;
         this.output = output;
@@ -24,11 +23,12 @@ class Init : SinglePuzzleCommand<Init.Settings>
         [CommandOption("-f|--force")]
         public bool? force { get; set; }
     }
-    public override async Task ExecuteAsync(int year, int day, Settings options)
+    public override async Task<int> ExecuteAsync(int year, int day, Settings options)
     {
         var force = options.force ?? false;
         output.WriteLine("Puzzle is unlocked");
         await manager.InitializeCodeAsync(year, day, force, output.WriteLine);
+        return 0;
     }
 
 

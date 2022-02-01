@@ -1,8 +1,6 @@
 ﻿
 using Net.Code.AdventOfCode.Tool.Core;
 
-using Spectre.Console;
-
 using System.ComponentModel;
 
 namespace Net.Code.AdventOfCode.Tool.Commands;
@@ -19,11 +17,17 @@ class Verify : ManyPuzzlesCommand<AoCSettings>
         this.io = io;
     }
 
-    public override async Task ExecuteAsync(int year, int day, AoCSettings options)
+    public override async Task<int> ExecuteAsync(int year, int day, AoCSettings options)
     {
         var resultStatus = await manager.GetPuzzleResult(year, day, (part, result) => io.MarkupLine($"{year}-{day:00} part {part}: {result.Value} ({result.Elapsed})"));
         var reportLine = resultStatus.ToReportLine();
         io.MarkupLine(reportLine.ToString());
+        if (
+            resultStatus.result.part1.Value != resultStatus.puzzle.Answer.part1
+            || resultStatus.result.part2.Value != resultStatus.puzzle.Answer.part2
+            )
+            return 1;
+        return 0;
     }
 
 }

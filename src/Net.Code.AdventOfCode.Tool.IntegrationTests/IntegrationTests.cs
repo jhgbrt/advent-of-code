@@ -1,6 +1,7 @@
 using Net.Code.AdventOfCode.Tool.Commands;
 using Net.Code.AdventOfCode.Tool.Core;
-using Net.Code.AdventOfCode.Tool.Logic;
+
+using NodaTime;
 
 using NSubstitute;
 
@@ -9,86 +10,284 @@ using Spectre.Console.Rendering;
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Net.Code.AdventOfCode.Tool.UnitTests;
-
-public class IntegrationTests
+namespace Net.Code.AdventOfCode.Tool.IntegrationTests
 {
-    ITestOutputHelper output;
-
-    public IntegrationTests(ITestOutputHelper output)
-    {
-        this.output = output;
-    }
-
     class TestOutputService : IInputOutputService
     {
         ITestOutputHelper output;
 
-        public TestOutputService(ITestOutputHelper output)
+        public TestOutputService(ITestOutputHelper output) => this.output = output;
+
+        public void MarkupLine(string markup) => output.WriteLine(markup);
+
+        public T Prompt<T>(IPrompt<T> prompt) => default!;
+
+        public void Write(IRenderable renderable) => output.WriteLine(renderable.ToString());
+
+        public void WriteLine(string message) => output.WriteLine(message);
+    }
+
+    public class IntegrationTests
+    {
+
+        private IAssemblyResolver resolver;
+        private TestOutputService io;
+        private IClock clock;
+        protected int Year => puzzle.year;
+        protected int Day => puzzle.day;
+        private readonly (int year, int day) puzzle;
+        private readonly DateTime Now;
+
+        public IClock Clock()
         {
-            this.output = output;
+            var localdate = new LocalDateTime(Now.Year, Now.Month, Now.Day, 0, 0, 0);
+            var instant = localdate.InZoneLeniently(DateTimeZoneProviders.Tzdb["EST"]).ToInstant();
+            var clock = Substitute.For<IClock>();
+            clock.GetCurrentInstant().Returns(instant);
+            return clock;
         }
 
-        public void MarkupLine(string markup)
+        public IntegrationTests(ITestOutputHelper output, DateTime now, (int year, int day) puzzle)
         {
-            output.WriteLine(markup);
-        }
+            Now = now;
+            this.puzzle = puzzle;
+            resolver = Substitute.For<IAssemblyResolver>();
+            var assembly = Assembly.GetExecutingAssembly();
+            resolver.GetEntryAssembly().Returns(assembly);
+            io = new TestOutputService(output);
+            output.WriteLine(Environment.CurrentDirectory);
 
-        public T Prompt<T>(IPrompt<T> prompt)
-        {
-            return default!;
+            if (Directory.Exists(".cache"))
+            {
+                Directory.Delete(".cache", true);
+            }
+            if (Directory.Exists("Year2017"))
+            {
+                Directory.Delete("Year2017", true);
+            }
+            clock = Clock();
         }
-
-        public void Write(IRenderable renderable)
+        protected async Task<int> Do(params string[] args)
         {
-            output.WriteLine(renderable.ToString());
+            return await AoC.RunAsync(resolver, io, clock, args.Concat(new[] { "--debug" }).ToArray());
         }
-
-        public void WriteLine(string message)
+        public class DuringAdvent_OnDayOfPuzzle : IntegrationTests
         {
-            output.WriteLine(message);
+            public DuringAdvent_OnDayOfPuzzle(ITestOutputHelper output) : base(output, new(2017, 12, 3), (2017, 3)) { }
+
+            [Fact]
+            public async Task Help()
+            {
+                var result = await Do("--help");
+                Assert.Equal(0, result);
+            }
+
+            [Fact]
+            public async Task InitTwice()
+            {
+                await Do("init");
+                var result = await Do("init", "--force");
+                Assert.Equal(0, result);
+            }
+
+            [Fact]
+            public async Task Sync()
+            {
+                await Do("init");
+                var result = await Do("sync");
+                Assert.Equal(0, result);
+            }
+
+            [Fact]
+            public async Task Run()
+            {
+                await Do("init");
+                var result = await Do("run");
+                Assert.Equal(0, result);
+            }
+
+            [Fact]
+            public async Task Stats()
+            {
+                var result = await Do("stats");
+                Assert.Equal(0, result);
+            }
+
+            [Fact]
+            public async Task Post()
+            {
+                await Do("init");
+                var result = await Do("post", "123");
+                Assert.Equal(1, result); // already completed
+            }
+
+            [Fact]
+            public async Task Verify()
+            {
+                await Do("init");
+                await Do("run");
+                var result = await Do("verify");
+                Assert.Equal(0, result);
+            }
+        }
+        public class DuringAdvent_AfterDayOfPuzzle : IntegrationTests
+        {
+            public DuringAdvent_AfterDayOfPuzzle(ITestOutputHelper output) : base(output, new(2017, 12, 3), (2017, 1)) { }
+
+            [Fact]
+            public async Task Help()
+            {
+                var result = await Do("--help");
+                Assert.Equal(0, result);
+            }
+
+            [Fact]
+            public async Task InitTwice()
+            {
+                await Do("init", $"{Day}");
+                var result = await Do("init", $"{Day}", "--force");
+                Assert.Equal(0, result);
+            }
+
+            [Fact]
+            public async Task Sync()
+            {
+                await Do("init", $"{Day}");
+                var result = await Do("sync", $"{Day}");
+                Assert.Equal(0, result);
+            }
+
+            [Fact]
+            public async Task Run()
+            {
+                await Do("init", $"{Day}");
+                var result = await Do("run", $"{Day}");
+                Assert.Equal(0, result);
+            }
+
+            [Fact]
+            public async Task Stats()
+            {
+                var result = await Do("stats");
+                Assert.Equal(0, result);
+            }
+
+            [Fact]
+            public async Task Post()
+            {
+                await Do("init", $"{Day}");
+                var result = await Do("post", "123", $"{Year}", $"{Day}");
+                Assert.Equal(1, result); // already completed
+            }
+
+            [Fact]
+            public async Task Verify()
+            {
+                await Do("init", $"{Day}");
+                await Do("run", $"{Day}");
+                var result = await Do("verify", $"{Day}");
+                Assert.Equal(0, result);
+            }
+        }
+        public class AfterAdvent : IntegrationTests
+        {
+            public AfterAdvent(ITestOutputHelper output) : base(output, new(2017, 12, 27), (2017, 3)) { }
+
+            [Fact]
+            public async Task Help()
+            {
+                var result = await Do("--help");
+                Assert.Equal(0, result);
+            }
+
+            [Fact]
+            public async Task Init()
+            {
+                var result = await Do("init", $"{Year}", $"{Day}");
+                Assert.Equal(0, result);
+                Assert.True(File.Exists(Path.Combine($"Year{Year}", $"Day{Day:00}", "aoc.cs")));
+                Assert.True(File.Exists(Path.Combine($"Year{Year}", $"Day{Day:00}", "sample.txt")));
+                Assert.True(File.Exists(Path.Combine($"Year{Year}", $"Day{Day:00}", "input.txt")));
+            }
+
+            [Fact]
+            public async Task InitTwice()
+            {
+                await Do("init", $"{Year}", $"{Day}");
+                var result = await Do("init", $"{Year}", $"{Day}", "--force");
+                Assert.True(File.Exists(Path.Combine($"Year{Year}", $"Day{Day:00}", "aoc.cs")));
+                Assert.True(File.Exists(Path.Combine($"Year{Year}", $"Day{Day:00}", "sample.txt")));
+                Assert.True(File.Exists(Path.Combine($"Year{Year}", $"Day{Day:00}", "input.txt")));
+                Assert.Equal(0, result);
+            }
+
+            [Fact]
+            public async Task Sync()
+            {
+                await Do("init", $"{Year}", $"{Day}");
+                var result = await Do("sync", $"{Year}", $"{Day}");
+                Assert.Equal(0, result);
+            }
+
+            [Fact]
+            public async Task Run()
+            {
+                await Do("init", $"{Year}", $"{Day}");
+                var result = await Do("run", $"{Year}", $"{Day}");
+                Assert.Equal(0, result);
+                Assert.True(File.Exists(Path.Combine(".cache", $"{Year}", $"{Day:00}", "result.json")));
+            }
+
+            [Fact]
+            public async Task Stats()
+            {
+                var result = await Do("stats");
+                Assert.Equal(0, result);
+            }
+
+            [Fact]
+            public async Task Post()
+            {
+                await Do("init", $"{Year}", $"{Day}");
+                var result = await Do("post", "123");
+                Assert.Equal(1, result); // already completed
+            }
+
+            [Fact]
+            public async Task Verify()
+            {
+                await Do("init", $"{Year}", $"{Day}");
+                await Do("run", $"{Year}", $"{Day}");
+                var result = await Do("verify", $"{Year}", $"{Day}");
+                Assert.Equal(0, result);
+            }
         }
     }
 
-    [Fact]
-    public async Task Test()
+}
+namespace Year2017
+{
+    namespace Day01
     {
-        var resolver = Substitute.For<IAssemblyResolver>();
-        var assembly = Assembly.GetExecutingAssembly();
-        resolver.GetEntryAssembly().Returns(assembly);
-        var io = new TestOutputService(output);
-        output.WriteLine(Environment.CurrentDirectory);
-
-        if (Directory.Exists(".cache"))
+        public class AoC201701
         {
-            Directory.Delete(".cache", true);
+            public object Part1() => 1034;
+            public object Part2() => 1356;
         }
-        if (Directory.Exists("Year2017"))
+    }
+    namespace Day03
+    {
+        public class AoC201703
         {
-            Directory.Delete("Year2017", true);
+            public object Part1() => 438;
+            public object Part2() => 266330;
         }
-
-        var result = await AoC.RunAsync(resolver, io, new[] { "--help" });
-        Assert.Equal(0, result);
-        result = await AoC.RunAsync(resolver, io, new[] { "init", "2017", "2" });
-        Assert.Equal(0, result);
-        result = await AoC.RunAsync(resolver, io, new[] { "init", "2017", "1", "--force"});
-        Assert.Equal(0, result);
-        result = await AoC.RunAsync(resolver, io, new[] { "sync", "2017", "1" });
-        Assert.Equal(0, result);
-        result = await AoC.RunAsync(resolver, io, new[] { "run", "2017", "1" });
-        Assert.Equal(0, result);
-        result = await AoC.RunAsync(resolver, io, new[] { "stats" });
-        Assert.Equal(0, result);
-        await AoC.RunAsync(resolver, io, new[] { "post", "123" });
-        Assert.Equal(0, result);
-        await AoC.RunAsync(resolver, io, new[] { "verify", "2017", "1" });
     }
 }
-

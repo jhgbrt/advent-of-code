@@ -1,7 +1,6 @@
 ﻿
 using Net.Code.AdventOfCode.Tool.Core;
 
-using Spectre.Console;
 using Spectre.Console.Cli;
 
 using System.ComponentModel;
@@ -29,11 +28,12 @@ class Run : ManyPuzzlesCommand<Run.Settings>
         public string? typeName { get; set; }
     }
 
-    public override async Task ExecuteAsync(int year, int day, Settings options)
+    public override async Task<int> ExecuteAsync(int year, int day, Settings options)
     {
         var typeName = options.typeName;
         io.WriteLine($"{year}, day {day}");
         DayResult result = await manager.Run(typeName, year, day, (part, result) => io.MarkupLine($"part {part}: {result.Value} ({result.Elapsed})"));
+        return 0;
     }
 }
 

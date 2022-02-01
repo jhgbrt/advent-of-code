@@ -1,8 +1,6 @@
 ﻿
 using Net.Code.AdventOfCode.Tool.Core;
 
-using Spectre.Console;
-
 using System.ComponentModel;
 
 namespace Net.Code.AdventOfCode.Tool.Commands;
@@ -20,10 +18,11 @@ class Sync : ManyPuzzlesCommand<AoCSettings>
         this.io = io;
     }
 
-    public override async Task ExecuteAsync(int year, int day, AoCSettings _)
+    public override async Task<int> ExecuteAsync(int year, int day, AoCSettings _)
     {
         io.WriteLine($"Synchronizing for puzzle {year}-{day:00}...");
         await manager.Sync(year, day);
+        return 0;
     }
 
 }

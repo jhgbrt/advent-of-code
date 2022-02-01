@@ -14,7 +14,7 @@ partial class Export : SinglePuzzleCommand<Export.Settings>
     private readonly ICodeManager manager;
     private readonly IInputOutputService output;
 
-    public Export(ICodeManager manager, IInputOutputService output)
+    public Export(ICodeManager manager, AoCLogic logic, IInputOutputService output) : base(logic)
     {
         this.manager = manager;
         this.output = output;
@@ -26,7 +26,7 @@ partial class Export : SinglePuzzleCommand<Export.Settings>
         [CommandOption("-o|--output")]
         public string? output { get; set; }
     }
-    public override async Task ExecuteAsync(int year, int day, Settings options)
+    public override async Task<int> ExecuteAsync(int year, int day, Settings options)
     {
         var output = options.output;
         string code = await manager.GenerateCodeAsync(year, day);
@@ -40,6 +40,7 @@ partial class Export : SinglePuzzleCommand<Export.Settings>
             this.output.WriteLine($"Exporting puzzle: {year}/{day} to {output}");
             await manager.ExportCode(year, day, code, output);
         }
+        return 0;
     }
 }
 

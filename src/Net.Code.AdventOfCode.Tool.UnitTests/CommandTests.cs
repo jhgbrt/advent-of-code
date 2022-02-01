@@ -28,7 +28,7 @@ public class CommandTests
     public async Task Init()
     {
         var manager = CreateCodeManager();
-        var sut = new Init(manager, Substitute.For<IInputOutputService>());
+        var sut = new Init(manager, AoCLogic, Substitute.For<IInputOutputService>());
         await sut.ExecuteAsync(2021, 1, new());
         await manager.Received(1).InitializeCodeAsync(2021, 1, false, Arg.Any<Action<string>>());
     }
@@ -82,7 +82,7 @@ public class CommandTests
     public async Task Export_NoOutput()
     {
         var manager = CreateCodeManager();
-        var sut = new Export(manager, Substitute.For<IInputOutputService>());
+        var sut = new Export(manager, AoCLogic, Substitute.For<IInputOutputService>());
         await sut.ExecuteAsync(2021, 1, new());
         await manager.Received(1).GenerateCodeAsync(2021, 1);
         await manager.DidNotReceive().ExportCode(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<string>(), Arg.Any<string>());
@@ -92,7 +92,7 @@ public class CommandTests
     public async Task Export_Output()
     {
         var manager = CreateCodeManager();
-        var sut = new Export(manager, Substitute.For<IInputOutputService>());
+        var sut = new Export(manager, AoCLogic, Substitute.For<IInputOutputService>());
         await sut.ExecuteAsync(2021, 1, new Export.Settings { output = "output.txt" });
         await manager.Received(1).GenerateCodeAsync(2021, 1);
         await manager.Received(1).ExportCode(2021, 1, "public class AoC202101 {}", "output.txt");
@@ -103,7 +103,7 @@ public class CommandTests
     {
         var manager = CreatePuzzleManager();
         manager.PreparePost(Arg.Any<int>(), Arg.Any<int>()).Returns((true, "reason", 1));
-        var sut = new Post(manager, Substitute.For<IInputOutputService>());
+        var sut = new Post(manager, AoCLogic, Substitute.For<IInputOutputService>());
         await sut.ExecuteAsync(2021, 5, new Post.Settings { value = "SOLUTION" });
         await manager.Received().Post(2021, 5, 1, "SOLUTION");
     }
@@ -113,7 +113,7 @@ public class CommandTests
     {
         var manager = CreatePuzzleManager();
         manager.PreparePost(Arg.Any<int>(), Arg.Any<int>()).Returns((false, "reason", 0));
-        var sut = new Post(manager, Substitute.For<IInputOutputService>());
+        var sut = new Post(manager, AoCLogic, Substitute.For<IInputOutputService>());
         await sut.ExecuteAsync(2021, 5, new Post.Settings { value = "SOLUTION" });
         await manager.DidNotReceive().Post(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<int>(), Arg.Any<string>());
     }

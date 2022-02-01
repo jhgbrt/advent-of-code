@@ -15,7 +15,7 @@ class Post : SinglePuzzleCommand<Post.Settings>
     private readonly IPuzzleManager manager;
     private readonly IInputOutputService io;
 
-    public Post(IPuzzleManager manager, IInputOutputService io)
+    public Post(IPuzzleManager manager, AoCLogic logic, IInputOutputService io) : base(logic)
     {
         this.manager = manager;
         this.io = io;
@@ -28,24 +28,25 @@ class Post : SinglePuzzleCommand<Post.Settings>
         public string? value { get; set; }
         [Description("Year (default: current year)")]
         [CommandArgument(1, "[YEAR]")]
-        public int? year { get; set; } = DateTime.Now.Year;
+        public int? year { get; set; }
         [Description("Day (default: current day)")]
         [CommandArgument(2, "[DAY]")]
-        public int? day { get; set; } = DateTime.Now.Day;
+        public int? day { get; set; }
 
     }
-    public override async Task ExecuteAsync(int year, int day, Settings options)
+    public override async Task<int> ExecuteAsync(int year, int day, Settings options)
     {
         (var status, var reason, var part) = await manager.PreparePost(year, day);
         if (!status)
         {
             io.WriteLine(reason);
-            return;
+            return 1;
         }
         var result = await manager.Post(year, day, part, options.value ?? string.Empty);
 
         var color = result.success ? Color.Green : Color.Red;
         io.MarkupLine($"[{color}]{result.content.EscapeMarkup()}[/]");
+        return 0;
     }
 }
 

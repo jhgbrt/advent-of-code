@@ -1,4 +1,5 @@
 ﻿using Net.Code.AdventOfCode.Tool.Commands;
+using Net.Code.AdventOfCode.Tool.Core;
 
 using NSubstitute;
 using NSubstitute.Extensions;
@@ -14,33 +15,93 @@ namespace Net.Code.AdventOfCode.Tool.UnitTests;
 
 public class SinglePuzzlesCommandTest
 {
-    [Fact]
-    public async Task NoYearNoDay_Throws()
+    private static SinglePuzzleCommand<AoCSettings> CreateSystemUnderTest(int year, int month, int day)
     {
-        var sut = Substitute.ForPartsOf<SinglePuzzleCommand<AoCSettings>>();
-        var context = new CommandContext(Substitute.For<IRemainingArguments>(), "name", default);
-        var options = new AoCSettings();
-        await sut.Configure().ExecuteAsync(Arg.Any<int>(), Arg.Any<int>(), options);
-        await Assert.ThrowsAsync<Exception>(() => sut.ExecuteAsync(context, options));
+        var clock = TestClock.Create(year, month, day, 0, 0, 0);
+        var logic = new AoCLogic(clock);
+        var sut = Substitute.ForPartsOf<SinglePuzzleCommand<AoCSettings>>(logic);
+        return sut;
     }
-    [Fact]
-    public async Task YearNoDay_Throws()
+    private async Task DoTest(SinglePuzzleCommand<AoCSettings> sut, AoCSettings options)
     {
-        var sut = Substitute.ForPartsOf<SinglePuzzleCommand<AoCSettings>>();
         var context = new CommandContext(Substitute.For<IRemainingArguments>(), "name", default);
-        var options = new AoCSettings { year = 2016 };
         await sut.Configure().ExecuteAsync(Arg.Any<int>(), Arg.Any<int>(), options);
-        await Assert.ThrowsAsync<Exception>(() => sut.ExecuteAsync(context, options));
+        await sut.ExecuteAsync(context, options);
     }
 
     [Fact]
-    public async Task YearDay_RunsSinglePuzzle()
+    public async Task NoYearNoDay_BeforeAdvent_Throws()
     {
-        var sut = Substitute.ForPartsOf<SinglePuzzleCommand<AoCSettings>>();
-        var context = new CommandContext(Substitute.For<IRemainingArguments>(), "name", default);
+        var sut = CreateSystemUnderTest(2017, 1, 1);
+        var options = new AoCSettings();
+        await Assert.ThrowsAsync<Exception>(() => DoTest(sut, options));
+    }
+
+    [Fact]
+    public async Task NoYearNoDay_AfterAdvent_Throws()
+    {
+        var sut = CreateSystemUnderTest(2017, 12, 26);
+        var options = new AoCSettings();
+        await Assert.ThrowsAsync<Exception>(() => DoTest(sut, options));
+    }
+
+    [Fact]
+    public async Task NoYearNoDay_DuringAdvent_Throws()
+    {
+        var sut = CreateSystemUnderTest(2017, 12, 20);
+        var options = new AoCSettings();
+        await DoTest(sut, options);
+        await sut.Received(1).ExecuteAsync(2017, 20, options);
+    }
+
+    [Fact]
+    public async Task YearNoDay_BeforeAdvent_Throws()
+    {
+        var sut = CreateSystemUnderTest(2017, 1, 1);
+        var options = new AoCSettings { year = 2017 };
+        await Assert.ThrowsAsync<Exception>(() => DoTest(sut, options));
+    }
+
+    [Fact]
+    public async Task YearNoDay_AfterAdvent_Throws()
+    {
+        var sut = CreateSystemUnderTest(2017, 12, 27);
+        var options = new AoCSettings { year = 2017 };
+        await Assert.ThrowsAsync<Exception>(() => DoTest(sut, options));
+    }
+
+    [Fact]
+    public async Task YearNoDay_DuringAdvent_Throws()
+    {
+        var sut = CreateSystemUnderTest(2017, 12, 20);
+        var options = new AoCSettings { year = 2017 };
+        await DoTest(sut, options);
+        await sut.Received(1).ExecuteAsync(2017, 20, options);
+    }
+
+    [Fact]
+    public async Task YearDay_Past_RunsSinglePuzzle()
+    {
+        var sut = CreateSystemUnderTest(2017, 1, 1);
         var options = new AoCSettings { year = 2016, day = 23 };
-        await sut.Configure().ExecuteAsync(Arg.Any<int>(), Arg.Any<int>(), options);
-        await sut.ExecuteAsync(context, options);
+        await DoTest(sut, options);
         await sut.Received(1).ExecuteAsync(2016, 23, options);
     }
+
+    [Fact]
+    public async Task YearDay_Future_Throws()
+    {
+        var sut = CreateSystemUnderTest(2017, 1, 1);
+        var options = new AoCSettings { year = 2018, day = 23 };
+        await Assert.ThrowsAsync<Exception>(() => DoTest(sut, options));
+    }
+
+    [Fact]
+    public async Task YearDay_Future_DuringAdvent_Throws()
+    {
+        var sut = CreateSystemUnderTest(2017, 12, 20);
+        var options = new AoCSettings { year = 2017, day = 23 };
+        await Assert.ThrowsAsync<Exception>(() => DoTest(sut, options));
+    }
+
 }

@@ -1,5 +1,4 @@
-﻿using Net.Code.AdventOfCode.Tool.Core;
-
+﻿
 using NodaTime;
 
 using NSubstitute;

@@ -14,7 +14,6 @@ using Net.Code.AdventOfCode.Tool.Logic;
 
 using NodaTime;
 
-using Spectre.Console;
 using Spectre.Console.Cli;
 
 using System.ComponentModel;
@@ -23,10 +22,15 @@ using System.Reflection;
 public static class AoC
 {
     public static Task<int> RunAsync(string[] args) 
-        => RunAsync(AssemblyResolver.Instance, new InputOutputService(), args);
+        => RunAsync(
+            AssemblyResolver.Instance,
+            new InputOutputService(),
+            SystemClock.Instance,
+            args);
     public static async Task<int> RunAsync(
         IAssemblyResolver resolver,
-        IInputOutputService outputService,
+        IInputOutputService io,
+        IClock clock,
         string[] args
         )
     {
@@ -63,11 +67,11 @@ public static class AoC
         services.AddTransient<IReportManager, ReportManager>();
         services.AddTransient<ICache, Cache>();
         services.AddTransient<IFileSystem, FileSystem>();
-        services.AddTransient<IAssemblyResolver, AssemblyResolver>();
+        services.AddSingleton<IAssemblyResolver>(resolver);
         services.AddTransient<IHttpClientWrapper, HttpClientWrapper>();
         services.AddTransient<AoCLogic>();
-        services.AddSingleton(SystemClock.Instance);
-        services.AddSingleton(outputService);
+        services.AddSingleton(clock);
+        services.AddSingleton(io);
         foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(t => !t.IsAbstract && t.IsAssignableTo(typeof(ICommand))))
         {
             services.AddTransient(type);
@@ -97,7 +101,18 @@ public static class AoC
                 config.PropagateExceptions();
         });
 
-        return await app.RunAsync(args);
+        if (args.Contains("--debug"))
+            try
+            {
+                return await app.RunAsync(args);
+            }
+            catch (Exception ex) 
+            { 
+                io.WriteLine(ex.ToString());
+                return 1;
+            }
+        else
+            return await app.RunAsync(args);
     }
 
     static ICommandConfigurator AddCommand<T>(IConfigurator config) where T : class, ICommand

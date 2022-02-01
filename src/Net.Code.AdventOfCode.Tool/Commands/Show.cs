@@ -10,12 +10,12 @@ class Show : SinglePuzzleCommand<AoCSettings>
 {
     private readonly Configuration configuration;
 
-    public Show(Configuration configuration)
+    public Show(Configuration configuration, AoCLogic logic) : base(logic)
     {
         this.configuration = configuration;
     }
 
-    public override Task ExecuteAsync(int year, int day, AoCSettings options)
+    public override Task<int> ExecuteAsync(int year, int day, AoCSettings options)
     {
         ProcessStartInfo psi = new()
         {
@@ -23,6 +23,6 @@ class Show : SinglePuzzleCommand<AoCSettings>
             UseShellExecute = true
         };
         Process.Start(psi);
-        return Task.CompletedTask;
+        return Task.FromResult(0);
     }
 }

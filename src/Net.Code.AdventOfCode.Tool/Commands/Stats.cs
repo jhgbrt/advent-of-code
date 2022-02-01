@@ -1,7 +1,6 @@
 ﻿
 using Net.Code.AdventOfCode.Tool.Core;
 
-using Spectre.Console;
 using Spectre.Console.Cli;
 
 using System.ComponentModel;

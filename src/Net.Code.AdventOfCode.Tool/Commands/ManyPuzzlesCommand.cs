@@ -17,29 +17,46 @@ abstract class ManyPuzzlesCommand<TSettings> : AsyncCommand<TSettings> where TSe
     public override async Task<int> ExecuteAsync(CommandContext context, TSettings options)
     {
         (var year, var day) = (options.year, options.day);
+        int result = 0;
         foreach (var (y, d) in AoCLogic.Puzzles(year, day))
         {
-            await ExecuteAsync(y, d, options);
+            var v = await ExecuteAsync(y, d, options);
+            if (v != 0)
+                result = v;
         }
-        return 0;
+        return result;
     }
 
-    public abstract Task ExecuteAsync(int year, int day, TSettings options);
+    public abstract Task<int> ExecuteAsync(int year, int day, TSettings options);
 
 }
 abstract class SinglePuzzleCommand<TSettings> : AsyncCommand<TSettings> where TSettings : CommandSettings, IAoCSettings
 {
+    private readonly AoCLogic AoCLogic;
+
+    protected SinglePuzzleCommand(AoCLogic aoCLogic)
+    {
+        AoCLogic = aoCLogic;
+    }
+
     public override async Task<int> ExecuteAsync(CommandContext context, TSettings options)
     {
         (var year, var day) = (options.year, options.day);
         if (!year.HasValue || !day.HasValue)
+        {
+            year = AoCLogic.Year;
+            day = AoCLogic.Day;
+        }
+
+        if (!year.HasValue || !day.HasValue)
             throw new Exception("Please specify year & day explicitly");
 
-        await ExecuteAsync(year.Value, day.Value, options);
+        if (!AoCLogic.IsValidAndUnlocked(year.Value, day.Value))
+            throw new Exception($"Not a valid puzzle: {year}/{day}");
 
-        return 0;
+        return await ExecuteAsync(year.Value, day.Value, options);
     }
 
-    public abstract Task ExecuteAsync(int year, int day, TSettings options);
+    public abstract Task<int> ExecuteAsync(int year, int day, TSettings options);
 
 }
