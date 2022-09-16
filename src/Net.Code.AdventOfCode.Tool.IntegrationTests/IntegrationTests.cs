@@ -17,6 +17,8 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
+
 namespace Net.Code.AdventOfCode.Tool.IntegrationTests
 {
     class TestOutputService : IInputOutputService
