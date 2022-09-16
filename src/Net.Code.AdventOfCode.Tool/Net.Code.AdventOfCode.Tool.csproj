@@ -6,15 +6,16 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-	  <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.0.1" />
-	  <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.0" />
-	  <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0" />
-	  <PackageReference Include="HtmlAgilityPack" Version="1.11.39" />
+	  <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.3.0" />
+	  <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.1" />
+	  <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
+	  <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
 	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-	  <PackageReference Include="Spectre.Console" Version="0.43.0" />
+	  <PackageReference Include="Spectre.Console" Version="0.45.0" />
+	  <PackageReference Include="Spectre.Console.Cli" Version="0.45.0" />
 	  <PackageReference Include="Spectre.Console.Extensions.Logging" Version="0.3.0-alpha0011" />
-	  <PackageReference Include="NodaTime" Version="3.0.9" />
-	  <PackageReference Include="System.Linq.Async" Version="5.1.0" />
+	  <PackageReference Include="NodaTime" Version="3.1.2" />
+	  <PackageReference Include="System.Linq.Async" Version="6.0.1" />
   </ItemGroup>
 
 
