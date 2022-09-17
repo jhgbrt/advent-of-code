@@ -9,7 +9,7 @@ public class AoC201822
     public object Part1() => Points().Select(p => RiskLevel(p)).Sum();
     public object Part2()
     {
-        return -1;
+        return string.Empty;
     }
 
     IEnumerable<Point> Points()

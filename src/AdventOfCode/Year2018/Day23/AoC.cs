@@ -10,7 +10,7 @@ public class AoC201823
     static Bot strongest = bots.MaxBy(b => b.r);
     public object Part1()
     {
-        return -1;
+        return string.Empty;
         // TODO this is not correct for some reason
         //return bots.Count(strongest.InRange);
     }

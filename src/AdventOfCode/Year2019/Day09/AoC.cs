@@ -10,7 +10,7 @@ public class AoC201909
         {
             //Console.WriteLine(i);
         }
-        return -1;
+        return string.Empty;
     }
 
     public object Part2() => "";
