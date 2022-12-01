@@ -2,7 +2,7 @@
   "profiles": {
     "aoc": {
       "commandName": "Project",
-      "commandLineArgs": "verify 2018 22",
+      "commandLineArgs": "init --force",
       "workingDirectory": "$(SolutionDir)AdventOfCode"
     }
   }

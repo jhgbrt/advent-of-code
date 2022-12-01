@@ -128,6 +128,10 @@ class FileSystem : IFileSystem
         private string CSPROJ => GetFileName("aoc.csproj");
         public FileInfo Code => new FileInfo(CODE);
         public FileInfo CsProj => new FileInfo(CSPROJ);
-        public async Task<string> ReadCode(int year, int day) => (await ReadFile(CODE)).Replace("{YYYY}", year.ToString()).Replace("{DD}", day.ToString("00"));
+        public async Task<string> ReadCode(int year, int day)
+        {
+            var template = await ReadFile(CODE);
+            return template.Replace("{YYYY}", year.ToString()).Replace("{DD}", day.ToString("00"));
+        }
     }
 }

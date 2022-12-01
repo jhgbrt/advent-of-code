@@ -38,9 +38,11 @@ class CodeManager : ICodeManager
         }
 
         await codeFolder.CreateIfNotExists();
-        await codeFolder.WriteCode(await templateDir.ReadCode(year, day));
+        var code = await templateDir.ReadCode(year, day);
+        await codeFolder.WriteCode(code);
         await codeFolder.WriteSample("");
-        await codeFolder.WriteInput(await client.GetPuzzleInputAsync(year, day));
+        var input = await client.GetPuzzleInputAsync(year, day);
+        await codeFolder.WriteInput(input);
         await client.GetPuzzleAsync(year, day, !force);
     }
 

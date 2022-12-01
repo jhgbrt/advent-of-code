@@ -35,6 +35,10 @@ class HttpClientWrapper: IHttpClientWrapper
         var response = await client.GetAsync(path);
         var content = await response.Content.ReadAsStringAsync();
         logger.LogTrace($"GET: {path} - {response.StatusCode}");
+        if (response.StatusCode != HttpStatusCode.OK)
+        {
+            logger.LogWarning($"GET: {path} returned {response.StatusCode}: {content}");
+        }
         return (response.StatusCode, content);
     }
     public void Dispose()
