@@ -65,7 +65,7 @@ class AoCClient : IDisposable, IAoCClient
             switch (p.Name)
             {
                 case "owner_id":
-                    ownerid = int.Parse(p.Value.GetString()!);
+                    ownerid = p.Value.GetInt32();
                     break;
                 case "members":
                     members = GetMembers(p.Value);
@@ -86,7 +86,7 @@ class AoCClient : IDisposable, IAoCClient
                     result = property.Name switch
                     {
                         "name" => result with { Name = property.Value.GetString()! },
-                        "id" => result with { Id = int.Parse(property.Value.GetString() ?? throw new Exception("Invalid member id")) },
+                        "id" => result with { Id = property.Value.GetInt32() },
                         "stars" when property.Value.ValueKind is JsonValueKind.Number => result with { TotalStars = property.Value.GetInt32() },
                         "local_score" when property.Value.ValueKind is JsonValueKind.Number => result with { LocalScore = property.Value.GetInt32() },
                         "global_score" when property.Value.ValueKind is JsonValueKind.Number => result with { GlobalScore = property.Value.GetInt32() },
