@@ -98,7 +98,10 @@ public static class AoC
             AddCommand<Leaderboard>(config);
             AddCommand<Stats>(config);
             if (args.Contains("--debug"))
+            {
                 config.PropagateExceptions();
+                config.ValidateExamples();
+            }
         });
 
         if (args.Contains("--debug"))

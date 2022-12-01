@@ -7,6 +7,8 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Net.Code.AdventOfCode.Tool.Core;
+using Microsoft.CodeAnalysis;
+using System.Linq;
 
 class AoCClient : IDisposable, IAoCClient
 {
@@ -58,22 +60,28 @@ class AoCClient : IDisposable, IAoCClient
     {
         var jobject = JsonDocument.Parse(content).RootElement;
 
-        int ownerid = -1;
-        IEnumerable<Member>? members = Enumerable.Empty<Member>();
-        foreach (var p in jobject.EnumerateObject())
-        {
-            switch (p.Name)
-            {
-                case "owner_id":
-                    ownerid = p.Value.GetInt32();
-                    break;
-                case "members":
-                    members = GetMembers(p.Value);
-                    break;
-            }
-        }
+        var (ownerid, members) = jobject.EnumerateObject()
+            .Aggregate(
+                (ownerid: -1, members: Enumerable.Empty<Member>()),
+                (m, p) => p.Name switch
+                {
+                    "owner_id" => (GetInt32(p.Value), m.members),
+                    "members" => (m.ownerid, GetMembers(p.Value)),
+                    _ => m
+                }
+            );
 
         return new LeaderBoard(ownerid, year, members.ToDictionary(m => m.Id));
+
+        int GetInt32(JsonElement value)
+        {
+            return value.ValueKind switch
+            {
+                JsonValueKind.Number => value.GetInt32(),
+                JsonValueKind.String => int.Parse(value.GetString()!),
+                _ => throw new InvalidOperationException("expected string or number")
+            };
+        }
 
         IEnumerable<Member> GetMembers(JsonElement element)
         {
@@ -86,7 +94,7 @@ class AoCClient : IDisposable, IAoCClient
                     result = property.Name switch
                     {
                         "name" => result with { Name = property.Value.GetString()! },
-                        "id" => result with { Id = property.Value.GetInt32() },
+                        "id" => result with { Id = GetInt32(property.Value) },
                         "stars" when property.Value.ValueKind is JsonValueKind.Number => result with { TotalStars = property.Value.GetInt32() },
                         "local_score" when property.Value.ValueKind is JsonValueKind.Number => result with { LocalScore = property.Value.GetInt32() },
                         "global_score" when property.Value.ValueKind is JsonValueKind.Number => result with { GlobalScore = property.Value.GetInt32() },
@@ -98,12 +106,14 @@ class AoCClient : IDisposable, IAoCClient
                 yield return result;
             }
         }
+
         IEnumerable<DailyStars> GetCompletions(JsonProperty property)
         {
             foreach (var compl in property.Value.EnumerateObject())
             {
                 var day = int.Parse(compl.Name);
                 var ds = new DailyStars(day, null, null);
+
                 foreach (var star in compl.Value.EnumerateObject())
                 {
                     var instant = Instant.FromUnixTimeSeconds(star.Value.EnumerateObject().First().Value.GetInt32());

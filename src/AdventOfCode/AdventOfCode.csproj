@@ -29,8 +29,9 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FSharp.Core" Version="7.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.4.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="7.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.4.0" />
     <PackageReference Include="Microsoft.NET.Test.SDK" Version="17.4.0" />
     <PackageReference Include="Sandwych.QuickGraph.Core" Version="1.0.0" />
     <PackageReference Include="sprache" Version="3.0.0-develop-00049" />

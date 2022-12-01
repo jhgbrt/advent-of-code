@@ -1,4 +1,6 @@
-﻿using Spectre.Console.Cli;
+﻿using Microsoft.Extensions.Logging;
+
+using Spectre.Console.Cli;
 
 using System.ComponentModel;
 
@@ -17,5 +19,11 @@ public class AoCSettings : CommandSettings, IAoCSettings
     [Description("Day (default during advent: current day, null otherwise)")]
     [CommandArgument(1, "[DAY]")]
     public int? day { get; set; }
+    [Description("Set the log level. Valid values: Trace, Debug, Information, Warning, Error")]
+    [CommandOption("--loglevel")]
+    public LogLevel LogLevel { get; set; } = LogLevel.Information;
+    [Description("Run in debug mode.")]
+    [CommandOption("--debug")]
+    public bool Debug { get; set; } 
 
 }
