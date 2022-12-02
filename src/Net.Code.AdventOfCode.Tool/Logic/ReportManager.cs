@@ -7,7 +7,6 @@ using Spectre.Console;
 
 namespace Net.Code.AdventOfCode.Tool.Logic;
 
-
 class ReportManager : IReportManager
 {
     private readonly IAoCClient client;

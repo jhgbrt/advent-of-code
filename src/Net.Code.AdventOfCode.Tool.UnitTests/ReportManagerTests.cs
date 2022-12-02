@@ -12,7 +12,7 @@ using Xunit;
 
 namespace Net.Code.AdventOfCode.Tool.UnitTests;
 
-public class ReportManagerTests 
+public class ReportManagerTests
 {
     [Fact]
     public async Task GetPuzzleReportTest()
@@ -46,7 +46,7 @@ public class ReportManagerTests
         Task<Member?> task = Task.FromResult(
             new Member(1, "", 0, 0, 0, clock.GetCurrentInstant(), new Dictionary<int, DailyStars>())
             );
- 
+
         client.GetMemberAsync(Arg.Any<int>(), true)
             .Returns(task);
 

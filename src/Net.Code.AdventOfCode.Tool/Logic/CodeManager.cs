@@ -52,6 +52,9 @@ class CodeManager : ICodeManager
         var aoc = await dir.ReadCode();
         var tree = CSharpSyntaxTree.ParseText(aoc);
 
+        // find a class with 2 methods without arguments called Part1() and Part2()
+        // the members of this class will be converted to top level statements
+
         (var aocclass, var _) = (
             from classdecl in tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>()
             let m =
@@ -68,6 +71,7 @@ class CodeManager : ICodeManager
             throw new Exception("Could not find a class with 2 methods called Part1 and Part2");
         }
 
+        // the actual methods: Part1 & Part2
         var implementations = (
             from node in aocclass.DescendantNodes().OfType<MethodDeclarationSyntax>()
             where node.Identifier.ToString() is "Part1" or "Part2"
@@ -76,6 +80,8 @@ class CodeManager : ICodeManager
             select (name: node.Identifier.ToString(), impl)
             ).ToDictionary(x => x.name, x => x.impl);
 
+        // all fields are converted to local declarations
+        // the initialization of the input variable is converted to the corresponding System.IO.File call
         var fields =
             from node in aocclass.DescendantNodes().OfType<FieldDeclarationSyntax>()
             let fieldname = node.DescendantNodes().OfType<VariableDeclaratorSyntax>().Single().Identifier.ToString()
@@ -92,7 +98,7 @@ class CodeManager : ICodeManager
                                     Identifier("input")
                                     ).WithInitializer(
                                         EqualsValueClause(
-                                            CreateInvocationExpression(node.DescendantNodes().OfType<MemberAccessExpressionSyntax>().Single()
+                                            ConvertInputReaderStatement(node.DescendantNodes().OfType<MemberAccessExpressionSyntax>().Single()
                                         )
                                     )
                                 )
@@ -101,76 +107,32 @@ class CodeManager : ICodeManager
                     )
                 ;
 
+        // methods from the AoC class are converted to top-level methods
         var methods =
             from node in aocclass.DescendantNodes().OfType<MethodDeclarationSyntax>()
             select node.WithModifiers(TokenList())
             ;
 
+        // records, enums and other classes should be added as well
+        var usings = tree.GetRoot().DescendantNodes().OfType<UsingDirectiveSyntax>();
+        
+
         var records = tree.GetRoot().DescendantNodes().OfType<RecordDeclarationSyntax>();
+
+        var enums = tree.GetRoot().DescendantNodes().OfType<EnumDeclarationSyntax>();
 
         var classes = tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>()
             .Where(cd => cd != aocclass && !cd.Identifier.ToString().Contains("Tests"));
 
+
         var result = CompilationUnit()
-            .WithMembers(List(
-                fields
-                .Select(f => GlobalStatement(f))
-                .Concat(new[]
-                {
-                    GlobalStatement(
-                        LocalDeclarationStatement(
-                            VariableDeclaration(
-                                IdentifierName(
-                                    Identifier(
-                                        TriviaList(),
-                                        SyntaxKind.VarKeyword,
-                                        "var",
-                                        "var",
-                                        TriviaList()
-                                    )
-                                )
-                            )
-                            .WithVariables(
-                                SingletonSeparatedList<VariableDeclaratorSyntax>(
-                                    VariableDeclarator(
-                                        Identifier("sw")
-                                    )
-                                    .WithInitializer(
-                                        EqualsValueClause(
-                                            InvocationExpression(
-                                                MemberAccessExpression(
-                                                    SyntaxKind.SimpleMemberAccessExpression,
-                                                    IdentifierName("Stopwatch"),
-                                                    IdentifierName("StartNew")
-                                                )
-                                                .WithOperatorToken(
-                                                    Token(SyntaxKind.DotToken)
-                                                )
-                                            )
-                                            .WithArgumentList(
-                                                ArgumentList()
-                                                .WithOpenParenToken(
-                                                    Token(SyntaxKind.OpenParenToken)
-                                                )
-                                                .WithCloseParenToken(
-                                                    Token(SyntaxKind.CloseParenToken)
-                                                )
-                                            )
-                                        )
-                                        .WithEqualsToken(
-                                            Token(SyntaxKind.EqualsToken)
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                        .WithSemicolonToken(
-                            Token(SyntaxKind.SemicolonToken)
-                        )
-                    )
-                })
-                .Concat(new[] { "Part1", "Part2" }.Select(name =>
-                    GlobalStatement(
+            .WithUsings(List(usings))
+            .WithMembers(
+                List(
+                    fields.Select(f => GlobalStatement(f))
+                    .Concat(new[]
+                    {
+                        GlobalStatement(
                             LocalDeclarationStatement(
                                 VariableDeclaration(
                                     IdentifierName(
@@ -184,75 +146,129 @@ class CodeManager : ICodeManager
                                     )
                                 )
                                 .WithVariables(
-                                    SingletonSeparatedList(
+                                    SingletonSeparatedList<VariableDeclaratorSyntax>(
                                         VariableDeclarator(
-                                            Identifier(name.ToLower())
+                                            Identifier("sw")
                                         )
                                         .WithInitializer(
                                             EqualsValueClause(
                                                 InvocationExpression(
-                                                    IdentifierName(name)
+                                                    MemberAccessExpression(
+                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                        IdentifierName("Stopwatch"),
+                                                        IdentifierName("StartNew")
                                                     )
-                                                    .WithArgumentList(
-                                                        ArgumentList().WithOpenParenToken(Token(SyntaxKind.OpenParenToken)).WithCloseParenToken(Token(SyntaxKind.CloseParenToken))
+                                                    .WithOperatorToken(
+                                                        Token(SyntaxKind.DotToken)
                                                     )
                                                 )
+                                                .WithArgumentList(
+                                                    ArgumentList()
+                                                    .WithOpenParenToken(
+                                                        Token(SyntaxKind.OpenParenToken)
+                                                    )
+                                                    .WithCloseParenToken(
+                                                        Token(SyntaxKind.CloseParenToken)
+                                                    )
+                                                )
+                                            )
+                                            .WithEqualsToken(
+                                                Token(SyntaxKind.EqualsToken)
                                             )
                                         )
                                     )
                                 )
+                            )
+                            .WithSemicolonToken(
+                                Token(SyntaxKind.SemicolonToken)
                             )
                         )
-                    ).Concat(new[]
-                    {
+                    })
+                    .Concat(new[] { "Part1", "Part2" }.Select(name =>
                         GlobalStatement(
-                                ExpressionStatement(
-                                    InvocationExpression(
-                                            MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("Console"), IdentifierName("WriteLine"))
-                                            .WithOperatorToken(Token(SyntaxKind.DotToken)
+                                LocalDeclarationStatement(
+                                    VariableDeclaration(
+                                        IdentifierName(
+                                            Identifier(
+                                                TriviaList(),
+                                                SyntaxKind.VarKeyword,
+                                                "var",
+                                                "var",
+                                                TriviaList()
+                                            )
                                         )
                                     )
-                                    .WithArgumentList(
-                                        ArgumentList(
-                                            SingletonSeparatedList(
-                                                Argument(
-                                                    TupleExpression(
-                                                        SeparatedList<ArgumentSyntax>(
-                                                            new SyntaxNodeOrToken[] {
-                                                                Argument(IdentifierName("part1")),
-                                                                Token(SyntaxKind.CommaToken),
-                                                                Argument(IdentifierName("part2")),
-                                                                Token(SyntaxKind.CommaToken),
-                                                                Argument(
-                                                                    MemberAccessExpression(
-                                                                        SyntaxKind.SimpleMemberAccessExpression,
-                                                                        IdentifierName("sw"),
-                                                                        IdentifierName("Elapsed")
-                                                                    )
-                                                                    .WithOperatorToken(
-                                                                        Token(SyntaxKind.DotToken)
-                                                                    )
-                                                                )
-                                                            }
+                                    .WithVariables(
+                                        SingletonSeparatedList(
+                                            VariableDeclarator(
+                                                Identifier(name.ToLower())
+                                            )
+                                            .WithInitializer(
+                                                EqualsValueClause(
+                                                    InvocationExpression(
+                                                        IdentifierName(name)
+                                                        )
+                                                        .WithArgumentList(
+                                                            ArgumentList().WithOpenParenToken(Token(SyntaxKind.OpenParenToken)).WithCloseParenToken(Token(SyntaxKind.CloseParenToken))
                                                         )
                                                     )
-                                                    .WithOpenParenToken(Token(SyntaxKind.OpenParenToken))
-                                                    .WithCloseParenToken(Token(SyntaxKind.CloseParenToken))
                                                 )
                                             )
                                         )
-                                        .WithOpenParenToken(Token(SyntaxKind.OpenParenToken))
-                                        .WithCloseParenToken(Token(SyntaxKind.CloseParenToken))
                                     )
                                 )
-                                .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
                             )
+                        ).Concat(new[]
+                        {
+                            GlobalStatement(
+                                    ExpressionStatement(
+                                        InvocationExpression(
+                                                MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("Console"), IdentifierName("WriteLine"))
+                                                .WithOperatorToken(Token(SyntaxKind.DotToken)
+                                            )
+                                        )
+                                        .WithArgumentList(
+                                            ArgumentList(
+                                                SingletonSeparatedList(
+                                                    Argument(
+                                                        TupleExpression(
+                                                            SeparatedList<ArgumentSyntax>(
+                                                                new SyntaxNodeOrToken[] {
+                                                                    Argument(IdentifierName("part1")),
+                                                                    Token(SyntaxKind.CommaToken),
+                                                                    Argument(IdentifierName("part2")),
+                                                                    Token(SyntaxKind.CommaToken),
+                                                                    Argument(
+                                                                        MemberAccessExpression(
+                                                                            SyntaxKind.SimpleMemberAccessExpression,
+                                                                            IdentifierName("sw"),
+                                                                            IdentifierName("Elapsed")
+                                                                        )
+                                                                        .WithOperatorToken(
+                                                                            Token(SyntaxKind.DotToken)
+                                                                        )
+                                                                    )
+                                                                }
+                                                            )
+                                                        )
+                                                        .WithOpenParenToken(Token(SyntaxKind.OpenParenToken))
+                                                        .WithCloseParenToken(Token(SyntaxKind.CloseParenToken))
+                                                    )
+                                                )
+                                            )
+                                            .WithOpenParenToken(Token(SyntaxKind.OpenParenToken))
+                                            .WithCloseParenToken(Token(SyntaxKind.CloseParenToken))
+                                        )
+                                    )
+                                    .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                                )
 
-                    }
-                    )
-                    .Concat(List<MemberDeclarationSyntax>(methods))
-                    .Concat(List<MemberDeclarationSyntax>(records))
-                    .Concat(List<MemberDeclarationSyntax>(classes))
+                        }
+                        )
+                        .Concat(List<MemberDeclarationSyntax>(methods))
+                        .Concat(List<MemberDeclarationSyntax>(records))
+                        .Concat(List<MemberDeclarationSyntax>(classes))
+                        .Concat(List<MemberDeclarationSyntax>(enums))
                 )
             );
         var workspace = new AdhocWorkspace();
@@ -261,7 +277,7 @@ class CodeManager : ICodeManager
             ).ToString();
         return code;
     }
-    private InvocationExpressionSyntax CreateInvocationExpression(MemberAccessExpressionSyntax memberAccessExpression)
+    private InvocationExpressionSyntax ConvertInputReaderStatement(MemberAccessExpressionSyntax memberAccessExpression)
     {
         if (!memberAccessExpression.IsKind(SyntaxKind.SimpleMemberAccessExpression))
             throw new NotSupportedException($"Can not convert expression {memberAccessExpression}");

@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Net.Code.AdventOfCode.Tool.UnitTests;
 
-public class CacheTests 
+public class CacheTests
 {
     [Theory]
     [InlineData(@"C:\base\.cache\name.txt", null, null)]

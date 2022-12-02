@@ -26,7 +26,6 @@ interface ICache
     Task WriteToCache(int? year, int? day, string name, string content);
 }
 
-
 interface ICodeManager
 {
     Task ExportCode(int year, int day, string code, string output);
@@ -97,4 +96,3 @@ public interface IAssemblyResolver
 {
     Assembly? GetEntryAssembly();
 }
-

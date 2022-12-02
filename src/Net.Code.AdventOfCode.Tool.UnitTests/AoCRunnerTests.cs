@@ -15,7 +15,7 @@ namespace AoCTest.Year2017.Day03
 {
     public class AoC
     {
-        public long Part1() => 1; 
+        public long Part1() => 1;
         public long Part2() => 2;
 
     }

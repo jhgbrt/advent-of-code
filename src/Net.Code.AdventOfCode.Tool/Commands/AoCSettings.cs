@@ -8,8 +8,10 @@ namespace Net.Code.AdventOfCode.Tool.Commands;
 
 public interface IAoCSettings
 {
+#pragma warning disable IDE1006 // Naming Styles
     public int? year { get; }
     public int? day { get; }
+#pragma warning restore IDE1006 // Naming Styles
 }
 public class AoCSettings : CommandSettings, IAoCSettings
 {
@@ -24,6 +26,6 @@ public class AoCSettings : CommandSettings, IAoCSettings
     public LogLevel LogLevel { get; set; } = LogLevel.Information;
     [Description("Run in debug mode.")]
     [CommandOption("--debug")]
-    public bool Debug { get; set; } 
+    public bool Debug { get; set; }
 
 }

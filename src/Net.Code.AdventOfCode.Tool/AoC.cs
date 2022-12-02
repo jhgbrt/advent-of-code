@@ -21,7 +21,7 @@ using System.Reflection;
 
 public static class AoC
 {
-    public static Task<int> RunAsync(string[] args) 
+    public static Task<int> RunAsync(string[] args)
         => RunAsync(
             AssemblyResolver.Instance,
             new InputOutputService(),
@@ -109,8 +109,8 @@ public static class AoC
             {
                 return await app.RunAsync(args);
             }
-            catch (Exception ex) 
-            { 
+            catch (Exception ex)
+            {
                 io.WriteLine(ex.ToString());
                 return 1;
             }
@@ -149,10 +149,10 @@ sealed class TypeResolver : ITypeResolver
 {
     private readonly IServiceProvider _provider;
 
-    public TypeResolver(IServiceProvider provider) 
+    public TypeResolver(IServiceProvider provider)
         => _provider = provider ?? throw new ArgumentNullException(nameof(provider));
 
-    public object Resolve(Type? type) 
+    public object Resolve(Type? type)
         => _provider.GetRequiredService(type ?? throw new ArgumentNullException(nameof(type)));
 }
 

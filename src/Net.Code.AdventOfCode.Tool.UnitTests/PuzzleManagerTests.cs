@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Net.Code.AdventOfCode.Tool.UnitTests
 {
-    public class PuzzleManagerTests 
+    public class PuzzleManagerTests
     {
         [Fact]
         public async Task Sync_Calls_GetPuzzleWithoutCache()
