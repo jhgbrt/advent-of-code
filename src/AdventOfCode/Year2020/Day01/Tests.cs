@@ -5,7 +5,7 @@ public class Tests
     [Fact]
     public void TestPart1()
     {
-        var numbers = Read.SampleLines().Select(int.Parse).ToList();
+        var numbers = Read.Sample.Lines().Select(int.Parse).ToList();
         var result = numbers.Part1();
         Assert.Equal(514579, result);
     }
@@ -20,7 +20,7 @@ public class Tests
     [Fact]
     public void TestPart2()
     {
-        var numbers = Read.SampleLines().Select(int.Parse).ToList();
+        var numbers = Read.Sample.Lines().Select(int.Parse).ToList();
         var result = numbers.Part2();
         Assert.Equal(241861950, result);
     }

@@ -82,9 +82,9 @@ interface ITemplateFolder
 {
     FileInfo Code { get; }
     FileInfo CsProj { get; }
-
     Task<string> ReadCode(int year, int day);
     bool Exists { get; }
+    Task Initialize();
 }
 interface IHttpClientWrapper : IDisposable
 {

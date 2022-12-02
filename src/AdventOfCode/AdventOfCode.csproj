@@ -44,6 +44,5 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Net.Code.AdventOfCode.Tool\Net.Code.AdventOfCode.Tool.csproj" />
-    <ProjectReference Include="..\TypedRegex.Generator\TypedRegex.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 </Project>

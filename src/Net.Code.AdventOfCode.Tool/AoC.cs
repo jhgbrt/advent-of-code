@@ -55,7 +55,7 @@ public static class AoC
         }
 
         var cookieValue = config["AOC_SESSION"] ?? throw new Exception("This operation requires AOC_SESSION to be set as an environment variable or user secret.");
-        var baseAddress = "https://adventofcode.com";
+        const string baseAddress = "https://adventofcode.com";
         var configuration = new Configuration(baseAddress, cookieValue);
         var services = new ServiceCollection();
         services.AddLogging(builder => builder.AddInlineSpectreConsole(c => c.LogLevel = LogLevel.Trace).SetMinimumLevel(string.IsNullOrEmpty(loglevel) ? LogLevel.Warning : Enum.Parse<LogLevel>(loglevel, true)));
@@ -105,6 +105,7 @@ public static class AoC
         });
 
         if (args.Contains("--debug"))
+        {
             try
             {
                 return await app.RunAsync(args);
@@ -114,8 +115,11 @@ public static class AoC
                 io.WriteLine(ex.ToString());
                 return 1;
             }
+        }
         else
+        {
             return await app.RunAsync(args);
+        }
     }
 
     static ICommandConfigurator AddCommand<T>(IConfigurator config) where T : class, ICommand
@@ -123,8 +127,6 @@ public static class AoC
 
     static string? GetDescription(ICustomAttributeProvider provider)
         => provider.GetCustomAttributes(typeof(DescriptionAttribute), false).OfType<DescriptionAttribute>().SingleOrDefault()?.Description;
-
-
 }
 
 sealed class TypeRegistrar : ITypeRegistrar
@@ -155,5 +157,3 @@ sealed class TypeResolver : ITypeResolver
     public object Resolve(Type? type)
         => _provider.GetRequiredService(type ?? throw new ArgumentNullException(nameof(type)));
 }
-
-

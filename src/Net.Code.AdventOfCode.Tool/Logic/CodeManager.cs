@@ -7,14 +7,17 @@ using Microsoft.CodeAnalysis.Formatting;
 
 using Net.Code.AdventOfCode.Tool.Core;
 
+using System.Diagnostics;
+using System.Xml.Linq;
+
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Net.Code.AdventOfCode.Tool.Logic;
 
 class CodeManager : ICodeManager
 {
-    private IAoCClient client;
-    private IFileSystem fileSystem;
+    private readonly IAoCClient client;
+    private readonly IFileSystem fileSystem;
 
     public CodeManager(IAoCClient client, IFileSystem fileSystem)
     {
@@ -29,7 +32,7 @@ class CodeManager : ICodeManager
 
         if (!templateDir.Exists)
         {
-            throw new FileNotFoundException($"Please provide a template folder under {templateDir} containing a file named {templateDir.Code.Name}. Use {{YYYY}} and {{DD}} as placeholders in the class name for the year and day, and provide two public methods called Part1 and Part2, accepting no arguments and returning a string");
+            await templateDir.Initialize();
         }
 
         if (codeFolder.Exists && !force)
@@ -59,8 +62,8 @@ class CodeManager : ICodeManager
             from classdecl in tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>()
             let m =
                 from m in classdecl.DescendantNodes().OfType<MethodDeclarationSyntax>()
-                where m.Identifier.ToString() == "Part1" || m.Identifier.ToString() == "Part2"
-                && m.ParameterList.Parameters.Count() == 0
+                where m.Identifier.ToString() is "Part1" or "Part2"
+                && m.ParameterList.Parameters.Count == 0
                 select m.WithModifiers(TokenList())
             where m.Count() == 2
             select (classdecl, m)
@@ -113,9 +116,8 @@ class CodeManager : ICodeManager
             select node.WithModifiers(TokenList())
             ;
 
-        // records, enums and other classes should be added as well
+        // collect usings, records, enums and other classes
         var usings = tree.GetRoot().DescendantNodes().OfType<UsingDirectiveSyntax>();
-        
 
         var records = tree.GetRoot().DescendantNodes().OfType<RecordDeclarationSyntax>();
 
@@ -124,151 +126,32 @@ class CodeManager : ICodeManager
         var classes = tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>()
             .Where(cd => cd != aocclass && !cd.Identifier.ToString().Contains("Tests"));
 
+        // build new compilation unit:
+        // - usings
+        // - top level variables
+        // - top level statements
+        // - top level methods
+        // - records, classes, enums
 
         var result = CompilationUnit()
             .WithUsings(List(usings))
             .WithMembers(
                 List(
-                    fields.Select(f => GlobalStatement(f))
+                    fields.Select(GlobalStatement)
                     .Concat(new[]
                     {
-                        GlobalStatement(
-                            LocalDeclarationStatement(
-                                VariableDeclaration(
-                                    IdentifierName(
-                                        Identifier(
-                                            TriviaList(),
-                                            SyntaxKind.VarKeyword,
-                                            "var",
-                                            "var",
-                                            TriviaList()
-                                        )
-                                    )
-                                )
-                                .WithVariables(
-                                    SingletonSeparatedList<VariableDeclaratorSyntax>(
-                                        VariableDeclarator(
-                                            Identifier("sw")
-                                        )
-                                        .WithInitializer(
-                                            EqualsValueClause(
-                                                InvocationExpression(
-                                                    MemberAccessExpression(
-                                                        SyntaxKind.SimpleMemberAccessExpression,
-                                                        IdentifierName("Stopwatch"),
-                                                        IdentifierName("StartNew")
-                                                    )
-                                                    .WithOperatorToken(
-                                                        Token(SyntaxKind.DotToken)
-                                                    )
-                                                )
-                                                .WithArgumentList(
-                                                    ArgumentList()
-                                                    .WithOpenParenToken(
-                                                        Token(SyntaxKind.OpenParenToken)
-                                                    )
-                                                    .WithCloseParenToken(
-                                                        Token(SyntaxKind.CloseParenToken)
-                                                    )
-                                                )
-                                            )
-                                            .WithEqualsToken(
-                                                Token(SyntaxKind.EqualsToken)
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                            .WithSemicolonToken(
-                                Token(SyntaxKind.SemicolonToken)
-                            )
-                        )
+                        ParseMemberDeclaration("var sw = Stopwatch.StartNew();\r\n")!,
+                        ParseMemberDeclaration("var part1 = Part1();\r\n")!,
+                        ParseMemberDeclaration("var part2 = Part2();\r\n")!,
                     })
-                    .Concat(new[] { "Part1", "Part2" }.Select(name =>
-                        GlobalStatement(
-                                LocalDeclarationStatement(
-                                    VariableDeclaration(
-                                        IdentifierName(
-                                            Identifier(
-                                                TriviaList(),
-                                                SyntaxKind.VarKeyword,
-                                                "var",
-                                                "var",
-                                                TriviaList()
-                                            )
-                                        )
-                                    )
-                                    .WithVariables(
-                                        SingletonSeparatedList(
-                                            VariableDeclarator(
-                                                Identifier(name.ToLower())
-                                            )
-                                            .WithInitializer(
-                                                EqualsValueClause(
-                                                    InvocationExpression(
-                                                        IdentifierName(name)
-                                                        )
-                                                        .WithArgumentList(
-                                                            ArgumentList().WithOpenParenToken(Token(SyntaxKind.OpenParenToken)).WithCloseParenToken(Token(SyntaxKind.CloseParenToken))
-                                                        )
-                                                    )
-                                                )
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        ).Concat(new[]
-                        {
-                            GlobalStatement(
-                                    ExpressionStatement(
-                                        InvocationExpression(
-                                                MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("Console"), IdentifierName("WriteLine"))
-                                                .WithOperatorToken(Token(SyntaxKind.DotToken)
-                                            )
-                                        )
-                                        .WithArgumentList(
-                                            ArgumentList(
-                                                SingletonSeparatedList(
-                                                    Argument(
-                                                        TupleExpression(
-                                                            SeparatedList<ArgumentSyntax>(
-                                                                new SyntaxNodeOrToken[] {
-                                                                    Argument(IdentifierName("part1")),
-                                                                    Token(SyntaxKind.CommaToken),
-                                                                    Argument(IdentifierName("part2")),
-                                                                    Token(SyntaxKind.CommaToken),
-                                                                    Argument(
-                                                                        MemberAccessExpression(
-                                                                            SyntaxKind.SimpleMemberAccessExpression,
-                                                                            IdentifierName("sw"),
-                                                                            IdentifierName("Elapsed")
-                                                                        )
-                                                                        .WithOperatorToken(
-                                                                            Token(SyntaxKind.DotToken)
-                                                                        )
-                                                                    )
-                                                                }
-                                                            )
-                                                        )
-                                                        .WithOpenParenToken(Token(SyntaxKind.OpenParenToken))
-                                                        .WithCloseParenToken(Token(SyntaxKind.CloseParenToken))
-                                                    )
-                                                )
-                                            )
-                                            .WithOpenParenToken(Token(SyntaxKind.OpenParenToken))
-                                            .WithCloseParenToken(Token(SyntaxKind.CloseParenToken))
-                                        )
-                                    )
-                                    .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
-                                )
-
-                        }
-                        )
-                        .Concat(List<MemberDeclarationSyntax>(methods))
-                        .Concat(List<MemberDeclarationSyntax>(records))
-                        .Concat(List<MemberDeclarationSyntax>(classes))
-                        .Concat(List<MemberDeclarationSyntax>(enums))
+                    .Concat(new[]
+                    {
+                      GlobalStatement(ParseStatement("Console.WriteLine((part1, part2, sw.Elapsed));\r\n")!)
+                    })
+                    .Concat(List<MemberDeclarationSyntax>(methods))
+                    .Concat(List<MemberDeclarationSyntax>(records))
+                    .Concat(List<MemberDeclarationSyntax>(classes))
+                    .Concat(List<MemberDeclarationSyntax>(enums))
                 )
             );
         var workspace = new AdhocWorkspace();
@@ -277,7 +160,7 @@ class CodeManager : ICodeManager
             ).ToString();
         return code;
     }
-    private InvocationExpressionSyntax ConvertInputReaderStatement(MemberAccessExpressionSyntax memberAccessExpression)
+    private static InvocationExpressionSyntax ConvertInputReaderStatement(MemberAccessExpressionSyntax memberAccessExpression)
     {
         if (!memberAccessExpression.IsKind(SyntaxKind.SimpleMemberAccessExpression))
             throw new NotSupportedException($"Can not convert expression {memberAccessExpression}");
@@ -322,5 +205,3 @@ class CodeManager : ICodeManager
         outputDir.CopyFile(templateDir.CsProj);
     }
 }
-
-

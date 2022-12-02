@@ -3,8 +3,9 @@ using Microsoft.Extensions.Logging;
 
 using Net.Code.AdventOfCode.Tool.Core;
 
-namespace Net.Code.AdventOfCode.Tool.Logic;
+using System.Reflection;
 
+namespace Net.Code.AdventOfCode.Tool.Logic;
 
 class FileSystem : IFileSystem
 {
@@ -132,6 +133,18 @@ class FileSystem : IFileSystem
         {
             var template = await ReadFile(CODE);
             return template.Replace("{YYYY}", year.ToString()).Replace("{DD}", day.ToString("00"));
+        }
+
+        public async Task Initialize()
+        {
+            var assembly = Assembly.GetExecutingAssembly() ?? throw new InvalidOperationException();
+            await CreateIfNotExists();
+            using var code = assembly.GetManifestResourceStream("Net.Code.AdventOfCode.Tool.Resources.AoC.cs") ?? throw new InvalidOperationException("resource for AoC.cs template not found");
+            using var csproj = assembly.GetManifestResourceStream("Net.Code.AdventOfCode.Tool.Resources.aoc.csproj") ?? throw new InvalidOperationException("resource for aoc.csproj template not found");
+            using var targetCode = File.Create(CODE);
+            using var targetCsproj = File.Create(CSPROJ);
+            await code.CopyToAsync(targetCode);
+            await code.CopyToAsync(targetCsproj);
         }
     }
 }

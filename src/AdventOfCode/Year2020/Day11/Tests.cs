@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2020.Day11;
 
 public class Tests
 {
-    Grid example = Grid.Parse(Read.SampleLines());
+    Grid example = Grid.Parse(Read.Sample.Lines().ToArray());
     [Fact]
     public void Test1()
     {

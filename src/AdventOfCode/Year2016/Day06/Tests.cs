@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2016.Day06;
 
 public class Tests
 {
-    static string[] input = Read.SampleLines();
+    static string[] input = Read.Sample.Lines().ToArray();
     [Fact]
     public void Part1Test()
     {
