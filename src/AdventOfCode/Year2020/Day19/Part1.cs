@@ -30,7 +30,7 @@ static class AoC
            {
                '"' => new SingleCharacter(ruleNumber, parts[1][1]) as Rule,
                _ => new RecursiveRule(ruleNumber, (from p in parts[1].Split(" | ")
-                                                   let numbers = (from i in p.Split(' ') 
+                                                   let numbers = (from i in p.Split(' ')
                                                                   select int.Parse(i)).ToImmutableArray()
                                                    select numbers).ToImmutableArray())
            };

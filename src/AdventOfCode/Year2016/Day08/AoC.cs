@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2016.Day08;
 
 public class AoC201608
 {
-    
+
     public static string[] input = Read.InputLines();
 
     public object Part1() => Run().Count;

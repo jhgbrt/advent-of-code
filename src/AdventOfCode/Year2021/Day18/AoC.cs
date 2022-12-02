@@ -132,10 +132,10 @@ record struct Token
     enum TokenType { Value, OpenBrace, CloseBrace };
     private TokenType _type;
     private int _value;
-    public int Value => _type switch 
-    { 
-        TokenType.Value => _value, 
-        _ => throw new InvalidOperationException("Can not retrieve value from non-value token") 
+    public int Value => _type switch
+    {
+        TokenType.Value => _value,
+        _ => throw new InvalidOperationException("Can not retrieve value from non-value token")
     };
     private Token(TokenType type, int value)
     {

@@ -97,7 +97,7 @@ static class IntCode
                     {
                         const int parameterCount = 1;
                         var parameters = program.GetParameters(index, modes, parameterCount);
-                        relativeBase += (int)program.GetValue(relativeBase, parameters.First());                        
+                        relativeBase += (int)program.GetValue(relativeBase, parameters.First());
                         var jump = parameterCount + 1;
                         index += jump;
                     }
@@ -112,7 +112,7 @@ static class IntCode
         while (opcode != 99);
     }
 
-    static IEnumerable<(long value, Mode mode)> GetParameters(this ImmutableDictionary<long, long> program, int index, IEnumerable<Mode> modes, int n) 
+    static IEnumerable<(long value, Mode mode)> GetParameters(this ImmutableDictionary<long, long> program, int index, IEnumerable<Mode> modes, int n)
         => Range(index+1, n).Select(i => program.ContainsKey(i) ? program[i]: 0).Zip(modes, (l, r) => (value: l, mode: r));
 
     static (int opcode, IReadOnlyCollection<Mode> modes) Decode(long value)

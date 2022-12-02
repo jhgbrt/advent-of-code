@@ -9,7 +9,7 @@ public class AoC202125
              where col.c != '.'
              select (p: new P(col.x, row.y), col.c)
             ).ToImmutableDictionary(x => x.p, x => x.c), input.Length, input[0].Length));
-    
+
 
 
     int FindLastMove(Grid initial)
@@ -62,5 +62,5 @@ record Grid(ImmutableDictionary<P,char> items, int Height, int Width)
         }
         return (new Grid(builder.ToImmutable(), Height, Width), n);
     }
-    
+
 }

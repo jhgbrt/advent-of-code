@@ -58,7 +58,7 @@ public class AoC202119
             var s = enumerator.Current.Split(',').Select(int.Parse).ToArray();
             yield return new P(s[0], s[1], s[2]);
         }
-    }   
+    }
 
 }
 

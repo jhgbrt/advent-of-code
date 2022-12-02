@@ -106,7 +106,7 @@ class Tile
         }
     }
     public Tile Flip() => new(Id, Content.Select(line => line.Reverse().ToArray()).ToArray());
-    
+
     public override bool Equals(object? obj) => obj is Tile t && Equals(t);
     public bool Equals(Tile other) => Id == other.Id;
     public override int GetHashCode() => Id;
@@ -218,7 +218,6 @@ static class AoC
         while (enumerator.MoveNext()) yield return enumerator.Current;
     }
 
- 
 
     public static Tile AssembleImage(this ImmutableArray<Tile> input)
     {
@@ -245,7 +244,7 @@ static class AoC
         left = left.MakeTopLeft(neighbors);
 
         var image = new Tile[gridSize][];
-        for (int i = 0; i < gridSize; i++) 
+        for (int i = 0; i < gridSize; i++)
             image[i] = new Tile[gridSize];
         for (int i = 0; i < gridSize; i++)
             for (int j = 0; j < gridSize; j++)
@@ -274,13 +273,13 @@ static class AoC
 
             }
         }
-                
+
 
         return image.ToTile();
     }
 
 
-    public static Tile ToTile(this IEnumerable<IEnumerable<Tile>> image) 
+    public static Tile ToTile(this IEnumerable<IEnumerable<Tile>> image)
         => image
                 .Select(line => line.Select(t => t.RemoveBorder()).Aggregate((x, y) => x.AppendRight(y)))
                     .Aggregate((x, y) => x.AppendBottom(y));

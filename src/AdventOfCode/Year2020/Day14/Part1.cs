@@ -55,6 +55,6 @@ record WriteMemory(int Address, long Value)
 }
 static class Factory
 {
-    public static object Create(string line) 
+    public static object Create(string line)
         => line[1] switch { 'a' => MaskInput.Parse(line).ToBitMask(), 'e' => WriteMemory.Parse(line), _ => throw new() };
 }

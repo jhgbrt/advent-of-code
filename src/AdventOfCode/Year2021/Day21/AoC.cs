@@ -57,7 +57,7 @@ namespace AdventOfCode.Year2021.Day21
                         1 => Play(player1.Move(score), player2, 2, cache),
                         _ => Play(player1, player2.Move(score), 1, cache)
                     };
-                        
+
                     (p1wins, p2wins) = (p1wins + wins.p1wins, p2wins + wins.p2wins);
                 }
                 cache[(player1, player2, playing)] = (p1wins, p2wins);

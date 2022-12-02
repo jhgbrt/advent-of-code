@@ -2,9 +2,9 @@ namespace AdventOfCode.Year2016.Day10;
 
 public class AoC201610
 {
-    static string[] input = Read.InputLines().Where(s => !string.IsNullOrEmpty(s)).ToArray();
-    static Regex re1 = new Regex(@"bot (?<id>\d+) gives low to (?<ltype>bot|output) (?<low>\d+) and high to (?<htype>bot|output) (?<high>\d+)");
-    static Regex re2 = new Regex(@"value (?<value>\d+) goes to bot (?<destination>\d+)");
+    static readonly string[] input = Read.InputLines().Where(s => !string.IsNullOrEmpty(s)).ToArray();
+    static readonly Regex re1 = new (@"bot (?<id>\d+) gives low to (?<ltype>bot|output) (?<low>\d+) and high to (?<htype>bot|output) (?<high>\d+)");
+    static readonly Regex re2 = new (@"value (?<value>\d+) goes to bot (?<destination>\d+)");
     public object Part1() => RunInstructions().part1;
     public object Part2() => RunInstructions().part2;
 
@@ -87,9 +87,6 @@ public class AoC201610
         return (part1, outputs[0] * outputs[1] * outputs[2]);
 
     }
-
-
-
 
 }
 record BotInstruction(int id, int low, string ltype, int high, string htype);

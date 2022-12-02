@@ -91,9 +91,9 @@ public class AoC202108
 
         var dictionary = Range(0, 10).ToDictionary(i => map[i], i => i);
 
-        return dictionary[output[0]] * 1000 
-             + dictionary[output[1]] * 100 
-             + dictionary[output[2]] * 10 
+        return dictionary[output[0]] * 1000
+             + dictionary[output[1]] * 100
+             + dictionary[output[2]] * 10
              + dictionary[output[3]] * 1;
     }
 }

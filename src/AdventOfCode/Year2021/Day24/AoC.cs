@@ -211,7 +211,7 @@ public class AoC202124
         var zvalues = new HashSet<int>() { 0 };
 
         // cache the digits which lead to a specific z-value (list will contain 14 values at the end)
-        var results = new Dictionary<int, ImmutableList<int>>(); 
+        var results = new Dictionary<int, ImmutableList<int>>();
         var digits = Range(1, 9).ToArray();
         if (part == 2) digits = digits.Reverse().ToArray();
         foreach (var (p1,p2,p3) in parameters.Reverse())

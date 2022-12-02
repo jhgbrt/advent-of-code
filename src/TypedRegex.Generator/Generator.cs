@@ -17,7 +17,7 @@ namespace TypedRegex.Generator
         public IEnumerable<RecordDeclarationSyntax> CandidateRecords => Records;
         List<RecordDeclarationSyntax> Records { get; } = new();
         HashSet<string> TypesUsedForTypedRegex { get; } = new();
-        public void OnVisitSyntaxNode(SyntaxNode syntaxNode) 
+        public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
         {
             if (syntaxNode is RecordDeclarationSyntax record)
             {
@@ -84,9 +84,9 @@ namespace System.Text.RegularExpressions.Typed
             foreach (var item in inconsistentRegex)
             {
                 var descriptor = new DiagnosticDescriptor(
-                    "TRX001", 
+                    "TRX001",
                     "Incomplete Regex",
-                    "RegEx for parsing type {0} is missing named capture groups for properties {1}", 
+                    "RegEx for parsing type {0} is missing named capture groups for properties {1}",
                     "TypedRegex", DiagnosticSeverity.Error, true);
                 context.ReportDiagnostic(Diagnostic.Create(descriptor, item.record.GetLocation(), item.symbol.Name, string.Join(",", item.missing)));
             }
@@ -98,7 +98,7 @@ namespace System.Text.RegularExpressions.Typed
                 let constructor = symbol.Constructors.First()
                 let attribute = symbol.GetAttributes().FirstOrDefault(a => a.AttributeClass.Equals(attributeSymbol, SymbolEqualityComparer.Default))
                 where attribute is not null
-                let pattern = (string)attribute.ConstructorArguments.First().Value 
+                let pattern = (string)attribute.ConstructorArguments.First().Value
                 let regex = new Regex(pattern)
                 let @namespace = symbol.ContainingNamespace.ToString()
                 let typedName = $"{symbol.Name}TypedRegex"
@@ -209,11 +209,11 @@ namespace {@namespace}
 
                     var assignment = parseMethod switch
                     {
-                        { Parameters: { Length: 2 } } 
+                        { Parameters: { Length: 2 } }
                             => $@"            var {variableName} = {fullyQualifiedName}(match.Groups[""{parameterName}""].Value, CultureInfo.InvariantCulture);",
-                        { Parameters: { Length: 1 } } 
+                        { Parameters: { Length: 1 } }
                             => $@"            var {variableName} = {fullyQualifiedName}(match.Groups[""{parameterName}""].Value);",
-                        _ 
+                        _
                             => $@"            var {variableName} = match.Groups[""{parameterName}""].Value;"
                     };
                     sb.AppendLine(assignment);
@@ -316,7 +316,6 @@ namespace {@namespace}
                     );
             }
 
-            
             yield return
                                                     ReturnStatement(
                                                         ObjectCreationExpression(

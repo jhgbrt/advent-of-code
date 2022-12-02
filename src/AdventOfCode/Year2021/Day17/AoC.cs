@@ -46,10 +46,10 @@ record struct Area(P topleft, P bottomright);
 record struct P(int x, int y)
 {
     public P Next(V v) => this with { x = x + v.dx, y = y + v.dy };
-    public bool IsIn(Area a) 
-        => x >= a.topleft.x 
-        && x <= a.bottomright.x 
-        && y <= a.topleft.y 
+    public bool IsIn(Area a)
+        => x >= a.topleft.x
+        && x <= a.bottomright.x
+        && y <= a.topleft.y
         && y >= a.bottomright.y;
 }
 record struct V(int dx, int dy)

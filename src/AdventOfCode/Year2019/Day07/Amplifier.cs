@@ -46,7 +46,7 @@ class Amplifier
                     break;
                 case 3:
                     {
-                        if (!inputs.TryDequeue(out int inputvalue)) 
+                        if (!inputs.TryDequeue(out int inputvalue))
                             throw new InvalidOperationException("no more inputs");
                         const int parameterCount = 1;
                         var parameters = GetParameters(program, index, modes, parameterCount);

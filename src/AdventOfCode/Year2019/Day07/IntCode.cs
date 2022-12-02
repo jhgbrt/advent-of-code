@@ -102,7 +102,7 @@ static class IntCode
         while (opcode != 99);
     }
 
-    static IEnumerable<(int value, Mode mode)> GetParameters(this IEnumerable<int> program, int index, IEnumerable<Mode> modes, int n) 
+    static IEnumerable<(int value, Mode mode)> GetParameters(this IEnumerable<int> program, int index, IEnumerable<Mode> modes, int n)
         => program.Skip(index + 1).Take(n).Zip(modes, (l, r) => (value: l, mode: r));
 
     static (int opcode, IReadOnlyCollection<Mode> modes) Decode(int value)

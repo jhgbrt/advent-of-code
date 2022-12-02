@@ -30,15 +30,15 @@ readonly record struct Line(Point from, Point to)
             yield return p;
             if (p == to) break;
             p = p.Next(to);
-        } 
+        }
     }
 
 }
 readonly record struct Point(int x, int y)
 {
-    internal Point Next(Point end) => this with 
-    { 
-        x = (end.x - x) switch { < 0 => x - 1, 0 => x, > 0 => x + 1 }, 
-        y = (end.y - y) switch { < 0 => y - 1, 0 => y, > 0 => y + 1 } 
-    }; 
+    internal Point Next(Point end) => this with
+    {
+        x = (end.x - x) switch { < 0 => x - 1, 0 => x, > 0 => x + 1 },
+        y = (end.y - y) switch { < 0 => y - 1, 0 => y, > 0 => y + 1 }
+    };
 }

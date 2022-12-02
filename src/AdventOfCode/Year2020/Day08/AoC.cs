@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2020.Day08;
 
-public class AoC202008 
+public class AoC202008
 {
     static Prog program = ReadProgram();
 

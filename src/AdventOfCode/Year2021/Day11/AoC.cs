@@ -42,7 +42,7 @@ class Grid
         foreach (var (x,y) in from y in Range(0,10) from x in Range(0,10) select (x, y))
             yield return new Coordinate(x, y);
     }
-    
+
     static IEnumerable<Coordinate> Neighbors(Coordinate c)
         => from dx in Range(-1, 3)
            from dy in Range(-1, 3)

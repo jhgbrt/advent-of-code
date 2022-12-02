@@ -12,7 +12,7 @@ public class AoC202109
         ).Sum();
 
     public object Part2() => (
-        from low in 
+        from low in
             from p in grid.Points()
             let neighbours = grid.Neighbours(p)
             let value = grid[p]

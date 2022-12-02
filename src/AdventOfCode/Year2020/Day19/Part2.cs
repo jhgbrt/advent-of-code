@@ -29,7 +29,7 @@ static class AoC
            {
                '"' => new SingleCharacter(ruleNumber, parts[1][1]) as Rule,
                _ => new RecursiveRule(ruleNumber, (from p in parts[1].Split(" | ")
-                                                   let numbers = (from i in p.Split(' ') 
+                                                   let numbers = (from i in p.Split(' ')
                                                                   select int.Parse(i)).ToImmutableArray()
                                                    select numbers).ToImmutableArray())
            };
@@ -53,7 +53,7 @@ static class AoC
             RecursiveRule r => r.Number switch
             {
                 8 => $"(?:{ToRegex(42, rules)})+",
-                11 => $"(?<DEPTH>{ToRegex(42, rules)})+(?<-DEPTH>{ToRegex(31,rules)})+(?(DEPTH)(?!))", 
+                11 => $"(?<DEPTH>{ToRegex(42, rules)})+(?<-DEPTH>{ToRegex(31,rules)})+(?(DEPTH)(?!))",
                 _ => $"({string.Join("|", from numbers in r.RuleNumberLists select string.Join("", from ruleNumber in numbers select ToRegex(ruleNumber, rules)))})"
             },
             _ => throw new()

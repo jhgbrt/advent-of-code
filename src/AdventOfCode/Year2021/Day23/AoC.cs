@@ -80,7 +80,7 @@ record GameState(Hall Hall, Rooms Rooms)
     };
 
     private static ImmutableArray<Amphipod> Amphipods = Range(0, 4).Select(x => new Amphipod((char)('A' + x), (int)Math.Pow(10, x), (x + 1) * 2)).ToImmutableArray();
-    
+
     public IEnumerable<Move> PossibleMoves()
         => (from a in Amphipods
             from pos in Hall.EmptyPositionsAround(a.Position)
@@ -119,7 +119,7 @@ record GameState(Hall Hall, Rooms Rooms)
         var target = Amphipods[id-'A'].Position;
         var start = target > fromhallway ? fromhallway + 1 : fromhallway - 1;
         var range = target < start ? target..start : start..target;
-        
+
         if (!Hall.IsEmpty(range))
             return null;
 
@@ -127,7 +127,7 @@ record GameState(Hall Hall, Rooms Rooms)
             return null;
 
         var depth = room.LastEmptyPosition;
-        
+
         return new Move(this with
         {
             Hall = Hall.Clear(fromhallway),

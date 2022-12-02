@@ -48,7 +48,7 @@ class Tile
     }
 
     public bool IsAdjacentTo(Tile other) => other.Id != Id && SideIds.Any(id => other.SideIds.Contains(id));
-   
+
     public int[] SideIds { get; }
 
     public override string ToString() => $"{Id} - {string.Join(" ", SideIds)}";
