@@ -34,6 +34,7 @@ record Result(ResultStatus Status, string Value, TimeSpan Elapsed)
     public readonly static Result Empty = new Result(ResultStatus.NotImplemented, string.Empty, TimeSpan.Zero);
     public Result Verify(string answer) => Status switch
     {
+        ResultStatus.Unknown when string.IsNullOrEmpty(answer) => this,
         ResultStatus.Unknown => this with { Status = answer == Value ? ResultStatus.Ok : ResultStatus.Failed },
         ResultStatus.NotImplemented when !string.IsNullOrEmpty(answer) => this with { Status = ResultStatus.AnsweredButNotImplemented },
         _ => this
@@ -76,15 +77,9 @@ record LeaderBoard(int OwnerId, int Year, IReadOnlyDictionary<int, Member> Membe
 record Member(int Id, string Name, int TotalStars, int LocalScore, int GlobalScore, Instant? LastStarTimeStamp, IReadOnlyDictionary<int, DailyStars> Stars);
 record DailyStars(int Day, Instant? FirstStar, Instant? SecondStar);
 
-
-record ReportLine(int year, int day, ConsoleColor color, string status, ConsoleColor dcolor, string duration, string explanation)
+record PuzzleResultStatus(Puzzle puzzle, DayResult result)
 {
-    public override string ToString() => $"{year}-{day:00} [[[{color}]{status}[/]]] - [{dcolor}]{duration}[/]{explanation}";
-}
-
-record PuzzleResultStatus(Puzzle puzzle, DayResult result, bool refreshed)
-{
-    public ReportLine ToReportLine()
+    public string ToReportLine()
     {
         (var duration, var dcolor) = result.Elapsed.TotalMilliseconds switch
         {
@@ -96,20 +91,22 @@ record PuzzleResultStatus(Puzzle puzzle, DayResult result, bool refreshed)
         };
 
         var comparisonResult = puzzle.Compare(result);
-
-        (var status, var color, var explanation) = comparisonResult switch
-        {
-            { part1: ResultStatus.Failed } or { part2: ResultStatus.Failed } => ("FAILED", ConsoleColor.Red, $"- expected {(puzzle.Answer.part1, puzzle.Answer.part2)} but was ({(result.part1.Value, result.part2.Value)})."),
-            { part1: ResultStatus.AnsweredButNotImplemented } or { part2: ResultStatus.AnsweredButNotImplemented } => ("SKIPPED", ConsoleColor.Red, " - answered but no implementation."),
-            { part1: ResultStatus.NotImplemented, part2: ResultStatus.NotImplemented } => ("SKIPPED", ConsoleColor.Yellow, " - not implemented."),
-            { part1: ResultStatus.NotImplemented, part2: ResultStatus.Ok } => ("SKIPPED", ConsoleColor.Yellow, " - part 1 not implemented."),
-            { part1: ResultStatus.Ok, part2: ResultStatus.NotImplemented } => ("SKIPPED", ConsoleColor.Yellow, " - part 2 not implemented."),
-            _ => ("OK", ConsoleColor.Green, "")
-        };
-
-        return new ReportLine(result.year, result.day, color, status, dcolor, duration, explanation);
+        var status1 = GetReportPart(comparisonResult.part1, puzzle.Answer.part1, result.part1.Value, 1);
+        var status2 = GetReportPart(comparisonResult.part2, puzzle.Answer.part2, result.part2.Value, 2);
+        return $"{result.year}-{result.day:00} [[[{status1.color}]{status1.status}[/]]]/[[[{status2.color}]{status2.status}[/]]] [{dcolor}]{duration}[/]{status1.explanation} {status2.explanation}";
     }
+    (string status, ConsoleColor color, string explanation) GetReportPart(ResultStatus status, string answer, string result, int part) => status switch
+    {
+        ResultStatus.Failed => ("FAILED", ConsoleColor.Red, $" - part {part}: expected {answer} but was {result}"),
+        ResultStatus.AnsweredButNotImplemented => ("ERROR", ConsoleColor.Red, $" - part {part} answered, but no implementation found"),
+        ResultStatus.NotImplemented => ("NOTIMPLEMENTED", ConsoleColor.Yellow, ""),
+        ResultStatus.Unknown => ("UNKNOWN", ConsoleColor.Yellow, $" - post answer for part {part} to verify"),
+        ResultStatus.Ok => ("OK", ConsoleColor.Green, ""),
+        _ => throw new NotImplementedException($"{status} is an unhandled result status")
+    };
 }
+
+
 record LeaderboardEntry(string name, long score, long stars, DateTimeOffset lastStar);
 record PuzzleReportEntry(
     int year, int day, string answer1, string answer2,

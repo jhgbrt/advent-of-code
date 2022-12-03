@@ -11,11 +11,13 @@ namespace Net.Code.AdventOfCode.Tool.Commands;
 class Run : ManyPuzzlesCommand<Run.Settings>
 {
     private readonly IAoCRunner manager;
+    private readonly IPuzzleManager puzzleManager;
     private readonly IInputOutputService io;
 
-    public Run(IAoCRunner manager, AoCLogic aocLogic, IInputOutputService io) : base(aocLogic)
+    public Run(IAoCRunner manager, IPuzzleManager puzzleManager, AoCLogic aocLogic, IInputOutputService io) : base(aocLogic)
     {
         this.manager = manager;
+        this.puzzleManager = puzzleManager;
         this.io = io;
     }
 
@@ -31,8 +33,12 @@ class Run : ManyPuzzlesCommand<Run.Settings>
     public override async Task<int> ExecuteAsync(int year, int day, Settings options)
     {
         var typeName = options.typeName;
-        io.WriteLine($"{year}, day {day}");
-        DayResult result = await manager.Run(typeName, year, day, (part, result) => io.MarkupLine($"part {part}: {result.Value} ({result.Elapsed})"));
+
+        var result = await manager.Run(typeName, year, day, (part, result) => io.MarkupLine($"part {part}: {result.Value} ({result.Elapsed})"));
+        var resultStatus = await puzzleManager.GetPuzzleResult(year, day, (__, _) => { });
+        var reportLine = resultStatus.ToReportLine();
+        io.MarkupLine(reportLine);
+
         return 0;
     }
 }

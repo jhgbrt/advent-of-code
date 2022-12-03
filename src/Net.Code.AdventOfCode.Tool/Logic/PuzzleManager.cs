@@ -44,7 +44,7 @@ class PuzzleManager : IPuzzleManager
         var result = cache.Exists(y, d, "result.json")
             ? JsonSerializer.Deserialize<DayResult>(await cache.ReadFromCache(y, d, "result.json"))!
             : DayResult.NotImplemented(y, d);
-        return new PuzzleResultStatus(puzzle, result, false);
+        return new PuzzleResultStatus(puzzle, result);
     }
 
     public async Task<(bool success, HttpStatusCode status, string content)> Post(int year, int day, int part, string value)

@@ -5,7 +5,7 @@ using System.ComponentModel;
 
 namespace Net.Code.AdventOfCode.Tool.Commands;
 
-[Description("Verify the results for the given puzzle(s).")]
+[Description("Verify the results for the given puzzle(s). Does not run the puzzle code.")]
 class Verify : ManyPuzzlesCommand<AoCSettings>
 {
     private readonly IPuzzleManager manager;

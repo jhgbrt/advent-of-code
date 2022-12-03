@@ -56,7 +56,8 @@ public class CommandTests
     public async Task Run()
     {
         var manager = Substitute.For<IAoCRunner>();
-        var run = new Run(manager, AoCLogic, Substitute.For<IInputOutputService>());
+        IPuzzleManager puzzleManager = CreatePuzzleManager();
+        var run = new Run(manager, puzzleManager, AoCLogic, Substitute.For<IInputOutputService>());
         await run.ExecuteAsync(2021, 1, new());
         await manager.Received(1).Run(null, 2021, 1, Arg.Any<Action<int, Result>>());
     }
@@ -162,7 +163,7 @@ public class CommandTests
                 manager.GetPuzzleResult(y, d, Arg.Any<Action<int, Result>>()).Returns(
                     Task.FromResult(new PuzzleResultStatus(
                         new Puzzle(y, d, string.Empty, string.Empty, string.Empty, Answer.Empty, Status.Unlocked),
-                        DayResult.NotImplemented(y, d), false))
+                        DayResult.NotImplemented(y, d)))
                     );
 
         return manager;

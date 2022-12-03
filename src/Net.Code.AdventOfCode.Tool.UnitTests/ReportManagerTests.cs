@@ -23,9 +23,7 @@ public class ReportManagerTests
         manager.GetPuzzleResult(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<Action<int,Result>>())
             .Returns(callInfo => new PuzzleResultStatus(
                 new Puzzle(callInfo.ArgAt<int>(0), callInfo.ArgAt<int>(1), "", "", "", Answer.Empty, Status.Unlocked),
-                DayResult.NotImplemented(callInfo.ArgAt<int>(0), callInfo.ArgAt<int>(1)),
-                false
-                )
+                DayResult.NotImplemented(callInfo.ArgAt<int>(0), callInfo.ArgAt<int>(1)))
             );
 
         var rm = new ReportManager(client, manager, new AoCLogic(TestClock.Create(2017,1,1,0,0,0)));

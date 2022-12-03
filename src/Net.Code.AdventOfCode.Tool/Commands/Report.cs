@@ -91,7 +91,12 @@ static class TableFactory
         return table;
     }
 
-    static string Format(string answer, string result) => answer == result ? answer : $"[strikethrough]{result}[/] [red]{answer}[/]";
+    static string Format(string answer, string result) => answer switch
+    {
+        "" => $"[yellow]{result}[/]",
+        _ when answer.Equals(result) => answer,
+        _ => $"[red][strikethrough]{result}[/] {answer}[/]"
+    };
     static string Format(ResultStatus status)
     {
         return status switch
@@ -100,7 +105,7 @@ static class TableFactory
             ResultStatus.Failed => $"[red]{status.GetDisplayName()}[/]",
             ResultStatus.NotImplemented => $"[yellow]{status.GetDisplayName()}[/]",
             ResultStatus.AnsweredButNotImplemented => $"[red]{status.GetDisplayName()}[/]",
-            ResultStatus.Unknown => $"[red]{status.GetDisplayName()}[/]",
+            ResultStatus.Unknown => $"[yellow]{status.GetDisplayName()}[/]",
             _ => status.GetDisplayName()
         };
     }
