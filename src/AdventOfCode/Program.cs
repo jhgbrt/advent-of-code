@@ -1,2 +1,2 @@
-﻿using Net.Code.AdventOfCode.Tool;
+﻿using Net.Code.AdventOfCode.Toolkit;
 await AoC.RunAsync(args);
