@@ -3,31 +3,32 @@ public class AoC202204
 {
     static string[] input = Read.InputLines();
     public int Part1() => (from line in input
-                           let pair = RangeEx.ParsePair(line)
+                           let pair = RangePair.Parse(line)
                            where pair.left.Contains(pair.right) || pair.right.Contains(pair.left)
                            select pair).Count();
     public int Part2() => (from line in input
-                           let pair = RangeEx.ParsePair(line)
+                           let pair = RangePair.Parse(line)
                            where pair.left.Overlaps(pair.right)
                            select pair).Count();
 }
 
-static partial class RangeEx
+record struct Range(int start, int end)
 {
-    public static bool Contains(this Range left, Range right)
-        => left.Start.Value <= right.Start.Value && left.End.Value >= right.End.Value;
-    public static bool Overlaps(this Range left, Range right)
-        => left.Start.Value <= right.End.Value && left.End.Value >= right.Start.Value;
+    public bool Contains(Range other) => start <= other.start && end >= other.end;
+    public bool Overlaps(Range other) => start <= other.end && end >= other.start;
+    public static Range Parse(string s) => _r.As<Range>(s)!.Value;
+    static Regex _r = new(@"^(?<start>\d+)-(?<end>\d+)$", RegexOptions.Compiled);
+}
 
-    static Regex _regex = Regex();
-    [GeneratedRegex(@"^(?<l1>\d+)-(?<u1>\d+),(?<l2>\d+)-(?<u2>\d+)$")]
-    private static partial Regex Regex();
-    public static (Range left, Range right) ParsePair(string s)
+record struct RangePair(Range left, Range right)
+{
+    static Regex _r = new(@"^(?<left>[^,]+),(?<right>[^,]+)$");
+    public static RangePair Parse(string s)
     {
-        var match = _regex.Match(s);
-        return (
-            new(int.Parse(match.Groups["l1"].Value), int.Parse(match.Groups["u1"].Value)),
-            new(int.Parse(match.Groups["l2"].Value), int.Parse(match.Groups["u2"].Value))
+        var match = _r.Match(s);
+        return new(
+            Range.Parse(match.Groups["left"].Value),
+            Range.Parse(match.Groups["right"].Value)
             );
     }
 }

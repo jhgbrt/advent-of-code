@@ -43,6 +43,6 @@
     <PackageReference Include="Xunit.SkippableFact" Version="1.4.13" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Net.Code.AdventOfCode.Toolkit" Version="1.0.0"/>
+    <PackageReference Include="Net.Code.AdventOfCode.Toolkit" Version="1.0.1" />
   </ItemGroup>
 </Project>
