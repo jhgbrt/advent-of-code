@@ -10,9 +10,10 @@
     <UserSecretsId>cd1c8a1e-0d6e-4552-b229-c2832fbbf40b</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="Template\AoC.cs.txt" />
+    <Compile Remove="Template\AoC.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Template\AoC.cs" />
     <None Include="Template\aoc.csproj" />
   </ItemGroup>
   <ItemGroup>

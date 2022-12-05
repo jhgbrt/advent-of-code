@@ -1,5 +1,5 @@
-﻿namespace AdventOfCode.Year{YYYY}.Day{DD};
-public class AoC{YYYY}{DD}
+﻿namespace AdventOfCode.YearYYYY.DayDD;
+public class AoCYYYYDD
 {
     static string[] input = Read.InputLines();
     public object Part1() => "";

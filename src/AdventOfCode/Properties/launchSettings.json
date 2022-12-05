@@ -2,7 +2,7 @@
   "profiles": {
     "aoc": {
       "commandName": "Project",
-      "commandLineArgs": "init --force",
+      "commandLineArgs": "run",
       "workingDirectory": "$(SolutionDir)AdventOfCode"
     }
   }
