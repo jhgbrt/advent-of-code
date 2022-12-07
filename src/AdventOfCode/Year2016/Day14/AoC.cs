@@ -1,24 +1,28 @@
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 
 namespace AdventOfCode.Year2016.Day14;
 
 public class AoC201614
 {
-    string salt = "zpqevtbw";
+    //readonly string salt = "abc";
+    readonly string salt = "zpqevtbw";
+    string CurrentPath([CallerFilePath] string path = "") => Path.GetDirectoryName(path) ?? "";
     public object Part1()
     {
+        Dictionary<int, string> hashes = new();
         var q = (
             from i in Range(1, int.MaxValue)
-            let repeat = Find3(salt, i)
+            let repeat = Find3(hashes, salt, i)
             where repeat.HasValue
-            from j in Range(i + 1, 1000).SkipWhile(j => !IsValid2(salt, j, repeat.Value)).Take(1)
+            from j in Range(i + 1, 1000).SkipWhile(j => !IsValid2(hashes, salt, j, repeat.Value)).Take(1)
             select i
             ).Take(64);
         return q.Last();
     }
     static MD5 md5 = MD5.Create();
-    static Dictionary<int, string> hashes = new();
-    static string GetHash(string salt, int seed, int repeat = 0)
+
+    static string GetHash(Dictionary<int, string> hashes, string salt, int seed, int repeat = 0)
     {
         if (!hashes.ContainsKey(seed))
         {
@@ -34,9 +38,9 @@ public class AoC201614
         return hashes[seed];
     }
 
-    static char? Find3(string salt, int seed, int repeat = 0)
+    static char? Find3(Dictionary<int, string> hashes, string salt, int seed, int repeat = 0)
     {
-        var hash = GetHash(salt, seed, repeat).AsSpan();
+        var hash = GetHash(hashes, salt, seed, repeat).AsSpan();
         for (int i = 0; i < hash.Length - 3; i++)
         {
             var c = hash[i];
@@ -45,9 +49,9 @@ public class AoC201614
         return null;
 
     }
-    static bool IsValid2(string salt, int seed, char c, int repeat = 0)
+    static bool IsValid2(Dictionary<int, string> hashes, string salt, int seed, char c, int repeat = 0)
     {
-        var hash = GetHash(salt, seed, repeat);
+        var hash = GetHash(hashes, salt, seed, repeat);
         for (int i = 0; i < hash.Length - 5; i++)
         {
             if (hash[i] == c
@@ -72,12 +76,23 @@ public class AoC201614
 
     public object Part2()
     {
-        hashes.Clear();
+        Dictionary<int, string> hashes = new();
+        var path = Path.Combine(CurrentPath(), "hashes-extended.txt");
+        if (!File.Exists(path))
+        {
+            using var s = new StreamWriter(File.OpenWrite(path));
+            foreach (var i in Range(0, 50000))
+            {
+                var hash = GetHash(hashes, salt, i, 2016);
+                s.WriteLine(hash);
+            }
+        }
+
         var q = (
             from i in Range(1, int.MaxValue)
-            let repeat = Find3(salt, i, 2016)
+            let repeat = Find3(hashes, salt, i, 2016)
             where repeat.HasValue
-            from j in Range(i + 1, 1000).SkipWhile(j => !IsValid2(salt, j, repeat.Value, 2016)).Take(1)
+            from j in Range(i + 1, 1000).SkipWhile(j => !IsValid2(hashes, salt, j, repeat.Value, 2016)).Take(1)
             select i
             ).Take(64);
         return q.Last();

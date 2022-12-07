@@ -2,7 +2,7 @@ namespace AdventOfCode.Year2022.Day07;
 
 public class AoC202207
 {
-    static string[] input = Read.InputLines();
+    static readonly IEnumerable<string> input = Read.InputLines();
     static readonly Directory Root = Directory.Parse(input);
 
     public long Part1() => (from d in Root.AllChildren()
@@ -17,16 +17,16 @@ public class AoC202207
 
 abstract class FileSystemEntry
 {
-    public FileSystemEntry(string name) => Name = name;
-    public string Name { get; }
-    public List<FileSystemEntry> Children { get; } = new();
+    protected FileSystemEntry(string name) => Name = name;
+    protected string Name { get; }
+    protected List<FileSystemEntry> Children { get; } = new();
     public abstract long Size { get; }
 }
 
 partial class Directory : FileSystemEntry
 {
-    static Regex FileRegex = CreateFileRegex();
-    static Regex DirectoryRegex = CreateDirectoryRegex();
+    static readonly Regex FileRegex = CreateFileRegex();
+    static readonly Regex DirectoryRegex = CreateDirectoryRegex();
     public static Directory Parse(IEnumerable<string> input)
     {
         var root = new Directory("/", null);
@@ -48,15 +48,15 @@ partial class Directory : FileSystemEntry
     }
     public IEnumerable<Directory> AllChildren()
     {
-        foreach (var child in Children.OfType<Directory>())
-        {
-            foreach (var d in child.AllChildren())
-                yield return d;
-        }
+        var q = from c in Children.OfType<Directory>()
+                from d in c.AllChildren()
+                select d;
+        foreach (var child in q)
+            yield return child;
         yield return this;
     }
     private Directory(string name, Directory? parent) : base(name) => Parent = parent;
-    public Directory? Parent { get; }
+    private Directory? Parent { get; }
     public override long Size => Children.Sum(f => f.Size);
     public Directory AddFile(string name, long size)
     {
@@ -81,10 +81,10 @@ partial class Directory : FileSystemEntry
     private static partial Regex CreateFileRegex();
     [GeneratedRegex("^dir (?<name>.+)$", RegexOptions.Compiled)]
     private static partial Regex CreateDirectoryRegex();
-}
-class File : FileSystemEntry
-{
-    public File(string name, long size) : base(name) => Size = size;
-    public override long Size { get; }
-    public override string ToString() => $"{Size} {Name}";
+    class File : FileSystemEntry
+    {
+        public File(string name, long size) : base(name) => Size = size;
+        public override long Size { get; }
+        public override string ToString() => $"{Size} {Name}";
+    }
 }

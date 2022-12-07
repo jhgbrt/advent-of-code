@@ -12,7 +12,9 @@
   <ItemGroup>
     <Compile Remove="Template\AoC.cs" />
     <Compile Remove="Year2015\**\*.cs" />
+<!--
     <Compile Remove="Year2016\**\*.cs" />
+-->
     <Compile Remove="Year2017\**\*.cs" />
     <Compile Remove="Year2018\**\*.cs" />
     <Compile Remove="Year2019\**\*.cs" />
