@@ -53,6 +53,6 @@
     <PackageReference Include="Xunit.SkippableFact" Version="1.4.13" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Net.Code.AdventOfCode.Toolkit" Version="1.0.1" />
+    <ProjectReference Include="..\..\..\advent-of-code-csharp-toolkit\src\Net.Code.AdventOfCode.Toolkit\Net.Code.AdventOfCode.Toolkit.csproj" />
   </ItemGroup>
 </Project>
