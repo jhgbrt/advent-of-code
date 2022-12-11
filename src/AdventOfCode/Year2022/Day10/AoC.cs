@@ -2,10 +2,11 @@ namespace AdventOfCode.Year2022.Day10;
 public class AoC202210
 {
     static string[] input = Read.InputLines();
-    public long Part1() => (from c in Cycles().Select((x, i) => (x, n: i+1))
-                            where new[] { 20, 60, 100, 140, 180, 220 }.Contains(c.n)
-                            select c.x * c.n
-                          ).Sum();
+    public long Part1() => (
+        from c in Cycles().Select((x, i) => (x, n: i + 1))
+        where new[] { 20, 60, 100, 140, 180, 220 }.Contains(c.n)
+        select c.x * c.n
+    ).Sum();
 
     private IEnumerable<int> Cycles()
     {
@@ -24,38 +25,15 @@ public class AoC202210
         }
     }
 
-    [Fact]
-    public void Part1Test()
-    {
-        Assert.Equal(13860, Part1());
-    }
-
-    public string Part2() 
-    {
-        var q = from c in Cycles().Select((x, i) => (x, i))
-                group c by c.i / 40;
-
-        var sb = new StringBuilder();
-        var sprite = 0;
-        foreach (var line in q)
-        {
-            var lineb = new StringBuilder();
-            foreach (var pixel in line)
-            {
-                sprite = pixel.x;
-                var cycle = pixel.i;
-                var drawingpos = pixel.i % 40;
-                if (Range(sprite - 1, 3).Contains(drawingpos))
-                    lineb.Append('#');
-                else
-                    lineb.Append('.');
-            }
-            sb.AppendLine(lineb.ToString());
-            lineb.Clear();
-        }
-        Console.WriteLine(sb.ToString());
-        return PixelFontDecoder.DecodePixels(sb.ToString(), 5);
-    }
+    public string Part2() => (
+        from cycle in Cycles().Select((x, i) => (x, i))
+        let linenr = cycle.i / 40
+        let position = cycle.i % 40
+        let c = Range(cycle.x - 1, 3).Contains(position) ? '#' : '.'
+        group c by linenr
+        ).Aggregate(new StringBuilder(), (sb, line) => sb.AppendLine(new string(line.ToArray()))).ToString();
+    
+    // todo fix pixel font decoder//return PixelFontDecoder.DecodePixels(result, 5);
 
     private (int add, int n, string instruction) ToInstruction(string line) => line[0..4] switch
     {
