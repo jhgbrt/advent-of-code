@@ -31,9 +31,7 @@ public class AoC202210
         let position = cycle.i % 40
         let c = Range(cycle.x - 1, 3).Contains(position) ? '#' : '.'
         group c by linenr
-        ).Aggregate(new StringBuilder(), (sb, line) => sb.AppendLine(new string(line.ToArray()))).ToString();
-    
-    // todo fix pixel font decoder//return PixelFontDecoder.DecodePixels(result, 5);
+        ).Aggregate(new StringBuilder(), (sb, line) => sb.AppendLine(new string(line.ToArray()))).ToString().DecodePixels(PixelFontSize._4x6);
 
     private (int add, int n, string instruction) ToInstruction(string line) => line[0..4] switch
     {
