@@ -81,18 +81,3 @@ record Monkey(int  Id, List<ulong> Items, Func<ulong, ulong> Inspect, ulong Test
 
     public override string ToString() => $"id: {Id}, Items: {string.Join(",", Items)}, test: {Test}, true: {IfTrue}, false: {IfFalse}, Inspections: {Inspections}";
 }
-
-class Number
-{
-    List<List<int>> factors;
-
-    public void Add(int x) => factors.Add(new List<int> { x });
-    public void Multiply(int x)
-    {
-        foreach (var f in factors) f.Add(x);
-    }
-    public void Square()
-    {
-
-    }
-}
