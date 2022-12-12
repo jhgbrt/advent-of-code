@@ -5,35 +5,25 @@ public class AoC202211
 {
     static string[] input = Read.InputLines();
 
-    public ulong Part1()
+    public ulong Part1() => DoRounds(20, false);
+    public ulong Part2() => DoRounds(10000, true);
+
+    static ulong DoRounds(int n, bool reduce)
     {
         var monkeys = input.Chunk(7).Select(Monkey.Parse).ToImmutableArray();
-            
-        foreach (var round in Range(1, 20))
-        {
-            monkeys = DoRound(monkeys);
-        }
-
-        return monkeys
-            .OrderByDescending(m => m.Inspections)
-            .Take(2)
-            .Aggregate(1ul, (a, x) => a*x.Inspections);
-    }
-
-    public ulong Part2()
-    {
-        var monkeys = input.Chunk(7).Select(Monkey.Parse).ToImmutableArray();
+        ulong? reducer = reduce ? monkeys.Aggregate(1ul, (a, m) => a * m.Test) : null;
         var reduction = monkeys.Aggregate(1ul, (a, m) => a * m.Test);
-        foreach (var round in Range(1, 10000))
+        foreach (var round in Range(1, n))
         {
-            monkeys = DoRound(monkeys, reduction);
+            monkeys = DoRound(monkeys, reducer);
         }
-
         return monkeys
             .OrderByDescending(m => m.Inspections)
             .Take(2)
             .Aggregate(1ul, (a, x) => a * x.Inspections);
+
     }
+
 
     static ImmutableArray<Monkey> DoRound(ImmutableArray<Monkey> monkeys, ulong? reducer = null)
     {
