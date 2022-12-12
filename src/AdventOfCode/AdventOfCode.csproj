@@ -10,7 +10,6 @@
     <UserSecretsId>cd1c8a1e-0d6e-4552-b229-c2832fbbf40b</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-      <!--
     <Compile Remove="Template\AoC.cs" />
     <Compile Remove="Year2015\**\*.cs" />
     <Compile Remove="Year2016\**\*.cs" />
@@ -19,6 +18,7 @@
     <Compile Remove="Year2019\**\*.cs" />
     <Compile Remove="Year2020\**\*.cs" />
     <Compile Remove="Year2021\**\*.cs" />
+<!--
 -->
   </ItemGroup>
   <ItemGroup>
