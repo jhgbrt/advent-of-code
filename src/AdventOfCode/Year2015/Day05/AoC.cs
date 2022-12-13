@@ -36,7 +36,7 @@ public class AoC201505
     {
         for (var i = 0; i < s.Length - 3; i++)
             for (var j = i + 2; j < s.Length - 1; j++)
-                if (((s[i], s[i + 1]) == (s[j], s[j + 1])))
+                if ((s[i], s[i + 1]) == (s[j], s[j + 1]))
                     return true;
         return false;
     }

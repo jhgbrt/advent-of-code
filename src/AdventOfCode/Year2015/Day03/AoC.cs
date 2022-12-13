@@ -1,3 +1,5 @@
+using AdventOfCode.Common;
+
 namespace AdventOfCode.Year2015.Day03;
 
 public class AoC201503
@@ -30,14 +32,15 @@ public class AoC201503
         }
     }
 }
-record struct Point(int x, int y)
+
+static class Ex
 {
-    public Point Next(char c) => c switch
+    static public Point Next(this Point p, char c) => c switch
     {
-        '<' => this with { x = x - 1 },
-        '>' => this with { x = x + 1 },
-        '^' => this with { y = y - 1 },
-        'v' => this with { y = y + 1 },
+        '<' => p with { x = p.x - 1 },
+        '>' => p with { x = p.x + 1 },
+        '^' => p with { y = p.y - 1 },
+        'v' => p with { y = p.y + 1 },
         _ => throw new Exception()
     };
 }
