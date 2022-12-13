@@ -38,8 +38,6 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Xunit.SkippableFact" Version="1.4.13" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\advent-of-code-csharp-toolkit\src\Net.Code.AdventOfCode.Toolkit\Net.Code.AdventOfCode.Toolkit.csproj" />
+    <PackageReference Include="Net.Code.AdventOfCode.Toolkit" Version="1.0.2" />
   </ItemGroup>
 </Project>
