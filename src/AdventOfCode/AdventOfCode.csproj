@@ -10,18 +10,6 @@
     <UserSecretsId>cd1c8a1e-0d6e-4552-b229-c2832fbbf40b</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-      <!--
-    <Compile Remove="Template\AoC.cs" />
-    <Compile Remove="Year2015\**\*.cs" />
-    <Compile Remove="Year2016\**\*.cs" />
-    <Compile Remove="Year2017\**\*.cs" />
-    <Compile Remove="Year2018\**\*.cs" />
-    <Compile Remove="Year2019\**\*.cs" />
-    <Compile Remove="Year2020\**\*.cs" />
-    <Compile Remove="Year2021\**\*.cs" />
--->
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Template\AoC.cs" />
     <None Include="Template\aoc.csproj" />
   </ItemGroup>
@@ -34,17 +22,16 @@
     <Using Include="System.Text.Json" />
     <Using Include="System.Text.RegularExpressions" />
     <Using Include="System.Collections.Immutable" />
-    <Using Include="Microsoft.FSharp.Collections" />
     <Using Include="System.Linq.Enumerable" Static="true" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FSharp.Core" Version="7.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.3.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="7.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0" />
     <PackageReference Include="Microsoft.NET.Test.SDK" Version="17.5.0-preview-20221003-04" />
     <PackageReference Include="Sandwych.QuickGraph.Core" Version="1.0.0" />
     <PackageReference Include="sprache" Version="3.0.0-develop-00049" />
+    <PackageReference Include="System.Reactive.Linq" Version="5.0.0" />
     <PackageReference Include="xunit" Version="2.4.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

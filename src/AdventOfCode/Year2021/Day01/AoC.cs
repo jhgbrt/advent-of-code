@@ -1,3 +1,5 @@
+using AdventOfCode.Common;
+
 namespace AdventOfCode.Year2021.Day01;
 
 public class AoC202101
@@ -8,7 +10,7 @@ public class AoC202101
         (prev: int.MaxValue, count: 0),
         (p, i) => (prev: i, count: p.count + (i > p.prev ? 1 : 0))
         ).count;
-    public object Part2() => SeqModule.Windowed(3, numbers).Select(window => window.Sum()).Aggregate(
+    public object Part2() => numbers.Windowed(3).Select(window => window.Sum()).Aggregate(
         (prev: int.MaxValue, count: 0),
         (p, i) => (prev: i, count: p.count + (i > p.prev ? 1 : 0))
         ).count;

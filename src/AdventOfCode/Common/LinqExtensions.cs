@@ -40,4 +40,20 @@ static class LinqExtensions
             yield return (a, b, c);
         }
     }
+
+    public static IEnumerable<IReadOnlyCollection<T>> Windowed<T>(this IEnumerable<T> list, int size)
+    {
+        var buffer = new Queue<T>();
+
+        foreach (var item in list)
+        {
+            buffer.Enqueue(item);
+            if (buffer.Count == size)
+            {
+                yield return buffer.ToArray();
+                buffer.Dequeue();
+            }
+        }
+
+    }
 }
