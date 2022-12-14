@@ -38,8 +38,7 @@ public class AoC202211
                     newitem /= 3;
                 else
                 {
-                    while (newitem > reducer.Value)
-                        newitem %= reducer.Value;
+                    newitem %= reducer.Value;
                 }
                 var nextmonkey =
                     newitem % monkey.Test == 0

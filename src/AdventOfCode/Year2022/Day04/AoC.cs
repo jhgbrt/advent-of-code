@@ -12,12 +12,16 @@ public class AoC202204
                            select pair).Count();
 }
 
-record struct Range(int start, int end)
+partial record struct Range(int start, int end)
 {
     public bool Contains(Range other) => start <= other.start && end >= other.end;
     public bool Overlaps(Range other) => start <= other.end && end >= other.start;
+
     public static Range Parse(string s) => _r.As<Range>(s)!.Value;
-    static Regex _r = new(@"^(?<start>\d+)-(?<end>\d+)$", RegexOptions.Compiled);
+    static Regex _r = MyRegex();
+
+    [GeneratedRegex("^(?<start>\\d+)-(?<end>\\d+)$", RegexOptions.Compiled)]
+    private static partial Regex MyRegex();
 }
 
 record struct RangePair(Range left, Range right)

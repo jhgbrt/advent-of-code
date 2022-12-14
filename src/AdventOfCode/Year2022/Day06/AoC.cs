@@ -3,6 +3,7 @@ public class AoC202206
 {
     static StreamReader Input() => Read.InputStream();
     public int Part1() => Find(Input(), 4);
+
     public int Part2() => Find(Input(), 14);
 
     private static int Find(StreamReader input, int size)
@@ -23,4 +24,5 @@ public class AoC202206
         }
         return 0;
     }
+
 }

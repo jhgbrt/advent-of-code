@@ -4,8 +4,8 @@ public class AoC202203
     static string[] input = Read.InputLines();
     public int Part1() => (from line in input
                            let half = line.Length / 2
-                           let part1 = line.Substring(0, half)
-                           let part2 = line.Substring(half)
+                           let part1 = line[0..half]
+                           let part2 = line[half..]
                            from common in part1.Intersect(part2)
                            select Priority(common)).Sum();
     public int Part2() => (from chunk in input.Chunk(3)
