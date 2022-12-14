@@ -1,6 +1,7 @@
 ﻿using Net.Code.AdventOfCode.Toolkit;
 await AoC.RunAsync(args);
 
+/*
 Console.WriteLine($"GC collections: Gen 0: {GC.CollectionCount(0)}");
 Console.WriteLine($"GC collections: Gen 1: {GC.CollectionCount(1)}");
 Console.WriteLine($"GC collections: Gen 2: {GC.CollectionCount(2)}");
@@ -14,4 +15,4 @@ Console.WriteLine($"memoryload load bytes: {info.MemoryLoadBytes}");
 Console.WriteLine($"promoted bytes: {info.PromotedBytes}");
 Console.WriteLine($"total available memory bytes: {info.TotalAvailableMemoryBytes}");
 Console.WriteLine($"Committed bytes: {info.TotalCommittedBytes}");
-
+*/
