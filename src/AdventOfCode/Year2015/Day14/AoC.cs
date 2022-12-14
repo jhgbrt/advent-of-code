@@ -3,7 +3,7 @@ namespace AdventOfCode.Year2015.Day14;
 public class AoC201514
 {
     static Regex regex = new Regex(@"(?<name>\w+) can fly (?<speed>\d+) km/s for (?<fly>\d+) seconds, but then must rest for (?<rest>\d+) seconds");
-    static string[] input = Read.InputLines(); // "sample.txt"
+    static string[] input = Read.InputLines(); 
     static int maxtime = 2503; // 1000
     public object Part1() => GetEntries().Select(e => e.GetDistance(maxtime)).Max();
     public object Part2()
@@ -34,14 +34,9 @@ public class AoC201514
     }
 
     static IEnumerable<Entry> GetEntries() => from line in input
-                                              let match = regex.Match(line)
-                                              let name = match.Groups["name"].Value
-                                              let speed = int.Parse(match.Groups["speed"].Value)
-                                              let fly = int.Parse(match.Groups["fly"].Value)
-                                              let rest = int.Parse(match.Groups["rest"].Value)
-                                              select new Entry(name, speed, fly, rest);
+                                              select regex.As<Entry>(line)!.Value;
 }
-record Entry(string name, int speed, int fly, int rest)
+record struct Entry(string name, int speed, int fly, int rest)
 {
     public int GetDistance(int time)
     {

@@ -9,12 +9,7 @@ public class AoC201512
     public object Part1() => Traverse(Root(), false);
     public object Part2() => Traverse(Root(), true);
 
-    static JToken Root()
-    {
-        var jobject = JObject.Parse("{\"root\": " + input + "}");
-        var root = jobject["root"]!;
-        return root;
-    }
+    static JToken Root() => JObject.Parse("{\"root\": " + input + "}")["root"]!;
 
     static int Traverse(JToken o, bool removeRed) => o switch
     {

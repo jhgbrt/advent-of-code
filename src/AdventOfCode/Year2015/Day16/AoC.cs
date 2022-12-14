@@ -1,16 +1,16 @@
 namespace AdventOfCode.Year2015.Day16;
 
-public class AoC201516
+public partial class AoC201516
 {
     static string[] lines = Read.InputLines();
-    static Regex regex = new Regex(@"Sue (?<number>\d+): (?<properties>.*)");
+    static readonly Regex regex = SueRegex();
 
     static ImmutableList<Sue> sues = (
         from line in lines
-        let match = regex.Match(line)
-        let number = int.Parse(match.Groups["number"].Value)
+        let data = regex.As<SueData>(line)!.Value
+        let number = data.number
         let properties = (
-        from propertylist in match.Groups["properties"].Value.Split(',', StringSplitOptions.TrimEntries)
+        from propertylist in data.properties.Split(',', StringSplitOptions.TrimEntries)
         let kv = propertylist.Split(':', StringSplitOptions.TrimEntries)
         select (key: kv[0], value: int.Parse(kv[1]))
     ).ToDictionary(x => x.key, x => x.value)
@@ -52,7 +52,10 @@ public class AoC201516
             && sue.HasEqual("perfumes", list)
             select sue
             ).Single().number;
+    [GeneratedRegex("Sue (?<number>\\d+): (?<properties>.*)")]
+    private static partial Regex SueRegex();
 }
+record struct SueData(int number, string properties);
 record Sue(int number, IReadOnlyDictionary<string, int> properties)
 {
     public bool HasEqual(string name, IReadOnlyDictionary<string, int> list) => !properties.ContainsKey(name) || properties[name] == list[name];

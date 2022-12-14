@@ -1,20 +1,13 @@
 namespace AdventOfCode.Year2015.Day15;
 
-public class AoC201515
+public partial class AoC201515
 {
     static string[] input = Read.InputLines();
-    static Regex regex = new Regex(@"(?<name>\w+): capacity (?<capacity>[-\d]+), durability (?<durability>[-\d]+), flavor (?<flavor>[-\d]+), texture (?<texture>[-\d]+), calories (?<calories>[-\d]+)");
+    static Regex regex = IngredientRegex();
 
     static ImmutableList<Ingredient> ingredients = (
         from line in input
-        let match = regex.Match(line)
-        let name = match.Groups["name"].Value
-        let capacity = int.Parse(match.Groups["capacity"].Value)
-        let durability = int.Parse(match.Groups["durability"].Value)
-        let flavor = int.Parse(match.Groups["flavor"].Value)
-        let texture = int.Parse(match.Groups["texture"].Value)
-        let calories = int.Parse(match.Groups["calories"].Value)
-        select new Ingredient(name, capacity, durability, flavor, texture, calories)
+        select regex.As<Ingredient>(line)!.Value
         ).ToImmutableList();
 
     public object Part1() => (
@@ -45,5 +38,8 @@ public class AoC201515
                     if (i + j + k < 100)
                         yield return new[] { i, j, k, 100L - i - j - k };
     }
+
+    [GeneratedRegex("(?<name>\\w+): capacity (?<capacity>[-\\d]+), durability (?<durability>[-\\d]+), flavor (?<flavor>[-\\d]+), texture (?<texture>[-\\d]+), calories (?<calories>[-\\d]+)")]
+    private static partial Regex IngredientRegex();
 }
 record struct Ingredient(string name, int capacity, int durability, int flavor, int texture, int calories);

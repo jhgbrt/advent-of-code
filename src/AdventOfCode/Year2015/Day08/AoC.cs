@@ -4,8 +4,8 @@ public class AoC201508
 {
     static string[] lines = Read.InputLines();
 
-    public object Part1() => lines.Sum<string>(l => l.Length) - lines.Sum<string>(CountChars);
-    public object Part2() => lines.Sum<string>(CountEscaped) - lines.Sum<string>(l => l.Length);
+    public object Part1() => lines.Sum(l => l.Length) - lines.Sum(CountChars);
+    public object Part2() => lines.Sum(CountEscaped) - lines.Sum(l => l.Length);
     static int CountChars(string s)
     {
         var n = 0;
