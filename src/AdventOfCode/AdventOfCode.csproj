@@ -12,7 +12,6 @@
   <ItemGroup>
     <None Include="Template\AoC.cs" />
     <None Include="Template\aoc.csproj" />
-      <!--
     <Compile Remove="Template\AoC.cs" />
     <Compile Remove="Year2015\**\*.cs" />
     <Compile Remove="Year2016\**\*.cs" />

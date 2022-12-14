@@ -1,5 +1,3 @@
-using AdventOfCode.Year2018.Day23;
-
 namespace AdventOfCode.Year2022.Day14;
 
 class Grid
