@@ -1,40 +1,43 @@
 namespace AdventOfCode.Year2022.Day14;
 public class AoC202214
 {
-    static string[] sample = Read.SampleLines();
     static string[] input = Read.InputLines();
+    static Grid Parse(IEnumerable<string> input, int part)
+    {
+        var tiles = from l in input
+                    from pair in (
+                        from item in l.Split(" -> ")
+                        let pair = item.Split(',')
+                        let x = int.Parse(pair[0])
+                        let y = int.Parse(pair[1])
+                        select new Point(x, y)
+                        ).Windowed2()
+                    let line = Line.From(pair.a, pair.b)
+                    from p in line.Points()
+                    select p;
 
-    (int x, int y)[] lines = (from line in input
-                              from part in line.Split(" -> ")
-                              let coordinates = part.Split(",")
-                              let x = int.Parse(coordinates[0])
-                              let y = int.Parse(coordinates[1])
-                              select (x, y)).ToArray();
+        return new Grid(tiles, part);
+    }
 
-    public int Part1() => Grid.Parse(input, 1).DoSimulation();
-    public int Part2() => Grid.Parse(input, 2).DoSimulation();
+    public int Part1() => Parse(input, 1).DoSimulation();
+    public int Part2() => Parse(input, 2).DoSimulation();
 }
 
 
 class Grid
 {
-    private Dictionary<(int x, int y), char> _grid;
+    private Dictionary<Point, char> tiles;
 
-    public int MaxY;
-    public int MinX => _grid.Keys.Min(x => x.x);
-    public int MaxX => _grid.Keys.Max(x => x.x);
-    private (int x, int y) Source = (500, 0);
-    private int part;
+    private readonly int Floor;
+    private readonly Point Source = new(500, 0);
+    private readonly int part;
 
-    public Grid(IEnumerable<(int x, int y)> tiles, int part)
+    public Grid(IEnumerable<Point> tiles, int part)
     {
         this.part = part;
-        _grid = new();
-        MaxY = tiles.Max(x => x.y) + part - 1;
-
-        foreach (var pos in tiles)
-            this[pos] = '#';
+        this.tiles = tiles.Distinct().ToDictionary(t => t, _ => '#');
         this[Source] = '+';
+        this.Floor = tiles.Max(x => x.y) + part - 1;
     }
 
     public int DoSimulation()
@@ -54,90 +57,45 @@ class Grid
         while (CanMove(position))
         {
             while (CanMoveDown(position))
-            {
                 position = position.Down();
-            }
             if (CanMoveDownLeft(position))
-                position = position.Down().Left();
+                position = position.DownLeft();
             else if (CanMoveDownRight(position))
-                position = position.Down().Right();
+                position = position.DownRight();
         }
 
         this[position] = 'o';
 
         return part switch
         {
-            1 => position.y < MaxY,
+            1 => position.y < Floor,
             2 => position != Source,
             _ => false
         };
     }
 
 
-    bool CanMove((int x, int y) pos) => CanMoveDown(pos) || CanMoveDownLeft(pos) || CanMoveDownRight(pos);
-    bool CanMoveDown((int x, int y) pos) => pos.y < MaxY && this[pos.Down()] == '.';
-    bool CanMoveDownLeft((int x, int y) pos) => pos.y < MaxY && this[pos.Left().Down()] == '.';
-    bool CanMoveDownRight((int x, int y) pos) => pos.y < MaxY && this[pos.Right().Down()] == '.';
-
-    char this[(int x, int y) c]
+    bool CanMove(Point pos) => CanMoveDown(pos) || CanMoveDownLeft(pos) || CanMoveDownRight(pos);
+    bool CanMoveDown(Point pos) => pos.y < Floor && this[pos.Down()] == '.';
+    bool CanMoveDownLeft(Point pos) => pos.y < Floor && this[pos.DownLeft()] == '.';
+    bool CanMoveDownRight(Point pos) => pos.y < Floor && this[pos.DownRight()] == '.';
+    char this[Point c]
     {
-        get => _grid.ContainsKey(c) ? _grid[c] : '.';
-        set { _grid[c] = value; }
+        get => tiles.TryGetValue(c, out char value) ? value : '.';
+        set { tiles[c] = value; }
     }
 
-    public static Grid Parse(IEnumerable<string> input, int part)
-    {
-        var coordinates = from line in input
-                          from coordinate in ParseLine(line)
-                          select coordinate;
-        return new Grid(coordinates, part);
-    }
-    public static IEnumerable<(int x, int y)> ParseLine(string line)
-    {
-        var coordinates = (
-            from part in line.Split(" -> ")
-            let pair = part.Split(',')
-            let x = int.Parse(pair[0])
-            let y = int.Parse(pair[1])
-            select (x, y)
-            ).ToArray();
-
-        for (int i = 0; i < coordinates.Length - 1; i++)
-        {
-            var start = coordinates[i];
-            var end = coordinates[i + 1];
-            if (start.x == end.x)
-            {
-                var y1 = Math.Min(start.y, end.y);
-                var y2 = Math.Max(start.y, end.y);
-                for (var y = y1; y <= y2; y++)
-                {
-                    yield return (start.x, y);
-                }
-            }
-            if (start.y == end.y)
-            {
-                var x1 = Math.Min(start.x, end.x);
-                var x2 = Math.Max(start.x, end.x);
-                for (var x = x1; x <= x2; x++)
-                {
-                    yield return (x, start.y);
-                }
-            }
-        }
-
-    }
-
+ 
     public override string ToString()
     {
-        var sb = new StringBuilder();
-        for (int y = 0; y <= MaxY; y++)
+    int minX = tiles.Keys.Min(x => x.x);
+    int maxX = tiles.Keys.Max(x => x.x);
+    var sb = new StringBuilder();
+        for (int y = 0; y <= Floor; y++)
         {
-            for (int x = MinX; x <= MaxX; x++)
-            {
-                sb.Append(this[(x, y)]);
-            }
-            if (y != MaxY)
+            for (int x = minX; x <= maxX; x++)
+                sb.Append(this[new(x, y)]);
+            if (y != Floor)
                 sb.AppendLine();
         }
         return sb.ToString();
@@ -145,8 +103,39 @@ class Grid
 }
 static class Ex
 {
-    public static (int x, int y) Up(this (int x, int y) c) => (c.x, c.y - 1);
-    public static (int x, int y) Down(this (int x, int y) c) => (c.x, c.y + 1);
-    public static (int x, int y) Left(this (int x, int y) c) => (c.x - 1, c.y);
-    public static (int x, int y) Right(this (int x, int y) c) => (c.x + 1, c.y);
+    public static Point Down(this Point c) => c with { y = c.y + 1 };
+    public static Point DownLeft(this Point c) => c with { x = c.x - 1, y = c.y + 1 };
+    public static Point DownRight(this Point c) => c with { x = c.x + 1, y = c.y + 1 };
+    public static IEnumerable<(T a, T b)> Windowed2<T>(this IEnumerable<T> list)
+    {
+        var enumerator = list.GetEnumerator();
+        if (!enumerator.MoveNext()) yield break;
+        var a = enumerator.Current;
+        while (true)
+        {
+            if (!enumerator.MoveNext()) yield break;
+            var b = enumerator.Current;
+            yield return (a, b);
+            a = b;
+        }
+    }
+}
+record Line(Point start, Point end)
+{
+    public static Line From(Point p1, Point p2) => (p2.y - p1.y, p2.x - p1.x) switch
+    {
+        ( > 0, 0) => new Line(p1, p2),
+        (0, > 0) => new Line(p1, p2),
+        ( < 0, 0) => new Line(p2, p1),
+        (0, < 0) => new Line(p2, p1),
+        _ => throw new NotSupportedException("expected straight line")
+    };
+    public IEnumerable<Point> Points() => start.x == end.x
+            ? Range(start.y, end.y - start.y + 1).Select(y => new Point(start.x, y))
+            : Range(start.x, end.x - start.x + 1).Select(x => new Point(x, start.y));
+}
+
+readonly record struct Point(int x, int y)
+{
+    public override string ToString() => $"({x},{y})";
 }

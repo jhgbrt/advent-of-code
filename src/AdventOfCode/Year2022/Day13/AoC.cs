@@ -6,7 +6,7 @@ public class AoC202213
     static string[] input = Read.InputLines();
     static IComparer<JsonElement> comparer = new MyJsonArrayComparer();
     public int Part1() => input.Where(s => !string.IsNullOrEmpty(s))
-        .Select(Parse.AsJsonElement).PairWise()
+        .Select(Parse.AsJsonElement).Chunked2()
         .Select((pair, index) => (result: comparer.Compare(pair.a, pair.b), index: index + 1))
         .Where(item => item.result <= 0)
         .Select(item => item.index)

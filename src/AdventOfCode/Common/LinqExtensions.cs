@@ -2,7 +2,7 @@
 
 static class LinqExtensions
 {
-    public static IEnumerable<(T a, T? b)> PairWise<T>(this IEnumerable<T> list)
+    public static IEnumerable<(T a, T? b)> Chunked2<T>(this IEnumerable<T> list)
     {
         var enumerator = list.GetEnumerator();
         while (true)
@@ -18,7 +18,7 @@ static class LinqExtensions
             yield return (a, b);
         }
     }
-    public static IEnumerable<(T a, T? b, T? c)> TripletWise<T>(this IEnumerable<T> list)
+    public static IEnumerable<(T a, T? b, T? c)> Chunked3<T>(this IEnumerable<T> list)
     {
         var enumerator = list.GetEnumerator();
         while (true)
@@ -53,7 +53,36 @@ static class LinqExtensions
         yield return item;
     }
 
-    public static IEnumerable<IReadOnlyCollection<T>> Windowed<T>(this IEnumerable<T> list, int size)
+    public static IEnumerable<(T a, T b)> Windowed2<T>(this IEnumerable<T> list)
+    {
+        var enumerator = list.GetEnumerator();
+        if (!enumerator.MoveNext()) yield break;
+        var a = enumerator.Current;
+        while (true)
+        {
+            if (!enumerator.MoveNext()) yield break;
+            var b = enumerator.Current;
+            yield return (a, b);
+            a = b;
+        }
+    }
+    public static IEnumerable<(T a, T b, T c)> Windowed3<T>(this IEnumerable<T> list)
+    {
+        var enumerator = list.GetEnumerator();
+        if (!enumerator.MoveNext()) yield break;
+        var a = enumerator.Current;
+        if (!enumerator.MoveNext()) yield break;
+        var b = enumerator.Current;
+        while (true)
+        {
+            if (!enumerator.MoveNext()) yield break;
+            var c = enumerator.Current;
+            yield return (a, b, c);
+            (a, b) = (b, c);
+        }
+    }
+
+    public static IEnumerable<IReadOnlyList<T>> Windowed<T>(this IEnumerable<T> list, int size)
     {
         var buffer = new Queue<T>();
 
