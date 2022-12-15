@@ -1,47 +1,61 @@
 using AdventOfCode.Common;
-using AdventOfCode.Year2015.Day21;
-using AdventOfCode.Year2022.Day02;
 
 namespace AdventOfCode.Year2022.Day15;
 public class AoC202215
 {
-    static string[] sample = Read.SampleLines();
-    static string[] input = Read.InputLines();
-
-    int Y = 10;
-    //int Y = 2000000;
-
-    static Regex regex = new(@"Sensor at (?<sensor>.+): closest beacon is at (?<beacon>.*)", RegexOptions.Compiled);
-    static Regex pointrx = new(@"x=(?<x>[-\d]+), y=(?<y>[-\d]+)");
+    //static string[] input = Read.SampleLines(); int Y = 10; int factor = 20;
+    static string[] input = Read.InputLines(); int Y = 2000000; int factor = 4000000;
     public object Part1()
     {
         var q = (
-            from line in sample
-            let m = regex.Match(line)
-            let sensor = pointrx.As<Point>(m.Groups["sensor"].Value)!.Value
-            let beacon = pointrx.As<Point>(m.Groups["beacon"].Value)!.Value
-            select (sensor, beacon, range: sensor.Distance(beacon))).ToList();
+            from l in input
+            let match = lineregex.Match(l)
+            let s = pointregex.As<Point>(match.Groups["sensor"].Value)!.Value
+            let beacon = pointregex.As<Point>(match.Groups["beacon"].Value)!.Value
+            let sensor = new Sensor(s, s.Distance(beacon))
+            select (sensor, beacon)
+            ).ToArray();
 
-        var minX = q.Min(x => Math.Min(x.sensor.x, x.beacon.x));
-        var maxX = q.Max(x => Math.Max(x.sensor.x, x.beacon.x));
-        var minY = q.Min(x => Math.Min(x.sensor.y, x.beacon.y));
-        var maxY = q.Max(x => Math.Max(x.sensor.y, x.beacon.y));
 
-        foreach (var x in from p in Range(minX, maxX - minX).Select(x => new Point(x, Y))
-                          where q.Any(item => item.sensor.Distance(p) <= item.range)
-                          select p)
-            Console.WriteLine(x);
+        IDictionary<Point, char> map = new Dictionary<Point, char>();
+        foreach (var item in q)
+        {
+            map[item.sensor.position] = 'S';
+            map[item.beacon] = 'B';
+        }
 
-        return (from p in Range(minX, maxX - minX).Select(x => new Point(x, Y))
-                where q.Any(item => item.sensor.Distance(p) <= item.range)
-                select p).Count() - 1;
-    }
+        //foreach (var sensor in q.Select(x => x.sensor).Skip(8).Take(1))
+        //{
+        //    foreach (var p in sensor.position.Within(sensor.range))
+        //        if (!map.ContainsKey(p)) map[p] = '#';
+        //}
 
-    public object Part2() => "";
+        //Console.WriteLine(new Grid(map));
+
+        var minX = q.Min(p => Math.Min(p.beacon.x, p.sensor.position.x));
+        var maxX = q.Max(p => Math.Max(p.beacon.x, p.sensor.position.x));
+        var minY = q.Min(p => Math.Min(p.beacon.y, p.sensor.position.y));
+        var maxY = q.Max(p => Math.Max(p.beacon.y, p.sensor.position.y));
+        var maxRange = q.Max(p => p.sensor.range);
+        Console.WriteLine($"{(minX, maxX, minY, maxY)}");
+
+        var query = from x in Range(minX - maxRange, maxX - minX + maxRange)
+                    let p = new Point(x, Y)
+                    let sensors = (
+                        from item in q
+                        let sensor = item.sensor
+                        where sensor.InRange(p)
+                        select sensor
+                        )
+                    where sensors.Any() && !map.ContainsKey(p)
+                    select (p, sensors);
+
+        //foreach (var item in query)
+        //    Console.WriteLine($"{item.p} -> {string.Join(",", item.sensors)}");
 
 
         return query.Count();
-}
+    }
 
     static Regex lineregex = new Regex("Sensor at (?<sensor>.+): closest beacon is at (?<beacon>.+)", RegexOptions.Compiled);
     static Regex pointregex = new Regex(@"x=(?<x>[-\d]+), y=(?<y>[-\d]+)", RegexOptions.Compiled);
@@ -56,10 +70,11 @@ record Sensor(Point position, int range)
 
 static class Ex
 {
-    public static IEnumerable<Point> WithinDistance(this Point p, int d)
+    public static int Distance(this Point p, Point o) => Math.Abs(p.x - o.x) + Math.Abs(p.y - o.y);
+    public static IEnumerable<Point> Within(this Point p, int distance)
     {
-        for (int dx = 0; dx <= d; dx++)
-            for (int dy = 0; dy <= (d - dx); dy++)
+        for (int dx = 0; dx <= distance; dx++)
+            for (int dy = 0; dy <= distance - dx; dy++)
             {
                 yield return new Point(p.x + dx, p.y + dy);
                 yield return new Point(p.x + dx, p.y - dy);
@@ -71,37 +86,19 @@ static class Ex
 
 class Grid
 {
-    private IDictionary<Point, char> tiles;
+    private IDictionary<Point, char> map;
 
-    private readonly int MinY;
-    private readonly int MaxY;
-    private readonly int MinX;
-    private readonly int MaxX;
-
-    public Grid(IDictionary<Point, char> tiles)
+    public Grid(IDictionary<Point,char> map)
     {
-        this.tiles = tiles;
-        this.MinY = tiles.Keys.Min(x => x.y);
-        this.MaxY = tiles.Keys.Max(x => x.y);
-        this.MinX = tiles.Keys.Min(x => x.x);
-        this.MaxX = tiles.Keys.Max(x => x.x);
+        this.map = map;
     }
-
-    public IEnumerable<Point> Sensors => tiles.Where(x => x.Value == 'S').Select(x => x.Key);
 
     char this[Point c]
     {
-        get => tiles.TryGetValue(c, out char value) ? value : '.';
-        set { tiles[c] = value; }
+        get => map.TryGetValue(c, out char value) ? value : '.';
+        set { map[c] = value; }
     }
 
-    public IEnumerable<Point> GetPointsAtY(int y)
-    {
-        for (int x = MinX; x <= MaxX; x++)
-        {
-            yield return new(x, y);
-        }
-    }
 
     public override string ToString()
     {
@@ -110,9 +107,10 @@ class Grid
         int minY = map.Keys.Min(x => x.x);
         int maxY = map.Keys.Max(x => x.y);
         var sb = new StringBuilder();
-        for (int y = MinY; y <= MaxY; y++)
+        for (int y = minY; y <= maxY; y++)
         {
-            for (int x = MinX; x <= MaxX; x++)
+            sb.Append($"{y:0000} ");
+            for (int x = minX; x <= maxX; x++)
                 sb.Append(this[new(x, y)]);
             sb.AppendLine();
         }
