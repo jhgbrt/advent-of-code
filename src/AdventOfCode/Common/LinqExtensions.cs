@@ -1,4 +1,7 @@
-﻿namespace AdventOfCode.Common;
+﻿using System.Numerics;
+using System.Runtime.InteropServices;
+
+namespace AdventOfCode.Common;
 
 static class LinqExtensions
 {
@@ -127,4 +130,22 @@ static class LinqExtensions
         if (items.Length != 7) throw new ArgumentException("Expected 7 items in array");
         return (items[0], items[1], items[2], items[3], items[4], items[5], items[6]);
     }
+
+    public static T Max<T>(this (T item1, T item2) tuple) where T : INumber<T>
+    {
+        return T.Max(tuple.item2, tuple.item2);
+    }
+    public static T Max<T>(this (T item1, T item2, T item3) tuple) where T : INumber<T>
+    {
+        return T.Max(tuple.item1, T.Max(tuple.item2, tuple.item3));
+    }
+    public static T Max<T>(this (T item1, T item2, T item3, T item4) tuple) where T : INumber<T>
+    {
+        return T.Max(tuple.item1, T.Max(tuple.item2, T.Max(tuple.item3, tuple.item4)));
+    }
+    public static T Max<T>(this (T item1, T item2, T item3, T item4, T item5) tuple) where T : INumber<T>
+    {
+        return T.Max(tuple.item1, T.Max(tuple.item2, T.Max(tuple.item3, T.Max(tuple.item4, tuple.item5))));
+    }
+
 }
