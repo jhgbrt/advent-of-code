@@ -1,4 +1,3 @@
-using static AdventOfCode.Year2020.Day24.Direction;
 namespace AdventOfCode.Year2020.Day24;
 static class Ex
 {
@@ -10,12 +9,12 @@ static class Ex
         {
             tile = d switch
             {
-                E => tile.East(),
-                W => tile.West(),
-                NE => tile.NorthEast(),
-                NW => tile.NorthWest(),
-                SE => tile.SouthEast(),
-                SW => tile.SouthWest(),
+                Direction.E => tile.East(),
+                Direction.W => tile.West(),
+                Direction.NE => tile.NorthEast(),
+                Direction.NW => tile.NorthWest(),
+                Direction.SE => tile.SouthEast(),
+                Direction.SW => tile.SouthWest(),
                 _ => throw new()
             };
         }
@@ -31,12 +30,12 @@ static class Ex
             sb.Append(c);
             Direction? d = sb.ToString() switch
             {
-                "se" => SE,
-                "ne" => NE,
-                "sw" => SW,
-                "nw" => NW,
-                "e" => E,
-                "w" => W,
+                "se" => Direction.SE,
+                "ne" => Direction.NE,
+                "sw" => Direction.SW,
+                "nw" => Direction.NW,
+                "e" => Direction.E,
+                "w" => Direction.W,
                 "s" or "n" => null,
                 _ => throw new()
             };

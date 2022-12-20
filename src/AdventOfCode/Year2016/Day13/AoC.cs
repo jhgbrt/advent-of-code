@@ -38,9 +38,9 @@ public class AoC201613
             }
         }
 
-        var grid = new Grid(input, 50);
+        //var grid = new Grid(input, 50);
 
-        return grid.ShortestPath((1,1), (31,39));
+        //return grid.ShortestPath((1,1), (31,39));
     }
 
     bool IsSpace(uint x, uint y) => HammingWeight(x * x + 3 * x + 2 * x * y + y + y * y + input) % 2 == 0;

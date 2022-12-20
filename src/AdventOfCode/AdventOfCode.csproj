@@ -13,7 +13,7 @@
     <None Include="Template\AoC.cs" />
     <None Include="Template\aoc.csproj" />
     <Compile Remove="Template\AoC.cs" />
-      
+        <!--
     <Compile Remove="Year2015\**\*.cs" />
     <Compile Remove="Year2016\**\*.cs" />
     <Compile Remove="Year2017\**\*.cs" />
@@ -21,7 +21,6 @@
     <Compile Remove="Year2019\**\*.cs" />
     <Compile Remove="Year2020\**\*.cs" />
     <Compile Remove="Year2021\**\*.cs" />
-<!--
 -->
   </ItemGroup>
   <ItemGroup>
@@ -34,6 +33,8 @@
     <Using Include="System.Text.RegularExpressions" />
     <Using Include="System.Collections.Immutable" />
     <Using Include="System.Linq.Enumerable" Static="true" />
+    <Using Include="System.Numerics"/>
+    <Using Include="System.Math" Static="true" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.3.0" />
