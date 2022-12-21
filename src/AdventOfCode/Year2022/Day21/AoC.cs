@@ -3,135 +3,89 @@ using AdventOfCode.Common;
 namespace AdventOfCode.Year2022.Day21;
 public class AoC202221
 {
-    static readonly bool usesample = true;
-    static string[] sample = Read.SampleLines();
     static string[] input = Read.InputLines();
 
-    static readonly Regex operationRegex = new Regex(@"(?<name>[a-z]+): (?<left>[a-z]+) (?<operation>.) (?<right>[a-z]+)", RegexOptions.Compiled);
+    static readonly Regex calculationRegex = new Regex(@"(?<name>[a-z]+): (?<l>[a-z]+) (?<operation>.) (?<r>[a-z]+)", RegexOptions.Compiled);
     static readonly Regex numberRegex = new Regex(@"(?<name>[a-z]+): (?<number>[\d]+)", RegexOptions.Compiled);
-    static IReadOnlyDictionary<string, Operation> instructions = (
-            from line in usesample ? sample : input
-            select operationRegex.As<MathOperation>(line) as Operation ?? numberRegex.As<YellNumber>(line) as Operation
-            ).ToDictionary(o => o.name);
+    static readonly ImmutableDictionary<string, Instruction> instructions = (
+            from line in input
+            select calculationRegex.As<Calculation>(line) as Instruction
+                ?? numberRegex.As<Number>(line)
+            ).ToImmutableDictionary(o => o.name);
 
-    static IReadOnlyDictionary<string, MathOperation> parents = (
+    static readonly IReadOnlyDictionary<string, Calculation> parents = (
         from i in instructions
-        where i.Value is MathOperation m
-        let m = (MathOperation) i.Value
-        from child in (m.left, m.right).AsEnumerable()
-        let parent = m 
+        where i.Value is Calculation m
+        let m = (Calculation) i.Value
+        from child in (m.l, m.r).AsEnumerable()
+        let parent = m
         select (child, parent)
         ).ToDictionary(x => x.child, x => x.parent);
 
     public long Part1() => GetValue("root", instructions);
-    public long Part2() 
+    public long Part2() => GetValue("humn", TransformInstructions(instructions).ToImmutableDictionary(x => x.name));
+
+    static IEnumerable<Instruction> TransformInstructions(IReadOnlyDictionary<string, Instruction> instructions)
     {
-
-        var queue = new Queue<string>();
-
-        queue.Enqueue("humn");
-
-        var newinstructions = new Dictionary<string, Operation>();
-        while (queue.Any())
+        var name = "humn";
+        while (true)
         {
-            var name = queue.Dequeue();
+            var parent = parents[name];
+            var sibling = parent.Other(name);
 
-            Operation op = instructions[name] switch
+            if (parent is { name: "root" })
             {
-                YellNumber n when name is not "humn" => n,
-                _ => Transform(name)
-            };
-
-            newinstructions[op.name] = op;
-
-            var children = op switch
-            {
-                MathOperation m => (m.left, m.right).AsEnumerable(),
-                _ => Empty<string>()
-            };
-            
-            foreach (var c in children)
-            {
-                queue.Enqueue(c);
+                yield return new Number(name, GetValue(sibling, instructions));
+                break;
             }
+
+            var transformed = Transform(name, parent);
+            var number = new Number(sibling, GetValue(sibling, instructions));
+            yield return transformed;
+            yield return number;
+
+            name = transformed.Other(sibling);
         }
-
-
-        foreach (var item in newinstructions)
-        {
-            Console.WriteLine(item);
-        }
-
-        //return GetValue2("humn", instructions);
-        return 0;
     }
 
-
-    long GetValue2(string name, IReadOnlyDictionary<string, Operation> instructions)
+    static Calculation Transform(string child, Calculation parent) => parent.operation switch
     {
-        var operation = name switch
-        {
-            "humn" => Transform(name),
-            _ => instructions[name]
-        };
-        Console.WriteLine($"GetValue2: {operation}");
-        return operation switch
-        {
-            YellNumber n => n.number,
-            _ => Transform(operation.name) switch
-            {
-                MathOperation { operation: '+' } m => GetValue2(m.left, instructions) + GetValue2(m.right, instructions),
-                MathOperation { operation: '-' } m => GetValue2(m.left, instructions) - GetValue2(m.right, instructions),
-                MathOperation { operation: '*' } m => GetValue2(m.left, instructions) * GetValue2(m.right, instructions),
-                MathOperation { operation: '/' } m => GetValue2(m.left, instructions) / GetValue2(m.right, instructions),
-                _ => throw new Exception()
-            }
-        };
+        '+' when parent.l == child => new(parent.l, parent.name, '-', parent.r),
+        '+' when parent.r == child => new(parent.r, parent.name, '-', parent.l),
+        '-' when parent.l == child => new(parent.l, parent.name, '+', parent.r),
+        '-' when parent.r == child => new(parent.r, parent.l, '-', parent.name),
+        '*' when parent.l == child => new(parent.l, parent.name, '/', parent.r),
+        '*' when parent.r == child => new(parent.r, parent.name, '/', parent.l),
+        '/' when parent.l == child => new(parent.l, parent.name, '*', parent.r),
+        '/' when parent.r == child => new(parent.r, parent.l, '/', parent.name),
+        _ => throw new Exception()
+    };
 
-    }
-
-    MathOperation Transform(string leaf)
+    static long GetValue(string operation, IReadOnlyDictionary<string, Instruction> instructions) => instructions[operation] switch
     {
-        var transformed = parents[leaf] switch
+        Number n => n.number,
+        Calculation m => m.operation switch
         {
-            MathOperation { operation: '+' } p when p.left == leaf => new MathOperation(p.left, p.name, '-', p.right),
-            MathOperation { operation: '+' } p when p.right == leaf => new MathOperation(p.right, p.name, '-', p.left),
-            MathOperation { operation: '-' } p when p.left == leaf => new MathOperation(p.left, p.name, '+', p.right),
-            MathOperation { operation: '-' } p when p.right == leaf => new MathOperation(p.right, p.left, '-', p.name),
-            MathOperation { operation: '*' } p when p.left == leaf => new MathOperation(p.left, p.name, '/', p.right),
-            MathOperation { operation: '*' } p when p.right == leaf => new MathOperation(p.right, p.name, '/', p.left),
-            MathOperation { operation: '/' } p when p.left == leaf => new MathOperation(p.left, p.name, '*', p.right),
-            MathOperation { operation: '/' } p when p.right == leaf => new MathOperation(p.right, p.left, '/', p.name),
-            _ => throw new Exception()
-        };
-
-        Console.WriteLine($"{leaf}: {instructions[leaf]} -> {transformed}");
-
-        return transformed;
-    }
-
-    long GetValue(string operation, IReadOnlyDictionary<string, Operation> instructions) => instructions[operation] switch
-    {
-        YellNumber n => n.number,
-        MathOperation m => m.operation switch
-        {
-            '+' => GetValue(m.left, instructions) + GetValue(m.right, instructions),
-            '-' => GetValue(m.left, instructions) - GetValue(m.right, instructions),
-            '*' => GetValue(m.left, instructions) * GetValue(m.right, instructions),
-            '/' => GetValue(m.left, instructions) / GetValue(m.right, instructions),
+            '+' => GetValue(m.l, instructions) + GetValue(m.r, instructions),
+            '-' => GetValue(m.l, instructions) - GetValue(m.r, instructions),
+            '*' => GetValue(m.l, instructions) * GetValue(m.r, instructions),
+            '/' => GetValue(m.l, instructions) / GetValue(m.r, instructions),
             _ => throw new Exception()
         },
         _ => throw new Exception()
     };
-
 }
 
-
-interface Operation
+interface Instruction
 {
     string name { get; }
-
 }
-
-record struct YellNumber(string name, long number) : Operation;
-record struct MathOperation(string name, string left, char operation, string right) : Operation;
+record struct Number(string name, long number) : Instruction
+{
+    public override string ToString() => $"{name}: {number}";
+}
+record struct Calculation(string name, string l, char operation, string r) : Instruction
+{
+    public override string ToString() => $"{name}: {l} {operation} {r}";
+    public string Other(string name) => name == l ? r : l;
+}
