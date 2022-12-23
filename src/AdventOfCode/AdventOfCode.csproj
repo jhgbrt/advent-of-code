@@ -8,12 +8,12 @@
     <GenerateProgramFile>false</GenerateProgramFile>
     <RootNameSpace>AdventOfCode</RootNameSpace>
     <UserSecretsId>cd1c8a1e-0d6e-4552-b229-c2832fbbf40b</UserSecretsId>
+    <NoWarn>CS8524;CS8509</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <None Include="Template\AoC.cs" />
     <None Include="Template\aoc.csproj" />
 <!--
-    <Compile Remove="Template\AoC.cs" />
     <Compile Remove="Year2015\**\*.cs" />
     <Compile Remove="Year2016\**\*.cs" />
     <Compile Remove="Year2017\**\*.cs" />
