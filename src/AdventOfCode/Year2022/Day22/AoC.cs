@@ -27,7 +27,7 @@ public class AoC202222
             //Console.Clear();
         }
         Console.WriteLine(v);
-
+        //Facing is 0 for right (>), 1 for down (v), 2 for left (<), and 3 for up (^).
         var result = (v.position.y + 1L) * 1000L + (v.position.x + 1L) * 4L + v.direction switch
         {
             E => 0, S => 1, W => 2, N => 3, _ => throw new Exception()

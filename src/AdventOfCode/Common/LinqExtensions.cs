@@ -68,6 +68,13 @@ static class LinqExtensions
         yield return tuple.c;
 
     }
+    public static IEnumerable<T> AsEnumerable<T>(this (T a, T b, T c, T d) tuple)
+    {
+        yield return tuple.a;
+        yield return tuple.b;
+        yield return tuple.c;
+        yield return tuple.d;
+    }
     public static IEnumerable<(T a, T b)> Windowed2<T>(this IEnumerable<T> list)
     {
         var enumerator = list.GetEnumerator();
