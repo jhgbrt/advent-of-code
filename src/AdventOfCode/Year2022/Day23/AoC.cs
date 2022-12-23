@@ -1,4 +1,7 @@
 using AdventOfCode.Common;
+
+using Microsoft.CodeAnalysis;
+
 namespace AdventOfCode.Year2022.Day23;
 using static Direction;
 #pragma warning disable CS8524 
@@ -6,22 +9,12 @@ using static Direction;
 
 public class AoC202223
 {
-    static bool usesample = true;
+    static bool usesample = false;
     static string[] sample = Read.SampleLines();
     static string[] input = Read.InputLines();
     static string[] theinput = usesample ? sample : input;
-    public object Part1()
-    {
-        Console.WriteLine(Grid.Parse(theinput));
-        Console.WriteLine(Grid.Parse(theinput).DoMoves(1));
-        Console.WriteLine(Grid.Parse(theinput).DoMoves(2));
-        Console.WriteLine(Grid.Parse(theinput).DoMoves(3));
-        Console.WriteLine(Grid.Parse(theinput).DoMoves(4));
-        Console.WriteLine(Grid.Parse(theinput).DoMoves(5));
-        Console.WriteLine(Grid.Parse(theinput).DoMoves(10));
-        return -1;
-    }
-    public object Part2() => "";
+    public object Part1() => Grid.Parse(theinput).DoMoves(10).Count();
+    public object Part2() => Grid.Parse(theinput).DoMovesWhileMoving();
 }
 
 
@@ -30,31 +23,23 @@ class Grid
     ImmutableHashSet<Coordinate> _items;
     (Direction a, Direction b, Direction c, Direction d) _directions;
 
+
     public Grid(ImmutableHashSet<Coordinate> items, (Direction a, Direction b, Direction c, Direction d) directions)
     {
         _items = items;
         _directions = directions;
+        var agg = _items.Aggregate(new Coordinate(int.MaxValue, int.MaxValue), (o, p) => o with { x = Min(o.x, p.x), y = Min(o.y, p.y) });
+        BottomLeft = new(Min(0, agg.x), Min(0, agg.y));
+        TopRight = _items.Aggregate(new Coordinate(int.MinValue, int.MinValue), (o, p) => o with { x = Max(o.x, p.x), y = Max(o.y, p.y) });
     }
 
-    private Coordinate BottomLeft
-    {
-        get
-        {
-            Coordinate agg = _items.Aggregate(new Coordinate(int.MaxValue, int.MaxValue), (o, p) => o with { x = Min(o.x, p.x), y = Min(o.y, p.y) });
-            return new(Min(0, agg.x), Min(0, agg.y));
-        }
-    }
+    private Coordinate BottomLeft { get; }
 
-    private Coordinate TopRight
-    {
-        get
-        {
-            Coordinate agg = _items.Aggregate(new Coordinate(int.MinValue, int.MinValue), (o, p) => o with { x = Max(o.x, p.x), y = Max(o.y, p.y) });
-            return new(agg.x + 1, agg.y + 1);
-        }
-    }
+    private Coordinate TopRight { get; }
 
-    internal int Count() => _items.Count();
+    private int Size => (TopRight.y - BottomLeft.y + 1) * (TopRight.x - BottomLeft.x + 1);
+
+    internal int Count() => Size - _items.Count;
 
     public static Grid Parse(string[] input)
     {
@@ -79,19 +64,31 @@ class Grid
         return grid;
     }
 
+    public int DoMovesWhileMoving()
+    {
+        int n = 0;
+        var grid = this;
+        while (true)
+        {
+            var next =  grid.DoMoves();
+            n++;
+            if (grid._items.SequenceEqual(next._items))
+                return n;
+            grid = next;
+        }
+    }
 
     public Grid DoMoves() => new Grid((from c in _items
-                                            let proposed = (
-                                                from d in _directions.AsEnumerable()
-                                                where CanMove(c, d)
-                                                select c.Move(d) as Coordinate?
-                                            ).FirstOrDefault()
-                                            where proposed.HasValue
-                                            group c by proposed.Value into g
-                                            from item in g.Skip(1).Any() ? g : g.Key.AsEnumerable()
-                                            select item).ToImmutableHashSet(), (_directions.b, _directions.c, _directions.d, _directions.a));
+                                       let proposed = (
+                                           from d in _directions.AsEnumerable()
+                                           where CanMove(c, d)
+                                           select c.Move(d) as Coordinate?
+                                       ).FirstOrDefault() ?? c
+                                       group c by proposed into g
+                                       from item in g.Skip(1).Any() ? g : g.Key.AsEnumerable()
+                                       select item).ToImmutableHashSet(), (_directions.b, _directions.c, _directions.d, _directions.a));
 
-    public bool CanMove(Coordinate c, Direction d) => c.AllNeighbours().Any(c => this[c] == '#') && d switch
+    bool CanMove(Coordinate c, Direction d) => c.AllNeighbours().Any(c => this[c] == '#') && d switch
     {
         N => CanMoveNorth(c),
         E => CanMoveEast(c),
