@@ -14,7 +14,6 @@ public class AoC202222
     {
         var x = Range(0, grid.Width).First(x => grid[x, 0] != ' ');
         var v = new Vector(new Point(x, 0), E);
-
         //Console.Clear();
         //Console.WriteLine(v);
         foreach (var i in GetInstructions(instructions))
@@ -26,14 +25,11 @@ public class AoC202222
             //Console.ReadLine();
             //Console.Clear();
         }
-        Console.WriteLine(v);
-        //Facing is 0 for right (>), 1 for down (v), 2 for left (<), and 3 for up (^).
-        var result = (v.position.y + 1L) * 1000L + (v.position.x + 1L) * 4L + v.direction switch
+        //Console.WriteLine(v);
+        return (v.position.y + 1L) * 1000L + (v.position.x + 1L) * 4L + v.direction switch
         {
             E => 0, S => 1, W => 2, N => 3, _ => throw new Exception()
         };
-
-        return result;
     }
     public object Part2() => "";
 
@@ -49,12 +45,18 @@ public class AoC202222
                 >= '0' and <= '9' => (steps.Append(path[i]), rotation),
                 _ => (steps, rotation.Append(path[i]))
             };
-            if (rotation.Length > 0)
+            if (steps.Length > 0 && rotation.Length > 0)
             {
                 yield return new Instruction(int.Parse(steps.ToString()), rotation[0]);
                 steps.Clear();
                 rotation.Clear();
             }
+        }
+        if (steps.Length > 0)
+        {
+            yield return new Instruction(int.Parse(steps.ToString()), ' ');
+            steps.Clear();
+            rotation.Clear();
         }
     }
 
@@ -126,7 +128,6 @@ class Grid
             if (this[next.position] == '.')
             {
                 v = next;
-                _path[(v.position.x, v.position.y)] = (char)v.direction;
             }
             else
                 break;
@@ -146,14 +147,9 @@ class Grid
             {
                 if (!_path.TryGetValue((x, y), out var c))
                     c = this[x, y];
-                Console.ForegroundColor = c switch
-                {
-                    '>' or '<' or 'v' or '^' => ConsoleColor.Yellow,
-                    '#' => ConsoleColor.White,
-                    _ => ConsoleColor.Gray
-                };
+                if (c is '>' or '<' or 'v' or '^') Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.Write(c);
-                Console.ResetColor();
+                if (c is '>' or '<' or 'v' or '^') Console.ResetColor();
             }
             Console.WriteLine();
         }
@@ -189,8 +185,7 @@ record Vector(Point position, Direction direction)
             N => this with { position = position.N(bounds.lower.y, bounds.upper.y) },
             E => this with { position = position.E(bounds.lower.x, bounds.upper.x) },
             S => this with { position = position.S(bounds.lower.y, bounds.upper.y) },
-            W => this with { position = position.W(bounds.lower.x, bounds.upper.x) },
-            _ => throw new NotSupportedException()
+            W => this with { position = position.W(bounds.lower.x, bounds.upper.x) }
         };
     }
 
@@ -204,7 +199,7 @@ record Vector(Point position, Direction direction)
         ('L', W) => this with { direction = S },
         ('L', S) => this with { direction = E },
         ('L', E) => this with { direction = N },
-        _ => throw new NotSupportedException()
+        _ => this
     };
 }
 
@@ -217,3 +212,4 @@ readonly record struct Point(int x, int y)
     public Point S(int min, int max) => this with { y = y == max ? min : y + 1 };
     public Point W(int min, int max) => this with { x = x == min ? max : x - 1 };
 }
+
