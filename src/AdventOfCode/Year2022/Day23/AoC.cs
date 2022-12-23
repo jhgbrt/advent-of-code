@@ -1,10 +1,7 @@
 using AdventOfCode.Common;
 
-using Microsoft.CodeAnalysis;
-
 namespace AdventOfCode.Year2022.Day23;
 using static Direction;
-#pragma warning disable CS8524 
 
 
 public class AoC202223
@@ -20,17 +17,16 @@ public class AoC202223
 
 class Grid
 {
-    ImmutableHashSet<Coordinate> _items;
-    (Direction a, Direction b, Direction c, Direction d) _directions;
+    readonly ImmutableHashSet<Coordinate> _items;
+    readonly (Direction a, Direction b, Direction c, Direction d) _directions;
 
 
     public Grid(ImmutableHashSet<Coordinate> items, (Direction a, Direction b, Direction c, Direction d) directions)
     {
         _items = items;
         _directions = directions;
-        var agg = _items.Aggregate(new Coordinate(int.MaxValue, int.MaxValue), (o, p) => o with { x = Min(o.x, p.x), y = Min(o.y, p.y) });
-        BottomLeft = new(Min(0, agg.x), Min(0, agg.y));
-        TopRight = _items.Aggregate(new Coordinate(int.MinValue, int.MinValue), (o, p) => o with { x = Max(o.x, p.x), y = Max(o.y, p.y) });
+        BottomLeft = _items.Aggregate(Coordinate.MaxValue, (o, p) => o with { x = (0, o.x, p.x).Min(), y = (0, o.y, p.y).Min() });
+        TopRight = _items.Aggregate(Coordinate.MinValue, (o, p) => o with { x = (o.x, p.x).Max(), y = (o.y, p.y).Max() });
     }
 
     private Coordinate BottomLeft { get; }
@@ -72,35 +68,32 @@ class Grid
         {
             var next =  grid.DoMoves();
             n++;
-            if (grid._items.SequenceEqual(next._items))
+            if (grid.Equals(next))
                 return n;
             grid = next;
         }
     }
 
-    public Grid DoMoves() => new Grid((from c in _items
-                                       let proposed = (
-                                           from d in _directions.AsEnumerable()
-                                           where CanMove(c, d)
-                                           select c.Move(d) as Coordinate?
-                                       ).FirstOrDefault() ?? c
-                                       group c by proposed into g
-                                       from item in g.Skip(1).Any() ? g : g.Key.AsEnumerable()
-                                       select item).ToImmutableHashSet(), (_directions.b, _directions.c, _directions.d, _directions.a));
+    bool Equals(Grid other) => _items.SequenceEqual(other._items);
+
+    Grid DoMoves()
+        => new((from c in _items
+                let proposed = (
+                    from d in _directions.AsEnumerable()
+                    where CanMove(c, d)
+                    select c.Move(d) as Coordinate?
+                ).FirstOrDefault() ?? c
+                group c by proposed into g
+                from item in g.Skip(1).Any() ? g : g.Key.AsEnumerable()
+                select item).ToImmutableHashSet(), (_directions.b, _directions.c, _directions.d, _directions.a));
 
     bool CanMove(Coordinate c, Direction d) => c.AllNeighbours().Any(c => this[c] == '#') && d switch
     {
-        N => CanMoveNorth(c),
-        E => CanMoveEast(c),
-        S => CanMoveSouth(c),
-        W => CanMoveWest(c)
+        N => (this[c.NW()], this[c.N()], this[c.NE()]) == ('.', '.', '.'),
+        E => (this[c.NE()], this[c.E()], this[c.SE()]) == ('.', '.', '.'),
+        S => (this[c.SW()], this[c.S()], this[c.SE()]) == ('.', '.', '.'),
+        W => (this[c.NW()], this[c.W()], this[c.SW()]) == ('.', '.', '.')
     };
-
-    public bool CanMoveNorth(Coordinate c) => (this[c.NorthWest()], this[c.North()], this[c.NorthEast()]) == ('.', '.', '.');
-    public bool CanMoveSouth(Coordinate c) => (this[c.SouthWest()], this[c.South()], this[c.SouthEast()]) == ('.', '.', '.');
-    public bool CanMoveWest(Coordinate c) => (this[c.NorthWest()], this[c.West()], this[c.SouthWest()]) == ('.', '.', '.');
-    public bool CanMoveEast(Coordinate c) => (this[c.NorthEast()], this[c.East()], this[c.SouthEast()]) == ('.', '.', '.');
-
   
     public override string ToString()
     {
@@ -113,42 +106,43 @@ class Grid
             }
             sb.AppendLine();
         }
-
         return sb.ToString();
     }
 }
-
 
 readonly record struct Coordinate(int x, int y)
 {
     public override string ToString() => $"({x},{y})";
     public Coordinate Move(Direction d) => d switch
     {
-        N => North(),
-        E => East(),
-        S => South(),
-        W => West()
+        Direction.N => N(),
+        Direction.E => E(),
+        Direction.S => S(),
+        Direction.W => W()
     };
 
     public IEnumerable<Coordinate> AllNeighbours()
     {
-        yield return North();
-        yield return NorthEast();
-        yield return East();
-        yield return SouthEast();
-        yield return South();
-        yield return SouthWest();
-        yield return West();
-        yield return NorthWest();
+        yield return N();
+        yield return NE();
+        yield return E();
+        yield return SE();
+        yield return S();
+        yield return SW();
+        yield return W();
+        yield return NW();
     }
 
-    public Coordinate North() => this with { y = y + 1 };
-    public Coordinate South() => this with { y = y - 1 };
-    public Coordinate East() => this with { x = x + 1 };
-    public Coordinate West() => this with { x = x - 1 };
-    public Coordinate SouthEast() => this with { x = x + 1, y = y - 1 };
-    public Coordinate SouthWest() => this with { x = x - 1,  y = y - 1 };
-    public Coordinate NorthEast() => this with { x = x + 1, y = y + 1 };
-    public Coordinate NorthWest() => this with { x = x - 1, y = y + 1 };
+    public Coordinate N() => this with { y = y + 1 };
+    public Coordinate S() => this with { y = y - 1 };
+    public Coordinate E() => this with { x = x + 1 };
+    public Coordinate W() => this with { x = x - 1 };
+    public Coordinate SE() => this with { x = x + 1, y = y - 1 };
+    public Coordinate SW() => this with { x = x - 1,  y = y - 1 };
+    public Coordinate NE() => this with { x = x + 1, y = y + 1 };
+    public Coordinate NW() => this with { x = x - 1, y = y + 1 };
+    public static readonly Coordinate MaxValue = new(int.MaxValue, int.MaxValue);
+    public static readonly Coordinate MinValue = new(int.MinValue, int.MinValue);
 }
 enum Direction { N, E, S, W }
+

@@ -156,13 +156,22 @@ static class LinqExtensions
         : throw new ArgumentException("Expected 7 items in array");
 
     public static T Max<T>(this (T item1, T item2) tuple) where T : INumber<T>
-        => T.Max(tuple.item2, tuple.item2);
+        => T.Max(tuple.item1, tuple.item2);
     public static T Max<T>(this (T item1, T item2, T item3) tuple) where T : INumber<T> 
         => T.Max(tuple.item1, T.Max(tuple.item2, tuple.item3));
     public static T Max<T>(this (T item1, T item2, T item3, T item4) tuple) where T : INumber<T> 
         => T.Max(tuple.item1, T.Max(tuple.item2, T.Max(tuple.item3, tuple.item4)));
     public static T Max<T>(this (T item1, T item2, T item3, T item4, T item5) tuple) where T : INumber<T>
         => T.Max(tuple.item1, T.Max(tuple.item2, T.Max(tuple.item3, T.Max(tuple.item4, tuple.item5))));
+
+    public static T Min<T>(this (T item1, T item2) tuple) where T : INumber<T>
+    => T.Min(tuple.item1, tuple.item2);
+    public static T Min<T>(this (T item1, T item2, T item3) tuple) where T : INumber<T>
+        => T.Min(tuple.item1, T.Min(tuple.item2, tuple.item3));
+    public static T Min<T>(this (T item1, T item2, T item3, T item4) tuple) where T : INumber<T>
+        => T.Min(tuple.item1, T.Min(tuple.item2, T.Min(tuple.item3, tuple.item4)));
+    public static T Min<T>(this (T item1, T item2, T item3, T item4, T item5) tuple) where T : INumber<T>
+        => T.Min(tuple.item1, T.Min(tuple.item2, T.Min(tuple.item3, T.Min(tuple.item4, tuple.item5))));
 
     public static LinkedListNode<T> PreviousOrLast<T>(this LinkedListNode<T> node) => node.Previous ?? node?.List?.Last ?? throw new Exception("Inconsistent linked list");
     public static LinkedListNode<T> NextOrFirst<T>(this LinkedListNode<T> node) => node.Next ?? node?.List?.First ?? throw new Exception("Inconsistent linked list");
