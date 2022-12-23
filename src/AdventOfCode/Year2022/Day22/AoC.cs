@@ -4,43 +4,33 @@ namespace AdventOfCode.Year2022.Day22;
 using static Direction;
 public class AoC202222
 {
-    static bool usesample = true;
+    static bool usesample = false;
     static string[] sample = Read.SampleLines();
     static string[] input = Read.InputLines();
 
     static Grid grid = Grid.Parse((usesample ? sample : input).TakeWhile(s => !string.IsNullOrEmpty(s)).ToArray());
-    static string path = (usesample ? sample : input).SkipWhile(s => !string.IsNullOrEmpty(s)).Skip(1).First();
+    static string instructions = (usesample ? sample : input).SkipWhile(s => !string.IsNullOrEmpty(s)).Skip(1).First();
     public object Part1()
     {
-        //Console.WriteLine(grid);
-        //Console.WriteLine(path);
-        //foreach (var i in GetInstructions(path))
-        //    Console.WriteLine(i);
-
         var x = Range(0, grid.Width).First(x => grid[x, 0] != ' ');
         var v = new Vector(new Point(x, 0), E);
 
-        Console.WriteLine(v);
-        foreach (var i in GetInstructions(path))
+        //Console.Clear();
+        //Console.WriteLine(v);
+        foreach (var i in GetInstructions(instructions))
         {
-            var bounds = grid.Bound(v.position);
-            Console.WriteLine(i);
-            Console.WriteLine(bounds);
-
-            var steps = i.steps;
-            for (int s = 0; s < steps; s++)
-            {
-                // todo check bounds and walls
-                v = v.Move();
-            }
-
-            v = v.Rotate(i.rotation);
-            Console.WriteLine(v);
+            //Console.WriteLine(i);
+            v = grid.Move(v, i);
+            //grid.Draw();
+            //Console.WriteLine(v);
+            //Console.ReadLine();
+            //Console.Clear();
         }
+        Console.WriteLine(v);
 
-        var result = (v.position.x + 1) * 1000 + (v.position.y + 1) * 4 + v.direction switch
+        var result = (v.position.y + 1L) * 1000L + (v.position.x + 1L) * 4L + v.direction switch
         {
-            E => 0, S => 1, W => 2, N => 3
+            E => 0, S => 1, W => 2, N => 3, _ => throw new Exception()
         };
 
         return result;
@@ -74,7 +64,16 @@ public class AoC202222
 class Grid
 {
     char[,] _grid;
+    Dictionary<(int x, int y), char> _path = new();
     public Grid(char[,] grid) => _grid = grid;
+    public char this[Point p] 
+    { 
+        get => InBounds(p) ? this[p.x, p.y] : ' '; 
+        set 
+        {
+            if (InBounds(p)) this[p.x, p.y] = value; 
+        }
+    }
     public char this[int x, int y] { get => _grid[y, x]; set => _grid[y, x] = value; }
     public int Height => _grid.GetLength(0);
     public int Width => _grid.GetLength(1);
@@ -118,39 +117,82 @@ class Grid
         }
         return grid;
     }
+    public Vector Move(Vector v, Instruction i)
+    {
+        _path[(v.position.x, v.position.y)] = (char)v.direction;
+        for (int j = 0; j < i.steps; j++)
+        {
+            var next = v.Move(Bound(v.position));
+            if (this[next.position] == '.')
+            {
+                v = next;
+                _path[(v.position.x, v.position.y)] = (char)v.direction;
+            }
+            else
+                break;
+        }
+        v = v.Rotate(i.rotation);
+        _path[(v.position.x, v.position.y)] = (char) v.direction;
+        return v;
+    }
+   
+    private bool InBounds(Point p) => p.x >= MinX(p.y) && p.x <= MaxX(p.y) && p.y >= MinY(p.x) && p.y <= MaxY(p.x);
 
+    public void Draw()
+    {
+        for (int y = 0; y < Height; y++)
+        {
+            for (int x = 0; x < Width; x++)
+            {
+                if (!_path.TryGetValue((x, y), out var c))
+                    c = this[x, y];
+                Console.ForegroundColor = c switch
+                {
+                    '>' or '<' or 'v' or '^' => ConsoleColor.Yellow,
+                    '#' => ConsoleColor.White,
+                    _ => ConsoleColor.Gray
+                };
+                Console.Write(c);
+                Console.ResetColor();
+            }
+            Console.WriteLine();
+        }
+    }
     public override string ToString()
     {
         var sb = new StringBuilder();
         for (int y = 0; y < Height; y++)
         {
-            for (int x = 0; x < Width; x++) sb.Append(this[x, y]);
+            for (int x = 0; x < Width; x++)
+            {
+                sb.Append(_path.TryGetValue((x, y), out var c) ? c : this[x, y]);
+            }
             sb.AppendLine();
         }
         return sb.ToString();
     }
-
-
-
 }
 
-record Instruction(int steps, char rotation);
-enum Direction { N, E, S, W }
+record Instruction(int steps, char rotation) 
+{
+    public override string ToString() => $"{steps}{rotation}";
+}
+enum Direction { N = '^', E = '>', S = 'v', W = '<' }
 record Vector(Point position, Direction direction)
 {
-    public Vector Move()
+    public override string ToString() => $"{position}{direction}";
+
+    public Vector Move((Point lower, Point upper) bounds)
     {
         return direction switch
         {
-            N => this with { position = position + (0, -1) },
-            E => this with { position = position + (1, 0) },
-            S => this with { position = position + (0, 1) },
-            W => this with { position = position + (-1, 0) },
+            N => this with { position = position.N(bounds.lower.y, bounds.upper.y) },
+            E => this with { position = position.E(bounds.lower.x, bounds.upper.x) },
+            S => this with { position = position.S(bounds.lower.y, bounds.upper.y) },
+            W => this with { position = position.W(bounds.lower.x, bounds.upper.x) },
             _ => throw new NotSupportedException()
         };
     }
-
-    static T Mod<T>(T n, T m) where T : INumber<T> => (n % m + m) % m;
 
     public Vector Rotate(char rotation) => (rotation, direction) switch
     {
@@ -170,6 +212,8 @@ record Vector(Point position, Direction direction)
 readonly record struct Point(int x, int y)
 {
     public override string ToString() => $"({x},{y})";
-
-    public static Point operator +(Point left, (int x, int y) delta) => new(left.x + delta.x, left.y + delta.y);
+    public Point N(int min, int max) => this with { y = y == min ? max : y - 1 };
+    public Point E(int min, int max) => this with { x = x == max ? min : x + 1 };
+    public Point S(int min, int max) => this with { y = y == max ? min : y + 1 };
+    public Point W(int min, int max) => this with { x = x == min ? max : x - 1 };
 }
