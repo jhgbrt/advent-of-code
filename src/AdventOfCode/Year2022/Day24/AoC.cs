@@ -1,7 +1,3 @@
-using AdventOfCode.Common;
-
-using System.Security.Cryptography;
-
 namespace AdventOfCode.Year2022.Day24;
 public class AoC202224
 {
@@ -22,7 +18,6 @@ public class AoC202224
         var t1 = FindPath(grid, start, target, 0);
         var t2 = FindPath(grid, target, start, t1);
         var t3 = FindPath(grid, start, target, t1 + t2);
-        Console.WriteLine((t1, t2, t3));
         return t1 + t2 + t3;
     }
 
@@ -34,10 +29,12 @@ public class AoC202224
         int t = 0;
         while (!cache.ContainsKey(destination))
         {
+            if (usesample)
+                grid.Draw(t, start, cache);
             var blocked = grid.BlockedAt(t0 + t + 1);
 
             var updated = (
-                from p in grid.Points()
+                from p in grid.All()
                 where cache.TryGetValue(p, out var x) && x == t
                 from n in p.AsEnumerable().Concat(p.Neighbours())
                 where !blocked.Contains(n)
@@ -79,8 +76,8 @@ class Grid
     public Grid(string[] input, char empty = '.')
     {
         bottomright = new(input[0].Length - 1, input.Length - 1);
-        items = (from y in Range(0, input.Length)
-                 from x in Range(0, input[y].Length)
+        items = (from y in Range(Top, Bottom + 1)
+                 from x in Range(Left, Right + 1)
                  let c = input[y][x]
                  where c != '.' || (x == 0 || y == 0 || x == Right || y == Bottom)
                  select (x, y, c))
@@ -110,56 +107,91 @@ class Grid
     }
     public bool Contains(Coordinate n) => items.ContainsKey(n);
     static T Mod<T>(T n, T m) where T : INumber<T> => (n % m + m) % m;
-
-   
-
-    public IEnumerable<Coordinate> OpenPositions(Coordinate c)
-        => from n in c.Neighbours()
-           where items.TryGetValue(n, out var v) && v is '.'
-           select n;
-
-    private Grid(ImmutableDictionary<Coordinate, char> items, char empty, Coordinate bottomright)
-    {
-        this.items = items;
-        this.empty = empty;
-        this.bottomright = bottomright;
-    }
-
+       
     public char this[Coordinate p] => items.TryGetValue(p, out var c) ? c : '.';
-    char this[(int x, int y) p] => this[new Coordinate(p.x,p.y)];
     char this[int x, int y] => this[new Coordinate(x, y)];
 
-    public IEnumerable<Coordinate> Points() =>
-        from y in Range(origin.y, bottomright.y)
-        from x in Range(origin.x, bottomright.x)
+    public IEnumerable<Coordinate> All() =>
+        from y in Range(Top, Bottom + 1)
+        from x in Range(Left, Right + 1)
         select new Coordinate(x, y);
 
-    public IEnumerable<Coordinate> InteriorPoints() =>
-        from y in Range(origin.y + 1, bottomright.y - 2)
-        from x in Range(origin.x + 1, bottomright.x - 2)
-        select new Coordinate(x, y);
-    public void Draw(Coordinate current)
+    public void Draw(int t, Coordinate current, IReadOnlyDictionary<Coordinate, int> cache)
     {
-        //Console.Clear();
+        var grid = (
+            from kv in items
+            let c = kv.Key
+            let v = kv.Value
+            let next = v switch
+            {
+                '#' or '.' => c,
+                '>' => c with { x = Mod(c.x - 1 + t, Right - 1) + 1 },
+                '<' => c with { x = Mod(c.x - 1 - t, Right - 1) + 1 },
+                'v' => c with { y = Mod(c.y - 1 + t, Bottom - 1) + 1 },
+                '^' => c with { y = Mod(c.y - 1 - t, Bottom - 1) + 1 }
+            }
+            group v by next).ToImmutableDictionary(x => x.Key, x => x.ToImmutableList());
+
+
+        Console.Clear();
         for (int y = Top; y <= Bottom; y++)
         {
             for (int x = Left; x <= Right; x++)
-            {
-                if (current == (x,y))
-                {
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.Write('E');
-                    Console.ResetColor();
-                }
-                else
-                {
-                    var c = this[x, y];
-                    Console.Write(c);
-                }
-            }
+                Console.Write("+---");
+            Console.Write("+");
             Console.WriteLine();
+            for (int i = 0; i < 2; i++)
+            {
+                for (int x = Left; x <= Right; x++)
+                {
+                    if (current == (x, y))
+                    {
+                        Console.Write("|");
+                        Console.BackgroundColor = ConsoleColor.Yellow;
+                        Console.Write("   ");
+                        Console.ResetColor();
+                    }
+                    else
+                    {
+                        if (!grid.TryGetValue((x, y), out var l)) l = ImmutableList<char>.Empty.Add('.');
+
+                        Console.Write("|");
+                        if (l is ['#'])
+                        {
+                            Console.BackgroundColor = ConsoleColor.DarkRed;
+                            Console.Write("###");
+                            Console.ResetColor();
+                        }
+                        else if (l is ['.'])
+                        {
+                            Console.Write("   ");
+                            Console.ResetColor();
+                        }
+                        else
+                        {
+                            Console.BackgroundColor = ConsoleColor.DarkRed;
+                            var c = l.Count == 1 ? l[0] : l.Count.ToString()[0];
+                            if (i == 0) Console.Write($"{c}  ");
+                            else if (cache.TryGetValue((x, y), out var v))
+                            {
+                                Console.BackgroundColor = ConsoleColor.DarkBlue;
+                                Console.ForegroundColor = ConsoleColor.White;
+                                Console.Write(v.ToString().PadRight(3));
+                            }
+                            else Console.Write($"   ");
+                        }
+                    }
+                }
+                Console.Write("|");
+                Console.WriteLine();
+
+            }
         }
+        for (int x = Left; x <= Right; x++)
+            Console.Write("+---");
+        Console.Write("+");
         Console.WriteLine();
+        Console.ReadKey();
     }
     public override string ToString()
     {
@@ -180,16 +212,19 @@ readonly record struct Coordinate(int x, int y)
 {
     public override string ToString() => $"({x},{y})";
     public static implicit operator Coordinate((int x, int y) t) => new(t.x, t.y);
-    public static implicit operator (int x, int y) (Coordinate c) => new(c.x, c.y);
-    public static Coordinate operator +(Coordinate c, Coordinate d) => new(c.x + d.x, c.y + d.y);
-    public static Coordinate operator -(Coordinate c, Coordinate d) => new(c.x - d.x, c.y - d.y);
-    public static Coordinate operator +(Coordinate c, (int x, int y) d) => new(c.x + d.x, c.y + d.y);
-    public static Coordinate operator -(Coordinate c, (int x, int y) d) => new(c.x - d.x, c.y - d.y);
     public IEnumerable<Coordinate> Neighbours()
     {
         yield return this with { x = x + 1 };
         yield return this with { y = y + 1 };
         yield return this with { x = x - 1 };
         yield return this with { y = y - 1 };
+    }
+}
+
+static class LinqExtensions
+{
+    public static IEnumerable<T> AsEnumerable<T>(this T item)
+    {
+        yield return item;
     }
 }
