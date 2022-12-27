@@ -1,38 +1,52 @@
 using AdventOfCode.Common;
 
+using Sprache;
+
 namespace AdventOfCode.Year2022.Day22;
+
+using static AdventOfCode.Year2020.Day22.AoC202022;
 using static Direction;
+using static Side;
 public class AoC202222
 {
-    static bool usesample = false;
-    static string[] sample = Read.SampleLines();
     static string[] input = Read.InputLines();
+    static int length = 50;
 
-    static Grid grid = Grid.Parse((usesample ? sample : input).TakeWhile(s => !string.IsNullOrEmpty(s)).ToArray());
-    static string instructions = (usesample ? sample : input).SkipWhile(s => !string.IsNullOrEmpty(s)).Skip(1).First();
-    public object Part1()
+    static Grid grid = Grid.Parse(input.TakeWhile(s => !string.IsNullOrEmpty(s)).ToArray());
+    static string instructions = input.SkipWhile(s => !string.IsNullOrEmpty(s)).Skip(1).First();
+    static Cube cube = Cube.Parse(input.TakeWhile(s => !string.IsNullOrEmpty(s)).ToArray(), length);
+
+    public long Part1()
     {
         var x = Range(0, grid.Width).First(x => grid[x, 0] != ' ');
-        var v = new Vector(new Point(x, 0), E);
-        //Console.Clear();
-        //Console.WriteLine(v);
+        var v = new Vector(new Coordinate(x, 0), E);
         foreach (var i in GetInstructions(instructions))
         {
-            //Console.WriteLine(i);
             v = grid.Move(v, i);
-            //grid.Draw();
-            //Console.WriteLine(v);
-            //Console.ReadLine();
-            //Console.Clear();
         }
-        //Console.WriteLine(v);
         return (v.position.y + 1L) * 1000L + (v.position.x + 1L) * 4L + v.direction switch
         {
-            E => 0, S => 1, W => 2, N => 3, _ => throw new Exception()
+            E => 0,
+            S => 1,
+            W => 2,
+            N => 3,
+            _ => throw new Exception()
         };
     }
-    public object Part2() => "";
 
+    public long Part2()
+    {
+        var (side, position, facing) = GetInstructions(instructions).Aggregate(
+            cube.InitializeCrawler(),
+            (crawler, i) => cube.Move(crawler, i)
+            );
+
+        var (x, y) = side.origin;
+        var column = x * length + position.x + 1;
+        var row = y * length + position.y + 1;
+
+        return 1000 * row + 4 * column + facing;
+    }
 
     private static IEnumerable<Instruction> GetInstructions(string path)
     {
@@ -59,16 +73,17 @@ public class AoC202222
             rotation.Clear();
         }
     }
-
+   
 }
 
+record CubeCrawler(SideData side, Coordinate position, int facing);
 
 class Grid
 {
     char[,] _grid;
     Dictionary<(int x, int y), char> _path = new();
     public Grid(char[,] grid) => _grid = grid;
-    public char this[Point p] 
+    public char this[Coordinate p] 
     { 
         get => InBounds(p) ? this[p.x, p.y] : ' '; 
         set 
@@ -80,7 +95,7 @@ class Grid
     public int Height => _grid.GetLength(0);
     public int Width => _grid.GetLength(1);
 
-    public (Point lower, Point upper) Bound(Point p) => (new(MinX(p.y), MinY(p.x)), new(MaxX(p.y), MaxY(p.x)));
+    public (Coordinate lower, Coordinate upper) Bound(Coordinate p) => (new(MinX(p.y), MinY(p.x)), new(MaxX(p.y), MaxY(p.x)));
 
     int MinY(int x)
     {
@@ -137,7 +152,7 @@ class Grid
         return v;
     }
    
-    private bool InBounds(Point p) => p.x >= MinX(p.y) && p.x <= MaxX(p.y) && p.y >= MinY(p.x) && p.y <= MaxY(p.x);
+    private bool InBounds(Coordinate p) => p.x >= MinX(p.y) && p.x <= MaxX(p.y) && p.y >= MinY(p.x) && p.y <= MaxY(p.x);
 
     public void Draw()
     {
@@ -174,11 +189,11 @@ record Instruction(int steps, char rotation)
     public override string ToString() => $"{steps}{rotation}";
 }
 enum Direction { N = '^', E = '>', S = 'v', W = '<' }
-record Vector(Point position, Direction direction)
+record Vector(Coordinate position, Direction direction)
 {
     public override string ToString() => $"{position}{direction}";
 
-    public Vector Move((Point lower, Point upper) bounds)
+    public Vector Move((Coordinate lower, Coordinate upper) bounds)
     {
         return direction switch
         {
@@ -204,12 +219,207 @@ record Vector(Point position, Direction direction)
 }
 
 
-readonly record struct Point(int x, int y)
+
+readonly record struct Coordinate(int x, int y)
 {
     public override string ToString() => $"({x},{y})";
-    public Point N(int min, int max) => this with { y = y == min ? max : y - 1 };
-    public Point E(int min, int max) => this with { x = x == max ? min : x + 1 };
-    public Point S(int min, int max) => this with { y = y == max ? min : y + 1 };
-    public Point W(int min, int max) => this with { x = x == min ? max : x - 1 };
+    public Coordinate N(int min, int max) => this with { y = y == min ? max : y - 1 };
+    public Coordinate E(int min, int max) => this with { x = x == max ? min : x + 1 };
+    public Coordinate S(int min, int max) => this with { y = y == max ? min : y + 1 };
+    public Coordinate W(int min, int max) => this with { x = x == min ? max : x - 1 };
+    public static bool operator ==(Coordinate left, (int x, int y) tuple) => left.x == tuple.x && left.y == tuple.y;
+    public static bool operator !=(Coordinate left, (int x, int y) tuple) => left.x != tuple.x || left.y != tuple.y;
+    public static Coordinate operator +(Coordinate left, Delta delta) => left with { x = left.x + delta.x, y = left.y + delta.y };
+    public static Coordinate operator -(Coordinate left, Delta delta) => left with { x = left.x - delta.x, y = left.y - delta.y };
+
+    public bool IsOutside(int min, int max) => Min(x, y) < min || Max(x, y) > max - 1;
+
+    public IEnumerable<Coordinate> Neighbours()
+    {
+        yield return this + Delta.X;
+        yield return this + Delta.Y;
+        yield return this - Delta.X;
+        yield return this - Delta.Y;
+    }
 }
 
+readonly record struct Delta(int x, int y)
+{
+    public static readonly Delta X = new(1, 0);
+    public static readonly Delta Y = new(0, 1);
+    public static Delta operator -(Delta item) => item with { x = -item.x, y = -item.y };
+}
+
+enum Side
+{
+    Front = 1,
+    Right = 2,
+    Bottom = 3,
+    Left = 4,
+    Back = 5,
+    Top = 6
+
+}
+
+record Cube(ImmutableDictionary<Side, SideData> sides, ImmutableArray<Delta> deltas, int length)
+{
+    public static Cube Parse(string[] input, int length)
+    {
+        ImmutableDictionary<Side, ImmutableArray<Side>> neighbours = new[]
+{
+            (side: Front, neighbours: new [] { Right, Bottom, Left, Top}.ToImmutableArray()),
+            (side: Right, neighbours: new [] { Front, Top, Back, Bottom }.ToImmutableArray()),
+            (side: Bottom, neighbours: new [] { Front, Right, Back, Left }.ToImmutableArray()),
+            (side: Left, neighbours: new [] { Front, Bottom, Back, Top}.ToImmutableArray()),
+            (side: Back, neighbours: new [] { Left, Bottom, Right, Top}.ToImmutableArray()),
+            (side: Top, neighbours: new [] { Right, Front, Left, Back}.ToImmutableArray())
+        }.ToImmutableDictionary(x => x.side, x => x.neighbours);
+
+        ImmutableDictionary<Coordinate, ImmutableHashSet<Coordinate>> tiles = (
+            from sy in Range(0, 4)
+            from sx in Range(0, 4)
+            where input.Length > sy * 50
+            && input[sy * 50].Length > sx * 50
+            && input[sy * 50][sx * 50] != ' '
+            let origin = new Coordinate(sx, sy)
+            let grid = (
+                from y in Range(0, 50)
+                from x in Range(0, 50)
+                let row = sy * 50 + y
+                let col = sx * 50 + x
+                let c = new Coordinate(x, y)
+                where input[row][col] is '.'
+                select c
+                ).ToImmutableHashSet()
+            select (origin, grid)
+            ).ToImmutableDictionary(x => x.origin, x => x.grid);
+
+        ImmutableArray<Delta> deltas = new[]
+        {
+            Delta.X,
+            Delta.Y,
+            -Delta.X,
+            -Delta.Y,
+        }.ToImmutableArray();
+
+        ImmutableDictionary<Side, SideData> sides = Connect(neighbours, tiles, deltas, length);
+
+        return new Cube(sides, deltas, length);
+    }
+
+    static ImmutableDictionary<Side, SideData> Connect(
+     ImmutableDictionary<Side, ImmutableArray<Side>> faces,
+     ImmutableDictionary<Coordinate, ImmutableHashSet<Coordinate>> tiles,
+     ImmutableArray<Delta> deltas, int length
+     )
+    {
+        var facedata = new Dictionary<Side, (int offset, Coordinate origin)>();
+        var first = tiles.Keys.First();
+        var queue = new Queue<(Coordinate origin, Side face, (int i, Side face) from)>();
+        var visited = new HashSet<Coordinate>()
+        {
+            first
+        };
+
+        queue.Enqueue((first, Front, (1, Top)));
+        while (queue.Any())
+        {
+            var (origin, face, from) = queue.Dequeue();
+            var offset = (4 + from.i + 2 % 4 - faces[face].IndexOf(from.face)) % 4;
+            facedata[face] = (offset, origin);
+            for (int i = 0; i < 4; i++)
+            {
+                var delta = deltas[i];
+                var next = origin + delta;
+                if (tiles.ContainsKey(next) && !visited.Contains(next))
+                {
+                    visited.Add(next);
+                    queue.Enqueue((next, faces[face][(4 + i - offset) % 4], (i, face)));
+                }
+            }
+        }
+
+        return (from side in faces.Keys
+                let neighbours = faces[side]
+                let data = facedata[side]
+                let origin = data.origin
+                let offset = data.offset
+                let tile = tiles[data.origin]
+                select new SideData(side, neighbours, origin, tile, offset, length)
+                ).ToImmutableDictionary(s => s.side);
+    }
+
+    internal CubeCrawler InitializeCrawler() => new CubeCrawler(sides[Front], new(0, 0), 0);
+
+    internal CubeCrawler Move(CubeCrawler crawler, Instruction instruction)
+    {
+        var (side, position, facing) = crawler;
+
+        var (steps, rotation) = instruction;
+
+        for (var i = 0; i < steps; i++)
+        {
+            if (!side.Contains(position + deltas[facing]))
+            {
+                var next = sides[side.GetNeighbour(facing)];
+
+                var (nextpos, nextfacing) = next.AdjustFrom(position, side, facing);
+
+                if (!next.IsAvailable(nextpos))
+                    break;
+
+                (side, position, facing) = (next, nextpos, nextfacing);
+            }
+            else
+            {
+                var newPosition = position + deltas[facing];
+                if (!side.IsAvailable(newPosition))
+                    break;
+                position = newPosition;
+            }
+        }
+
+        if (rotation == 'R')
+        {
+            facing = (facing + 1) % 4;
+        }
+        else if (rotation == 'L')
+        {
+            facing = (facing + 3) % 4;
+        }
+
+        return new(side, position, facing);
+    }
+
+}
+
+record SideData(
+      Side side,
+      ImmutableArray<Side> neighbours,
+      Coordinate origin,
+      ImmutableHashSet<Coordinate> tile,
+      int offset, int length)
+{
+    public Side GetNeighbour(int facing) => neighbours[(4 + facing - offset) % 4];
+    public bool IsAvailable(Coordinate c) => tile.Contains(c);
+    public bool Contains(Coordinate c) => !c.IsOutside(0, length);
+    public (Coordinate, int) AdjustFrom(Coordinate position, SideData other, int facing)
+    {
+        var relativeFrom = (facing + 2) % 4;
+        var rotations = (neighbours.IndexOf(other.side) - relativeFrom + offset) % 4;
+
+        (position, facing) = Repeat(0, rotations)
+            .Aggregate(
+                (position, facing),
+                (a, i) => (new Coordinate(length - 1 - a.position.y, a.position.x), (a.facing + 1) % 4)
+                );
+
+        return (facing switch
+        {
+            0 => new(0, position.y),
+            1 => new(position.x, 0),
+            2 => new(length - 1, position.y),
+            3 => new(position.x, length - 1)
+        }, facing);
+    }
+}
