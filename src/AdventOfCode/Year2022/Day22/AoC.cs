@@ -1,20 +1,16 @@
 using AdventOfCode.Common;
 
-using Sprache;
-
 namespace AdventOfCode.Year2022.Day22;
-
-using static AdventOfCode.Year2020.Day22.AoC202022;
 using static Direction;
 using static Side;
 public class AoC202222
 {
     static string[] input = Read.InputLines();
-    static int length = 50;
-
-    static Grid grid = Grid.Parse(input.TakeWhile(s => !string.IsNullOrEmpty(s)).ToArray());
+    static string[] data = input.TakeWhile(s => !string.IsNullOrEmpty(s)).ToArray();
     static string instructions = input.SkipWhile(s => !string.IsNullOrEmpty(s)).Skip(1).First();
-    static Cube cube = Cube.Parse(input.TakeWhile(s => !string.IsNullOrEmpty(s)).ToArray(), length);
+    static int length = 50;
+    static Grid grid = Grid.Parse(data);
+    static Cube cube = Cube.Parse(data, length);
 
     public long Part1()
     {
@@ -29,8 +25,7 @@ public class AoC202222
             E => 0,
             S => 1,
             W => 2,
-            N => 3,
-            _ => throw new Exception()
+            N => 3
         };
     }
 
@@ -38,7 +33,7 @@ public class AoC202222
     {
         var (side, position, facing) = GetInstructions(instructions).Aggregate(
             cube.InitializeCrawler(),
-            (crawler, i) => cube.Move(crawler, i)
+            cube.Move
             );
 
         var (x, y) = side.origin;
@@ -265,8 +260,8 @@ record Cube(ImmutableDictionary<Side, SideData> sides, ImmutableArray<Delta> del
 {
     public static Cube Parse(string[] input, int length)
     {
-        ImmutableDictionary<Side, ImmutableArray<Side>> neighbours = new[]
-{
+        var neighbours = new[]
+        {
             (side: Front, neighbours: new [] { Right, Bottom, Left, Top}.ToImmutableArray()),
             (side: Right, neighbours: new [] { Front, Top, Back, Bottom }.ToImmutableArray()),
             (side: Bottom, neighbours: new [] { Front, Right, Back, Left }.ToImmutableArray()),
@@ -275,7 +270,7 @@ record Cube(ImmutableDictionary<Side, SideData> sides, ImmutableArray<Delta> del
             (side: Top, neighbours: new [] { Right, Front, Left, Back}.ToImmutableArray())
         }.ToImmutableDictionary(x => x.side, x => x.neighbours);
 
-        ImmutableDictionary<Coordinate, ImmutableHashSet<Coordinate>> tiles = (
+        var tiles = (
             from sy in Range(0, 4)
             from sx in Range(0, 4)
             where input.Length > sy * 50
@@ -294,7 +289,7 @@ record Cube(ImmutableDictionary<Side, SideData> sides, ImmutableArray<Delta> del
             select (origin, grid)
             ).ToImmutableDictionary(x => x.origin, x => x.grid);
 
-        ImmutableArray<Delta> deltas = new[]
+        var deltas = new[]
         {
             Delta.X,
             Delta.Y,
@@ -302,7 +297,7 @@ record Cube(ImmutableDictionary<Side, SideData> sides, ImmutableArray<Delta> del
             -Delta.Y,
         }.ToImmutableArray();
 
-        ImmutableDictionary<Side, SideData> sides = Connect(neighbours, tiles, deltas, length);
+        var sides = Connect(neighbours, tiles, deltas, length);
 
         return new Cube(sides, deltas, length);
     }
