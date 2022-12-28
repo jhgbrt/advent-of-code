@@ -1,6 +1,6 @@
 var input = File.ReadAllLines("input.txt").Where(s => !string.IsNullOrEmpty(s)).ToArray();
-var re1 = new(@"bot (?<id>\d+) gives low to (?<ltype>bot|output) (?<low>\d+) and high to (?<htype>bot|output) (?<high>\d+)");
-var re2 = new(@"value (?<value>\d+) goes to bot (?<destination>\d+)");
+var re1 = new Regex(@"bot (?<id>\d+) gives low to (?<ltype>bot|output) (?<low>\d+) and high to (?<htype>bot|output) (?<high>\d+)");
+var re2 = new Regex(@"value (?<value>\d+) goes to bot (?<destination>\d+)");
 var sw = Stopwatch.StartNew();
 var part1 = RunInstructions().part1;
 var part2 = RunInstructions().part2;
@@ -85,6 +85,3 @@ record struct Bot(int id, int? v1, int? v2)
 }
 
 ;
-class AoCRegex
-{
-}

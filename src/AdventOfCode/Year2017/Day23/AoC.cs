@@ -1,7 +1,5 @@
 using System.Collections.ObjectModel;
 
-using static System.Math;
-
 namespace AdventOfCode.Year2017.Day23;
 
 public class AoC201723

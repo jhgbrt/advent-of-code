@@ -1,10 +1,8 @@
-using AdventOfCode.Common;
-
 var regex = AoCRegex.EdgeRegex();
 var input = File.ReadAllLines("input.txt");
 var edges = (
     from line in input
-    let data = regex.As<Data>(line)!.Value
+    let data = regex.As<Data>(line)
     select new Edge(data.first, data.second, data.action == "lose" ? -data.amount : data.amount)).ToImmutableList();
 var vertices = edges.Select(e => e.Source).Concat(edges.Select(e => e.Target)).ToImmutableHashSet();
 var sw = Stopwatch.StartNew();
@@ -33,8 +31,23 @@ record Edge(string Source, string Target, int Points)
 }
 
 record struct Data(string first, string second, string action, int amount);
-partial class AoCRegex
+static partial class AoCRegex
 {
     [GeneratedRegex("(?<first>\\w+) would (?<action>lose|gain) (?<amount>\\d+) happiness units by sitting next to (?<second>\\w+).", RegexOptions.Compiled)]
     public static partial Regex EdgeRegex();
+    public static T As<T>(this Regex regex, string s, IFormatProvider? provider = null)
+        where T : struct
+    {
+        var match = regex.Match(s);
+        if (!match.Success)
+            throw new InvalidOperationException($"input '{s}' does not match regex '{regex}'");
+        var constructor = typeof(T).GetConstructors().Single();
+        var j =
+            from p in constructor.GetParameters()
+            join m in match.Groups.OfType<Group>() on p.Name equals m.Name
+            select Convert.ChangeType(m.Value, p.ParameterType, provider ?? CultureInfo.InvariantCulture);
+        return (T)constructor.Invoke(j.ToArray());
+    }
+
+    public static int GetInt32(this Match m, string name) => int.Parse(m.Groups[name].Value);
 }

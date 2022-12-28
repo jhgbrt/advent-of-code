@@ -27,7 +27,3 @@ record Room(string Id, int SectorId, string Checksum)
     public bool IsValid() => Id.Where(char.IsLetter).GroupBy(c => c).OrderByDescending(g => g.Count()).ThenBy(g => g.Key).Take(5).Select(g => g.Key).SequenceEqual(Checksum);
     public string Name => Id.Decrypt(SectorId);
 }
-
-partial class AoCRegex
-{
-}

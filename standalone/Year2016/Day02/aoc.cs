@@ -30,7 +30,3 @@ public record struct Coordinate(int Row, int Column)
         _ => throw new InvalidOperationException(),
     };
 }
-
-partial class AoCRegex
-{
-}

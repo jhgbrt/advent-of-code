@@ -15,10 +15,6 @@ Navigator Navigate(string input)
     return navigator;
 }
 
-partial class AoCRegex
-{
-}
-
 public enum Bearing
 {
     N = 0,

@@ -8,3 +8,12 @@ public class AoC201701
     public object Part2() => Captcha.Calculate(input, input.Length / 2);
 
 }
+
+class Captcha
+{
+    public static int Calculate(string input, int lookahead)
+        => input.Select((c, i) => (character: c, index: i))
+            .Where(_ => _.character == input[(_.index + lookahead) % input.Length])
+            .Select(_ => _.character - '0')
+            .Sum();
+}

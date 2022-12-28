@@ -22,7 +22,3 @@ object Part1()
             return value;
     }
 }
-
-partial class AoCRegex
-{
-}

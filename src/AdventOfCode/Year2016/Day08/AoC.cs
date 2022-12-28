@@ -40,3 +40,209 @@ public class AoC201608
 
     }
 }
+
+class Display
+{
+    bool[,] display;
+
+    public Display(int rows, int cols)
+    {
+        display = new bool[rows, cols];
+    }
+
+    public int Count
+    {
+        get { return display.OfType<bool>().Count(b => b); }
+    }
+
+    public void Rect(int a, int b)
+    {
+        for (int row = 0; row < a; row++)
+            for (int col = 0; col < b; col++)
+            {
+                display[col, row] = true;
+            }
+    }
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        for (int col = 0; col < display.GetLength(1); col += 5)
+        {
+            sb.Append(GetLetter(0, col));
+        }
+        return sb.ToString();// display.Display(b => b ? "#" : ".");
+    }
+
+    char GetLetter(int row, int col)
+    {
+        var sb = new StringBuilder().AppendLine();
+        for (int r = row; r < display.GetLength(0); r++)
+        {
+            for (int c = col; c < col + 4; c++)
+                sb.Append(display[r, c] ? '#' : '.');
+            sb.AppendLine();
+        }
+
+        return sb.ToString() switch
+        {
+            AsciiLetters.A => 'A',
+            AsciiLetters.B => 'B',
+            AsciiLetters.F => 'F',
+            AsciiLetters.J => 'J',
+            AsciiLetters.P => 'P',
+            AsciiLetters.S => 'S',
+            AsciiLetters.U => 'U',
+            AsciiLetters.Z => 'Z',
+            _ => throw new Exception($"unrecognized letter at ({row}, {col}) ({sb})")
+        };
+    }
+
+    static class AsciiLetters
+    {
+        public const string A = @"
+.##.
+#..#
+#..#
+####
+#..#
+#..#
+";
+        public const string B = @"
+###.
+#..#
+###.
+#..#
+#..#
+###.
+";
+
+        public const string F = @"
+####
+#...
+###.
+#...
+#...
+#...
+";
+
+        public const string J = @"
+..##
+...#
+...#
+...#
+#..#
+.##.
+";
+        public const string P = @"
+###.
+#..#
+#..#
+###.
+#...
+#...
+";
+        public const string S = @"
+.###
+#...
+#...
+.##.
+...#
+###.
+";
+        public const string U = @"
+#..#
+#..#
+#..#
+#..#
+#..#
+.##.
+";
+
+        public const string Z = @"
+####
+...#
+..#.
+.#..
+#...
+####
+";
+
+    }
+
+
+
+    public void RotateCol(int col, int d)
+    {
+        display.RotateCol(col, d);
+    }
+
+    public void RotateRow(int row, int d)
+    {
+        display.RotateRow(row, d);
+    }
+
+
+}
+
+static class Extensions
+{
+    public static IEnumerable<T> Rotate<T>(this IList<T> input, int offset)
+    {
+        return input.Skip(input.Count - offset).Concat(input.Take(input.Count - offset));
+    }
+
+    public static void RotateRow<T>(this T[,] array, int row, int n)
+    {
+        array.ReplaceRow(row, array.Row(row).ToList().Rotate(n).ToArray());
+    }
+    public static void RotateCol<T>(this T[,] array, int col, int n)
+    {
+        array.ReplaceCol(col, array.Column(col).ToList().Rotate(n).ToArray());
+    }
+
+    public static IEnumerable<T> Row<T>(this T[,] array, int row)
+    {
+        for (int i = 0; i < array.GetLength(1); i++)
+            yield return array[row, i];
+    }
+    public static IEnumerable<T> Column<T>(this T[,] array, int column)
+    {
+        for (int i = 0; i < array.GetLength(0); i++)
+            yield return array[i, column];
+    }
+
+    public static void ReplaceRow<T>(this T[,] array, int row, T[] replacement)
+    {
+        for (int col = 0; col < replacement.Length; col++)
+        {
+            array[row, col] = replacement[col];
+        }
+    }
+    public static void ReplaceCol<T>(this T[,] array, int col, T[] replacement)
+    {
+        for (int row = 0; row < replacement.Length; row++)
+        {
+            array[row, col] = replacement[row];
+        }
+    }
+
+
+    public static string Display<T>(this T[,] array, Func<T, string?>? tostring = null)
+    {
+        var sb = new StringBuilder().AppendLine();
+        if (tostring == null) tostring = t => t!.ToString();
+
+        for (int row = 0; row <= array.GetUpperBound(0); row++)
+        {
+            for (int col = 0; col <= array.GetUpperBound(1); col++)
+            {
+                sb.Append(tostring(array[row, col]));
+            }
+            sb.AppendLine();
+        }
+        return sb.ToString();
+    }
+
+
+}

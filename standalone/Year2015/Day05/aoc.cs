@@ -36,6 +36,3 @@ bool ContainsNonOverlappingDoublePair(string s)
 }
 
 bool IsVowel(char c) => c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u';
-partial class AoCRegex
-{
-}

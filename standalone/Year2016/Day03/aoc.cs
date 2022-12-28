@@ -24,7 +24,3 @@ readonly record struct Triangle(int x, int y, int z)
 {
     public bool IsValid => x + y > z && y + z > x && x + z > y;
 }
-
-partial class AoCRegex
-{
-}

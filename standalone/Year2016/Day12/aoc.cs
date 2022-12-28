@@ -64,7 +64,3 @@ class Computer
         return memory['a'];
     }
 }
-
-class AoCRegex
-{
-}

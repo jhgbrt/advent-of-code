@@ -76,10 +76,6 @@ readonly record struct Coordinate(int x, int y)
     }
 }
 
-partial class AoCRegex
-{
-}
-
 enum InstructionEnum
 {
     TurnOn,

@@ -12,7 +12,3 @@ record Coordinate(int x, int y)
 {
     public override string ToString() => $"({x},{y})";
 }
-
-partial class AoCRegex
-{
-}

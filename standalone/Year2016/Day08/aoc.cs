@@ -33,7 +33,3 @@ Display Run()
 
     return display;
 }
-
-class AoCRegex
-{
-}

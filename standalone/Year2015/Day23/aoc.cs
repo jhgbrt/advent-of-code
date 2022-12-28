@@ -73,7 +73,3 @@ readonly record struct Jio(char register, int offset) : Instruction
 {
     public int Apply(int index, IDictionary<char, int> memory) => index + (memory[register] == 1 ? offset : 1);
 }
-
-partial class AoCRegex
-{
-}

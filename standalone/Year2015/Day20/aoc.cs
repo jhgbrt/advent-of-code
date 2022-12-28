@@ -53,7 +53,3 @@ IEnumerable<int> Factors(int n)
         }
     }
 }
-
-partial class AoCRegex
-{
-}

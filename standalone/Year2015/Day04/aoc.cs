@@ -21,7 +21,3 @@ int Solve(string key, int n)
         i++;
     }
 }
-
-partial class AoCRegex
-{
-}

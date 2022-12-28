@@ -42,7 +42,3 @@ char[] Increment(char[] p)
         (_, _, _, _, _, _, _, _) => new[] { p[0], p[1], p[2], p[3], p[4], p[5], p[6], (char)(p[7] + 1) }
     };
 }
-
-partial class AoCRegex
-{
-}

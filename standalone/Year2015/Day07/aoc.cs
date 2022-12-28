@@ -192,7 +192,3 @@ record RightShiftNode(string Name, string OperandName, int ShiftValue) : Node(Na
 
     public override string ToString() => $"{OperandName} RSHIFT {ShiftValue} -> {Name}";
 }
-
-partial class AoCRegex
-{
-}

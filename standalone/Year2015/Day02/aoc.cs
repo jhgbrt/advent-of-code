@@ -34,7 +34,3 @@ public readonly record struct Dimension(int l, int w, int h)
         yield return h * l;
     }
 }
-
-partial class AoCRegex
-{
-}

@@ -22,7 +22,3 @@ BigInteger CalculateRecursive(int[] weights, int target, int index, BigInteger e
         return l;
     return BigInteger.Min(l, r);
 }
-
-partial class AoCRegex
-{
-}

@@ -32,7 +32,3 @@ int Run(string input, int times)
 
     return sb.Length;
 }
-
-partial class AoCRegex
-{
-}

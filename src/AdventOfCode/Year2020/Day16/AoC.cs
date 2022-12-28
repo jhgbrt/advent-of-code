@@ -100,3 +100,13 @@ public class AoC202016
 
 }
 record FieldDef(string Name, ImmutableHashSet<int> Values) { public bool IsValid(int value) => Values.Contains(value); }
+
+
+static class Ex
+{
+    internal static IEnumerable<string> ReadWhile(this StreamReader sr, Func<string, bool> predicate)
+    {
+        for (string? line = sr.ReadLine(); line != null && predicate(line); line = sr.ReadLine())
+            yield return line;
+    }
+}

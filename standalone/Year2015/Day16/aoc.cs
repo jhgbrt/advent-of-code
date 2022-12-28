@@ -2,7 +2,7 @@ var lines = File.ReadAllLines("input.txt");
 var regex = AoCRegex.SueRegex();
 var sues = (
     from line in lines
-    let data = regex.As<SueData>(line)!.Value
+    let data = regex.As<SueData>(line)
     let number = data.number
     let properties = (
         from propertylist in data.properties.Split(',', StringSplitOptions.TrimEntries) let kv = propertylist.Split(':', StringSplitOptions.TrimEntries) select (key: kv[0], value: int.Parse(kv[1]))).ToDictionary(x => x.key, x => x.value)
@@ -27,8 +27,23 @@ record Sue(int number, IReadOnlyDictionary<string, int> properties)
     public bool HasLess(string name, IReadOnlyDictionary<string, int> list) => !properties.ContainsKey(name) || properties[name] < list[name];
 }
 
-partial class AoCRegex
+static partial class AoCRegex
 {
     [GeneratedRegex("Sue (?<number>\\d+): (?<properties>.*)")]
     public static partial Regex SueRegex();
+    public static T As<T>(this Regex regex, string s, IFormatProvider? provider = null)
+        where T : struct
+    {
+        var match = regex.Match(s);
+        if (!match.Success)
+            throw new InvalidOperationException($"input '{s}' does not match regex '{regex}'");
+        var constructor = typeof(T).GetConstructors().Single();
+        var j =
+            from p in constructor.GetParameters()
+            join m in match.Groups.OfType<Group>() on p.Name equals m.Name
+            select Convert.ChangeType(m.Value, p.ParameterType, provider ?? CultureInfo.InvariantCulture);
+        return (T)constructor.Invoke(j.ToArray());
+    }
+
+    public static int GetInt32(this Match m, string name) => int.Parse(m.Groups[name].Value);
 }

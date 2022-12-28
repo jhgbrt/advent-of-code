@@ -1,5 +1,4 @@
-var catalog = new()
-{ Weapons = new Weapon[] { new(8, 4, 0), new(10, 5, 0), new(25, 6, 0), new(40, 7, 0), new(74, 8, 0), }, Armors = new Armor[] { new(13, 0, 1), new(31, 0, 2), new(53, 0, 3), new(75, 0, 4), new(102, 0, 5) }, Rings = new Ring[] { new(25, 1, 0), new(50, 2, 0), new(100, 3, 0), new(20, 0, 1), new(40, 0, 2), new(80, 0, 3) } };
+var catalog = new Catalog();
 var sw = Stopwatch.StartNew();
 var part1 = Part1Impl();
 var part2 = Part2Impl();
@@ -42,8 +41,4 @@ record Ring(int cost, int damage, int armor) : Item(cost, damage, armor)
 record Player(int hitpoints, int damage, int armor)
 {
     public Player HitBy(Player other) => this with { hitpoints = hitpoints - (other.damage - armor) };
-}
-
-partial class AoCRegex
-{
 }

@@ -1,5 +1,5 @@
 var lines = File.ReadAllLines("input.txt");
-var regex = new(@"^(?<from>\w+) to (?<to>\w+) = (?<distance>\d+$)", RegexOptions.Compiled);
+var regex = new Regex(@"^(?<from>\w+) to (?<to>\w+) = (?<distance>\d+$)", RegexOptions.Compiled);
 var sw = Stopwatch.StartNew();
 var part1 = MinMax().min;
 var part2 = MinMax().max;
@@ -24,6 +24,3 @@ Console.WriteLine((part1, part2, sw.Elapsed));
 }
 
 IEnumerable<T[]> GetPermutations<T>(IReadOnlyCollection<T> list, int length) => length == 1 ? list.Select(t => new[] { t }) : GetPermutations(list, length - 1).SelectMany(t => list.Where(e => !t.Contains(e)), (t1, t2) => t1.Concat(new[] { t2 }).ToArray());
-partial class AoCRegex
-{
-}

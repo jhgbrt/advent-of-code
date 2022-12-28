@@ -17,6 +17,3 @@ int Count(string str, string element)
 }
 
 record Replacement(string From, string To);
-partial class AoCRegex
-{
-}

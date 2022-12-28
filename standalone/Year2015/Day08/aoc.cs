@@ -28,10 +28,6 @@ int CountEscaped(string s) => s.Aggregate(2, (n, c) => c switch
     '"' or '\\' => n + 2,
     _ => n + 1
 });
-partial class AoCRegex
-{
-}
-
 enum State
 {
     None,

@@ -25,7 +25,3 @@ object Part2()
 
     return -1;
 }
-
-partial class AoCRegex
-{
-}

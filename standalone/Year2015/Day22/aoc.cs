@@ -37,6 +37,3 @@ record struct Player(int HitPoints, int Damage, int Armor, int Mana)
 }
 
 record struct Spell(string Name, int Cost, int Damage, int Heal, int Armor, int Mana, int Duration);
-partial class AoCRegex
-{
-}

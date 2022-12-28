@@ -1,18 +1,14 @@
-using Newtonsoft.Json.Linq;
-
 var input = File.ReadAllText("input.txt");
 var sw = Stopwatch.StartNew();
 var part1 = Traverse(Root(), false);
 var part2 = Traverse(Root(), true);
 Console.WriteLine((part1, part2, sw.Elapsed));
-JToken Root() => JObject.Parse("{\"root\": " + input + "}")["root"]!;
-int Traverse(JToken o, bool removeRed) => o switch
+JsonElement Root() => JsonDocument.Parse("{\"root\": " + input + "}")!.RootElement;
+int Traverse(JsonElement n, bool removeRed) => n.ValueKind switch
 {
-    JObject when removeRed && o.Children().OfType<JProperty>().Any(p => p.Children().OfType<JValue>().Any(v => v.Value<string>() == "red")) => 0,
-    JValue v when int.TryParse(v.Value<string>(), out var i) => i,
-    JValue => 0,
-    _ => o.Children().Select(x => Traverse(x, removeRed)).Sum(),
+    JsonValueKind.Object when removeRed && n.EnumerateObject().Any(e => e.Value.ValueKind is JsonValueKind.String && e.Value.GetString() == "red") => 0,
+    JsonValueKind.Object => n.EnumerateObject().Select(e => Traverse(e.Value, removeRed)).Sum(),
+    JsonValueKind.Array => n.EnumerateArray().Select(e => Traverse(e, removeRed)).Sum(),
+    JsonValueKind.Number => n.GetInt32(),
+    JsonValueKind.String => 0
 };
-partial class AoCRegex
-{
-}
