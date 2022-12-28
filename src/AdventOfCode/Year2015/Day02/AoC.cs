@@ -7,7 +7,7 @@ public class AoC201502
 
     static IEnumerable<Dimension> GetDimensions()
     {
-        using var reader = Read.InputStream();
+        using var reader = new StreamReader(Read.InputStream());
         while (reader.Peek() >= 0)
         {
             string line = reader.ReadLine()!;

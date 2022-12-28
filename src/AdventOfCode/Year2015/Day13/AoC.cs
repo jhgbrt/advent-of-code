@@ -1,4 +1,3 @@
-using AdventOfCode.Common;
 namespace AdventOfCode.Year2015.Day13;
 
 public partial class AoC201513
@@ -7,7 +6,7 @@ public partial class AoC201513
     static string[] input = Read.InputLines();
     static readonly ImmutableList<Edge> edges =
         (from line in input
-         let data = regex.As<Data>(line)!.Value
+         let data = regex.As<Data>(line)
          select new Edge(data.first, data.second, data.action == "lose" ? -data.amount : data.amount)
         ).ToImmutableList();
 

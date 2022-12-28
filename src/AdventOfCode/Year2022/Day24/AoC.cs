@@ -1,7 +1,7 @@
 namespace AdventOfCode.Year2022.Day24;
 public class AoC202224
 {
-    static bool usesample = true;
+    static bool usesample = false;
     static string[] sample = Read.SampleLines();
     static string[] input = Read.InputLines();
     static string[] theinput = usesample ? sample : input;

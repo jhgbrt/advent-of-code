@@ -15,6 +15,8 @@ public class AoC202006
         block.SelectMany(c => c).Distinct().Count()
     ).Sum();
     internal static long Part2(Blocks blocks) => blocks.Select(block =>
-        block.Aggregate(Enumerable.Range('a', 26).Select(i => (char)i).AsEnumerable(), (l, u) => l.Intersect(u)).Count()
+        block.Aggregate(
+            Range('a', 26).Select(i => (char)i), (l, u) => l.Intersect(u)
+            ).Count()
     ).Sum();
 }

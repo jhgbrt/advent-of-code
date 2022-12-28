@@ -65,7 +65,7 @@ public class AoC202016
 
     internal static (ImmutableArray<FieldDef> fields, Ticket myticket, ImmutableArray<Ticket> othertickets) ParseFile()
     {
-        using var sr = Read.InputStream();
+        using var sr = new StreamReader(Read.InputStream());
 
         var fields = (
             from line in sr.ReadWhile(s => !string.IsNullOrEmpty(s))

@@ -2,7 +2,7 @@
   "profiles": {
     "aoc": {
       "commandName": "Project",
-      "commandLineArgs": "run",
+      "commandLineArgs": "export 2015 15 -o c:\\temp",
       "workingDirectory": "$(SolutionDir)AdventOfCode"
     }
   }

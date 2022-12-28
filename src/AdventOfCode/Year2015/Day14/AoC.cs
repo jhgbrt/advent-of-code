@@ -34,7 +34,7 @@ public class AoC201514
     }
 
     static IEnumerable<Entry> GetEntries() => from line in input
-                                              select regex.As<Entry>(line)!.Value;
+                                              select regex.As<Entry>(line);
 }
 record struct Entry(string name, int speed, int fly, int rest)
 {

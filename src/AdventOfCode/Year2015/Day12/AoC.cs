@@ -1,5 +1,7 @@
 using Newtonsoft.Json.Linq;
 
+using System.Text.Json.Nodes;
+
 namespace AdventOfCode.Year2015.Day12;
 
 public class AoC201512
@@ -18,5 +20,4 @@ public class AoC201512
         JValue => 0,
         _ => o.Children().Select(x => Traverse(x, removeRed)).Sum(),
     };
-
 }

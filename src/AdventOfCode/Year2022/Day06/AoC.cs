@@ -1,7 +1,7 @@
 namespace AdventOfCode.Year2022.Day06;
 public class AoC202206
 {
-    static StreamReader Input() => Read.InputStream();
+    static StreamReader Input() => new StreamReader(Read.InputStream());
     public int Part1() => Find(Input(), 4);
 
     public int Part2() => Find(Input(), 14);

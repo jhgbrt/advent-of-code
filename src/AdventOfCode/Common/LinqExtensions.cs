@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-namespace AdventOfCode.Common;
+﻿namespace AdventOfCode;
 
 static class LinqExtensions
 {

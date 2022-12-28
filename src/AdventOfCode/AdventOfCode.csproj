@@ -37,10 +37,10 @@
     <Using Include="System.Math" Static="true" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.3.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.4.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="7.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0" />
-    <PackageReference Include="Microsoft.NET.Test.SDK" Version="17.5.0-preview-20221003-04" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.4.0" />
+    <PackageReference Include="Microsoft.NET.Test.SDK" Version="17.5.0-preview-20221221-03" />
     <PackageReference Include="Sandwych.QuickGraph.Core" Version="1.0.0" />
     <PackageReference Include="sprache" Version="3.0.0-develop-00049" />
     <PackageReference Include="System.Reactive.Linq" Version="5.0.0" />
@@ -50,7 +50,10 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Xunit.SkippableFact" Version="1.4.13" />
-    <PackageReference Include="Net.Code.AdventOfCode.Toolkit" Version="1.0.2" />
+    <!--<PackageReference Include="Net.Code.AdventOfCode.Toolkit" Version="1.0.2" />-->
     <PackageReference Include="Dijkstra.net" Version="1.2.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\advent-of-code-csharp-toolkit\src\Net.Code.AdventOfCode.Toolkit\Net.Code.AdventOfCode.Toolkit.csproj" />
   </ItemGroup>
 </Project>

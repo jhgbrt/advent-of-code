@@ -42,13 +42,13 @@ record struct MaskInput(string Value)
     }
 
     static Regex _regex = new Regex(@"mask = (?<Value>\w+)");
-    public static MaskInput Parse(string line) => _regex.As<MaskInput>(line)!.Value;
+    public static MaskInput Parse(string line) => _regex.As<MaskInput>(line);
 }
 
 record struct WriteMemory(int Address, long Value)
 {
     static Regex _regex = new Regex(@"mem\[(?<Address>\d+)\] = (?<Value>\d+)");
-    public static WriteMemory Parse(string line) => _regex.As<WriteMemory>(line)!.Value;
+    public static WriteMemory Parse(string line) => _regex.As<WriteMemory>(line);
 }
 
 static class Factory

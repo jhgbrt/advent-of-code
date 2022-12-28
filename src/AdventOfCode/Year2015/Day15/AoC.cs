@@ -7,7 +7,7 @@ public partial class AoC201515
 
     static ImmutableList<Ingredient> ingredients = (
         from line in input
-        select regex.As<Ingredient>(line)!.Value
+        select regex.As<Ingredient>(line)
         ).ToImmutableList();
 
     public object Part1() => (

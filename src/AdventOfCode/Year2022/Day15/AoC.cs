@@ -1,5 +1,3 @@
-using AdventOfCode.Common;
-
 namespace AdventOfCode.Year2022.Day15;
 public class AoC202215
 {
@@ -13,8 +11,8 @@ public class AoC202215
     static (Sensor sensor, Point beacon)[] list= (
         from l in input
         let match = lineregex.Match(l)
-        let s = pointregex.As<Point>(match.Groups["sensor"].Value)!.Value
-        let beacon = pointregex.As<Point>(match.Groups["beacon"].Value)!.Value
+        let s = pointregex.As<Point>(match.Groups["sensor"].Value)
+        let beacon = pointregex.As<Point>(match.Groups["beacon"].Value)
         let sensor = new Sensor(s, s.ManhattanDistance(beacon))
         select (sensor, beacon)
         ).ToArray();
@@ -129,4 +127,12 @@ static class Extensions
         }
         yield return (start, end);
     }
+}
+
+readonly record struct Point(int x, int y)
+{
+    public int ManhattanDistance(Point o) => Math.Abs(x - o.x) + Math.Abs(y - o.y);
+    public override string ToString() => $"({x},{y})";
+
+    public static Point operator +(Point left, Point right) => new(left.x + right.x, left.y + right.y);
 }

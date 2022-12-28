@@ -2,7 +2,7 @@
 
 using System.Runtime.CompilerServices;
 
-namespace AdventOfCode.Common
+namespace AdventOfCode.Tests
 {
 
     public class Verify
@@ -34,8 +34,8 @@ namespace AdventOfCode.Common
         {
             var now = DateTime.Now;
             for (int year = 2015; year <= now.Year; year++)
-                for (int day = 1; (year < now.Year && day <= 25) ||
-                                  (now.Month == 12 && day <= Math.Min(25, now.Day)); day++)
+                for (int day = 1; year < now.Year && day <= 25 ||
+                                  now.Month == 12 && day <= Min(25, now.Day); day++)
                     yield return new object[] { year, day };
         }
     }

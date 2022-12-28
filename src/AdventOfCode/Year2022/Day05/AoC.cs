@@ -86,7 +86,7 @@ record Yard(ImmutableArray<ImmutableStack<char>> stacks)
 partial record struct Move(int n, int src, int dest)
 {
     static Regex regex = GenerateRegex();
-    public static Move Parse(string s) => regex.As<Move>(s)!.Value;
+    public static Move Parse(string s) => regex.As<Move>(s);
     [GeneratedRegex("move (?<n>\\d+) from (?<src>\\d+) to (?<dest>\\d+)", RegexOptions.Compiled)]
     private static partial Regex GenerateRegex();
 }

@@ -4,7 +4,7 @@
 /// <summary>
 /// A finite, immutable grid. Y increments downward, X increments rightward
 /// </summary>
-class FiniteImmutableGrid
+class Grid
 {
 
     //        x
@@ -19,7 +19,7 @@ class FiniteImmutableGrid
     readonly char empty;
     public int Height => bottomright.y;
     public int Width => bottomright.x;
-    public FiniteImmutableGrid(string[] input, char empty = '.')
+    public Grid(string[] input, char empty = '.')
     {
         items = (from y in Range(0, input.Length)
                  from x in Range(0, input[y].Length)

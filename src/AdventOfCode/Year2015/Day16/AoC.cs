@@ -7,7 +7,7 @@ public partial class AoC201516
 
     static ImmutableList<Sue> sues = (
         from line in lines
-        let data = regex.As<SueData>(line)!.Value
+        let data = regex.As<SueData>(line)
         let number = data.number
         let properties = (
         from propertylist in data.properties.Split(',', StringSplitOptions.TrimEntries)
