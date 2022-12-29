@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace AdventOfCode;
+﻿namespace AdventOfCode;
 
 internal static class RegexHelper
 {

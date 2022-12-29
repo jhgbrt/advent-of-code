@@ -1,5 +1,3 @@
-using AdventOfCode.Common;
-
 using Spectre.Console;
 
 namespace AdventOfCode.Year2022.Day17;

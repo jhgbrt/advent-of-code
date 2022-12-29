@@ -6,7 +6,7 @@ public enum PixelFontSize
     _6x10 = 7,
 }
 
-static class PixelFontDecoder
+static class AsciiFontDecoder
 {
 
     static readonly string[] _4x6 = new[]

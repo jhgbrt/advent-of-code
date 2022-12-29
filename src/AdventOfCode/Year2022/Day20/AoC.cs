@@ -1,8 +1,3 @@
-using AdventOfCode.Common;
-
-using System.Linq;
-using System.Numerics;
-
 namespace AdventOfCode.Year2022.Day20;
 public class AoC202220
 {

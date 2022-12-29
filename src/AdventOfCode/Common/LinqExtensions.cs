@@ -73,6 +73,33 @@ static class LinqExtensions
         yield return tuple.c;
         yield return tuple.d;
     }
+    public static IEnumerable<T> AsEnumerable<T>(this (T a, T b, T c, T d, T e) tuple)
+    {
+        yield return tuple.a;
+        yield return tuple.b;
+        yield return tuple.c;
+        yield return tuple.d;
+        yield return tuple.e;
+    }
+    public static IEnumerable<T> AsEnumerable<T>(this (T a, T b, T c, T d, T e, T f) tuple)
+    {
+        yield return tuple.a;
+        yield return tuple.b;
+        yield return tuple.c;
+        yield return tuple.d;
+        yield return tuple.e;
+        yield return tuple.f;
+    }
+    public static IEnumerable<T> AsEnumerable<T>(this (T a, T b, T c, T d, T e, T f, T g) tuple)
+    {
+        yield return tuple.a;
+        yield return tuple.b;
+        yield return tuple.c;
+        yield return tuple.d;
+        yield return tuple.e;
+        yield return tuple.f;
+        yield return tuple.g;
+    }
     public static IEnumerable<(T a, T b)> Windowed2<T>(this IEnumerable<T> list)
     {
         var enumerator = list.GetEnumerator();
@@ -119,6 +146,72 @@ static class LinqExtensions
         }
     }
 
+    public static IEnumerable<(T a, T b, T c, T d, T e)> Windowed5<T>(this IEnumerable<T> list)
+    {
+        var enumerator = list.GetEnumerator();
+        if (!enumerator.MoveNext()) yield break;
+        var a = enumerator.Current;
+        if (!enumerator.MoveNext()) yield break;
+        var b = enumerator.Current;
+        if (!enumerator.MoveNext()) yield break;
+        var c = enumerator.Current;
+        if (!enumerator.MoveNext()) yield break;
+        var d = enumerator.Current;
+        while (true)
+        {
+            if (!enumerator.MoveNext()) yield break;
+            var e = enumerator.Current;
+            yield return (a, b, c, d, e);
+            (a, b, c, d) = (b, c, d, e);
+        }
+    }
+
+    public static IEnumerable<(T a, T b, T c, T d, T e, T f)> Windowed6<T>(this IEnumerable<T> list)
+    {
+        var enumerator = list.GetEnumerator();
+        if (!enumerator.MoveNext()) yield break;
+        var a = enumerator.Current;
+        if (!enumerator.MoveNext()) yield break;
+        var b = enumerator.Current;
+        if (!enumerator.MoveNext()) yield break;
+        var c = enumerator.Current;
+        if (!enumerator.MoveNext()) yield break;
+        var d = enumerator.Current;
+        if (!enumerator.MoveNext()) yield break;
+        var e = enumerator.Current;
+        while (true)
+        {
+            if (!enumerator.MoveNext()) yield break;
+            var f = enumerator.Current;
+            yield return (a, b, c, d, e, f);
+            (a, b, c, d, e) = (b, c, d, e, f);
+        }
+    }
+
+    public static IEnumerable<(T a, T b, T c, T d, T e, T f, T g)> Windowed7<T>(this IEnumerable<T> list)
+    {
+        var enumerator = list.GetEnumerator();
+        if (!enumerator.MoveNext()) yield break;
+        var a = enumerator.Current;
+        if (!enumerator.MoveNext()) yield break;
+        var b = enumerator.Current;
+        if (!enumerator.MoveNext()) yield break;
+        var c = enumerator.Current;
+        if (!enumerator.MoveNext()) yield break;
+        var d = enumerator.Current;
+        if (!enumerator.MoveNext()) yield break;
+        var e = enumerator.Current;
+        if (!enumerator.MoveNext()) yield break;
+        var f = enumerator.Current;
+        while (true)
+        {
+            if (!enumerator.MoveNext()) yield break;
+            var g = enumerator.Current;
+            yield return (a, b, c, d, e, f, g);
+            (a, b, c, d, e, f) = (b, c, d, e, f, g);
+        }
+    }
+
     public static IEnumerable<IReadOnlyList<T>> Windowed<T>(this IEnumerable<T> list, int size)
     {
         var buffer = new Queue<T>();
@@ -153,23 +246,31 @@ static class LinqExtensions
         ? ((T a, T b, T c, T d, T e, T f, T g))(items[0], items[1], items[2], items[3], items[4], items[5], items[6])
         : throw new ArgumentException("Expected 7 items in array");
 
-    public static T Max<T>(this (T item1, T item2) tuple) where T : INumber<T>
-        => T.Max(tuple.item1, tuple.item2);
-    public static T Max<T>(this (T item1, T item2, T item3) tuple) where T : INumber<T> 
-        => T.Max(tuple.item1, T.Max(tuple.item2, tuple.item3));
-    public static T Max<T>(this (T item1, T item2, T item3, T item4) tuple) where T : INumber<T> 
-        => T.Max(tuple.item1, T.Max(tuple.item2, T.Max(tuple.item3, tuple.item4)));
-    public static T Max<T>(this (T item1, T item2, T item3, T item4, T item5) tuple) where T : INumber<T>
-        => T.Max(tuple.item1, T.Max(tuple.item2, T.Max(tuple.item3, T.Max(tuple.item4, tuple.item5))));
+    public static T Max<T>(this (T, T) tuple) where T : INumber<T>
+        => tuple.AsEnumerable().Max()!;
+    public static T Max<T>(this (T, T, T) tuple) where T : INumber<T>
+        => tuple.AsEnumerable().Max()!;
+    public static T Max<T>(this (T, T, T, T) tuple) where T : INumber<T>
+        => tuple.AsEnumerable().Max()!;
+    public static T Max<T>(this (T, T, T, T, T) tuple) where T : INumber<T>
+        => tuple.AsEnumerable().Max()!;
+    public static T Max<T>(this (T, T, T, T, T, T) tuple) where T : INumber<T>
+        => tuple.AsEnumerable().Max()!;
+    public static T Max<T>(this (T, T, T, T, T , T, T) tuple) where T : INumber<T>
+        => tuple.AsEnumerable().Max()!;
 
-    public static T Min<T>(this (T item1, T item2) tuple) where T : INumber<T>
-    => T.Min(tuple.item1, tuple.item2);
-    public static T Min<T>(this (T item1, T item2, T item3) tuple) where T : INumber<T>
-        => T.Min(tuple.item1, T.Min(tuple.item2, tuple.item3));
-    public static T Min<T>(this (T item1, T item2, T item3, T item4) tuple) where T : INumber<T>
-        => T.Min(tuple.item1, T.Min(tuple.item2, T.Min(tuple.item3, tuple.item4)));
-    public static T Min<T>(this (T item1, T item2, T item3, T item4, T item5) tuple) where T : INumber<T>
-        => T.Min(tuple.item1, T.Min(tuple.item2, T.Min(tuple.item3, T.Min(tuple.item4, tuple.item5))));
+    public static T Min<T>(this (T, T) tuple) where T : INumber<T>
+        => tuple.AsEnumerable().Min()!;
+    public static T Min<T>(this (T, T, T) tuple) where T : INumber<T>
+        => tuple.AsEnumerable().Min()!;
+    public static T Min<T>(this (T, T, T, T) tuple) where T : INumber<T>
+        => tuple.AsEnumerable().Min()!;
+    public static T Min<T>(this (T, T, T, T, T) tuple) where T : INumber<T>
+        => tuple.AsEnumerable().Min()!;
+    public static T Min<T>(this (T, T, T, T, T, T) tuple) where T : INumber<T>
+        => tuple.AsEnumerable().Min()!;
+    public static T Min<T>(this (T, T, T, T, T, T, T) tuple) where T : INumber<T>
+        => tuple.AsEnumerable().Min()!;
 
     public static LinkedListNode<T> PreviousOrLast<T>(this LinkedListNode<T> node) => node.Previous ?? node?.List?.Last ?? throw new Exception("Inconsistent linked list");
     public static LinkedListNode<T> NextOrFirst<T>(this LinkedListNode<T> node) => node.Next ?? node?.List?.First ?? throw new Exception("Inconsistent linked list");

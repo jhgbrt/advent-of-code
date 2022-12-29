@@ -1,10 +1,10 @@
 ﻿namespace AdventOfCode.Tests;
 
-public class PixelFontDecoderTests
+public class AsciiFontDecoderTests
 {
     ITestOutputHelper _output;
 
-    public PixelFontDecoderTests(ITestOutputHelper output)
+    public AsciiFontDecoderTests(ITestOutputHelper output)
     {
         _output = output;
     }
@@ -42,12 +42,12 @@ public class PixelFontDecoderTests
         _output.WriteLine(Alphabet.Encode(PixelFontSize._4x6));
         _output.WriteLine(Alphabet.Encode(PixelFontSize._6x10));
 
-        foreach (var line in PixelFontDecoder.FlattenLetters(Alphabet4x6, PixelFontSize._4x6))
+        foreach (var line in AsciiFontDecoder.FlattenLetters(Alphabet4x6, PixelFontSize._4x6))
             _output.WriteLine($"{line}");
 
         _output.WriteLine(Environment.NewLine);
 
-        foreach (var line in PixelFontDecoder.FlattenLetters(Alphabet6x10, PixelFontSize._6x10))
+        foreach (var line in AsciiFontDecoder.FlattenLetters(Alphabet6x10, PixelFontSize._6x10))
             _output.WriteLine($"{line}");
     }
 }

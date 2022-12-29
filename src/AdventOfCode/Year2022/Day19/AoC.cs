@@ -1,6 +1,3 @@
-using AdventOfCode.Common;
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Resources;
-
 namespace AdventOfCode.Year2022.Day19;
 public class AoC202219
 {

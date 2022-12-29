@@ -1,5 +1,3 @@
-using AdventOfCode.Common;
-
 namespace AdventOfCode.Year2022.Day21;
 public class AoC202221
 {

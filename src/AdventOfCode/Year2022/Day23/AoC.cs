@@ -1,5 +1,3 @@
-using AdventOfCode.Common;
-
 namespace AdventOfCode.Year2022.Day23;
 using static Direction;
 
