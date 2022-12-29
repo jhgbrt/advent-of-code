@@ -2,7 +2,7 @@
   "profiles": {
     "aoc": {
       "commandName": "Project",
-      "commandLineArgs": "run 2020 20",
+      "commandLineArgs": "run 2016 17",
       "workingDirectory": "$(SolutionDir)AdventOfCode"
     }
   }

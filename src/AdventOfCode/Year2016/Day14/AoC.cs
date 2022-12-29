@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
 
 namespace AdventOfCode.Year2016.Day14;
 
@@ -8,7 +7,6 @@ public class AoC201614
     //readonly string salt = "abc";
     readonly string salt = Read.InputLines()[0];
     string CurrentPath([CallerFilePath] string path = "") => Path.GetDirectoryName(path) ?? "";
-    static MD5 md5 = MD5.Create();
 
     public int Part1() => FindHash64(GetHashes(50000, 0));
 
@@ -40,13 +38,12 @@ public class AoC201614
     static string ComputeHash(string salt, int seed, int repeat = 0)
     {
         var key = $"{salt}{seed}";
-        var hash = md5.ComputeHash(Encoding.ASCII.GetBytes(key));
+        var hash = MD5Hash.Compute(key);
         for (int i = 0; i < repeat; i++)
         {
-            var bytes = Encoding.ASCII.GetBytes(ToString(hash).ToLower());
-            hash = md5.ComputeHash(bytes);
+            hash = MD5Hash.Compute(hash);
         }
-        return ToString(hash).ToLower();
+        return hash;
     }
 
     static char? Find3(string hash) => (from i in Range(0, hash.Length - 2)
@@ -62,16 +59,4 @@ public class AoC201614
                                         && hash[i + 2] == c
                                         && hash[i + 3] == c
                                         && hash[i + 4] == c);
-
-    static string ToString(byte[] hash)
-    {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < hash.Length; i++)
-        {
-            sb.Append(hash[i].ToString("X2"));
-        }
-        return sb.ToString();
-    }
-
-   
 }

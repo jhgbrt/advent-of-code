@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-
 namespace AdventOfCode.Year2015.Day04;
 
 public class AoC201504
@@ -10,13 +8,11 @@ public class AoC201504
 
     internal static int Solve(string key, int n)
     {
-        var md5 = MD5.Create();
         var i = 0;
         while (true)
         {
-            var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(key + i));
-            var s = Convert.ToHexString(hash);
-            if (s.Take(n).All(x => x == '0'))
+            var hash = MD5Hash.Compute(key + i);
+            if (hash.Take(n).All(x => x == '0'))
             {
                 return i;
             }
