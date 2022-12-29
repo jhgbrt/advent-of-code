@@ -9,8 +9,9 @@ public class AoC202221
     static readonly Regex numberRegex = new Regex(@"(?<name>[a-z]+): (?<number>[\d]+)", RegexOptions.Compiled);
     static readonly ImmutableDictionary<string, Instruction> instructions = (
             from line in input
-            select calculationRegex.As<Calculation>(line) as Instruction
-                ?? numberRegex.As<Number>(line)
+            select calculationRegex.IsMatch(line)
+                ? calculationRegex.As<Calculation>(line) as Instruction
+                : numberRegex.As<Number>(line)
             ).ToImmutableDictionary(o => o.name);
 
     static readonly IReadOnlyDictionary<string, Calculation> parents = (
