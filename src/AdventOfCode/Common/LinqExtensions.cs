@@ -274,6 +274,11 @@ static class LinqExtensions
 
     public static LinkedListNode<T> PreviousOrLast<T>(this LinkedListNode<T> node) => node.Previous ?? node?.List?.Last ?? throw new Exception("Inconsistent linked list");
     public static LinkedListNode<T> NextOrFirst<T>(this LinkedListNode<T> node) => node.Next ?? node?.List?.First ?? throw new Exception("Inconsistent linked list");
+    public static IEnumerable<IEnumerable<T>> GetPermutations<T>(this IEnumerable<T> list, int length) => length == 1
+        ? list.Select(t => t.AsEnumerable())
+        : from t in GetPermutations(list, length - 1)
+          from e in list.Except(t)
+          select t.Concat(e);
 
 
 }

@@ -12,7 +12,6 @@ public partial class AoC201513
 
     static ImmutableHashSet<string> vertices = edges.Select(e => e.Source).Concat(edges.Select(e => e.Target)).ToImmutableHashSet();
 
-
     public object Part1() => CalculateScore(edges, vertices);
     public object Part2() => CalculateScore(edges.AddRange(from v in vertices
                                                            let edge = new Edge("Jeroen", v, 0)
@@ -23,26 +22,21 @@ public partial class AoC201513
     {
         var distances = edges.ToDictionary(e => (e.Source, e.Target), e => e.Points);
 
-        return GetPermutations(vertices, vertices.Count)
+        return vertices.GetPermutations(vertices.Count)
             .Max(p =>
             {
-                var circle = p.Concat(p[0]).ToList();
+                var circle = p.Concat(p.First());
                 var path = circle.Zip(circle.Skip(1));
-                return path.Select(p => distances[(p.First, p.Second)]).Sum() + path.Select(p => distances[(p.Second, p.First)]).Sum();
+                return path.Sum(p => distances[(p.First, p.Second)]) + path.Sum(p => distances[(p.Second, p.First)]);
             });
     }
-
-
-    static IEnumerable<T[]> GetPermutations<T>(IEnumerable<T> list, int length) => length == 1
-            ? list.Select(t => new[] { t })
-            : GetPermutations(list, length - 1).SelectMany(t => list.Where(e => !t.Contains(e)), (t1, t2) => t1.Concat(t2).ToArray());
 
     [GeneratedRegex("(?<first>\\w+) would (?<action>lose|gain) (?<amount>\\d+) happiness units by sitting next to (?<second>\\w+).", RegexOptions.Compiled)]
     private static partial Regex EdgeRegex();
 }
 
-record Edge(string Source, string Target, int Points)
+readonly record struct Edge(string Source, string Target, int Points)
 {
     public Edge Reverse() => this with { Source = Target, Target = Source };
 }
-record struct Data(string first, string second, string action, int amount);
+readonly record struct Data(string first, string second, string action, int amount);
