@@ -41,6 +41,158 @@ static class LinqExtensions
         }
     }
 
+    public static IEnumerable<(T a, T? b, T? c, T? d)> Chunked4<T>(this IEnumerable<T> list)
+    {
+        var enumerator = list.GetEnumerator();
+        while (true)
+        {
+            if (!enumerator.MoveNext()) yield break;
+            var a = enumerator.Current;
+            if (!enumerator.MoveNext())
+            {
+                yield return (a, default, default, default);
+                yield break;
+            }
+            var b = enumerator.Current;
+            if (!enumerator.MoveNext())
+            {
+                yield return (a, b, default, default);
+                yield break;
+            }
+            var c = enumerator.Current;
+            if (!enumerator.MoveNext())
+            {
+                yield return (a, b, c, default);
+                yield break;
+            }
+            var d = enumerator.Current;
+            yield return (a, b, c, d);
+        }
+    }
+
+    public static IEnumerable<(T a, T? b, T? c, T? d, T? e)> Chunked5<T>(this IEnumerable<T> list)
+    {
+        var enumerator = list.GetEnumerator();
+        while (true)
+        {
+            if (!enumerator.MoveNext()) yield break;
+            var a = enumerator.Current;
+            if (!enumerator.MoveNext())
+            {
+                yield return (a, default, default, default, default);
+                yield break;
+            }
+            var b = enumerator.Current;
+            if (!enumerator.MoveNext())
+            {
+                yield return (a, b, default, default, default);
+                yield break;
+            }
+            var c = enumerator.Current;
+            if (!enumerator.MoveNext())
+            {
+                yield return (a, b, c, default, default);
+                yield break;
+            }
+            var d = enumerator.Current;
+            if (!enumerator.MoveNext())
+            {
+                yield return (a, b, c, d, default);
+                yield break;
+            }
+            var e = enumerator.Current;
+            yield return (a, b, c, d, e);
+        }
+    }
+
+    public static IEnumerable<(T a, T? b, T? c, T? d, T? e, T? f)> Chunked6<T>(this IEnumerable<T> list)
+    {
+        var enumerator = list.GetEnumerator();
+        while (true)
+        {
+            if (!enumerator.MoveNext()) yield break;
+            var a = enumerator.Current;
+            if (!enumerator.MoveNext())
+            {
+                yield return (a, default, default, default, default, default);
+                yield break;
+            }
+            var b = enumerator.Current;
+            if (!enumerator.MoveNext())
+            {
+                yield return (a, b, default, default, default, default);
+                yield break;
+            }
+            var c = enumerator.Current;
+            if (!enumerator.MoveNext())
+            {
+                yield return (a, b, c, default, default, default);
+                yield break;
+            }
+            var d = enumerator.Current;
+            if (!enumerator.MoveNext())
+            {
+                yield return (a, b, c, d, default, default);
+                yield break;
+            }
+            var e = enumerator.Current;
+            if (!enumerator.MoveNext())
+            {
+                yield return (a, b, c, d, e, default);
+                yield break;
+            }
+            var f = enumerator.Current;
+            yield return (a, b, c, d, e, f);
+        }
+    }
+    public static IEnumerable<(T a, T? b, T? c, T? d, T? e, T? f, T? g)> Chunked7<T>(this IEnumerable<T> list)
+    {
+        var enumerator = list.GetEnumerator();
+        while (true)
+        {
+            if (!enumerator.MoveNext()) yield break;
+            var a = enumerator.Current;
+            if (!enumerator.MoveNext())
+            {
+                yield return (a, default, default, default, default, default, default);
+                yield break;
+            }
+            var b = enumerator.Current;
+            if (!enumerator.MoveNext())
+            {
+                yield return (a, b, default, default, default, default, default);
+                yield break;
+            }
+            var c = enumerator.Current;
+            if (!enumerator.MoveNext())
+            {
+                yield return (a, b, c, default, default, default, default);
+                yield break;
+            }
+            var d = enumerator.Current;
+            if (!enumerator.MoveNext())
+            {
+                yield return (a, b, c, d, default, default, default);
+                yield break;
+            }
+            var e = enumerator.Current;
+            if (!enumerator.MoveNext())
+            {
+                yield return (a, b, c, d, e, default, default);
+                yield break;
+            }
+            var f = enumerator.Current;
+            if (!enumerator.MoveNext())
+            {
+                yield return (a, b, c, d, e, f, default);
+                yield break;
+            }
+            var g = enumerator.Current;
+            yield return (a, b, c, d, e, f, g);
+        }
+    }
+
+
     public static IEnumerable<T> Concat<T>(this IEnumerable<T> list, T item)
     {
         foreach (var entry in list)
