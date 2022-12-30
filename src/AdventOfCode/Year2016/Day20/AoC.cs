@@ -11,19 +11,10 @@ public partial class AoC201620
                                            ).Merge().ToImmutableArray();
 
 
-    public object Part1()
-    {
-        var q = from i in Range(0, int.MaxValue)
-                where !ranges.Any(r => r.Contains((uint)i))
-                select i;
-
-        return q.First();
-    }
-    public object Part2()
-    {
-        // TODO this is not correct yet
-        return (long)(uint.MaxValue) - ranges.Sum(r => r.Total);
-    }
+    public long Part1() => (from i in Range(0, int.MaxValue)
+                            where !ranges.Any(r => r.Contains((uint)i))
+                            select i).First();
+    public long Part2() => uint.MaxValue - ranges.Sum(r => r.Total) + 1;
 
     [GeneratedRegex("(?<start>\\d+)-(?<end>\\d+)", RegexOptions.Compiled)]
     private static partial Regex MyRegex();
