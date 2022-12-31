@@ -13,7 +13,7 @@ public class AoC201623
           let second = split.Length > 2 ? split[2] : string.Empty
           select (instruction, first, second);
     public object Part1() => new Computer().Compute(instructions.ToImmutableArray(), 7);
-    public object Part2() => new Computer().Compute(instructions.ToImmutableArray(), 12);
+    public object Part2() => Computer.Hardcoded(7,0,0,0);
 }
 
 
@@ -36,6 +36,69 @@ class Computer
         if (memory.ContainsKey(register))
             memory[register] = value;
     }
+
+
+    public static (int a, int b, int c, int d) Hardcoded(int a, int b, int c, int d)
+    {
+        b = a;
+        b--;
+        d = a;
+        a = 0;
+        c = b;
+        a++;
+        c--;
+        while (c != 0)
+        {
+            c--;
+            a++;
+        }
+        d--;
+        while (d != 0)
+        {
+            a = 0;
+            c = b;
+            d--;
+            c++;
+            d--;
+        }
+        b--;
+        c = b;
+        d = c;
+        d--;
+        c++;
+        while (d != 0)
+        {
+            c--;
+            d--;
+        }
+        c = -16;
+        while (c != 0)
+        {
+            c--;
+            a++;
+        }
+        c = 80;
+        while (c != 77)
+        {
+            d--;
+            a++;
+        }
+        a++;
+        d--;
+        while (d != 0)
+        {
+            a++;
+            d--;
+        }
+        c--;
+        while (c != 0)
+        {
+            a++;
+            c--;
+        }
+        return (a, b, c, d);
+    }
+
 
     public int Compute(ImmutableArray<(string instruction, string first, string second)> instructions, int init)
     {

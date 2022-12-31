@@ -1,0 +1,30 @@
+cpy a b     #  _1:b = a;
+dec b       #  _2:b--;
+cpy a d     #  _3:d = a;
+cpy 0 a     #  _4:a = 0;
+cpy b c     #  _5: c = b;
+inc a       #  _6: a++;
+dec c       #  _7: c--;
+jnz c -2    #  _8: if (c != 0) goto _6; 
+dec d       #  _9: d--;
+jnz d -5    # _10: if (d != 0) goto _5;
+dec b       # _11: b--;
+cpy b c     # _12: c = b;
+cpy c d     # _13: d = c;
+dec d       # _14: d--;
+inc c       # _15: c++;
+jnz d -2    # _16: if (d != 0) goto _14;
+tgl c       # _17: TODO;
+cpy -16 c   # _18: c = -16;
+jnz 1 c     # _19: goto _jumpdynamic_c;
+cpy 80 c    # _20: c = 80;
+jnz 77 d    # _21: goto _jumpdynamic_d;
+inc a       # _22: a++;
+inc d       # _23: d++;
+jnz d -2    # _23: if (d != 0);
+inc c       # _25: c++;
+jnz c -5    # _26: if (c != 0) goto _21;
+
+            # _jumpdynamic_c: if (d == 1) goto _1; if (d == 2) goto _2; if (d==3) goto _3; if (d == 4) goto _4;
+            # _jumpdynamic_d: if (d == 1) goto _1; if (d == 2) goto _2; if (d==3) goto _3; if (d == 4) goto _4;
+            
