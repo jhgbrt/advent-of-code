@@ -1,30 +1,148 @@
-cpy a b     #  _1:b = a;
-dec b       #  _2:b--;
-cpy a d     #  _3:d = a;
-cpy 0 a     #  _4:a = 0;
-cpy b c     #  _5: c = b;
-inc a       #  _6: a++;
-dec c       #  _7: c--;
-jnz c -2    #  _8: if (c != 0) goto _6; 
-dec d       #  _9: d--;
-jnz d -5    # _10: if (d != 0) goto _5;
-dec b       # _11: b--;
-cpy b c     # _12: c = b;
-cpy c d     # _13: d = c;
-dec d       # _14: d--;
-inc c       # _15: c++;
-jnz d -2    # _16: if (d != 0) goto _14;
-tgl c       # _17: TODO;
-cpy -16 c   # _18: c = -16;
-jnz 1 c     # _19: goto _jumpdynamic_c;
-cpy 80 c    # _20: c = 80;
-jnz 77 d    # _21: goto _jumpdynamic_d;
-inc a       # _22: a++;
-inc d       # _23: d++;
-jnz d -2    # _23: if (d != 0);
-inc c       # _25: c++;
-jnz c -5    # _26: if (c != 0) goto _21;
-
-            # _jumpdynamic_c: if (d == 1) goto _1; if (d == 2) goto _2; if (d==3) goto _3; if (d == 4) goto _4;
-            # _jumpdynamic_d: if (d == 1) goto _1; if (d == 2) goto _2; if (d==3) goto _3; if (d == 4) goto _4;
+cpy a b     #  _1_1:b = a;
+dec b       #  _1_2:b--;
+cpy a d     #  _1_3:d = a;
+cpy 0 a     #  _1_4:a = 0;
+cpy b c     #  _1_5: c = b;
+inc a       #  _1_6: a++;
+dec c       #  _1_7: c--;
+jnz c -2    #  _1_8: if (c != 0) goto _6; 
+dec d       #  _1_9: d--;
+jnz d -5    # _1_10: if (d != 0) goto _5;
+dec b       # _1_11: b--;
+cpy b c     # _1_12: c = b;
+cpy c d     # _1_13: d = c;
+dec d       # _1_14: d--;
+inc c       # _1_15: c++;
+jnz d -2    # _1_16: if (d != 0) goto _14;
+tgl c       # _1_17: TODO;
+cpy -16 c   # _1_18: c = -16;
+jnz 1 c     # _1_19: goto _jnz_c;
+cpy 80 c    # _1_20: c = 80;
+jnz 77 d    # _1_21: goto _jnz_d;
+inc a       # _1_22: a++;
+inc d       # _1_23: d++;
+jnz d -2    # _1_23: if (d != 0);
+inc c       # _1_25: c++;
+jnz c -5    # _1_26: if (c != 0) goto _21;
+            # _jnz_c: if (c == 1) goto _1; if (c == 2) goto _2; if (c==3) goto _3; if (c == 4) goto _4; if  (c == 5) goto _5; if (c == 6) goto _6;
+            # _jnz_d: if (d == 1) goto _1; if (d == 2) goto _2; if (d==3) goto _3; if (d == 4) goto _4;
             
+
+
+
+Toggle(16, 10)
+Toggle(16, 8)
+16 -> inc c  -> dec c
+cpy a b
+dec b
+cpy a d
+cpy 0 a
+cpy b c
+inc a
+dec c
+jnz c -2
+dec d
+jnz d -5
+dec b
+cpy b c
+cpy c d
+dec d
+inc c
+jnz d -2
+tgl c
+cpy -16 c
+jnz 1 c
+cpy 80 c
+jnz 77 d
+inc a
+inc d
+jnz d -2
+dec c
+jnz c -5
+
+Toggle(16, 6)
+16 -> inc d  -> dec d
+cpy a b
+dec b
+cpy a d
+cpy 0 a
+cpy b c
+inc a
+dec c
+jnz c -2
+dec d
+jnz d -5
+dec b
+cpy b c
+cpy c d
+dec d
+inc c
+jnz d -2
+tgl c
+cpy -16 c
+jnz 1 c
+cpy 80 c
+jnz 77 d
+inc a
+dec d
+jnz d -2
+dec c
+jnz c -5
+
+Toggle(16, 4)
+16 -> jnz 77 d -> cpy 77 d
+cpy a b
+dec b
+cpy a d
+cpy 0 a
+cpy b c
+inc a
+dec c
+jnz c -2
+dec d
+jnz d -5
+dec b
+cpy b c
+cpy c d
+dec d
+inc c
+jnz d -2
+tgl c
+cpy -16 c
+jnz 1 c
+cpy 80 c
+cpy 77 d
+inc a
+dec d
+jnz d -2
+dec c
+jnz c -5
+
+Toggle(16, 2)
+16 -> jnz 1 c -> cpy 1 c
+cpy a b
+dec b
+cpy a d
+cpy 0 a
+cpy b c
+inc a
+dec c
+jnz c -2
+dec d
+jnz d -5
+dec b
+cpy b c
+cpy c d
+dec d
+inc c
+jnz d -2
+tgl c
+cpy -16 c
+cpy 1 c
+cpy 80 c
+cpy 77 d
+inc a
+dec d
+jnz d -2
+dec c
+jnz c -5
