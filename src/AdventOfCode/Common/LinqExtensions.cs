@@ -193,11 +193,18 @@ static class LinqExtensions
     }
 
 
+    public static IEnumerable<T> Except<T>(this IEnumerable<T> list, T item) => list.Except(item.AsEnumerable());
     public static IEnumerable<T> Concat<T>(this IEnumerable<T> list, T item)
     {
         foreach (var entry in list)
             yield return entry;
         yield return item;
+    }
+    public static IEnumerable<T> Concat<T>(this T item, IEnumerable<T> list)
+    {
+        yield return item;
+        foreach (var entry in list)
+            yield return entry;
     }
 
     public static IEnumerable<T> AsEnumerable<T>(this T item)

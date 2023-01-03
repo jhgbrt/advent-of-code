@@ -33,3 +33,10 @@ internal static class Read
     }
 
 }
+
+
+internal static class FileSystem
+{
+    public static string GetDirectory([CallerFilePath] string path = "") => Path.GetDirectoryName(path)!;
+    public static string GetFileName(string filename, [CallerFilePath] string path = "") => Path.Combine(GetDirectory(path), filename);
+}
