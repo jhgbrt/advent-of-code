@@ -3,14 +3,11 @@ namespace AdventOfCode.Year2018.Day22;
 public class AoC201822
 {
 
-    const int targetx = 10;
-    const int targety = 785;
-
     public int Part1() => Region.All().Sum(r => r.RiskLevel);
     public int Part2()
     {
-        State start = new State(Region.GetRegion(new(0, 0)), Tool.Torch);
-        State target = new State(Region.GetRegion(new(targetx, targety)), Tool.Torch);
+        State start = new (Region.Start, Tool.Torch);
+        State target = new (Region.Target, Tool.Torch);
         var queue = new Queue<(State, int switching, int minutes)>();
         var visited = new HashSet<State>();
         queue.Enqueue((start, 0, 0));
@@ -53,6 +50,8 @@ readonly record struct Region(Point Position, RegionType Type)
     const int depth = 5616;
     const int targetx = 10;
     const int targety = 785;
+    public readonly static Region Start = GetRegion(new(0, 0));
+    public readonly static Region Target = GetRegion(new(targetx, targety));
 
     public static IEnumerable<Region> All()
     {
