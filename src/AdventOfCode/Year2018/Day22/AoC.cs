@@ -1,8 +1,3 @@
-using AdventOfCode.Year2018.Day04;
-using AdventOfCode.Year2022.Day22;
-
-using Net.Code.AdventOfCode.Toolkit.Core;
-
 namespace AdventOfCode.Year2018.Day22;
 
 public class AoC201822
