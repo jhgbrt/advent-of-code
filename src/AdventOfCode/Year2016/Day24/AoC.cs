@@ -32,7 +32,7 @@ public class AoC201624
     public object Part2() => (
                from path in locations.Except(start).GetPermutations(locations.Count - 1)
                let total = (
-                       from pair in start.Concat(path).Concat(start).Windowed2()
+                       from pair in start.Concat(path).Append(start).Windowed2()
                        select distances[pair]
                        ).Sum()
                select total

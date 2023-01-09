@@ -25,7 +25,7 @@ public partial class AoC201513
         return vertices.GetPermutations(vertices.Count)
             .Max(p =>
             {
-                var circle = p.Concat(p.First());
+                var circle = p.Append(p.First());
                 var path = circle.Zip(circle.Skip(1));
                 return path.Sum(p => distances[(p.First, p.Second)]) + path.Sum(p => distances[(p.Second, p.First)]);
             });
