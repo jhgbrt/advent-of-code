@@ -25,7 +25,6 @@ public class AoC201822
             if (state == target)
                 return minutes;
 
-
             var neighbours = from n in region.Neighbours()
                              let s = state with { region = n }
                              where n.IsAllowed(tool) && visited.Add(s)
@@ -50,6 +49,7 @@ readonly record struct Region(Point Position, RegionType Type)
     const int depth = 5616;
     const int targetx = 10;
     const int targety = 785;
+    static Dictionary<Point, int> _cache = new();
     public readonly static Region Start = GetRegion(new(0, 0));
     public readonly static Region Target = GetRegion(new(targetx, targety));
 
@@ -62,7 +62,7 @@ readonly record struct Region(Point Position, RegionType Type)
     
     public int RiskLevel => (int)Type;
 
-    public static Region GetRegion(Point p) => new Region(p, (RegionType)(ErosionLevel(p) % 3));
+    public static Region GetRegion(Point p) => new (p, (RegionType)(ErosionLevel(p) % 3));
 
 
     static int GeologicIndex(Point p) => p switch
@@ -74,12 +74,13 @@ readonly record struct Region(Point Position, RegionType Type)
         _ => ErosionLevel(new(p.x - 1, p.y)) * ErosionLevel(new(p.x, p.y - 1))
     };
 
-    static Dictionary<Point, int> _cache = new();
     static private int ErosionLevel(Point p)
     {
-        if (_cache.ContainsKey(p)) return _cache[p];
-        var result = (GeologicIndex(p) + depth) % 20183;
-        _cache[p] = result;
+        if (!_cache.TryGetValue(p, out var result))
+        {
+            result = (GeologicIndex(p) + depth) % 20183;
+            _cache[p] = result;
+        }
         return result;
     }
 
