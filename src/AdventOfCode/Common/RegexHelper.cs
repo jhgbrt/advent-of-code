@@ -6,18 +6,6 @@ namespace AdventOfCode;
 internal static class RegexHelper
 {
 
-    static IDictionary<string,object?> ToExpandoObject(this object obj)
-    {
-        IDictionary<string,object> expando = new Dictionary<string,object>();
-
-        foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(obj.GetType()))
-        {
-            expando.Add(property.Name, property.GetValue(obj));
-        }
-
-        return expando;
-    }
-
     public static T As<T>(this Regex regex, string s, object? unmatchedValues = null, IFormatProvider? provider = null) where T: struct
     {
         var match = regex.Match(s);
@@ -30,7 +18,7 @@ internal static class RegexHelper
                             join m in match.Groups.OfType<Group>() on p.Name equals m.Name
                             select (Key: m.Name, Value: ChangeType(m.Value, p.ParameterType, provider ?? CultureInfo.InvariantCulture));
 
-        var expando = from property in (unmatchedValues = unmatchedValues ?? new { }).GetType().GetProperties()
+        var expando = from property in (unmatchedValues ??= new { }).GetType().GetProperties()
                       select (Key: property.Name, Value: property.GetValue(unmatchedValues));
 
         var keyvalues = (
