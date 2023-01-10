@@ -1,12 +1,9 @@
-﻿using System.ComponentModel;
-using System.Dynamic;
-
-namespace AdventOfCode;
+﻿namespace AdventOfCode;
 
 internal static class RegexHelper
 {
 
-    public static T As<T>(this Regex regex, string s, object? unmatchedValues = null, IFormatProvider? provider = null) where T: struct
+    public static T As<T>(this Regex regex, string s, object? unmatchedValues = null, IFormatProvider? provider = null) where T : struct
     {
         var match = regex.Match(s);
         if (!match.Success) throw new InvalidOperationException($"input '{s}' does not match regex '{regex}'");
@@ -16,7 +13,7 @@ internal static class RegexHelper
 
         var matchedValues = from p in constructor.GetParameters()
                             join m in match.Groups.OfType<Group>() on p.Name equals m.Name
-                            select (Key: m.Name, Value: ChangeType(m.Value, p.ParameterType, provider ?? CultureInfo.InvariantCulture));
+                            select (Key: m.Name, Value: MyConvert.ChangeType(m.Value, p.ParameterType, provider ?? CultureInfo.InvariantCulture));
 
         var expando = from property in (unmatchedValues ??= new { }).GetType().GetProperties()
                       select (Key: property.Name, Value: property.GetValue(unmatchedValues));
@@ -35,13 +32,13 @@ internal static class RegexHelper
         if (constructor.GetParameters().Length != values.Length)
         {
             var unmatchedConstructorArguments = from p in constructor.GetParameters()
-                            join m in match.Groups.OfType<Group>() on p.Name equals m.Name into g
-                            where !g.Any()
-                            select p.Name;
+                                                join m in match.Groups.OfType<Group>() on p.Name equals m.Name into g
+                                                where !g.Any()
+                                                select p.Name;
             var unmatchedRegexCaptureGroups = from m in match.Groups.OfType<Group>()
-                            join p in constructor.GetParameters() on m.Name equals p.Name into g
-                            where !g.Any()
-                            select m.Name;
+                                              join p in constructor.GetParameters() on m.Name equals p.Name into g
+                                              where !g.Any()
+                                              select m.Name;
             throw new ArgumentException($"Could not match constructor arguments when converting input to {typeof(T)}. \r\n" +
                 $"The following arguments where not matched: {string.Join(",", unmatchedConstructorArguments)}\r\n" +
                 $"The following capture groups from the regex where not matched: {string.Join(",", unmatchedRegexCaptureGroups)}");
@@ -52,7 +49,14 @@ internal static class RegexHelper
 
     }
 
-    static object ChangeType(string value, Type type, IFormatProvider provider)
+
+
+    public static int GetInt32(this Match m, string name) => int.Parse(m.Groups[name].Value);
+
+}
+internal static class MyConvert
+{
+    internal static object ChangeType(string value, Type type, IFormatProvider provider)
     {
         if (type.IsArray)
         {
@@ -83,12 +87,7 @@ internal static class RegexHelper
         Array.Copy(tmp, result, values.Length);
         return result;
     }
-
-    public static int GetInt32(this Match m, string name) => int.Parse(m.Groups[name].Value);
-
 }
-
-
 record CsvLineFormatInfo(string Delimiter = ",") : IFormatProvider, ICustomFormatter
 {
     public object? GetFormat(Type? type) => this;

@@ -101,8 +101,8 @@ public class FormattingTests
     [Fact]
     public void ConvertToArray()
     {
-        var result = Convert.ChangeType("a,b,c", typeof(char[]), new CsvLineFormatInfo());
-        Assert.Equal("a,b,c", result);
+        var result = MyConvert.ChangeType("a,b,c", typeof(char[]), new CsvLineFormatInfo());
+        Assert.Equal(new[] { 'a', 'b', 'c' }, result);
     }
 
 
