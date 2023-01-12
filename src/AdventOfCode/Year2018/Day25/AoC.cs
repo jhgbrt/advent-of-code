@@ -1,7 +1,7 @@
 namespace AdventOfCode.Year2018.Day25;
 
-public class AoC201825
+public static class AoC201825
 {
-    public object Part1() => "";
-    public object Part2() => "";
+    public static object Part1() => "";
+    public static object Part2() => "";
 }

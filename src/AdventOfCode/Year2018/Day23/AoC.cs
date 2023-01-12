@@ -2,12 +2,18 @@ namespace AdventOfCode.Year2018.Day23;
 
 public class AoC201823
 {
-    static string[] input = Read.InputLines();
-
-    static ImmutableArray<Octahedron> bots = (from line in input
-                         let bot = Octahedron.TryParse(line)
-                         where bot.HasValue select bot.Value).ToImmutableArray();
-    static readonly Octahedron strongest = bots.MaxBy(b => b.range);
+    readonly string[] input;
+    readonly ImmutableArray<Octahedron> bots;
+    readonly Octahedron strongest;
+    public AoC201823()
+    {
+        input = Read.InputLines();
+        bots = (from line in input
+                let bot = Octahedron.TryParse(line)
+                where bot.HasValue
+                select bot.Value).ToImmutableArray();
+        strongest = bots.MaxBy(b => b.range);
+    }
     public int Part1() => bots.Count(strongest.InRange);
 
     public object Part2()

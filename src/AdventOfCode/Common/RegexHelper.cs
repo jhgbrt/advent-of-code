@@ -1,9 +1,11 @@
-﻿namespace AdventOfCode;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+namespace AdventOfCode;
 
 internal static class RegexHelper
 {
 
-    public static T As<T>(this Regex regex, string s, object? unmatchedValues = null, IFormatProvider? provider = null) where T : struct
+    public static T As<T>(this Regex regex, string s, object? unmatchedValues = null, IFormatProvider? provider = null)
     {
         var match = regex.Match(s);
         if (!match.Success) throw new InvalidOperationException($"input '{s}' does not match regex '{regex}'");
@@ -56,35 +58,29 @@ internal static class RegexHelper
 }
 internal static class MyConvert
 {
-    internal static object ChangeType(string value, Type type, IFormatProvider provider)
+    internal static object ChangeType(string value, Type type, IFormatProvider provider) => type switch
     {
-        if (type.IsArray)
-        {
-            var elementType = type.GetElementType();
-            if (elementType is null) throw new ArgumentNullException("array does not have element type?!??");
-            return ConvertToArray(value, elementType, provider);
-        }
-        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-        {
-            var elementType = type.GetGenericArguments().Single();
-            if (elementType is null) throw new ArgumentNullException("enumerable does not have element type?!??");
-            return ConvertToArray(value, elementType, provider);
-        }
-
-        return Convert.ChangeType(value, type, provider);
-    }
+        { IsArray: true } 
+            => ConvertToArray(value, type.GetElementType() ?? throw new ArgumentException("array does not have element type?!??"), provider),
+        { IsGenericType: true } when type.GetGenericTypeDefinition() == typeof(IEnumerable<>)
+            => ConvertToArray(value, type.GetGenericArguments().SingleOrDefault() ?? throw new ArgumentException("enumerable does not have element type?!??"), provider),
+        _
+            => Convert.ChangeType(value, type, provider)
+    };
 
     static object ConvertToArray(string value, Type elementType, IFormatProvider provider)
     {
-        string delimiter = ",";
-        if (provider is CsvLineFormatInfo c)
+        string delimiter = provider switch
         {
-            delimiter = c.Delimiter;
-        }
+            CsvLineFormatInfo c => c.Delimiter,
+            _ => ","
+        };
+
         var values = value.Split(delimiter, StringSplitOptions.TrimEntries);
         var tmp = values.Select(v => Convert.ChangeType(v, elementType, provider)).ToArray();
         var result = Array.CreateInstance(elementType, values.Length);
         Array.Copy(tmp, result, values.Length);
+
         return result;
     }
 }

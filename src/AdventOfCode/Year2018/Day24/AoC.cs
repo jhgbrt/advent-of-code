@@ -1,152 +1,162 @@
-using QuickGraph;
-
 namespace AdventOfCode.Year2018.Day24;
 
 public class AoC201824
 {
-    static Regex AoC201824Regex = new(
-        @"(?<units>\d+) units each with (?<hitpoints>\d+) hit points( \((?<weakness_immunities>[^)]+)\))? with an attack that does (?<damagepoints>\d+) (?<damagetype>[^ ]+) damage at initiative (?<initiative>\d+)"
-    );
+    private static Regex AoC201824Regex = Regexes.AoC201824Regex();
+    private static Regex NotNormalized = Regexes.NotNormalized();
+    private static string[] input = Read.InputLines().Select(Normalize).ToArray();
 
-    private static string[] input = Read.SampleLines();
+    private static string Normalize(string line)
+    {
+        var match = NotNormalized.Match(line);
+        if (!match.Success) return line;
+        return NotNormalized.Replace(line, "$1$4$3$2$5");
+    }
 
-    private static ImmutableArray<Group> groups = 
+    private static ImmutableArray<Group> Groups() =>
         (
-        from line in input.Skip(1).TakeWhile(s => !string.IsNullOrEmpty(s)).Select((l,i)=>(l,i))
-        select Group.From(AoC201824Regex.As<Data>(line.l), line.i+1, GroupType.ImmuneSystem)
+            from line in input.Skip(1).TakeWhile(s => !string.IsNullOrEmpty(s)).Select((l, i) => (l, i))
+            select AoC201824Regex.As<Group>(line.l, new { id = line.i + 1, type = GroupType.ImmuneSystem })
         ).Concat(
-        from line in input.SkipWhile(s => !string.IsNullOrEmpty(s)).Skip(2).Select((l, i) => (l, i))
-        select Group.From(AoC201824Regex.As<Data>(line.l), line.i + 1, GroupType.Infection)
+            from line in input.SkipWhile(s => !string.IsNullOrEmpty(s)).Skip(2).Select((l, i) => (l, i))
+            select AoC201824Regex.As<Group>(line.l, new { id = line.i + 1, type = GroupType.Infection })
         ).ToImmutableArray();
 
-    public object Part1()
+    public object Part1() => DoFights(Groups(), 0).units;
+    public object Part2() 
     {
-        foreach (var item in groups) Console.WriteLine(item);
-        var armies = groups;
-        while (armies.Where(a => a.type == GroupType.ImmuneSystem).Any() && armies.Where(a => a.type == GroupType.Infection).Any())
+        var l = 0;
+        var h = int.MaxValue / 2;
+        while (h - l > 1)
         {
-            armies = Fight(armies);
-            break;
+            var m = (h + l) / 2;
+            var (winner, _) = DoFights(Groups(), m);
+            if (winner == GroupType.ImmuneSystem)
+                h = m;
+            else
+                l = m;
         }
-        
-
-        return -1;
+        return DoFights(Groups(), h).units;
     }
-    public object Part2() => "";
-
-
-    ImmutableArray<Group> Fight(ImmutableArray<Group> groups)
+    
+    (GroupType? winner, int units) DoFights(ImmutableArray<Group> list, int boost)
     {
+        var armies = (from item in list
+                      select item.type == GroupType.ImmuneSystem ? item.Boost(boost) : item).ToList();
 
-        var g = from x in groups group x by x.type;
-
-        foreach (var parent in g)
+        while (armies.Any(a => a.type == GroupType.ImmuneSystem)
+            && armies.Any(a => a.type == GroupType.Infection))
         {
-            Console.WriteLine(parent.Key);
-            foreach (var child in parent)
-            {
-                Console.WriteLine($" Group {child.id} contains {child.units} units");
-            }
+            var units = armies.Sum(a => a.units);
+            armies = Fight(armies).ToList();
+            if (armies.Sum(a => a.units) == units)
+                return (null, units);
         }
+        return (armies.Select(a => a.type).First(), armies.Sum(x => x.units));
+    }
 
 
-        var attacks = SelectTargets(groups).OrderByDescending(a => a.attacker.initiative);
+    IEnumerable<Group> Fight(List<Group> army)
+    {
+        var remainingTargets = army.ToHashSet();
 
+        var targets =
+             from attacker in army
+             orderby attacker.EffectivePower descending, attacker.initiative descending
+             let target = SelectTarget(attacker, remainingTargets)
+             where target != null && target.WouldLoseUnits(attacker)
+             orderby attacker.initiative descending
+             select (attacker, target);
 
-        foreach (var (attacker, target) in attacks)
+        foreach (var (attacker,target) in targets)
         {
-            Console.WriteLine($"{attacker.type} group {attacker.id} (initiative {attacker.initiative}) attacks defending group {target.id} {target.Damage(attacker)} damage");
+            var damage = target.DamageFrom(attacker);
+            target.TakeHit(damage);
         }
 
-
-        return groups;
+        return army.Where(g => g.units > 0).ToImmutableArray();
     }
-
-    IEnumerable<(Group attacker, Group target)> SelectTargets(IEnumerable<Group> allgroups)
+    Group? SelectTarget(Group attacker, HashSet<Group> possibleTargets)
     {
-        return from attacker in allgroups
-               orderby attacker.EffectivePower descending, attacker.initiative descending
-               let targets = (
-                   from d in allgroups
-                   where d.type != attacker.type
-                   orderby d.Damage(attacker) descending, d.EffectivePower descending, d.initiative descending
-                   select Write(attacker, d)
-                   )
-               let target = targets.FirstOrDefault()
-               where target.HasValue
-               select (attacker, target.Value);
+        var max = possibleTargets.Max(target => target.DamageFrom(attacker));
+        if (max == 0) return default;
+
+        var selected = (
+            from target in possibleTargets
+            where target.type != attacker.type
+            && target.DamageFrom(attacker) == max
+            orderby target.EffectivePower descending, target.initiative descending
+            select target
+            ).First();
+
+        possibleTargets.Remove(selected);
+
+        return selected;
     }
-
-    (Group attacker, Group defender) Attack(Group attacker, Group target)
-    {
-        var damage = target.Damage(attacker);
-        var lost = damage / target.hitpoints;
-        var defender = target with { units = target.units - lost };
-        return (attacker, defender);
-    }
-
-    private Group? Write(Group attacker, Group target)
-    {
-        Console.WriteLine($"{attacker.type} group {attacker.id} would deal defending group {target.id} {target.Damage(attacker)} damage");
-        return target;
-    }
-
-
 }
 
-readonly record struct Data(int units, int hitpoints, string weakness_immunities, int damagepoints, string damagetype, int initiative);
-
-readonly record struct Group(GroupType type, int id, int units, int hitpoints, string[] weaknesses, string[] immunities, int damagepoints, string damagetype, int initiative)
+class Group
 {
-    public static Group From(Data data, int id, GroupType type)
+    public Group(GroupType type, int id, int units, int hitpoints, string[] weaknesses, string[] immunities, int damagepoints, string damagetype, int initiative)
     {
-        string[] weaknessess = Array.Empty<string>();
-        string[] immunities = Array.Empty<string>();
-
-        if (!string.IsNullOrEmpty(data.weakness_immunities))
-        {
-            var split = data.weakness_immunities.Split(';', StringSplitOptions.TrimEntries);
-
-            var (first, second) = split switch
-            {
-                { Length: 2 } when split[0].StartsWith("weak to ") => (split[0], split[1]),
-                { Length: 2 } when split[0].StartsWith("immune to ") => (split[1], split[0]),
-                { Length: 1 } when split[0].StartsWith("weak to ") => (split[0], string.Empty),
-                { Length: 1 } when split[0].StartsWith("immune to ") => (string.Empty, split[0])
-            };
-
-            weaknessess = string.IsNullOrEmpty(first) ? weaknessess : first[7..].Split(',', StringSplitOptions.TrimEntries);
-            immunities = string.IsNullOrEmpty(second) ? immunities : second[9..].Split(',', StringSplitOptions.TrimEntries);
-
-            //(weaknessess, immunities) = split switch
-            //{
-            //    { Length: 2 } when split[0].StartsWith("weak to ") => (split[0][7..].Split(',', StringSplitOptions.TrimEntries), split[1][9..].Split(",", StringSplitOptions.TrimEntries)),
-            //    { Length: 2 } when split[0].StartsWith("immune to ") => (split[1][7..].Split(',', StringSplitOptions.TrimEntries), split[0][9..].Split(",", StringSplitOptions.TrimEntries)),
-            //    { Length: 1 } when split[0].StartsWith("weak to ") => (split[0][7..].Split(',', StringSplitOptions.TrimEntries), immunities),
-            //    { Length: 1 } when split[0].StartsWith("immune to ") => (weaknessess, split[0][9..].Split(",", StringSplitOptions.TrimEntries)),
-            //    _ => throw new NotSupportedException()
-            //};
-        }
-
-        return new Group(type, id, data.units, data.hitpoints, weaknessess, immunities, data.damagepoints, data.damagetype, data.initiative);
+        this.type = type;
+        this.id = id;
+        this.units = units;
+        this.hitpoints = hitpoints;
+        this.weaknesses = weaknesses;
+        this.immunities = immunities;
+        this.damagepoints = damagepoints;
+        this.damagetype = damagetype;
+        this.initiative = initiative;
     }
+    int id;
+    string[] weaknesses;
+    string[] immunities;
+    int damagepoints;
+    string damagetype;
+
+    public int hitpoints { get; }
+    public int initiative { get; }
+    public GroupType type { get; }
+    public int units { get; private set; }
     public int EffectivePower => units * damagepoints;
-    public int Damage(Group other)
+    public int DamageFrom(Group other)
     {
-        if (weaknesses.Contains(other.damagetype)) return other.units * other.damagepoints * 2;
+        if (type == other.type) return 0;
+        if (weaknesses.Contains(other.damagetype)) return other.EffectivePower * 2;
         if (immunities.Contains(other.damagetype)) return 0;
-        return other.units * other.damagepoints;
+        return other.EffectivePower;
     }
-    public Group Attack(Group attacker) => this with { units = units - Damage(attacker) / hitpoints };
 
-    public override string ToString()
+    public bool WouldLoseUnits(Group other) => DamageFrom(other) / hitpoints > 0;
+
+    public bool TakeHit(int damage)
     {
-        return $"{type} - {units} units each with {hitpoints} (weaknesses: {string.Join(',', weaknesses)}, immune to {string.Join(',', immunities)}) with an attack that does {damagepoints} {damagetype} damage at initiative {initiative}";
+        var loss = damage / hitpoints;
+        units = Max(0, units - loss);
+        return loss > 0;
     }
+    public Group Boost(int boost)
+    {
+        damagepoints += boost;
+        return this;
+    }
+
+
+    public override string ToString() => $"{type} - {units} units each with {hitpoints} (weaknesses: {string.Join(',', weaknesses)}, immune to {string.Join(',', immunities)}) with an attack that does {damagepoints} {damagetype} damage at initiative {initiative}";
 }
 
 enum GroupType
 {
     ImmuneSystem,
     Infection
+}
+
+static partial class Regexes
+{
+
+    [GeneratedRegex(@"^(?<units>\d+) units each with (?<hitpoints>\d+) hit points( \((weak to (?<weaknesses>[^;]+))?(; )?(immune to (?<immunities>[^)]+))?\))? with an attack that does (?<damagepoints>\d+) (?<damagetype>[^ ]+) damage at initiative (?<initiative>\d+)$")]
+    public static partial Regex AoC201824Regex();
+    [GeneratedRegex("([^(]*\\()(immune to[^;]+)(; )(weak to [^)]+)(\\).*)")]
+    public static partial Regex NotNormalized();
 }

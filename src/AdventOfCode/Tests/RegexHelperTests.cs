@@ -76,25 +76,20 @@ public class RegexHelperTests
         Assert.Equal(new MyRecord5("type", "somevalue"), result);
     }
 }
+
 public class FormattingTests
 {
     [Fact]
     public void FormatArray_Default()
     {
-        var formatter = new CsvLineFormatInfo();
-
         var result = string.Format(new CsvLineFormatInfo(), "{0}", new[] { 'a', 'b', 'c' });
-
         Assert.Equal("a,b,c", result);
-
     }
+
     [Fact]
     public void FormatArray_Delimiter()
     {
-        var formatter = new CsvLineFormatInfo();
-
         var result = string.Format(new CsvLineFormatInfo(), "{0:;}", new[] { 'a', 'b', 'c' });
-
         Assert.Equal("a;b;c", result);
     }
 
@@ -104,6 +99,10 @@ public class FormattingTests
         var result = MyConvert.ChangeType("a,b,c", typeof(char[]), new CsvLineFormatInfo());
         Assert.Equal(new[] { 'a', 'b', 'c' }, result);
     }
-
-
+    [Fact]
+    public void ConvertToEnumerable()
+    {
+        var result = MyConvert.ChangeType("1,2,3", typeof(IEnumerable<int>), new CsvLineFormatInfo());
+        Assert.Equal(new[] { 1, 2, 3 }, result);
+    }
 }
