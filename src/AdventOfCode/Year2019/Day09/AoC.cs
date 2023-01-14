@@ -1,3 +1,5 @@
+using AdventOfCode.Year2015.Day23;
+
 namespace AdventOfCode.Year2019.Day09;
 
 public class AoC201909
@@ -61,110 +63,90 @@ static class IntCode
     internal static IEnumerable<long> Run(ImmutableDictionary<long, long> program, params int[] inputs)
     {
         int index = 0;
-        int relativeBase = 0;
+        int offset = 0;
         int opcode;
-        var inputEnumerator = (inputs as IEnumerable<int>).GetEnumerator();
-        do
+        int nextinput = 0;
+        while (true)
         {
             (opcode, var modes) = Decode(program[index]);
+
+            if (opcode == 99)
+                break;
+
+            var parameters = opcode switch
+            {
+                1 or 2 or 7 or 8 => program.GetParameters(index, modes, 3),
+                3 or 4 or 9 => program.GetParameters(index, modes, 1),
+                5 or 6 => program.GetParameters(index, modes, 2)
+            };
+
+            var parameterValues = opcode switch
+            {
+                1 or 2 or 5 or 6 or 7 or 8 => program.GetValues(offset, parameters, 2),
+                4 or 9 => program.GetValues(offset, parameters, 1),
+                _ => Array.Empty<long>()
+            };
+
+            var parameterCount = parameters.Length;
+            var jump = parameterCount + 1;
+
             switch (opcode)
             {
                 case 1:
                     {
-                        const int parameterCount = 3;
-                        var parameters = program.GetParameters(index, modes, parameterCount);
-                        (var a, var b) = program.GetValues(relativeBase, parameters);
-                        var result = a + b;
-                        var jump = parameterCount + 1;
-                        program = program.SetValue(relativeBase, result, parameters.Last());
-                        index += jump;
+                        var result = parameterValues.Sum();
+                        program = program.Set(parameters[^1], offset, result);
                     }
                     break;
                 case 2:
                     {
-                        const int parameterCount = 3;
-                        var parameters = program.GetParameters(index, modes, parameterCount);
-                        (var a, var b) = program.GetValues(relativeBase, parameters);
-                        var result = a * b;
-                        var jump = parameterCount + 1;
-                        program = program.SetValue(relativeBase, result, parameters.Last());
-                        index += jump;
+                        var result = parameterValues.Product();
+                        program = program.Set(parameters[^1], offset, result);
                     }
                     break;
                 case 3:
                     {
-                        if (!inputEnumerator.MoveNext()) throw new InvalidOperationException("no more inputs");
-                        const int parameterCount = 1;
-                        var parameters = program.GetParameters(index, modes, parameterCount);
-                        var jump = parameterCount + 1;
-                        program = program.SetValue(relativeBase, inputEnumerator.Current, parameters.Last());
-                        index += jump;
+                        var result = inputs[nextinput++];
+                        program = program.Set(parameters[^1], offset, result);
                     }
                     break;
                 case 4:
                     {
-                        const int parameterCount = 1;
-                        var parameters = program.GetParameters(index, modes, parameterCount);
-                        var jump = parameterCount + 1;
-                        index += jump;
-                        var value = program.GetValue(relativeBase, parameters.First());
-                        yield return value;
+                        yield return parameterValues[0];
                     }
                     break;
                 case 5:
                     {
-                        const int parameterCount = 2;
-                        var parameters = program.GetParameters(index, modes, parameterCount);
-                        (var a, var b) = program.GetValues(relativeBase, parameters);
-                        index = a == 0 ? index + parameterCount + 1 : (int)b;
+                        if (parameterValues[0] != 0) jump = (int)parameterValues[1] - index;
                     }
                     break;
                 case 6:
                     {
-                        const int parameterCount = 2;
-                        var parameters = program.GetParameters(index, modes, parameterCount);
-                        (var a, var b) = program.GetValues(relativeBase, parameters);
-                        index = a == 0 ? (int)b : index + parameterCount + 1;
+                        if (parameterValues[0] == 0) jump = (int)parameterValues[1] - index;
                     }
                     break;
                 case 7:
                     {
-                        const int parameterCount = 3;
-                        var parameters = program.GetParameters(index, modes, parameterCount);
-                        (var a, var b) = program.GetValues(relativeBase, parameters);
-                        var result = a < b ? 1 : 0;
-                        var jump = parameterCount + 1;
-                        program = program.SetValue(relativeBase, result, parameters.Last());
-                        index += jump;
+                        var result = parameterValues[0] < parameterValues[1] ? 1 : 0;
+                        program = program.Set(parameters[^1], offset, result);
                     }
                     break;
                 case 8:
                     {
-                        const int parameterCount = 3;
-                        var parameters = program.GetParameters(index, modes, parameterCount);
-                        (var a, var b) = program.GetValues(relativeBase, parameters);
-                        var result = a == b ? 1 : 0;
-                        var jump = parameterCount + 1;
-                        program = program.SetValue(relativeBase, result, parameters.Last());
-                        index += jump;
+                        var result = parameterValues[0] == parameterValues[1] ? 1 : 0;
+                        program = program.Set(parameters[^1], offset, result);
                     }
                     break;
                 case 9:
                     {
-                        const int parameterCount = 1;
-                        var parameters = program.GetParameters(index, modes, parameterCount);
-                        relativeBase += (int)program.GetValue(relativeBase, parameters.First());
-                        var jump = parameterCount + 1;
-                        index += jump;
+                        offset += (int)parameterValues[0];
                     }
-                    break;
-                case 99:
                     break;
                 default:
                     throw new Exception();
             }
+            index += jump;
         }
-        while (opcode != 99);
     }
 
     static Parameter[] GetParameters(this ImmutableDictionary<long, long> program, int index, IEnumerable<Mode> modes, int n)
@@ -182,7 +164,7 @@ static class IntCode
         }
         return ((int)opcode, modes);
     }
-    static ImmutableDictionary<long, long> SetValue(this ImmutableDictionary<long, long> program, long relativeBase, long value, Parameter parameter)
+    static ImmutableDictionary<long, long> Set(this ImmutableDictionary<long, long> program, Parameter parameter, long relativeBase, long value)
     {
         var index = parameter.mode switch
         {
@@ -205,12 +187,8 @@ static class IntCode
         };
     }
 
-    static (long a, long b) GetValues(this ImmutableDictionary<long, long> program, int relativeBase, Parameter[] parameters)
-    {
-        var a = program.GetValue(relativeBase, parameters[0]);
-        var b = program.GetValue(relativeBase, parameters[1]);
-        return (a, b);
-    }
+    static long[] GetValues(this ImmutableDictionary<long, long> program, int relativeBase, IEnumerable<Parameter> parameters, int n) 
+        => parameters.Take(n).Select(p => program.GetValue(relativeBase, p)).ToArray();
 }
 record struct Parameter(long index, Mode mode);
 enum Mode

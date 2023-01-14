@@ -1,0 +1,147 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+namespace AdventOfCode;
+
+static class TupleUtils
+{
+    
+<# 
+const int MAX = 9;
+for (int i = 2; i < MAX; i++) {#>
+    public static <#= GenerateTupleDeclaration(i, "T ") #> ToTuple<#=i#><T>(this IEnumerable<T> items)
+    {
+        var enumerator = items.GetEnumerator();
+<#= GenerateToTupleLines(i) #>
+        if (enumerator.MoveNext()) throw new ArgumentException("More than <#=i#> elements were present in this collection");
+        return <#= GenerateTupleValue(i) #>;
+    }
+<#}#>
+<# for (int i = 2; i < MAX; i++) {#>
+    public static IEnumerable<<#= GenerateTupleDeclarationForChunked(i) #>> Chunked<#=i#><T>(this IEnumerable<T> items)
+    {
+        var enumerator = items.GetEnumerator();
+        while (true)
+        {
+<#= GenerateChunkedLines(i) #>
+        }
+    }
+<#}#>
+
+
+<# for (int i = 2; i < MAX; i++) {#>
+    public static IEnumerable<<#= GenerateTupleDeclaration(i, "T ") #>> Windowed<#=i#><T>(this IEnumerable<T> items)
+    {
+        var enumerator = items.GetEnumerator();
+<# int j; for (j = 0; j < i; j++) {#>
+        if (!enumerator.MoveNext()) yield break;
+        var <#=(char)(j+'a')#> = enumerator.Current;
+<#}#>
+        while (true)
+        {
+            if (!enumerator.MoveNext()) yield break;
+            var <#= (char)(j+'a') #> = enumerator.Current;
+            yield return <#=GenerateTupleValue(i)#>;
+            <#=GenerateTupleValue(i)#> = <#=GenerateTupleValue(i, 1)#>;
+        }
+    }
+<#}#>
+
+<# for (int i = 2; i < MAX; i++) {#>
+    public static IEnumerable<T> AsEnumerable<T>(this <#= GenerateTupleDeclaration(i, "T ") #> tuple)
+    {
+<# for (int j = 0; j < i; j++) {#>
+        yield return tuple.<#= (char)(j+'a') #>;
+<#}#>
+    }
+<#}#>
+
+<# for (int i = 2; i < MAX; i++) {#>
+    public static T Max<T>(this <#=GenerateTupleDeclaration(i, "T ")#> tuple) where T : INumber<T>
+        => tuple.AsEnumerable().Max()!;
+<#}#>
+
+<# for (int i = 2; i < MAX; i++) {#>
+    public static T Min<T>(this <#=GenerateTupleDeclaration(i, "T ")#> tuple) where T : INumber<T>
+        => tuple.AsEnumerable().Min()!;
+<#}#>
+
+}
+
+<#
+static string GenerateToTupleLines(int length)
+{
+    var sb = new StringBuilder();
+    for (int i = 0; i < length; i++) 
+    {
+        sb.AppendLine($"        if (!enumerator.MoveNext()) throw new ArgumentException(\"Not enough elements to create a tuple of {length} elements\");");
+        sb.Append("        var ");
+        sb.Append((char)(i + 'a'));
+        sb.AppendLine(" = enumerator.Current;");
+    }
+    return sb.ToString();
+}
+static string GenerateChunkedLines(int length)
+{
+    var sb = new StringBuilder();
+    sb  .Append("            ")
+        .Append(GenerateTupleDeclaration(length, "T? "))
+        .Append(" = ")
+        .Append(GenerateDefault(length))
+        .AppendLine(";");
+
+    for (int i = 0; i < length; i++) 
+    {
+        sb.Append("            ");
+        sb.AppendLine("if (!enumerator.MoveNext())");
+        sb.Append("            ");
+        sb.AppendLine("{");
+        if (i > 0) {
+        sb.Append("            ");
+        sb.Append("    yield return ");
+        sb.Append(GenerateTupleValue(length));
+        sb.AppendLine(";");
+        }
+        sb.Append("            ");
+        sb.AppendLine("    yield break;");
+        sb.Append("            ");
+        sb.AppendLine("}");
+        sb.Append("            ");
+        sb.Append((char)(i + 'a'));
+        sb.AppendLine(" = enumerator.Current;");
+    }
+    sb  .Append("            ")
+        .Append("yield return ")
+        .Append(GenerateTupleValue(length))
+        .AppendLine(";");
+    return sb.ToString();
+}
+
+
+static string GenerateTupleValue(int length, int shift = 0)
+{
+    var elements = Enumerable.Range(0, length).Select(i => (char)(i+shift+'a'));
+    return "(" + string.Join(",", elements) + ")";
+}
+
+static string GenerateTupleDeclarationForChunked(int length)
+{
+    var elements = Enumerable.Range(0, length).Select(i => (i == 0 ? "T " : "T? ") + (char)(i+'a'));
+    return "(" + string.Join(",", elements) + ")";
+}
+
+static string GenerateTupleDeclaration(int length, string type)
+{
+    var elements = Enumerable.Range(0, length).Select(i => type + (char)(i+'a'));
+    return "(" + string.Join(",", elements) + ")";
+}
+
+static string GenerateDefault(int length)
+{
+    return "("+string.Join(",", Enumerable.Repeat("default", length))+")";
+}
+
+
+#>

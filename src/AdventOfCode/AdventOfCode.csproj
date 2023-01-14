@@ -29,7 +29,7 @@
     <Using Include="Xunit" />
     <Using Include="Xunit.Abstractions" />
     <Using Include="System.Text" />
-    <Using Include="System.Globalization"/>
+    <Using Include="System.Globalization" />
     <Using Include="System.Text.Json" />
     <Using Include="System.Text.RegularExpressions" />
     <Using Include="System.Collections.Immutable" />
@@ -56,5 +56,21 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\advent-of-code-toolkit\src\Net.Code.AdventOfCode.Toolkit\Net.Code.AdventOfCode.Toolkit.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Common\TupleUtils.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TupleUtils.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Common\TupleUtils.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TupleUtils.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>
