@@ -4,16 +4,11 @@ public class AoC201909
 {
     internal static string[] input = Read.InputLines();
 
-    public object Part1()
-    {
-        foreach (var i in IntCode.Run(input.First().Split(',').Select(long.Parse).Select((n, i) => (n, i: (long)i)).ToImmutableDictionary(x => x.i, x => x.n), 1))
-        {
-            //Console.WriteLine(i);
-        }
-        return string.Empty;
-    }
+    ImmutableDictionary<long, long> program = input.First().Split(',').Select(long.Parse).Select((n, i) => (n, i: (long)i)).ToImmutableDictionary(x => x.i, x => x.n);
 
-    public object Part2() => "";
+    public object Part1() => IntCode.Run(program, 1).Last();
+
+    public object Part2() => IntCode.Run(program, 2).Last();
 
     [Fact]
     public void ShouldCopyItSelf()
@@ -37,7 +32,28 @@ public class AoC201909
         var result = IntCode.Run(program);
         Assert.Equal(1125899906842624, result.First());
     }
+    [Fact]
+    public void Malfunction()
+    {
+        var program = new[] {9, 13, 203L, 50, 4, 50, 4, 63, 99}.Select((value, index) => (value, index: (long)index)).ToImmutableDictionary(x => x.index, x => x.value);
+        var result = IntCode.Run(program, 17);
+        Assert.Equal(new[] { 0, 17L }, result.ToArray());
+    }
+    [Fact]
+    public void DecodeTests()
+    {
+        var (opcode, modes) = IntCode.Decode(203);
+        Assert.Equal(3, opcode);
+        Assert.Equal(new[] { Mode.Relative, Mode.Position, Mode.Position }, modes);
 
+        (opcode, modes) = IntCode.Decode(2003);
+        Assert.Equal(3, opcode);
+        Assert.Equal(new[] { Mode.Position, Mode.Relative, Mode.Position }, modes);
+
+        (opcode, modes) = IntCode.Decode(20003);
+        Assert.Equal(3, opcode);
+        Assert.Equal(new[] { Mode.Position, Mode.Position, Mode.Relative}, modes);
+    }
 }
 
 static class IntCode
@@ -51,7 +67,6 @@ static class IntCode
         do
         {
             (opcode, var modes) = Decode(program[index]);
-            long? value = null;
             switch (opcode)
             {
                 case 1:
@@ -61,7 +76,7 @@ static class IntCode
                         (var a, var b) = program.GetValues(relativeBase, parameters);
                         var result = a + b;
                         var jump = parameterCount + 1;
-                        program = program.SetValue(result, parameters.Last());
+                        program = program.SetValue(relativeBase, result, parameters.Last());
                         index += jump;
                     }
                     break;
@@ -72,7 +87,7 @@ static class IntCode
                         (var a, var b) = program.GetValues(relativeBase, parameters);
                         var result = a * b;
                         var jump = parameterCount + 1;
-                        program = program.SetValue(result, parameters.Last());
+                        program = program.SetValue(relativeBase, result, parameters.Last());
                         index += jump;
                     }
                     break;
@@ -82,7 +97,7 @@ static class IntCode
                         const int parameterCount = 1;
                         var parameters = program.GetParameters(index, modes, parameterCount);
                         var jump = parameterCount + 1;
-                        program = program.SetValue(inputEnumerator.Current, parameters.Last());
+                        program = program.SetValue(relativeBase, inputEnumerator.Current, parameters.Last());
                         index += jump;
                     }
                     break;
@@ -92,7 +107,8 @@ static class IntCode
                         var parameters = program.GetParameters(index, modes, parameterCount);
                         var jump = parameterCount + 1;
                         index += jump;
-                        value = program.GetValue(relativeBase, parameters.First());
+                        var value = program.GetValue(relativeBase, parameters.First());
+                        yield return value;
                     }
                     break;
                 case 5:
@@ -118,7 +134,7 @@ static class IntCode
                         (var a, var b) = program.GetValues(relativeBase, parameters);
                         var result = a < b ? 1 : 0;
                         var jump = parameterCount + 1;
-                        program = program.SetValue(result, parameters.Last());
+                        program = program.SetValue(relativeBase, result, parameters.Last());
                         index += jump;
                     }
                     break;
@@ -129,7 +145,7 @@ static class IntCode
                         (var a, var b) = program.GetValues(relativeBase, parameters);
                         var result = a == b ? 1 : 0;
                         var jump = parameterCount + 1;
-                        program = program.SetValue(result, parameters.Last());
+                        program = program.SetValue(relativeBase, result, parameters.Last());
                         index += jump;
                     }
                     break;
@@ -147,15 +163,14 @@ static class IntCode
                 default:
                     throw new Exception();
             }
-            if (value.HasValue) yield return value.Value;
         }
         while (opcode != 99);
     }
 
-    static IEnumerable<(long value, Mode mode)> GetParameters(this ImmutableDictionary<long, long> program, int index, IEnumerable<Mode> modes, int n)
-        => Range(index + 1, n).Select(i => program.ContainsKey(i) ? program[i] : 0).Zip(modes, (l, r) => (value: l, mode: r));
+    static Parameter[] GetParameters(this ImmutableDictionary<long, long> program, int index, IEnumerable<Mode> modes, int n)
+        => Range(index + 1, n).Select(i => program.ContainsKey(i) ? program[i] : 0).Zip(modes, (l, r) => new Parameter(l, r)).ToArray();
 
-    static (int opcode, IReadOnlyCollection<Mode> modes) Decode(long value)
+    internal static (int opcode, IReadOnlyCollection<Mode> modes) Decode(long value)
     {
         Mode[] modes = new Mode[3];
         var opcode = value % 100;
@@ -167,9 +182,18 @@ static class IntCode
         }
         return ((int)opcode, modes);
     }
-    static ImmutableDictionary<long, long> SetValue(this ImmutableDictionary<long, long> program, long value, (long index, Mode mode) parameter)
-        => program.SetItem(parameter.index, value);
-    static long GetValue(this ImmutableDictionary<long, long> program, long relativeBase, (long index, Mode mode) parameter)
+    static ImmutableDictionary<long, long> SetValue(this ImmutableDictionary<long, long> program, long relativeBase, long value, Parameter parameter)
+    {
+        var index = parameter.mode switch
+        {
+            Mode.Relative => relativeBase + parameter.index,
+            _ => parameter.index
+        };
+
+        return program.SetItem(index, value);
+    }
+
+    static long GetValue(this ImmutableDictionary<long, long> program, long relativeBase, Parameter parameter)
     {
         (var index, var mode) = parameter;
         return mode switch
@@ -181,22 +205,19 @@ static class IntCode
         };
     }
 
-    static (long a, long b) GetValues(this ImmutableDictionary<long, long> program, int relativeBase, IEnumerable<(long, Mode)> parameters)
+    static (long a, long b) GetValues(this ImmutableDictionary<long, long> program, int relativeBase, Parameter[] parameters)
     {
-        var enumerator = parameters.GetEnumerator();
-        enumerator.MoveNext();
-        var a = program.GetValue(relativeBase, enumerator.Current);
-        enumerator.MoveNext();
-        var b = program.GetValue(relativeBase, enumerator.Current);
+        var a = program.GetValue(relativeBase, parameters[0]);
+        var b = program.GetValue(relativeBase, parameters[1]);
         return (a, b);
     }
 }
-
+record struct Parameter(long index, Mode mode);
 enum Mode
 {
-    Position,
-    Immediate,
-    Relative
+    Position = 0,
+    Immediate = 1,
+    Relative = 2
 }
 
 
