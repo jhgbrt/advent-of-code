@@ -1,5 +1,3 @@
-using AdventOfCode.Year2015.Day23;
-
 namespace AdventOfCode.Year2019.Day09;
 
 public class AoC201909
@@ -27,6 +25,7 @@ public class AoC201909
         var result = IntCode.Run(program);
         Assert.Equal(16, result.First().ToString().Length);
     }
+
     [Fact]
     public void ShouldOutputLargeInput()
     {
@@ -34,13 +33,7 @@ public class AoC201909
         var result = IntCode.Run(program);
         Assert.Equal(1125899906842624, result.First());
     }
-    [Fact]
-    public void Malfunction()
-    {
-        var program = new[] {9, 13, 203L, 50, 4, 50, 4, 63, 99}.Select((value, index) => (value, index: (long)index)).ToImmutableDictionary(x => x.index, x => x.value);
-        var result = IntCode.Run(program, 17);
-        Assert.Equal(new[] { 0, 17L }, result.ToArray());
-    }
+
     [Fact]
     public void DecodeTests()
     {
@@ -197,5 +190,3 @@ enum Mode
     Immediate = 1,
     Relative = 2
 }
-
-

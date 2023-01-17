@@ -5,7 +5,7 @@ public class Tests
     Grid grid;
     public Tests()
     {
-        var lines = Read.Sample.Lines().ToArray();
+        var lines = Read.Sample().Lines().ToArray();
         grid = new Grid((
             from y in Enumerable.Range(0, lines.Length)
             from x in Enumerable.Range(0, lines[y].Length)
@@ -18,7 +18,7 @@ public class Tests
     [Fact]
     public void ToString_ReturnsOriginalGrid()
     {
-        var text = Read.Sample.Text();
+        var text = Read.Sample().Text();
         Assert.Equal(text, grid.ToString());
     }
 

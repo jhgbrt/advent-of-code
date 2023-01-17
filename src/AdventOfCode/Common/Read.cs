@@ -4,14 +4,16 @@ namespace AdventOfCode;
 
 internal static class Read
 {
-    public static readonly IReader Sample = new Reader("sample.txt");
-    public static readonly IReader Input = new Reader("input.txt");
-    public static string InputText([CallerFilePath] string path = "") => Input.Text(path);
-    public static string[] InputLines([CallerFilePath] string path = "") => Input.Lines(path).ToArray();
-    public static Stream InputStream([CallerFilePath] string path = "") => Input.Stream(path);
-    public static string SampleText([CallerFilePath] string path = "") => Sample.Text(path);
-    public static string[] SampleLines([CallerFilePath] string path = "") => Sample.Lines(path).ToArray();
-    public static Stream SampleStream([CallerFilePath] string path = "") => Sample.Stream(path);
+    public static IReader Sample(int? n = null) => new Reader($"sample{n}.txt");
+
+    public static IReader Input() => new Reader("input.txt");
+
+    public static string InputText([CallerFilePath] string path = "") => Input().Text(path);
+    public static string[] InputLines([CallerFilePath] string path = "") => Input().Lines(path).ToArray();
+    public static Stream InputStream([CallerFilePath] string path = "") => Input().Stream(path);
+    public static string SampleText(int? n = null, [CallerFilePath] string path = "") => Sample(n).Text(path);
+    public static string[] SampleLines(int? n = null, [CallerFilePath] string path = "") => Sample(n).Lines(path).ToArray();
+    public static Stream SampleStream(int? n = null, [CallerFilePath] string path = "") => Sample(n).Stream(path);
 
     public interface IReader 
     {
