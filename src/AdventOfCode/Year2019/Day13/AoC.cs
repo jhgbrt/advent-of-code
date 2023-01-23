@@ -3,35 +3,74 @@ public class AoC201913
 {
     internal static string[] input = Read.InputLines();
 
-    ImmutableDictionary<long, long> program = input.First().Split(',').Select(long.Parse).Select((n, i) => (n, i: (long)i)).ToImmutableDictionary(x => x.i, x => x.n);
+    ImmutableDictionary<int, int> program = input.First().Split(',').Select(int.Parse).Select((n, i) => (n, i: (int)i)).ToImmutableDictionary(x => x.i, x => x.n);
 
-    public object Part1()
-    {
-        return (from chunk in IntCode.Run(program).Chunked3()
-                let x = chunk.a
-                let y = chunk.b
-                let id = chunk.c
-                where id == 2
-                select id).Count();
-    }
+    public object Part1() => (from chunk in new IntCode(program).Run().Chunked3()
+                              let x = chunk.a
+                              let y = chunk.b
+                              let id = chunk.c
+                              where id == 2
+                              select id).Count();
     public object Part2()
     {
         program = program.SetItem(0, 2);
-        return "";
+        var cpu = new IntCode(program);
+
+        var (paddle, ball, score) = (0, 0, 0);
+        
+        while (!cpu.IsTerminated)
+        {
+            var input = (paddle - ball) switch
+            {
+                > 0 => -1,
+                < 0 => 1,
+                0 => 0
+            };
+            
+            (paddle, ball, score) = cpu.Step(input) switch
+            {
+                (-1, 0, int id) => (paddle, ball, id),
+                (int x, _, 3) => (x, ball, score),
+                (int x, _, 4) => (paddle, x, score),
+                _ => (paddle, ball, score)
+            };
+           
+        }
+
+        return score;
     }
 }
 
-
-
-static class IntCode
+enum Direction
 {
-    internal static IEnumerable<long> Run(ImmutableDictionary<long, long> program, params int[] inputs)
+    Left = -1,
+    None = 0,
+    Right = 1
+}
+
+class IntCode
+{
+    public bool IsTerminated { get; private set; }
+    private ImmutableDictionary<int, int> program;
+    public IntCode(ImmutableDictionary<int, int> program) => this.program = program;
+
+    public (int a, int b, int c) Step(int input) => (Run(input), Run(input), Run(input));
+
+    public IEnumerable<int> Run()
     {
-        int index = 0;
-        int offset = 0;
+        while (!IsTerminated)
+        {
+            yield return Run(0);
+        }
+    }
+
+    int index = 0;
+    int offset = 0;
+
+    private int Run(int input = 0)
+    {
         int opcode;
-        int nextinput = 0;
-        while (true)
+        while (!IsTerminated)
         {
             (opcode, var modes) = Decode(program[index]);
 
@@ -49,7 +88,7 @@ static class IntCode
             {
                 1 or 2 or 5 or 6 or 7 or 8 => program.GetValues(offset, parameters, 2),
                 4 or 9 => program.GetValues(offset, parameters, 1),
-                _ => Array.Empty<long>()
+                _ => Array.Empty<int>()
             };
 
             var parameterCount = parameters.Length;
@@ -71,15 +110,15 @@ static class IntCode
                     break;
                 case 3:
                     {
-                        var result = inputs[nextinput++];
+                        int result = input;
                         program = program.Set(parameters[^1], offset, result);
                     }
                     break;
                 case 4:
                     {
-                        yield return parameterValues[0];
+                        index += jump;
+                        return parameterValues[0];
                     }
-                    break;
                 case 5:
                     {
                         if (parameterValues[0] != 0) jump = (int)parameterValues[1] - index;
@@ -112,12 +151,12 @@ static class IntCode
             }
             index += jump;
         }
+        IsTerminated = true;
+        return int.MinValue;
     }
 
-    static Parameter[] GetParameters(this ImmutableDictionary<long, long> program, int index, IEnumerable<Mode> modes, int n)
-        => Range(index + 1, n).Select(i => program.ContainsKey(i) ? program[i] : 0).Zip(modes, (l, r) => new Parameter(l, r)).ToArray();
-
-    internal static (int opcode, IReadOnlyCollection<Mode> modes) Decode(long value)
+   
+    internal static (int opcode, IReadOnlyCollection<Mode> modes) Decode(int value)
     {
         Mode[] modes = new Mode[3];
         var opcode = value % 100;
@@ -129,33 +168,40 @@ static class IntCode
         }
         return ((int)opcode, modes);
     }
-    static ImmutableDictionary<long, long> Set(this ImmutableDictionary<long, long> program, Parameter parameter, long relativeBase, long value)
+}
+
+static class Ex
+{
+    internal static Parameter[] GetParameters(this ImmutableDictionary<int, int> program, int index, IEnumerable<Mode> modes, int n)
+        => Range(index + 1, n).Select(i => program.ContainsKey(i) ? program[i] : 0).Zip(modes, (l, r) => new Parameter(l, r)).ToArray();
+    internal static ImmutableDictionary<int, int> Set(this ImmutableDictionary<int, int> program, Parameter parameter, int offset, int value)
     {
         var index = parameter.mode switch
         {
-            Mode.Relative => relativeBase + parameter.index,
+            Mode.Relative => offset + parameter.index,
             _ => parameter.index
         };
 
         return program.SetItem(index, value);
     }
 
-    static long GetValue(this ImmutableDictionary<long, long> program, long relativeBase, Parameter parameter)
+    internal static int GetValue(this ImmutableDictionary<int, int> program, int offset, Parameter parameter)
     {
         (var index, var mode) = parameter;
         return mode switch
         {
             Mode.Immediate => index,
             Mode.Position => program.ContainsKey(index) ? program[index] : 0,
-            Mode.Relative => program.ContainsKey(index + relativeBase) ? program[index + relativeBase] : 0,
+            Mode.Relative => program.ContainsKey(index + offset) ? program[index + offset] : 0,
             _ => throw new NotImplementedException()
         };
     }
-
-    static long[] GetValues(this ImmutableDictionary<long, long> program, int relativeBase, IEnumerable<Parameter> parameters, int n)
+    internal static int[] GetValues(this ImmutableDictionary<int, int> program, int relativeBase, IEnumerable<Parameter> parameters, int n)
         => parameters.Take(n).Select(p => program.GetValue(relativeBase, p)).ToArray();
+
 }
-record struct Parameter(long index, Mode mode);
+
+record struct Parameter(int index, Mode mode);
 enum Mode
 {
     Position = 0,
