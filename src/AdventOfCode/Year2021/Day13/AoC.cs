@@ -17,7 +17,7 @@ public class AoC202113
         select i.Value;
 
     public object Part1() => FoldingCycle(grid, instructions).First().Count();
-    public object Part2() => FoldingCycle(grid, instructions).Last().ToString().DecodePixels(5);
+    public object Part2() => FoldingCycle(grid, instructions).Last().ToString().DecodePixels(AsciiFontSize._4x6);
 
     static IEnumerable<Grid> FoldingCycle(Grid grid, IEnumerable<Instruction> instructions)
     {
@@ -95,72 +95,3 @@ record struct Instruction(char c, int v)
 
     }
 }
-static class PixelFontDecoder
-{
-    public static string DecodePixels(this string s, int size, char pixel = '#', char blank = '.') => (
-            from letter in FindLetters(s, size)
-            let chars = from range in letter from c in s[range] select c switch { '#' => pixel, _ => blank }
-            select (from item in letters where item.s.SequenceEqual(chars) select (char?)item.c).SingleOrDefault() ?? '?'
-        ).Aggregate(new StringBuilder(), (sb, c) => sb.Append(c)).ToString();
-
-    private static IEnumerable<IGrouping<int, Range>> FindLetters(string s, int size)
-        => from slice in s.Lines()
-           from item in slice.Chunk(size).Select((c, i) => (c: new Range(c.Start, c.End.Value - 1), i))
-           let chunk = item.c
-           let index = item.i
-           group chunk by index;
-
-    private static IEnumerable<Range> Lines(this string s)
-    {
-        int x = 0;
-        while (x < s.Length)
-        {
-            var newline = s.IndexOf('\n', x);
-            if (newline == -1) break;
-            var count = newline switch { > 0 when s[newline - 1] == '\r' => newline - x - 1, _ => newline - x };
-            yield return new(x, x + count);
-            x = newline + 1;
-        }
-    }
-    private static IEnumerable<Range> Chunk(this Range range, int size)
-    {
-        int s = range.Start.Value;
-        while (s < range.End.Value)
-        {
-            yield return new Range(s, s + (size > range.End.Value ? range.End.Value - s : size));
-            s += size;
-        }
-    }
-
-    static readonly (string s, char c)[] letters = new[]
-    {
-            ".##.#..##..######..##..#",
-            "###.#..####.#..##..####.",
-            ".####...#...#...#....###",
-            "###.#..##..##..##..####.",
-            "#####...###.#...#...####",
-            "#####...###.#...#...#...",
-            ".####...#...#.###..#.##.",
-            "#..##..######..##..##..#",
-            "###..#...#...#...#..###.",
-            "..##...#...#...##..#.##.",
-            "#..##.#.##..##..#.#.#..#",
-            "#...#...#...#...#...####",
-            "#..######..##..##..##..#",
-            "#..###.###.##.###.###..#",
-            ".##.#..##..##..##..#.##.",
-            "###.#..##..####.#...#...",
-            ".##.#..##..##..##.##.###",
-            "###.#..##..####.#.#.#..#",
-            ".####...#....##....####.",
-            "####.#...#...#...#...#..",
-            "#..##..##..##..##..#.##.",
-            "#..##..##..#.##..##..##.",
-            "#..##..##..##..######..#",
-            "#..##..#.##.#..##..##..#",
-            "#..##..#.##...#...#..#..",
-            "####...#..#..#..#...####"
-        }.Select((s, i) => (s, (char)(i + 'A'))).ToArray();
-
-}
-

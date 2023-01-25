@@ -67,110 +67,18 @@ class Display
     public override string ToString()
     {
         var sb = new StringBuilder();
-        for (int col = 0; col < display.GetLength(1); col += 5)
-        {
-            sb.Append(GetLetter(0, col));
-        }
-        return sb.ToString();// display.Display(b => b ? "#" : ".");
-    }
 
-    char GetLetter(int row, int col)
-    {
-        var sb = new StringBuilder().AppendLine();
-        for (int r = row; r < display.GetLength(0); r++)
+        for (int col = 0; col < display.GetLength(0); col++)
         {
-            for (int c = col; c < col + 4; c++)
-                sb.Append(display[r, c] ? '#' : '.');
+            for (int row = 0; row < display.GetLength(1); row++)
+            {
+                sb.Append(display[col, row] ? '#' : '.');
+            }
             sb.AppendLine();
         }
 
-        return sb.ToString() switch
-        {
-            AsciiLetters.A => 'A',
-            AsciiLetters.B => 'B',
-            AsciiLetters.F => 'F',
-            AsciiLetters.J => 'J',
-            AsciiLetters.P => 'P',
-            AsciiLetters.S => 'S',
-            AsciiLetters.U => 'U',
-            AsciiLetters.Z => 'Z',
-            _ => throw new Exception($"unrecognized letter at ({row}, {col}) ({sb})")
-        };
+        return sb.ToString().DecodePixels(AsciiFontSize._4x6);
     }
-
-    static class AsciiLetters
-    {
-        public const string A = @"
-.##.
-#..#
-#..#
-####
-#..#
-#..#
-";
-        public const string B = @"
-###.
-#..#
-###.
-#..#
-#..#
-###.
-";
-
-        public const string F = @"
-####
-#...
-###.
-#...
-#...
-#...
-";
-
-        public const string J = @"
-..##
-...#
-...#
-...#
-#..#
-.##.
-";
-        public const string P = @"
-###.
-#..#
-#..#
-###.
-#...
-#...
-";
-        public const string S = @"
-.###
-#...
-#...
-.##.
-...#
-###.
-";
-        public const string U = @"
-#..#
-#..#
-#..#
-#..#
-#..#
-.##.
-";
-
-        public const string Z = @"
-####
-...#
-..#.
-.#..
-#...
-####
-";
-
-    }
-
-
 
     public void RotateCol(int col, int d)
     {

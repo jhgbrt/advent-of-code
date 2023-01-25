@@ -2,7 +2,7 @@
   "profiles": {
     "aoc": {
       "commandName": "Project",
-      "commandLineArgs": "report --slower-than=1",
+      "commandLineArgs": "sync 2019 13",
       "workingDirectory": "$(SolutionDir)AdventOfCode"
     }
   }

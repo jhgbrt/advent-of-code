@@ -7,80 +7,31 @@ public class AoC201908
     public object Part1() => (
         from layer in layers
         select (layer, count: layer.Count(x => x == 0))
-        ).MinBy(x => x.count).layer.Where(i => i is 1 or 2).Aggregate((ones: 0, twos: 0), (p, i) => i == 1 ? (p.ones + 1, p.twos) : (p.ones, p.twos + 1)).Product();
+        ).MinBy(x => x.count).layer
+        .Where(i => i is 1 or 2)
+        .Aggregate((ones: 0, twos: 0), (p, i) => i == 1 ? (p.ones + 1, p.twos) : (p.ones, p.twos + 1)).Product();
 
     public object Part2()
     {
-        var result = layers.Aggregate(Repeat(2, 25 * 6), (accumulation, layer) => accumulation.Zip(layer).Select(x => x.First == 2 ? x.Second : x.First));
+        var result = layers.Aggregate(
+            Repeat(2, 25 * 6), 
+            (accumulation, layer) => accumulation.Zip(layer).Select(x => x.First == 2 ? x.Second : x.First)
+            );
 
-        var q = from x in result.Chunk(25).Select((line, n) => (line, n))
-                let line = x.line
-                let n = x.n
-                from y in line.Chunk(5).Select((chunk, i) => (chunk, i))
-                let chunk = y.chunk
-                let i = y.i
-                group (chunk, n) by i;
-
-        var resultStringBuilder = new StringBuilder();
-        foreach (var group in q)
+        var sb = new StringBuilder();
+        foreach (var (line, y) in result.Chunk(25).Select((line, y) => (line, y)))
         {
-            var sb = new StringBuilder().AppendLine();
-            foreach (var (chunk,n) in group)
+            foreach (var (i, x) in line.Select((c,x) => (c,x)))
             {
-                sb.AppendLine(string.Join("", chunk.Take(4).Select(i => i == 1 ? "#" : ".")));
+                sb.Append(i == 1 ? '#' : '.');
             }
-            var letter = sb.ToString() switch
-            {
-                AsciiLetters.U => 'U',
-                AsciiLetters.B => 'B',
-                AsciiLetters.F => 'F',
-                AsciiLetters.P => 'P',
-                _ => '?'
-            };
-            resultStringBuilder.Append(letter);
+            sb.AppendLine();
         }
-
-        return resultStringBuilder.ToString();
+        return sb.ToString().DecodePixels(AsciiFontSize._4x6);
     }
 }
 
 public static class Ex
 {
     public static int Product(this (int x, int y) p) => p.x * p.y;
-}
-
-static class AsciiLetters
-{
-    public const string U = @"
-#..#
-#..#
-#..#
-#..#
-#..#
-.##.
-";
-    public const string B = @"
-###.
-#..#
-###.
-#..#
-#..#
-###.
-";
-    public const string F = @"
-####
-#...
-###.
-#...
-#...
-#...
-";
-    public const string P = @"
-###.
-#..#
-#..#
-###.
-#...
-#...
-";
 }

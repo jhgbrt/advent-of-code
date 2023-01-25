@@ -65,14 +65,8 @@ public class AoC201911
             robot = robot.Move();
 
             cpu.CurrentInput = grid[robot.position] == '.' ? 0 : 1;
-
-            //Console.Clear();
-            //Console.WriteLine(grid);
-
         }
-        Console.WriteLine(grid.ToString());
-        return grid.ToString().DecodePixels(PixelFontSize._4x6);
-
+        return AsciiFonts.GetFont(AsciiFontSize._4x6).Decode(grid.ToString());
     }
 
 }

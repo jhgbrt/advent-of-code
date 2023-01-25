@@ -1,3 +1,5 @@
+using AdventOfCode.Year2016.Day08;
+
 namespace AdventOfCode.Year2018.Day10;
 
 public class AoC201810
@@ -50,142 +52,9 @@ class Grid
     }
     public string Decode()
     {
-        var grid = new char[Height, Width];
-        for (int r = 0; r < Height; r++)
-            for (int c = 0; c < Width; c++)
-                grid[r, c] = '.';
-
-        foreach (var point in _points)
-        {
-            grid[point.Y - MinY, point.X - MinX] = '#';
-        }
-
-        var sb = new StringBuilder();
-        for (int col = 0; col < grid.GetLength(1); col += 8)
-        {
-            sb.Append(GetLetter(0, col, grid));
-        }
-        return sb.ToString();// display.Display(b => b ? "#" : ".");
-
+        return this.ToString().DecodePixels(AsciiFontSize._6x10, spacing: 2);
     }
-
-    char GetLetter(int row, int col, char[,] display)
-    {
-        var sb = new StringBuilder().AppendLine();
-        for (int r = row; r < display.GetLength(0); r++)
-        {
-            for (int c = col; c < col + 6; c++)
-                sb.Append(display[r, c]);
-            sb.AppendLine();
-        }
-
-        return sb.ToString() switch
-        {
-            AsciiLetters.A => 'A',
-            AsciiLetters.B => 'B',
-            AsciiLetters.C => 'C',
-            AsciiLetters.J => 'J',
-            AsciiLetters.R => 'R',
-            AsciiLetters.X => 'X',
-            AsciiLetters.Z => 'Z',
-            _ => throw new Exception($"unrecognized letter at ({row}, {col}) ({sb})")
-        };
-    }
-
-    static class AsciiLetters
-    {
-        public const string A = @"
-..##..
-.#..#.
-#....#
-#....#
-#....#
-######
-#....#
-#....#
-#....#
-#....#
-";
-        public const string B = @"
-#####.
-#....#
-#....#
-#....#
-#####.
-#....#
-#....#
-#....#
-#....#
-#####.
-";
-
-        public const string C = @"
-.####.
-#....#
-#.....
-#.....
-#.....
-#.....
-#.....
-#.....
-#....#
-.####.
-";
-
-        public const string J = @"
-...###
-....#.
-....#.
-....#.
-....#.
-....#.
-....#.
-#...#.
-#...#.
-.###..
-";
-        public const string R = @"
-#####.
-#....#
-#....#
-#....#
-#####.
-#..#..
-#...#.
-#...#.
-#....#
-#....#
-";
-        public const string X = @"
-#....#
-#....#
-.#..#.
-.#..#.
-..##..
-..##..
-.#..#.
-.#..#.
-#....#
-#....#
-";
-
-        public const string Z = @"
-######
-.....#
-.....#
-....#.
-...#..
-..#...
-.#....
-#.....
-#.....
-######
-";
-
-    }
-
 }
-
 
 static class Ex
 {
