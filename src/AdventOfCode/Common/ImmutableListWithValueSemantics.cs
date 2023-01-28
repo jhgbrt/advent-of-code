@@ -40,4 +40,5 @@ public class ImmutableListWithValueSemantics<T> : IImmutableList<T>, IEquatable<
             return this.Aggregate(19, (h, i) => h * 19 + i!.GetHashCode());
         }
     }
+    public override string ToString() => string.Join(",", _list);
 }
