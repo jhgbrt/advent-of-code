@@ -34,6 +34,36 @@ class FiniteGrid
         from x in Range(origin.x, bottomright.x)
         select new Coordinate(x, y);
 
+    public IEnumerable<Coordinate> Neighbours(Coordinate p)
+    {
+        return
+            from d in new (int x, int y)[] { (-1, 0), (0, 1), (1, 0), (0, -1) }
+            where p.x + d.x >= 0
+            && p.y + d.y >= 0
+            && p.x + d.x < bottomright.x
+            && p.y + d.y < bottomright.y
+            select new Coordinate(p.x + d.x, p.y + d.y);
+    }
+    public IEnumerable<Coordinate> BoundingBox(Coordinate p, int length)
+    {
+        return
+            from x in Range(p.x - 1, length + 2)
+            from y in new[]{p.y - 1, p.y, p.y + 1}
+            where x >= 0 && y >= 0
+            && x < bottomright.x
+            && y < bottomright.y
+            select new Coordinate(x, y);
+    }
+
+    private IEnumerable<(Coordinate, char)> Sequence(int x, int y, Func<char,bool> predicate)
+    {
+        {
+            yield return (new(x, y), this[x, y]);
+            x++;
+        }
+
+    }
+
     public IEnumerable<Coordinate> InteriorPoints() =>
         from y in Range(origin.y + 1, bottomright.y - 2)
         from x in Range(origin.x + 1, bottomright.x - 2)

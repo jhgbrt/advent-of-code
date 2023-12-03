@@ -1,6 +1,6 @@
 namespace AdventOfCode.Year2018.Day25;
 
-public static class AoC201825
+public class AoC201825
 {
     static string[] input = Read.InputLines();
     static Point[] points = (
@@ -9,7 +9,7 @@ public static class AoC201825
         select new Point(ints[0], ints[1], ints[2], ints[3])
         ).ToArray();
 
-    public static int Part1()
+    public int Part1()
     {
         var remaining = points.ToHashSet();
         List<HashSet<Point>> constellations = new();
@@ -43,7 +43,7 @@ public static class AoC201825
         return constellations.Count;
     }
 
-    public static object Part2() => "";
+    public object Part2() => "";
 }
 
 readonly record struct Point(int x, int y, int z, int w)
