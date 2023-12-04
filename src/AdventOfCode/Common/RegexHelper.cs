@@ -73,15 +73,22 @@ internal static class MyConvert
         string delimiter = provider switch
         {
             CsvLineFormatInfo c => c.Delimiter,
-            _ => ","
+            _ => DetermineDelimiter(value).ToString()
         };
 
-        var values = value.Split(delimiter, StringSplitOptions.TrimEntries);
+        var values = value.Split(delimiter, StringSplitOptions.TrimEntries|StringSplitOptions.RemoveEmptyEntries);
         var tmp = values.Select(v => Convert.ChangeType(v, elementType, provider)).ToArray();
         var result = Array.CreateInstance(elementType, values.Length);
         Array.Copy(tmp, result, values.Length);
 
         return result;
+    }
+    static char DetermineDelimiter(string s)
+    {
+        var candidateDelimiters = s.Where(c => !char.IsLetterOrDigit(c)).Distinct().ToArray();
+        if (candidateDelimiters.Length == 1) return candidateDelimiters[0];
+        if (candidateDelimiters.Length == 2 && candidateDelimiters.Contains(' ')) return candidateDelimiters.Single(c => c != ' ');
+        throw new ArgumentException($"Could not determine delimiter for string '{s}'");
     }
 }
 record CsvLineFormatInfo(string Delimiter = ",") : IFormatProvider, ICustomFormatter
