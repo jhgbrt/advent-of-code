@@ -1,6 +1,4 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
-
-namespace AdventOfCode;
+﻿namespace AdventOfCode;
 
 internal static class RegexHelper
 {
