@@ -2,42 +2,36 @@ namespace AdventOfCode.Year2023.Day05;
 public class AoC202305
 {
     static string[] input = Read.InputLines();
-    static long[] seeds;
-    static Map[] maps;
-    static AoC202305()
-    {
-        List<Map> maps = new();
-        List<MapItem> ranges = new();
+    static long[] seeds = input[0].Split(": ")[1].Split(' ').Select(long.Parse).ToArray();
+    static Map[] maps = CreateMaps().ToArray();
 
-        seeds = input[0].Split(": ")[1].Split(' ').Select(long.Parse).ToArray();
+    static IEnumerable<Map> CreateMaps()
+    {
+        List<MapItem> items = new();
         string source = string.Empty;
         string destination = string.Empty;
-
         foreach (var line in input.Skip(2))
         {
             if (string.IsNullOrEmpty(line))
             {
-                maps.Add(new Map(source, destination, ranges.ToArray()));
-                ranges.Clear();
-                source = string.Empty;
-                destination = string.Empty;
+                yield return new Map(source, destination, items.ToArray());
+                items.Clear();
+                (source, destination) = (string.Empty, string.Empty);
 
             }
             else if (line.EndsWith("map:"))
             {
-                var match = Regexes.CardRegex().Match(line);
-                source = match.Groups["source"].Value;
-                destination = match.Groups["destination"].Value;
+                var match = Regexes.MapRegex().Match(line);
+                (source, destination) = (match.Groups["source"].Value, match.Groups["destination"].Value);
             }
             else
             {
                 var numbers = line.Split(' ').Select(long.Parse).ToArray();
                 var (destinationStart, sourceStart, length) = numbers.ToTuple3();
-                ranges.Add(new(sourceStart, destinationStart, length));
+                items.Add(new(sourceStart, destinationStart, length));
             }
         }
-        maps.Add(new(source, destination, ranges.ToArray()));
-        AoC202305.maps = maps.ToArray();
+        yield return new Map(source, destination, items.ToArray());
     }
 
     public long Part1() => FindLocations(seeds).Min();
@@ -123,14 +117,12 @@ class Map(string source, string destination, MapItem[] ranges)
         }
         return value;
     }
-
-    public Map Reverse() => new Map(destination, source, ranges.Select(r => new MapItem(r.destination, r.source, r.length)).ToArray());
 }
 
 static partial class Regexes
 {
     [GeneratedRegex(@"^(?<source>[^-]*)-to-(?<destination>[^ ]*) map:$")]
-    public static partial Regex CardRegex();
+    public static partial Regex MapRegex();
 }
 
 public class Tests
