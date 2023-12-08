@@ -16,10 +16,28 @@ internal static class BigIntegerExtensions
         return lcm;
     }
 
-    public static BigInteger LeastCommonMultiplier(BigInteger left, IEnumerable<BigInteger> right)
+    public static BigInteger LeastCommonMultiplier(this IEnumerable<BigInteger> numbers)
     {
-        BigInteger lcm = left;
-        foreach (var item in right)
+        BigInteger lcm = 1;
+        foreach (var item in numbers)
+        {
+            lcm = LeastCommonMultiplier(lcm, item);
+        }
+        return lcm;
+    }
+    public static BigInteger LeastCommonMultiplier(this IEnumerable<long> numbers)
+    {
+        BigInteger lcm = 1;
+        foreach (var item in numbers)
+        {
+            lcm = LeastCommonMultiplier(lcm, item);
+        }
+        return lcm;
+    }
+    public static BigInteger LeastCommonMultiplier(this IEnumerable<int> numbers)
+    {
+        BigInteger lcm = 1;
+        foreach (var item in numbers)
         {
             lcm = LeastCommonMultiplier(lcm, item);
         }
