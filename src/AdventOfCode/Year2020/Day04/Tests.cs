@@ -24,7 +24,7 @@ public class Tests
     [InlineData("123", false, 0, null)]
     [InlineData("asb", false, 0, null)]
     [InlineData("123abc", true, 123, "abc")]
-    public void AmountParse(string input, bool expected, int value, string unit)
+    public void AmountParse(string input, bool expected, int value, string? unit)
     {
         Assert.Equal(expected, Amount.TryParse(input, out var a));
         if (expected && a != null)

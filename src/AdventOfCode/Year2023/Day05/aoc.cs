@@ -7,7 +7,7 @@ public class AoC202305
 
     static IEnumerable<Map> CreateMaps()
     {
-        List<MapItem> items = new();
+        List<MapItem> items = [];
         string source = string.Empty;
         string destination = string.Empty;
         foreach (var line in input.Skip(2))
