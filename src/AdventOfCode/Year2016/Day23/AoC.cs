@@ -128,7 +128,7 @@ namespace AdventOfCode.Year2016.Day23
                         i += GetValue(second);
                         break;
                     case "tgl":
-                        Console.WriteLine($"[{i}] VERSION: {version} -> {version + 1} - {Memory}");
+                        //Console.WriteLine($"[{i}] VERSION: {version} -> {version + 1} - {Memory}");
                         instructions = Toggle(instructions, i, GetValue(first));
                         version++;
                         i++;
