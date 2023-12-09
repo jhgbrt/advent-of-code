@@ -81,13 +81,14 @@ internal static class MyConvert
 
         return result;
     }
-    static char DetermineDelimiter(string s)
+    static char DetermineDelimiter(string s) => s.Where(c => !char.IsLetterOrDigit(c)).Distinct().ToArray() switch
     {
-        var candidateDelimiters = s.Where(c => !char.IsLetterOrDigit(c)).Distinct().ToArray();
-        if (candidateDelimiters.Length == 1) return candidateDelimiters[0];
-        if (candidateDelimiters.Length == 2 && candidateDelimiters.Contains(' ')) return candidateDelimiters.Single(c => c != ' ');
-        throw new ArgumentException($"Could not determine delimiter for string '{s}'");
-    }
+        [] => ';',
+        [char d] => d,
+        [char d, ' '] => d,
+        [' ', char d] => d,
+        _ => throw new ArgumentException($"Could not determine delimiter for string '{s}'")
+    };
 }
 record CsvLineFormatInfo(string Delimiter = ",") : IFormatProvider, ICustomFormatter
 {
