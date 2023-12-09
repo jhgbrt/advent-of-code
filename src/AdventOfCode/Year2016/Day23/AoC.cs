@@ -1,5 +1,3 @@
-using AdventOfCode.Year2020.Day10;
-
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 

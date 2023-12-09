@@ -3,8 +3,8 @@ public class AoC201624
 {
     static readonly string[] input = Read.InputLines();
     static readonly IReadOnlyDictionary<Coordinate, char> grid = (from y in Range(0, input.Length)
-                                         from x in Range(0, input[y].Length)
-                                         select (c: new Coordinate(x, y), v: input[y][x])).ToDictionary(x => x.c, x => x.v);
+                                                                  from x in Range(0, input[y].Length)
+                                                                  select (c: new Coordinate(x, y), v: input[y][x])).ToDictionary(x => x.c, x => x.v);
     static readonly IReadOnlyList<Coordinate> locations = grid
         .Where(kv => char.IsDigit(kv.Value)).Select(kv => kv.Key)
         .ToList();
@@ -13,7 +13,7 @@ public class AoC201624
     static readonly int maxX = grid.Max(kv => kv.Key.x);
     static readonly int maxY = grid.Max(kv => kv.Key.y);
 
-    static readonly  IReadOnlyDictionary<(Coordinate src, Coordinate dst), int> distances = (
+    static readonly IReadOnlyDictionary<(Coordinate src, Coordinate dst), int> distances = (
         from src in locations
         from dst in locations
         where src != dst
@@ -24,7 +24,7 @@ public class AoC201624
     public object Part1() => (
             from path in locations.Except(start).GetPermutations(locations.Count - 1)
             let total = (
-                    from pair in start.Prepend(path).Windowed2()
+                    from pair in path.Prepend(start).Windowed2()
                     select distances[pair]
                     ).Sum()
             select total
@@ -32,7 +32,7 @@ public class AoC201624
     public object Part2() => (
                from path in locations.Except(start).GetPermutations(locations.Count - 1)
                let total = (
-                       from pair in start.Prepend(path).Append(start).Windowed2()
+                       from pair in path.Prepend(start).Append(start).Windowed2()
                        select distances[pair]
                        ).Sum()
                select total
@@ -63,7 +63,6 @@ public class AoC201624
         return -1;
     }
 }
-
 
 readonly record struct Coordinate(int x, int y)
 {

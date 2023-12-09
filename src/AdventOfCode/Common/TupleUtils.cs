@@ -404,12 +404,13 @@ static class TupleUtils
         var a = enumerator.Current;
         if (!enumerator.MoveNext()) yield break;
         var b = enumerator.Current;
+        yield return (a,b);
         while (true)
         {
             if (!enumerator.MoveNext()) yield break;
             var c = enumerator.Current;
-            yield return (a,b);
             (a,b) = (b,c);
+            yield return (a,b);
         }
     }
     public static IEnumerable<(T a,T b,T c)> Windowed3<T>(this IEnumerable<T> items)
@@ -421,12 +422,13 @@ static class TupleUtils
         var b = enumerator.Current;
         if (!enumerator.MoveNext()) yield break;
         var c = enumerator.Current;
+        yield return (a,b,c);
         while (true)
         {
             if (!enumerator.MoveNext()) yield break;
             var d = enumerator.Current;
-            yield return (a,b,c);
             (a,b,c) = (b,c,d);
+            yield return (a,b,c);
         }
     }
     public static IEnumerable<(T a,T b,T c,T d)> Windowed4<T>(this IEnumerable<T> items)
@@ -440,12 +442,13 @@ static class TupleUtils
         var c = enumerator.Current;
         if (!enumerator.MoveNext()) yield break;
         var d = enumerator.Current;
+        yield return (a,b,c,d);
         while (true)
         {
             if (!enumerator.MoveNext()) yield break;
             var e = enumerator.Current;
-            yield return (a,b,c,d);
             (a,b,c,d) = (b,c,d,e);
+            yield return (a,b,c,d);
         }
     }
     public static IEnumerable<(T a,T b,T c,T d,T e)> Windowed5<T>(this IEnumerable<T> items)
@@ -461,12 +464,13 @@ static class TupleUtils
         var d = enumerator.Current;
         if (!enumerator.MoveNext()) yield break;
         var e = enumerator.Current;
+        yield return (a,b,c,d,e);
         while (true)
         {
             if (!enumerator.MoveNext()) yield break;
             var f = enumerator.Current;
-            yield return (a,b,c,d,e);
             (a,b,c,d,e) = (b,c,d,e,f);
+            yield return (a,b,c,d,e);
         }
     }
     public static IEnumerable<(T a,T b,T c,T d,T e,T f)> Windowed6<T>(this IEnumerable<T> items)
@@ -484,12 +488,13 @@ static class TupleUtils
         var e = enumerator.Current;
         if (!enumerator.MoveNext()) yield break;
         var f = enumerator.Current;
+        yield return (a,b,c,d,e,f);
         while (true)
         {
             if (!enumerator.MoveNext()) yield break;
             var g = enumerator.Current;
-            yield return (a,b,c,d,e,f);
             (a,b,c,d,e,f) = (b,c,d,e,f,g);
+            yield return (a,b,c,d,e,f);
         }
     }
     public static IEnumerable<(T a,T b,T c,T d,T e,T f,T g)> Windowed7<T>(this IEnumerable<T> items)
@@ -509,12 +514,13 @@ static class TupleUtils
         var f = enumerator.Current;
         if (!enumerator.MoveNext()) yield break;
         var g = enumerator.Current;
+        yield return (a,b,c,d,e,f,g);
         while (true)
         {
             if (!enumerator.MoveNext()) yield break;
             var h = enumerator.Current;
-            yield return (a,b,c,d,e,f,g);
             (a,b,c,d,e,f,g) = (b,c,d,e,f,g,h);
+            yield return (a,b,c,d,e,f,g);
         }
     }
     public static IEnumerable<(T a,T b,T c,T d,T e,T f,T g,T h)> Windowed8<T>(this IEnumerable<T> items)
@@ -536,12 +542,13 @@ static class TupleUtils
         var g = enumerator.Current;
         if (!enumerator.MoveNext()) yield break;
         var h = enumerator.Current;
+        yield return (a,b,c,d,e,f,g,h);
         while (true)
         {
             if (!enumerator.MoveNext()) yield break;
             var i = enumerator.Current;
-            yield return (a,b,c,d,e,f,g,h);
             (a,b,c,d,e,f,g,h) = (b,c,d,e,f,g,h,i);
+            yield return (a,b,c,d,e,f,g,h);
         }
     }
 
