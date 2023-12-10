@@ -1,6 +1,6 @@
 ﻿namespace AdventOfCode.Common;
 
-
+enum Direction{ N, NE, E, SE, S, SW, W, NW }
 class FiniteGrid
 {
 
@@ -25,6 +25,7 @@ class FiniteGrid
         bottomright = new(input[0].Length, input.Length);
         this.empty = empty;
     }
+    public Coordinate Find(char c) => items.Where(i => i.Value == c).First().Key;
     public char this[Coordinate p] => items.TryGetValue(p, out var c) ? c : empty;
     public char this[(int x, int y) p] => this[new Coordinate(p.x, p.y)];
     public char this[int x, int y] => this[new Coordinate(x, y)];
@@ -44,6 +45,20 @@ class FiniteGrid
             && p.y + d.y < bottomright.y
             select new Coordinate(p.x + d.x, p.y + d.y);
     }
+
+    public Coordinate? GetNeighbour(Coordinate p, Direction d) => d switch
+    {
+        Direction.N => IfValid(new(p.x, p.y - 1)),
+        Direction.NE => IfValid(new(p.x + 1, p.y - 1)),
+        Direction.E => IfValid(new(p.x + 1, p.y)),
+        Direction.SE => IfValid(new(p.x + 1, p.y + 1)),
+        Direction.S => IfValid(new(p.x, p.y + 1)),
+        Direction.SW => IfValid(new(p.x - 1, p.y + 1)),
+        Direction.W => IfValid(new(p.x - 1, p.y)),
+        Direction.NW => IfValid(new(p.x - 1, p.y - 1))
+    };
+    Coordinate? IfValid(Coordinate p) => items.ContainsKey(p) ? p : null;
+
     public IEnumerable<Coordinate> BoundingBox(Coordinate p, int length)
     {
         return

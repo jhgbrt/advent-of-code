@@ -31,6 +31,14 @@ readonly record struct Coordinate(int x, int y)
 
     public static Slope operator -(Coordinate left, Coordinate right) => new(left.x - right.x, left.y - right.y);
     public double Angle(Coordinate other) => -Atan2(x - other.x, y - other.y);
+    public Coordinate N => new(x, y - 1);
+    public Coordinate NE => new(x + 1, y - 1);
+    public Coordinate E => new(x + 1, y);
+    public Coordinate SE => new(x + 1, y + 1);
+    public Coordinate S => new(x, y + 1);
+    public Coordinate SW => new(x - 1, y + 1);
+    public Coordinate W => new(x - 1, y);
+    public Coordinate NW => new(x - 1, y - 1);
 }
 
 readonly record struct Slope(int dx, int dy)
