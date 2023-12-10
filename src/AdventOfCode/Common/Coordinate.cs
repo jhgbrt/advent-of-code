@@ -39,6 +39,7 @@ readonly record struct Coordinate(int x, int y)
     public Coordinate SW => new(x - 1, y + 1);
     public Coordinate W => new(x - 1, y);
     public Coordinate NW => new(x - 1, y - 1);
+    public static Coordinate operator +(Coordinate left, (int dx, int dy) p) => new(left.x + p.dx, left.y + p.dy);
 }
 
 readonly record struct Slope(int dx, int dy)
