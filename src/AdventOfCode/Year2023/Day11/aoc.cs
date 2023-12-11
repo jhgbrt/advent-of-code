@@ -1,19 +1,21 @@
 namespace AdventOfCode.Year2023.Day11;
 public class AoC202311
 {
-    static bool usesample = true;
-    static string[] sample = Read.SampleLines();
-    static string[] realinput = Read.InputLines();
-    static string[] input = usesample ? sample : realinput;
-    public object Part1()
+    static bool usesample = false;
+    static string[] input = Read.InputLines();
+    Grid grid;
+    public AoC202311() : this(input)
     {
-        return Solve(2);
     }
-
-    private static object Solve(int n)
+    internal AoC202311(string[] input)
     {
-        var grid = new Grid(input);
+        grid = new Grid(input);
+    }
+    public object Part1() => Solve(2);
+    public object Part2() => Solve(1000000);
 
+    internal object Solve(int n)
+    {
         var emptyrows = (from r in grid.Rows
                         where r.row.All(c => c == '.')
                         select r.y).Reverse().ToArray();
@@ -23,7 +25,7 @@ public class AoC202311
 
         foreach (var y in emptyrows)
         {
-            grid = grid.InsertRow(y, n);
+            grid = grid.ExpandRow(y, n);
         }
         foreach (var x in emptycolumns)
         {
@@ -48,7 +50,6 @@ public class AoC202311
         return distances.Sum() / 2;
     }
 
-    public object Part2() => Solve(usesample ? 10 : 1000000);
 }
 
 
@@ -120,45 +121,50 @@ class Grid
     public Grid InsertColumn(int x, int n = 2)
     {
         var b = items.ToBuilder();
-        var offset = n - 1;
-        var maxX = bottomright.x + offset;
+        var maxX = bottomright.x + n - 1;
         for (int y = 0; y < bottomright.y; y++)
         {
-            for (int i = maxX - 1; i >= x + offset; i--)
+            for (int xi = maxX - 1; xi >= x + n; xi--)
             {
-                if (this[i - offset, y] == empty)
+                if (this[xi - n + 1, y] == empty)
                 {
-                    b.Remove(new(i, y), out char _);
+                    b.Remove(new(xi, y), out char _);
                 }
                 else
                 {
-                    b[new(i, y)] = this[i - offset, y];
+                    b[new(xi, y)] = this[xi - n + 1, y];
                 }
             }
-            b[new(x, y)] = empty;
+            for (int xi = x + n - 1; xi >= x; xi--)
+            {
+                b.Remove(new(xi, y), out char _);
+            }
         }
         return new Grid(b.ToImmutable(), empty, bottomright with { x = maxX });
     }
-    public Grid InsertRow(int y, int n = 2)
+    public Grid ExpandRow(int y, int n = 2)
     {
         var b = items.ToBuilder();
-        var offset = n - 1;
-        var maxY = bottomright.y + offset;
+
+        var maxY = bottomright.y + n - 1;
 
         for (int x = 0; x < bottomright.x; x++)
         {
-            for (int i = maxY - 1; i >= y + offset; i--)
+            for (int yi = maxY - 1; yi >= y + n; yi--)
             {
-                if (this[x, i - offset] == empty)
+                if (this[x, yi - n + 1] == empty)
                 {
-                    b.Remove(new(x, i), out char _);
+                    b.Remove(new(x, yi), out char _);
                 }
                 else
                 {
-                    b[new(x, i)] = this[x, i - offset];
+                    b[new(x, yi)] = this[x, yi - n + 1];
                 }
             }
-            b[new(x, y)] = empty;
+            for (int yi = y + n - 1; yi >= y; yi--)
+            {
+                b.Remove(new(x, yi), out char _);
+            }
         }
         return new Grid(b.ToImmutable(), empty, bottomright with { y = maxY });
     }
@@ -190,24 +196,7 @@ class Grid
             select (p + d);
     }
 
-    Coordinate? IfValid(Coordinate p) => IsValid(p) ? p : null;
     bool IsValid(Coordinate p) => p.x >= 0 && p.y >= 0 && p.x < bottomright.x && p.y < bottomright.y;
-
-    public IEnumerable<Coordinate> BoundingBox(Coordinate p, int length)
-    {
-        return
-            from x in Range(p.x - 1, length + 2)
-            from y in new[] { p.y - 1, p.y, p.y + 1 }
-            where x >= 0 && y >= 0
-            && x < bottomright.x
-            && y < bottomright.y
-            select new Coordinate(x, y);
-    }
-
-    public IEnumerable<Coordinate> InteriorPoints() =>
-        from y in Range(origin.y + 1, bottomright.y - 2)
-        from x in Range(origin.x + 1, bottomright.x - 2)
-        select new Coordinate(x, y);
 
     public override string ToString()
     {
@@ -221,4 +210,46 @@ class Grid
     }
 
     public bool Contains(Coordinate c) => items.ContainsKey(c);
+}
+
+
+
+public class Tests
+{
+    [Theory]
+    [InlineData(2, 374)]
+    [InlineData(10, 1030)]
+    [InlineData(100, 8410)]
+    public void TestAoC202311(int n, int expected)
+    {
+        var input = Read.SampleLines();
+        var sut = new AoC202311(input);
+        Assert.Equal(expected, sut.Solve(n));
+    }
+
+    [Fact]
+    public void Test()
+    {
+        var grid = new Grid(
+        [
+            "#",
+            ".",
+            "#",
+            "#",
+        ]);
+
+        grid = grid.ExpandRow(1, 5);
+
+        Assert.Equal("""
+                     #
+                     .
+                     .
+                     .
+                     .
+                     .
+                     #
+                     #
+
+                     """, grid.ToString(), true);
+    }
 }
