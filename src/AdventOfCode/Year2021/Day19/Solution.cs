@@ -56,7 +56,7 @@ class Solution
 
         return locatedScanners;
     }
-    Scanner TryToLocate(Scanner scannerA, Scanner scannerB)
+    Scanner? TryToLocate(Scanner scannerA, Scanner scannerB)
     {
         var beaconsInA = scannerA.GetBeaconsInWorld().ToArray();
 

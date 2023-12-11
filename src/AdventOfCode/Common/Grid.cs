@@ -110,24 +110,6 @@ class FiniteGrid
 
     public bool Contains(Coordinate c) => items.ContainsKey(c);
 
-    public IEnumerable<Coordinate> East(Coordinate c)
-    {
-        var current = c;
-        while (current.x < bottomright.x)
-        {
-            yield return current;
-            current = current.E;
-        }
-    }
-    public IEnumerable<Coordinate> West(Coordinate c)
-    {
-        var current = c;
-        while (current.x >= 0)
-        {
-            yield return current;
-            current = current.W;
-        }
-    }
 }
 
 

@@ -1,28 +1,49 @@
 using AdventOfCode.Common;
 
 namespace AdventOfCode.Year2023.Day10;
+
 public class AoC202310
 {
     static string[] input = Read.InputLines();
-    static (Coordinate start, FiniteGrid grid) x = CreateGrid(input);
-    public object Part1() => Part1(input);
+    Coordinate start;
+    FiniteGrid grid;
+    HashSet<Coordinate> loop; 
 
-    public int Part1(string[] input)
+    public AoC202310()
     {
-        var (start, g) = x;
-        var path = FindPath(g, start).ToList();
-        return path.Count % 2 == 0 ? path.Count / 2 : path.Count / 2 - 1;
-
+        (start, grid, loop) = CreateGrid(input);
     }
 
-    static (Coordinate start, FiniteGrid grid) CreateGrid(string[] input)
+    internal AoC202310(string[] input)
+    {
+        (start, grid, loop) = CreateGrid(input);
+    }
+
+    public object Part1() => loop.Count % 2 == 0 ? loop.Count / 2 : loop.Count / 2 - 1;
+
+    static (Coordinate start, FiniteGrid grid, HashSet<Coordinate> loop) CreateGrid(string[] input)
     {
         FiniteGrid grid = new FiniteGrid(input);
         Coordinate start = grid.Find('S');
-        return (start, SetStartConnection(grid, start));
+        var connection = DetermineConnection(grid, start);
+        grid = grid.With(b => b[start] = connection);
+
+        var loop = FindPath(grid, start).ToHashSet();
+        grid = grid.With(
+            b =>
+            {
+                b[start] = connection;
+                var notinloop = b.Keys.Where(c => !loop.Contains(c)).ToList();
+                foreach (var item in notinloop)
+                {
+                    b[item] = '.';
+                }
+            }
+        );
+        return (start, grid, loop);
     }
 
-    private IEnumerable<Coordinate> FindPath(FiniteGrid grid, Coordinate start)
+    static private IEnumerable<Coordinate> FindPath(FiniteGrid grid, Coordinate start)
     {        
         var current = start;
         var next = ConnectedNeighbours(grid, current).First();
@@ -37,9 +58,9 @@ public class AoC202310
     }
 
 
-    static FiniteGrid SetStartConnection(FiniteGrid grid, Coordinate start)
+    static char DetermineConnection(FiniteGrid grid, Coordinate start)
     {
-        var pipe = (from x in grid.Neighbours(start)
+        return (from x in grid.Neighbours(start)
                     where (x.d, grid[x.c]) switch
                     {
                         (Direction.N, '|' or 'F' or '7') => true,
@@ -59,34 +80,18 @@ public class AoC202310
             (Direction.E, Direction.W) => '-',
             (Direction.S, Direction.W) => '7',
         };
-
-        return grid.With(b => b[start] = pipe);
     }
+    public object Part2() => (from p in grid.Points()
+                              where grid[p] == '.'
+                              let count = CountLinesCrossed(grid, p, loop)
+                              where count % 2 == 1
+                              select p).Count();
 
-    public object Part2() => Part2(input);
-
-    public object Part2(string[] input)
+    int CountLinesCrossed(FiniteGrid grid, Coordinate p, HashSet<Coordinate> loop)
     {
-        var (start, g) = CreateGrid(input);
-
-        var path = FindPath(g, start).ToHashSet();
-
-        var query = from p in g.Points()
-                    where !path.Contains(p)
-                    let count = CountLinesCrossed(g, p, path)
-                    where count % 2 == 1
-                    select p;
-        return query.Count();
-
-    }
-
-    int CountLinesCrossed(FiniteGrid g, Coordinate p, HashSet<Coordinate> loop)
-    {
-        Func<State, Coordinate, Result> f = NotOnLoop;
-        var state = new State(g, p, loop);
-
-        var east = g.East(p);
-        var e = east.GetEnumerator();
+        Func<State, Coordinate, Result> f = OutsideLoop;
+        var state = new State(grid, p, loop, 0);
+        var e = East(grid, p).GetEnumerator();
         while (e.MoveNext())
         {
             (f, state) = f(state, e.Current);
@@ -94,61 +99,74 @@ public class AoC202310
         return state.Count;
     }
 
-    Result NotOnLoop(State state, Coordinate c)
+    static IEnumerable<Coordinate> East(FiniteGrid grid, Coordinate c)
     {
-        if (state.Loop.Contains(c))
-            return new(OnLoop, state.AddCount());
-        else
-            return new(NotOnLoop, state);
-    }
-    Result OnLoop(State state, Coordinate c)
-    {
-        return state.Grid[c] switch
+        var current = c;
+        while (current.x < grid.Width)
         {
-            '-' => new(OnLoop, state),
-            _ => new (NotOnLoop, state)
-        };
+            yield return current;
+            current = current.E;
+        }
     }
+
+
+    Result OutsideLoop(State state, Coordinate c) => state.Grid[c] switch
+    {
+        'F' => new(OutsideOnF, state),
+        'L' => new(OutsideOnL, state),
+        '|' => new(InsideLoop, state.AddCount()),
+        '.' => new(OutsideLoop, state)
+    };
+
+    Result OutsideOnF(State state, Coordinate c) => state.Grid[c] switch
+    {
+        '-' => new(OutsideOnF, state),
+        'J' => new(InsideLoop, state.AddCount()),
+        '7' => new(OutsideLoop, state),
+    };
+    Result OutsideOnL(State state, Coordinate c) => state.Grid[c] switch
+    {
+        '-' => new(OutsideOnL, state),
+        'J' => new(OutsideLoop, state),
+        '7' => new(InsideLoop, state.AddCount())
+    };
+    Result InsideOnF(State state, Coordinate c) => state.Grid[c] switch
+    {
+        '-' => new(InsideOnF, state),
+        'J' => new(OutsideLoop, state.AddCount()),
+        '7' => new(InsideLoop, state),
+    };
+    Result InsideOnL(State state, Coordinate c) => state.Grid[c] switch
+    {
+        '-' => new(InsideOnL, state),
+        'J' => new(InsideLoop, state),
+        '7' => new(OutsideLoop, state.AddCount())
+    };
+
+    Result InsideLoop(State state, Coordinate c) => state.Grid[c] switch
+    {
+        'F' => new(InsideOnF, state),
+        'L' => new(InsideOnL, state),
+        '|' => new(OutsideLoop, state.AddCount()),
+        '.' => new(InsideLoop, state)
+    };
 
     record struct Result(Func<State,Coordinate,Result> Next, State State);
     
-    class State(FiniteGrid grid, Coordinate p, HashSet<Coordinate> loop)
+    record struct State(FiniteGrid Grid, Coordinate p, HashSet<Coordinate> Loop, int Count)
     {
-        public int Count { get; private set; }
-        public State AddCount() { Count++; return this; }
-        public FiniteGrid Grid => grid;
-        public HashSet<Coordinate> Loop => loop;
-
+        public State AddCount() => this with { Count = Count + 1 };
     }
 
-    IEnumerable<int> CountBlocksWest(FiniteGrid g, Coordinate p, HashSet<Coordinate> loop)
+    private static IEnumerable<Coordinate> ConnectedNeighbours(FiniteGrid grid, Coordinate c)
+    => grid[c] switch
     {
-        var east = g.West(p);
-        var e = east.GetEnumerator();
-        int groupNr = 1;
-        bool inloop = true;
-        while (e.MoveNext())
-        {
-            if (loop.Contains(e.Current) != inloop)
-            {
-                inloop = !inloop;
-                groupNr++;
-            }
-            if (inloop)
-                yield return groupNr;
-        }
-
-    }
-
-    private IEnumerable<Coordinate> ConnectedNeighbours(FiniteGrid grid, Coordinate coordinate)
-    => grid[coordinate] switch
-    {
-        '|' => [coordinate.N, coordinate.S],
-        '-' => [coordinate.E, coordinate.W],
-        'L' => [coordinate.N, coordinate.E],
-        'J' => [coordinate.N, coordinate.W],
-        'F' => [coordinate.S, coordinate.E],
-        '7' => [coordinate.S, coordinate.W],
+        '|' => [c.N, c.S],
+        '-' => [c.E, c.W],
+        'L' => [c.N, c.E],
+        'J' => [c.N, c.W],
+        'F' => [c.S, c.E],
+        '7' => [c.S, c.W],
         _ => Array.Empty<Coordinate>()
     };
 
@@ -165,7 +183,7 @@ public class Tests
     public void Part2(int sample, int expected)
     {
         var input = Read.Sample(sample).Lines().ToArray();
-        var aoc = new AoC202310();
-        Assert.Equal(expected, aoc.Part2(input));
+        var aoc = new AoC202310(input);
+        Assert.Equal(expected, aoc.Part2());
     }
 }
