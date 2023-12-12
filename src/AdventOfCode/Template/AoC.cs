@@ -4,6 +4,7 @@ public class AoCYYYYDD
     public AoCYYYYDD():this(Read.InputLines()) {}
 
     readonly ImmutableArray<Item> items;
+    internal IEnumerable<Item> Items => items;
     public AoCYYYYDD(string[] input)
     {
         items = input.Select(s => Regexes.MyRegex().As<Item>(s)).ToImmutableArray();
@@ -29,18 +30,30 @@ static partial class Regexes
 
 public class AoCYYYYDDTests
 {
+    private readonly AoCYYYYDD sut;
+    public AoCYYYYDDTests()
+    {
+        var input = Read.SampleLines();
+        sut = new AoCYYYYDD(input);
+    }
+
+    [Fact]
+    public void TestParsing()
+    {
+        Assert.Equal(2, sut.Items.Count());
+        Assert.Equal("foo", sut.Items.First().name);
+        Assert.Equal(1, sut.Items.First().n);
+    }
+
     [Fact]
     public void TestPart1()
     {
-        var input = Read.SampleLines();
-        var sut = new AoCYYYYDD(input);
         Assert.Equal(-1, sut.Part1());
     }
+
     [Fact]
     public void TestPart2()
     {
-        var input = Read.SampleLines();
-        var sut = new AoCYYYYDD(input);
-        Assert.Equal(string.Empty, sut.Part1());
+        Assert.Equal(string.Empty, sut.Part2());
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace AdventOfCode;
+﻿using System.Collections.Concurrent;
+
+namespace AdventOfCode;
 
 static class LinqExtensions
 {
@@ -34,4 +36,12 @@ static class LinqExtensions
     public static T Product<T>(this IEnumerable<T> list) where T : INumber<T>
         => list.Aggregate(T.MultiplicativeIdentity, (a, b) => a * b);
 
+}
+public static class Memoizer
+{
+    public static Func<T, TResult> Memoize<T, TResult>(this Func<T, TResult> f)
+    {
+        var cache = new ConcurrentDictionary<T, TResult>();
+        return a => cache.GetOrAdd(a, f);
+    }
 }

@@ -2,7 +2,15 @@ namespace AdventOfCode.Year2018.Day03;
 
 public class AoC201803
 {
-    static string[] input = Read.InputLines();
+    string[] input;
+    public AoC201803() : this(Read.InputLines())
+    {
+            
+    }
+    public AoC201803(string[] input)
+    {
+        this.input = input;
+    }
 
     public object Part1() => Part1(input);
     public object Part2() => Part2(input);

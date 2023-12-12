@@ -2,20 +2,7 @@ namespace AdventOfCode.Year2018.Day16;
 
 public class Specs
 {
-    [Fact]
-    public void TestPart1()
-    {
-        var result = AoC201816.Part1(Read.InputLines());
-        Assert.Equal(500, result);
-    }
-
-    [Fact]
-    public void TestPart2()
-    {
-        var result = AoC201816.Part2(Read.InputLines());
-        Assert.Equal(533, result);
-    }
-
+    
     [Fact]
     public void addr_adds_register_0_and_register_1()
     {

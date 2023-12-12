@@ -13,7 +13,7 @@ public class AoC202311
     public object Part1() => Solve(2);
     public object Part2() => Solve(1000000);
 
-    internal object Solve(int n)
+    internal long Solve(int n)
     {
         var emptyrows =
             (from r in grid.Rows

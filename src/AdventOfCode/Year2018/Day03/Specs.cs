@@ -23,7 +23,8 @@ public class Specs
     [Fact]
     public void TestPart1()
     {
-        var result = AoC201803.Part1(input);
+        var sut = new AoC201803(input);
+        var result = sut.Part1();
         Assert.Equal(4, result);
     }
 
@@ -31,7 +32,8 @@ public class Specs
     [Fact]
     public void TestPart2()
     {
-        var result = AoC201803.Part2(input);
+        var sut = new AoC201803(input);
+        var result = sut.Part2();
         Assert.Equal(3, result);
     }
 }

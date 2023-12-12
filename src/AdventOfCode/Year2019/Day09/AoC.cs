@@ -10,10 +10,14 @@ public class AoC201909
 
     public object Part2() => IntCode.Run(program, 2).Last();
 
+   
+}
+public class Tests
+{
     [Fact]
     public void ShouldCopyItSelf()
     {
-        var program = new[] { 109L, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99 }.Select((value,index) => (value,index:(long)index)).ToImmutableDictionary(x=>x.index, x => x.value);
+        var program = new[] { 109L, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99 }.Select((value, index) => (value, index: (long)index)).ToImmutableDictionary(x => x.index, x => x.value);
         var result = IntCode.Run(program);
         Assert.Equal(program.Values, result);
     }
@@ -47,10 +51,9 @@ public class AoC201909
 
         (opcode, modes) = IntCode.Decode(20003);
         Assert.Equal(3, opcode);
-        Assert.Equal(new[] { Mode.Position, Mode.Position, Mode.Relative}, modes);
+        Assert.Equal(new[] { Mode.Position, Mode.Position, Mode.Relative }, modes);
     }
 }
-
 static class IntCode
 {
     internal static IEnumerable<long> Run(ImmutableDictionary<long, long> program, params int[] inputs)

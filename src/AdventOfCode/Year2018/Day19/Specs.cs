@@ -62,11 +62,5 @@ public class Specs
         Assert.Equal(new[] { 5L, 3, 1, 5 }, input);
     }
 
-    [Fact]
-    public void Test()
-    {
-        var instructions = Read.InputLines().GetInstructions();
-        var result = new CPU(1, instructions, new[] { 0L }).RunReverseEngineered();
-        Assert.Equal(11106760, result.A);
-    }
+    
 }

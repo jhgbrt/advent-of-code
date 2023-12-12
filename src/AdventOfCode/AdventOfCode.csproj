@@ -13,14 +13,14 @@
   <ItemGroup>
     <None Include="Template\AoC.cs" />
     <None Include="Template\aoc.csproj" />
-    <!--<Compile Remove="Year2015/**" />
+    <Compile Remove="Year2015/**" />
     <Compile Remove="Year2016/**" />
     <Compile Remove="Year2017/**" />
     <Compile Remove="Year2018/**" />
     <Compile Remove="Year2019/**" />
     <Compile Remove="Year2020/**" />
     <Compile Remove="Year2021/**" />
-    <Compile Remove="Year2022/**" />-->
+    <Compile Remove="Year2022/**" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="System.Diagnostics" />
@@ -51,12 +51,14 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Xunit.SkippableFact" Version="1.4.13" />
-    <!--<PackageReference Include="Net.Code.AdventOfCode.Toolkit" Version="1.0.2" />-->
+    <PackageReference Include="Net.Code.AdventOfCode.Toolkit" Version="2.0.0" />
     <PackageReference Include="Dijkstra.net" Version="1.2.1" />
   </ItemGroup>
+  <!--
   <ItemGroup>
     <ProjectReference Include="..\..\..\advent-of-code-toolkit\src\Net.Code.AdventOfCode.Toolkit\Net.Code.AdventOfCode.Toolkit.csproj" />
   </ItemGroup>
+  -->
   <ItemGroup>
     <None Update="Common\TupleUtils.generated.tt">
       <Generator>TextTemplatingFileGenerator</Generator>

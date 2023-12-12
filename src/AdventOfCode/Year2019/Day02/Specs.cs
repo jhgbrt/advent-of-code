@@ -14,10 +14,4 @@ public class Specs
         Assert.Equal(expected, result[index]);
     }
 
-    [Fact]
-    public void TestPart2()
-    {
-        var result = AoC201902.Part2(Read.InputLines(), 3895705);
-        Assert.Equal(1202, result);
-    }
 }

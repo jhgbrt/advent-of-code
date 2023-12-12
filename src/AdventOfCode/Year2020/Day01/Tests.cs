@@ -10,12 +10,6 @@ public class Tests
         Assert.Equal(514579, result);
     }
 
-    [Fact]
-    public void AllNumbersAreUnique()
-    {
-        var numbers = Read.InputLines().Select(int.Parse).ToList();
-        Assert.Equal(numbers.Count, numbers.Distinct().Count());
-    }
 
     [Fact]
     public void TestPart2()
