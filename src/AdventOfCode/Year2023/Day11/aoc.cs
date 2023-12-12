@@ -1,7 +1,6 @@
 namespace AdventOfCode.Year2023.Day11;
 public class AoC202311
 {
-    static bool usesample = false;
     static string[] input = Read.InputLines();
     Grid grid;
     public AoC202311() : this(input)
@@ -16,36 +15,27 @@ public class AoC202311
 
     internal object Solve(int n)
     {
-        var emptyrows = (from r in grid.Rows
-                        where r.row.All(c => c == '.')
-                        select r.y).Reverse().ToArray();
-        var emptycolumns = (from c in grid.Columns
-                           where c.column.All(c => c == '.')
-                           select c.x).Reverse().ToArray();
+        var emptyrows =
+            (from r in grid.Rows
+             where r.row.All(c => c == '.')
+             select r.y).Reverse().ToArray();
+        var emptycols =
+            (from c in grid.Columns
+             where c.column.All(c => c == '.')
+             select c.x).Reverse().ToArray();
 
-        foreach (var y in emptyrows)
-        {
-            grid = grid.ExpandRow(y, n);
-        }
-        foreach (var x in emptycolumns)
-        {
-            grid = grid.InsertColumn(x, n);
-        }
+        var points =
+            (from item in grid.Points()
+             where grid[item] == '#'
+             select item).ToList();
 
-
-        var points = (from item in grid.Points()
-                      where grid[item] == '#'
-                      select item).ToList();
-
-        var pairs = from p1 in points from p2 in points select (p1, p2);
-
-
-
-        var distances = from p1 in points
-                        from p2 in points
-                        select p1.ManhattanDistance(p2);
-
-
+        var distances =
+            from p1 in points
+            from p2 in points
+            let ranges = (x: (p1.x, p2.x), y: (p1.y, p2.y))
+            let emptyr = emptyrows.Count(y => ranges.y.Contains(y))
+            let emptyc = emptycols.Count(x => ranges.x.Contains(x))
+            select p1.ManhattanDistance(p2) + emptyr * (n - 1L) + emptyc * (n - 1L);
 
         return distances.Sum() / 2;
     }
@@ -75,8 +65,6 @@ class Grid
     readonly Coordinate origin = new(0, 0);
     readonly Coordinate bottomright;
     readonly char empty;
-    public int Height => bottomright.y;
-    public int Width => bottomright.x;
     public Grid(string[] input, char empty = '.')
     {
         items = (from y in Range(0, input.Length)
@@ -94,15 +82,10 @@ class Grid
         this.bottomright = bottomright;
     }
 
-    public Grid With(Action<ImmutableDictionary<Coordinate, char>.Builder> action)
-    {
-        var builder = items.ToBuilder();
-        action(builder);
-        return new Grid(builder.ToImmutable(), empty, bottomright);
-    }
     public IEnumerable<(int x, IEnumerable<char> column)> Columns
     {
-        get {
+        get 
+        {
             for (int x = 0; x < bottomright.x; x++)
             {
                 yield return (x, from y in Range(0, bottomright.y) select this[x, y]);
@@ -111,62 +94,13 @@ class Grid
     }
     public IEnumerable<(int y, IEnumerable<char> row)> Rows
     {
-        get {
+        get 
+        {
             for (int y = 0; y < bottomright.y; y++)
             {
                 yield return (y, from x in Range(0, bottomright.x) select this[x, y]);
             }
         }
-    }
-    public Grid InsertColumn(int x, int n = 2)
-    {
-        var b = items.ToBuilder();
-        var maxX = bottomright.x + n - 1;
-        for (int y = 0; y < bottomright.y; y++)
-        {
-            for (int xi = maxX - 1; xi >= x + n; xi--)
-            {
-                if (this[xi - n + 1, y] == empty)
-                {
-                    b.Remove(new(xi, y), out char _);
-                }
-                else
-                {
-                    b[new(xi, y)] = this[xi - n + 1, y];
-                }
-            }
-            for (int xi = x + n - 1; xi >= x; xi--)
-            {
-                b.Remove(new(xi, y), out char _);
-            }
-        }
-        return new Grid(b.ToImmutable(), empty, bottomright with { x = maxX });
-    }
-    public Grid ExpandRow(int y, int n = 2)
-    {
-        var b = items.ToBuilder();
-
-        var maxY = bottomright.y + n - 1;
-
-        for (int x = 0; x < bottomright.x; x++)
-        {
-            for (int yi = maxY - 1; yi >= y + n; yi--)
-            {
-                if (this[x, yi - n + 1] == empty)
-                {
-                    b.Remove(new(x, yi), out char _);
-                }
-                else
-                {
-                    b[new(x, yi)] = this[x, yi - n + 1];
-                }
-            }
-            for (int yi = y + n - 1; yi >= y; yi--)
-            {
-                b.Remove(new(x, yi), out char _);
-            }
-        }
-        return new Grid(b.ToImmutable(), empty, bottomright with { y = maxY });
     }
 
     public char this[Coordinate p] => items.TryGetValue(p, out var c) ? c : empty;
@@ -227,29 +161,4 @@ public class Tests
         Assert.Equal(expected, sut.Solve(n));
     }
 
-    [Fact]
-    public void Test()
-    {
-        var grid = new Grid(
-        [
-            "#",
-            ".",
-            "#",
-            "#",
-        ]);
-
-        grid = grid.ExpandRow(1, 5);
-
-        Assert.Equal("""
-                     #
-                     .
-                     .
-                     .
-                     .
-                     .
-                     #
-                     #
-
-                     """, grid.ToString(), true);
-    }
 }

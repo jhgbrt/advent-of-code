@@ -58,19 +58,19 @@
     <ProjectReference Include="..\..\..\advent-of-code-toolkit\src\Net.Code.AdventOfCode.Toolkit\Net.Code.AdventOfCode.Toolkit.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="Common\TupleUtils.tt">
+    <None Update="Common\TupleUtils.generated.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>TupleUtils.cs</LastGenOutput>
+      <LastGenOutput>TupleUtils.generated.cs</LastGenOutput>
     </None>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Common\TupleUtils.cs">
+    <Compile Update="Common\TupleUtils.generated.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>TupleUtils.tt</DependentUpon>
+      <DependentUpon>TupleUtils.generated.tt</DependentUpon>
     </Compile>
   </ItemGroup>
 </Project>

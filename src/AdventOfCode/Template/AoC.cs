@@ -1,15 +1,16 @@
 ﻿namespace AdventOfCode.YearYYYY.DayDD;
 public class AoCYYYYDD
 {
-    static bool usesample = true;
-    static string[] sample = Read.SampleLines();
-    static string[] realinput = Read.InputLines();
-    static string[] input = usesample ? sample : realinput;
-    static ImmutableArray<Item> items = input.Select(s => Regexes.MyRegex().As<Item>(s)).ToImmutableArray();
+    public AoCYYYYDD():this(Read.InputLines()) {}
+
+    readonly ImmutableArray<Item> items;
+    public AoCYYYYDD(string[] input)
+    {
+        items = input.Select(s => Regexes.MyRegex().As<Item>(s)).ToImmutableArray();
+    }
+
     public object Part1()
     {
-        Console.WriteLine(string.Join(Environment.NewLine, input));
-
         foreach (var item in items)
             Console.WriteLine(item);
 
@@ -24,4 +25,22 @@ static partial class Regexes
 {
     [GeneratedRegex(@"^(?<name>.*): (?<n>\d+)$")]
     public static partial Regex MyRegex();
+}
+
+public class AoCYYYYDDTests
+{
+    [Fact]
+    public void TestPart1()
+    {
+        var input = Read.SampleLines();
+        var sut = new AoCYYYYDD(input);
+        Assert.Equal(-1, sut.Part1());
+    }
+    [Fact]
+    public void TestPart2()
+    {
+        var input = Read.SampleLines();
+        var sut = new AoCYYYYDD(input);
+        Assert.Equal(string.Empty, sut.Part1());
+    }
 }

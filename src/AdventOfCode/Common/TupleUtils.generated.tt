@@ -4,8 +4,9 @@
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
 namespace AdventOfCode;
+#nullable enable
 
-static class TupleUtils
+static partial class TupleUtils
 {
     
 <# 
