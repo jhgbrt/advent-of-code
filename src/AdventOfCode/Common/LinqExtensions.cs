@@ -46,6 +46,10 @@ static class LinqExtensions
         }
         return false;
     }
+    public static IEnumerable<T> While<T>(this IEnumerator<T> enumerator, Predicate<T> predicate)
+    {
+        while (enumerator.MoveNext() && predicate(enumerator.Current)) { yield return enumerator.Current; }
+    }
 
 }
 
