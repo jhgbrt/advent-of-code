@@ -4,12 +4,17 @@ namespace AdventOfCode.Year2021.Day19;
 
 public class AoC202119
 {
-    static string[] input = Read.InputLines();
-
-    static ImmutableList<Scanner> scanners = Align(
-        from s in CreateScanners(input)
-        from t in s.Transformations()
-        select t);
+    public AoC202119() : this(Read.InputLines())
+    {
+    }
+    public AoC202119(string[] input)
+    {
+        scanners = Align(
+            from s in CreateScanners(input)
+            from t in s.Transformations()
+            select t);
+    }
+    ImmutableList<Scanner> scanners;
 
     public object Part1() => (from s in scanners from b in s.OffsetBeacons select b).Distinct().Count();
 
@@ -89,25 +94,37 @@ record Scanner(int id, ImmutableHashSet<P> beacons, P offset = default)
         }
     }
 
-    IEnumerable<Func<P, P>> TransformationFunctions()
-    {
-        var q = from i in new[] { 1, -1 }
-                from j in new[] { 1, -1 }
-                from k in new[] { 1, -1 }
-                select (i, j, k);
-        foreach (var t in q)
-        {
-            yield return (P p) => new P(t.i * p.x, t.j * p.y, t.k * p.z);
-            yield return (P p) => new P(t.i * p.x, t.j * p.z, t.k * p.y);
-            yield return (P p) => new P(t.i * p.y, t.j * p.x, t.k * p.z);
-            yield return (P p) => new P(t.i * p.y, t.j * p.z, t.k * p.x);
-            yield return (P p) => new P(t.i * p.z, t.j * p.y, t.k * p.x);
-            yield return (P p) => new P(t.i * p.z, t.j * p.x, t.k * p.y);
-        }
-    }
 
-    internal IEnumerable<Scanner> Transformations()
-        => from f in TransformationFunctions()
+    static Func<P, P>[] TransformationFunctions =
+        [
+            v => v,
+            v => new(v.x, -v.z, v.y),
+            v => new(v.x, -v.y, -v.z),
+            v => new(v.x, v.z, -v.y),
+            v => new(-v.y, v.x, v.z),
+            v => new(v.z, v.x, v.y),
+            v => new(v.y, v.x, -v.z),
+            v => new(-v.z, v.x, -v.y),
+            v => new(-v.x, -v.y, v.z),
+            v => new(-v.x, -v.z, -v.y),
+            v => new(-v.x, v.y, -v.z),
+            v => new(-v.x, v.z, v.y),
+            v => new(v.y, -v.x, v.z),
+            v => new(v.z, -v.x, -v.y),
+            v => new(-v.y, -v.x, -v.z),
+            v => new(-v.z, -v.x, v.y),
+            v => new(-v.z, v.y, v.x),
+            v => new(v.y, v.z, v.x),
+            v => new(v.z, -v.y, v.x),
+            v => new(-v.y, -v.z, v.x),
+            v => new(-v.z, -v.y, -v.x),
+            v => new(-v.y, v.z, -v.x),
+            v => new(v.z, v.y, -v.x),
+            v => new(v.y, -v.z, -v.x)
+        ];
+
+      internal IEnumerable<Scanner> Transformations()
+        => from f in TransformationFunctions
            select new Scanner(id, beacons.Select(f).ToImmutableHashSet(), default);
 
     internal IEnumerable<Scanner> FindScannersInRange(IEnumerable<IEnumerable<Scanner>> scanners)
@@ -122,6 +139,6 @@ record Scanner(int id, ImmutableHashSet<P> beacons, P offset = default)
         => from a in target.OffsetBeacons
            from r in beacons
            let aligned = this with { offset = a - r }
-           where target.OffsetBeacons.Intersect(aligned.OffsetBeacons).Count() >= 12
+           where target.OffsetBeacons.Intersect(aligned.OffsetBeacons).CountIsAtLeast(12)
            select aligned;
 }

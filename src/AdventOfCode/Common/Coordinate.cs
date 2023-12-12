@@ -1,4 +1,4 @@
-﻿namespace AdventOfCode.Common;
+﻿namespace AdventOfCode;
 readonly record struct Coordinate3D(int x, int y, int z)
 {
     public static Coordinate3D Origin = new(0, 0, 0);

@@ -1,4 +1,4 @@
-﻿namespace AdventOfCode.Common;
+﻿namespace AdventOfCode;
 
 internal static class BigIntegerExtensions
 {

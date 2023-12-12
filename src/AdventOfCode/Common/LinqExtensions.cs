@@ -36,10 +36,23 @@ static class LinqExtensions
     public static T Product<T>(this IEnumerable<T> list) where T : INumber<T>
         => list.Aggregate(T.MultiplicativeIdentity, (a, b) => a * b);
 
+    public static bool CountIsAtLeast<T>(this IEnumerable<T> list, int n)
+    {
+        var count = 0;
+        foreach (var item in list)
+        {
+            count++;
+            if (count == n) return true;
+        }
+        return false;
+    }
+
 }
+
+
 public static class Memoizer
 {
-    public static Func<T, TResult> Memoize<T, TResult>(this Func<T, TResult> f)
+    public static Func<T, TResult> Memoize<T, TResult>(this Func<T, TResult> f) where T : notnull
     {
         var cache = new ConcurrentDictionary<T, TResult>();
         return a => cache.GetOrAdd(a, f);

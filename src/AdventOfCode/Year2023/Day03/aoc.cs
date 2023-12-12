@@ -1,4 +1,4 @@
-using AdventOfCode.Common;
+using AdventOfCode;
 
 namespace AdventOfCode.Year2023.Day03;
 public class AoC202303
