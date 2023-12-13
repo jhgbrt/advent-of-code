@@ -68,14 +68,14 @@ class Grid
 
     public (int? x, int? y) FindMirror()
     {
-        foreach (var center in Range(0, Width))
+        foreach (var center in Range(0, Width/2 + 1))
         {
             if (Range(0, Height).All(y => IsSymmetricRow(y, center)))
             {
                 return (center, null);
             }
         }
-        foreach (var center in Range(0, Height))
+        foreach (var center in Range(0, Height/2 + 1))
         {
             if (Range(0, Width).All(x => IsSymmetricColumn(x, center)))
             {
