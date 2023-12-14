@@ -29,13 +29,17 @@ public class AoC202313
     {
         var q = from grid in items
                 let mirror = grid.FindMirror()
-                select mirror.x.HasValue ? mirror.x.Value + 1
-                : (mirror.y!.Value + 1)* 100;
+                select mirror.x.HasValue ? mirror.x.Value
+                : mirror.y.HasValue 
+                ? mirror.y.Value * 100
+                : 0;
 
         return q.Sum();
     }
     public object Part2() => "";
 }
+
+
 
 class Grid
 {
@@ -68,18 +72,23 @@ class Grid
 
     public (int? x, int? y) FindMirror()
     {
-        foreach (var center in Range(0, Width/2 + 1))
+        foreach (var col in Range(1, Width - 1))
         {
-            if (Range(0, Height).All(y => IsSymmetricRow(y, center)))
+            for (int x = col; x >= 0; x--)
             {
-                return (center, null);
+                if (Col(col - x) != Col(col + x - 1)) break;
+            }
+
+            if (Range(0, Height).All(y => IsSymmetricRow(y, col)))
+            {
+                return (col + 1, null);
             }
         }
-        foreach (var center in Range(0, Height/2 + 1))
+        foreach (var row in Range(0, Height))
         {
-            if (Range(0, Width).All(x => IsSymmetricColumn(x, center)))
+            if (Range(0, Width).All(x => IsSymmetricColumn(x, row)))
             {
-                return (null, center);
+                return (null, row + 1);
             }
         }
 
@@ -113,6 +122,10 @@ class Grid
         }
         return true;
     }
+
+    string Row(int y) => new string(Range(0, Width).Select(i => this[i, y]).ToArray());
+    string Col(int x) => new string(Range(0, Height).Select(i => this[x, i]).ToArray());
+
     public IEnumerable<Coordinate> Points() =>
         from y in Range(origin.y, bottomright.y)
         from x in Range(origin.x, bottomright.x)
@@ -144,30 +157,99 @@ readonly record struct Coordinate(int x, int y)
 
 public class AoC202313Tests
 {
-    private readonly AoC202313 sut;
     private TextWriter output;
     public AoC202313Tests(ITestOutputHelper helper)
     {
         output = new TestWriter(helper);
-        var input = Read.SampleLines();
-        sut = new AoC202313(output, input);
     }
 
     [Fact]
     public void TestParsing()
     {
+        var input = Read.Sample(1).Lines().ToArray();
+        AoC202313 sut = new AoC202313(output, input);
         Assert.Equal(2, sut.Items.Count());
     }
 
-    [Fact]
-    public void TestPart1()
+    [Theory]
+    [InlineData(1, 405)]
+    [InlineData(2, 709)]
+    public void TestPart1(int sample, int expected)
     {
-        Assert.Equal(405, sut.Part1());
+        var input = Read.Sample(sample).Lines().ToArray();
+        AoC202313 sut = new AoC202313(output, input);
+        Assert.Equal(expected, sut.Part1());
     }
 
     [Fact]
     public void TestPart2()
     {
+        var input = Read.Sample(1).Lines().ToArray();
+        AoC202313 sut = new AoC202313(output, input);
         Assert.Equal(string.Empty, sut.Part2());
+    }
+
+    [Theory]
+    [InlineData("""
+    #.###..#..###
+    .#...##.####.
+    .#...##.####.
+    #.###..#..###
+    .#######.##.#
+    .#..##.#.#..#
+    """, null, 2)]
+    [InlineData("""
+    .#...##.####.
+    .#...##.####.
+    .#######.##.#
+    .#..##.#.#..#
+    """, null, 1)]
+    [InlineData("""
+    .#######.##.#
+    .#..##.#.#..#
+    .#...##.####.
+    .#...##.####.
+    """, null, 3)]
+    [InlineData("""
+    #..#..
+    #..#.#
+    .##...
+    """, 2, null)]
+    [InlineData("""
+    ##..#..
+    ##..#..
+    ###...#
+    """, 1, null)]
+    [InlineData("""
+    ##
+    ..
+    ##
+    """, 1, null)]
+    [InlineData("""
+    ..##
+    ..##
+    .###
+    """, 3, null)]
+    [InlineData("""
+    ..####
+    ..####
+    .#####
+    """, 4, null)]
+
+    [InlineData("""
+    ##..#..#..##.#.##
+    .###....###.###.#
+    .#.##..##.#....#.
+    ####.##..###.####
+    .###....###.....#
+    .#.#....#.#..#...
+    .##.####.##.##...
+    .##.####.##.##...
+    """, null, 7)]
+    public void FindMirrorTest(string input, int? x, int? y)
+    {
+        var grid = new Grid(Read.String(input));
+        var result = grid.FindMirror();
+        Assert.Equal((x, y), result);
     }
 }

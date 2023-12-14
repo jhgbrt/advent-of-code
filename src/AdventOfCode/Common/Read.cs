@@ -14,6 +14,12 @@ internal static class Read
     public static string SampleText(int? n = null, [CallerFilePath] string path = "") => Sample(n).Text(path);
     public static string[] SampleLines(int? n = null, [CallerFilePath] string path = "") => Sample(n).Lines(path).ToArray();
     public static Stream SampleStream(int? n = null, [CallerFilePath] string path = "") => Sample(n).Stream(path);
+    public static string[] String(string s) => ReadLines(s).ToArray();
+    private static IEnumerable<string> ReadLines(string s)
+    {
+        using var sr = new StringReader(s);
+        while (sr.Peek() >= 0) yield return sr.ReadLine()!;
+    }
 
     public interface IReader 
     {
