@@ -1,13 +1,14 @@
 ﻿namespace AdventOfCode.YearYYYY.DayDD;
 public class AoCYYYYDD
 {
-    public AoCYYYYDD():this(Read.InputLines()) {}
-
+    public AoCYYYYDD():this(Read.InputLines(), Console.Out) {}
+    readonly TextWriter writer;
     readonly ImmutableArray<Item> items;
     internal IEnumerable<Item> Items => items;
-    public AoCYYYYDD(string[] input)
+    public AoCYYYYDD(string[] input, TextWriter writer)
     {
         items = input.Select(s => Regexes.MyRegex().As<Item>(s)).ToImmutableArray();
+        this.writer = writer;
     }
 
     public object Part1()
@@ -31,10 +32,10 @@ static partial class Regexes
 public class AoCYYYYDDTests
 {
     private readonly AoCYYYYDD sut;
-    public AoCYYYYDDTests()
+    public AoCYYYYDDTests(ITestOutputHelper output)
     {
         var input = Read.SampleLines();
-        sut = new AoCYYYYDD(input);
+        sut = new AoCYYYYDD(input, new TestWriter(output));
     }
 
     [Fact]
