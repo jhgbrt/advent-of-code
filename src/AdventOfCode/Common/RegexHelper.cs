@@ -56,15 +56,21 @@ internal static class RegexHelper
 }
 internal static class MyConvert
 {
-    internal static object ChangeType(string value, Type type, IFormatProvider provider) => type switch
+    internal static object? ChangeType(string value, Type type, IFormatProvider provider) => (type, value) switch
     {
-        { IsArray: true } 
+        ({ IsArray: true } , _)
             => ConvertToArray(value, type.GetElementType() ?? throw new ArgumentException("array does not have element type?!??"), provider),
-        { IsGenericType: true } when type.GetGenericTypeDefinition() == typeof(IEnumerable<>)
+        ({ IsGenericType: true },_) when type.GetGenericTypeDefinition() == typeof(IEnumerable<>)
             => ConvertToArray(value, type.GetGenericArguments().SingleOrDefault() ?? throw new ArgumentException("enumerable does not have element type?!??"), provider),
+        (_, null or "") => null,
         _
-            => Convert.ChangeType(value, type, provider)
+            => Convert.ChangeType(value, GetUnderlyingType(type), provider)
     };
+    static Type GetUnderlyingType(Type type) 
+    => type.IsGenericType && !type.IsGenericTypeDefinition && typeof(Nullable<>) == type.GetGenericTypeDefinition()
+        ? Nullable.GetUnderlyingType(type)! : type;
+
+
 
     static object ConvertToArray(string value, Type elementType, IFormatProvider provider)
     {
@@ -90,6 +96,7 @@ internal static class MyConvert
         _ => throw new ArgumentException($"Could not determine delimiter for string '{s}'")
     };
 }
+
 record CsvLineFormatInfo(string Delimiter = ",") : IFormatProvider, ICustomFormatter
 {
     public object? GetFormat(Type? type) => this;
