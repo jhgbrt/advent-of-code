@@ -27,16 +27,26 @@ public class AoC202313
 
     public object Part1()
     {
-        var q = from grid in items
+
+        return (from grid in items
                 let mirror = grid.FindMirror()
                 select mirror.x.HasValue ? mirror.x.Value
-                : mirror.y.HasValue 
-                ? mirror.y.Value * 100
-                : 0;
-
-        return q.Sum();
+                : mirror.y!.Value * 100).Sum();
     }
-    public object Part2() => "";
+    public object Part2()
+    {
+    var q = (from grid in items
+            let mirror = (
+                from p in grid.Points()
+                let flipped = grid.Flip(p)
+                let mirror = flipped.FindMirror()
+                where mirror.x.HasValue || mirror.y.HasValue
+                select mirror).First()
+            select mirror.x.HasValue ? mirror.x.Value
+                : mirror.y!.Value * 100
+                ).Sum();
+        return q;
+    }
 }
 
 
@@ -72,59 +82,64 @@ class Grid
 
     public (int? x, int? y) FindMirror()
     {
-        foreach (var col in Range(1, Width - 1))
+        foreach (var col in Range(0, Width))
         {
-            for (int x = col; x >= 0; x--)
-            {
-                if (Col(col - x) != Col(col + x - 1)) break;
-            }
-
-            if (Range(0, Height).All(y => IsSymmetricRow(y, col)))
-            {
-                return (col + 1, null);
-            }
+            if (IsVerticalSymmetryAxis(col)) return (col, null);
         }
         foreach (var row in Range(0, Height))
         {
-            if (Range(0, Width).All(x => IsSymmetricColumn(x, row)))
-            {
-                return (null, row + 1);
-            }
+            if (IsHorizontalSymmetryAxis(row)) return (null, row);
         }
 
         return (null, null);
     }
 
-    bool IsSymmetricRow(int y, int center)
+    public Grid Flip(Coordinate p)
     {
-        for (int offset = 0; offset <= center; offset++)
+        var b = items.ToBuilder();
+        if (b.ContainsKey(p)) b.Remove(p);
+        else b[p] = '#';
+        return new(b.ToImmutable(), empty, bottomright);
+    }
+
+    internal bool IsVerticalSymmetryAxis(int axis)
+    {
+        if (axis < 1) return false;
+        if (axis >= Width) return false;
+        foreach (var y in Range(0, Height))
         {
-            var x1 = center - offset;
-            var x2 = center + offset + 1;
-            if (Contains(new(x1,y)) && Contains(new(x2, y)) && this[x1, y] != this[x2, y])
-            {
-                return false;
-            }
+            if (!IsSymmetricRow(axis, y)) return false;
+        }
+        return true;
+    }
+    internal bool IsHorizontalSymmetryAxis(int axis)
+    {
+        if (axis < 1) return false;
+        if (axis >= Height) return false;
+        foreach (var x in Range(0, Width))
+        {
+            if (!IsSymmetricColumn(axis, x)) return false;
         }
         return true;
     }
 
-    bool IsSymmetricColumn(int x, int center)
+    bool IsSymmetricRow(int axis, int y)
     {
-        for (int offset = 0; offset <= center; offset++)
+        for (int offset = 0; axis - offset - 1 >= 0 && axis + offset < Width; offset++)
         {
-            var y1 = center - offset;
-            var y2 = center + offset + 1;
-            if (Contains(new(x, y1)) && Contains(new(x, y2)) && this[x, y1] != this[x, y2])
-            {
-                return false;
-            }
+            if (this[axis - offset - 1, y] != this[axis + offset, y]) return false;
         }
         return true;
     }
 
-    string Row(int y) => new string(Range(0, Width).Select(i => this[i, y]).ToArray());
-    string Col(int x) => new string(Range(0, Height).Select(i => this[x, i]).ToArray());
+    bool IsSymmetricColumn(int axis, int x)
+    {
+        for (int offset = 0; axis - offset - 1 >= 0 && axis + offset < Height; offset++)
+        {
+            if (this[x, axis - offset - 1] != this[x, axis + offset]) return false;
+        }
+        return true;
+    }
 
     public IEnumerable<Coordinate> Points() =>
         from y in Range(origin.y, bottomright.y)
@@ -144,7 +159,7 @@ class Grid
         return sb.ToString();
     }
 
-    public bool Contains(Coordinate c) => c.x >= 0 && c.x < bottomright.x && c.y >=0 && c.y < bottomright.y;
+    public bool Contains(Coordinate c) => c.x >= 0 && c.x < bottomright.x && c.y >= 0 && c.y < bottomright.y;
 
 }
 
@@ -181,12 +196,39 @@ public class AoC202313Tests
         Assert.Equal(expected, sut.Part1());
     }
 
-    [Fact]
-    public void TestPart2()
+    [Theory]
+    [InlineData(1, 400)]
+    [InlineData(2, 709)]
+    public void TestPart2(int sample, int expected)
     {
-        var input = Read.Sample(1).Lines().ToArray();
+        var input = Read.Sample(sample).Lines().ToArray();
         AoC202313 sut = new AoC202313(output, input);
-        Assert.Equal(string.Empty, sut.Part2());
+        Assert.Equal(expected, sut.Part2());
+    }
+
+    [Fact]
+    public void IsVerticalSymmetryAxisTest()
+    {
+        var grid = new Grid(Read.String("""
+        ##.
+        ..#
+        """));
+        Assert.True(grid.IsVerticalSymmetryAxis(1));
+        Assert.False(grid.IsVerticalSymmetryAxis(0));
+        Assert.False(grid.IsVerticalSymmetryAxis(2));
+    }
+
+    [Fact]
+    public void IsHorizontalSymmetryAxisTest()
+    {
+        var grid = new Grid(Read.String("""
+        #.
+        #.
+        .#
+        """));
+        Assert.True(grid.IsHorizontalSymmetryAxis(1));
+        Assert.False(grid.IsHorizontalSymmetryAxis(0));
+        Assert.False(grid.IsHorizontalSymmetryAxis(2));
     }
 
     [Theory]
@@ -246,6 +288,25 @@ public class AoC202313Tests
     .##.####.##.##...
     .##.####.##.##...
     """, null, 7)]
+    [InlineData("""
+    ###.##..##.
+    .#.###..###
+    ###...##...
+    ......##...
+    .##.##..##.
+    ...#..##..#
+    #.#.######.
+    #.#.#.##.#.
+    ..###....##
+    ###..#####.
+    .##.#.##.#.
+    .##########
+    .#.........
+    ###...##...
+    ##..#.##.#.
+    #.##.####.#
+    #.##.####.#
+    """, null, 16)]
     public void FindMirrorTest(string input, int? x, int? y)
     {
         var grid = new Grid(Read.String(input));
