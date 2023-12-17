@@ -40,6 +40,54 @@ readonly record struct Coordinate(int x, int y)
     public Coordinate W => new(x - 1, y);
     public Coordinate NW => new(x - 1, y - 1);
     public static Coordinate operator +(Coordinate left, (int dx, int dy) p) => new(left.x + p.dx, left.y + p.dy);
+    public static Coordinate operator +(Coordinate c, Direction d) => d switch
+    {
+        Direction.N => c.N,
+        Direction.NE => c.NE,
+        Direction.E => c.E,
+        Direction.SE => c.SE,
+        Direction.S => c.S,
+        Direction.SW => c.SW,
+        Direction.W => c.W,
+        Direction.NW => c.NW
+    };
+    public static Coordinate operator -(Coordinate c, Direction d) => d switch
+    {
+        Direction.N => c.S,
+        Direction.NE => c.SW,
+        Direction.E => c.W,
+        Direction.SE => c.NW,
+        Direction.S => c.N,
+        Direction.SW => c.NE,
+        Direction.W => c.E,
+        Direction.NW => c.SE
+    };
+}
+
+readonly record struct Vector(Coordinate p, Direction d)
+{
+    public Vector Next() => this with { p = p + d };
+    public Vector Turn(Direction d) => this with { d = d };
+    public Vector Left() => this with
+    {
+        d = d switch
+        {
+            Direction.N => Direction.W,
+            Direction.W => Direction.S,
+            Direction.S => Direction.E,
+            Direction.E => Direction.N
+        }
+    };
+    public Vector Right() => this with
+    {
+        d = d switch
+        {
+            Direction.N => Direction.E,
+            Direction.E => Direction.S,
+            Direction.S => Direction.W,
+            Direction.W => Direction.N
+        }
+    };
 }
 
 readonly record struct Slope(int dx, int dy)
