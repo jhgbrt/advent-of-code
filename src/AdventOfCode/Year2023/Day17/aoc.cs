@@ -45,29 +45,13 @@ public class AoC202317
     {
         if (vector.steps < max)
         {
-<<<<<<< HEAD
-            yield return vector with { pos = vector.pos + vector.d, steps = vector.steps + 1 };
-=======
             yield return vector.Move();
->>>>>>> a479639 (day 17)
         }
 
         if (vector.steps >= min)
         {
-<<<<<<< HEAD
-            Direction[] dirs = vector.d switch
-            {
-                Direction.E or Direction.W => [Direction.N, Direction.S],
-                Direction.N or Direction.S => [Direction.E, Direction.W]
-            };
-            foreach (var d in dirs)
-            {
-                yield return vector with { pos = vector.pos + d, d = d, steps = 1 };
-            }
-=======
             yield return vector.Left().Move();
             yield return vector.Right().Move();
->>>>>>> a479639 (day 17)
         }
     }
 }
@@ -231,10 +215,6 @@ class Grid
 readonly record struct Coordinate(int x, int y)
 {
     public static Coordinate Origin = new(0, 0);
-<<<<<<< HEAD
-    public int ManhattanDistance(Coordinate o) => Abs(x - o.x) + Abs(y - o.y);
-=======
->>>>>>> a479639 (day 17)
     public override string ToString() => $"({x},{y})";
     public static Coordinate operator +(Coordinate c, Direction d) => d switch
     {
@@ -248,8 +228,6 @@ readonly record struct Coordinate(int x, int y)
 readonly record struct Vector(Coordinate pos, Direction d, int steps)
 {
     public override string ToString() => $"{pos},{d},{steps}";
-<<<<<<< HEAD
-=======
     public Vector Move() => this with { pos = pos + d, steps = steps + 1 };
     public Vector Left() => this with
     {
@@ -273,5 +251,4 @@ readonly record struct Vector(Coordinate pos, Direction d, int steps)
         },
         steps = 0
     };
->>>>>>> a479639 (day 17)
 }
