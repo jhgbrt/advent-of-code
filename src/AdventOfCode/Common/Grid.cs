@@ -1,6 +1,8 @@
 ﻿namespace AdventOfCode;
 
 enum Direction{ N, NE, E, SE, S, SW, W, NW }
+
+
 class FiniteGrid
 {
 
@@ -12,32 +14,32 @@ class FiniteGrid
 
     readonly ImmutableDictionary<Coordinate, char> items;
     readonly Coordinate origin = new(0, 0);
-    readonly Coordinate bottomright;
+    readonly Coordinate endmarker;
     readonly char empty;
-    public int Height => bottomright.y;
-    public int Width => bottomright.x;
+    public int Height => endmarker.y;
+    public int Width => endmarker.x;
     public FiniteGrid(string[] input, char empty = '.')
     {
         items = (from y in Range(0, input.Length)
                  from x in Range(0, input[y].Length)
                  where input[y][x] != empty
                  select (x, y, c: input[y][x])).ToImmutableDictionary(t => new Coordinate(t.x, t.y), t => t.c);
-        bottomright = new(input[0].Length, input.Length);
+        endmarker = new(input[0].Length, input.Length);
         this.empty = empty;
     }
 
-    private FiniteGrid(ImmutableDictionary<Coordinate,char> items, char empty, Coordinate bottomright)
+    internal FiniteGrid(ImmutableDictionary<Coordinate,char> items, char empty, Coordinate endmarker)
     {
         this.items = items;
         this.empty = empty;
-        this.bottomright = bottomright;
+        this.endmarker = endmarker;
     }
 
     public FiniteGrid With(Action<ImmutableDictionary<Coordinate, char>.Builder> action) 
     {
         var builder = items.ToBuilder();
         action(builder);
-        return new FiniteGrid(builder.ToImmutable(), empty, bottomright);
+        return new FiniteGrid(builder.ToImmutable(), empty, endmarker);
     }
     public Coordinate Find(char c) => items.Where(i => i.Value == c).First().Key;
     public char this[Coordinate p] => items.TryGetValue(p, out var c) ? c : empty;
@@ -45,8 +47,8 @@ class FiniteGrid
     public char this[int x, int y] => this[new Coordinate(x, y)];
 
     public IEnumerable<Coordinate> Points() =>
-        from y in Range(origin.y, bottomright.y)
-        from x in Range(origin.x, bottomright.x)
+        from y in Range(origin.y, endmarker.y)
+        from x in Range(origin.x, endmarker.x)
         select new Coordinate(x, y);
 
     public IEnumerable<(Direction d, Coordinate c)> Neighbours(Coordinate p)
@@ -79,7 +81,7 @@ class FiniteGrid
         Direction.NW => IfValid(new(p.x - 1, p.y - 1))
     };
     Coordinate? IfValid(Coordinate p) => IsValid(p) ? p : null;
-    bool IsValid(Coordinate p) => p.x >= 0 && p.y >= 0 && p.x < bottomright.x && p.y < bottomright.y;
+    bool IsValid(Coordinate p) => p.x >= 0 && p.y >= 0 && p.x < endmarker.x && p.y < endmarker.y;
 
     public IEnumerable<Coordinate> BoundingBox(Coordinate p, int length)
     {
@@ -87,22 +89,22 @@ class FiniteGrid
             from x in Range(p.x - 1, length + 2)
             from y in new[]{p.y - 1, p.y, p.y + 1}
             where x >= 0 && y >= 0
-            && x < bottomright.x
-            && y < bottomright.y
+            && x < endmarker.x
+            && y < endmarker.y
             select new Coordinate(x, y);
     }
 
     public IEnumerable<Coordinate> InteriorPoints() =>
-        from y in Range(origin.y + 1, bottomright.y - 2)
-        from x in Range(origin.x + 1, bottomright.x - 2)
+        from y in Range(origin.y + 1, endmarker.y - 2)
+        from x in Range(origin.x + 1, endmarker.x - 2)
         select new Coordinate(x, y);
 
     public override string ToString()
     {
         var sb = new StringBuilder();
-        for (int y = origin.y; y < bottomright.y; y++)
+        for (int y = origin.y; y < endmarker.y; y++)
         {
-            for (int x = origin.x; x < bottomright.x; x++) sb.Append(this[x, y]);
+            for (int x = origin.x; x < endmarker.x; x++) sb.Append(this[x, y]);
             sb.AppendLine();
         }
         return sb.ToString();
@@ -148,6 +150,80 @@ class InfiniteGrid
         for (int y = topleft.y; y <= bottomright.y; y++)
         {
             for (int x = topleft.x; x <= bottomright.x; x++) sb.Append(this[x, y]);
+            sb.AppendLine();
+        }
+        return sb.ToString();
+    }
+
+    public FiniteGrid ToFinite()
+    {
+        var deltaX = topleft.x < 0 ? -topleft.x : 0;
+        var deltaY = topleft.y < 0 ? -topleft.y : 0;
+
+        var items = this.items.ToImmutableDictionary(
+                   x => new Coordinate(
+                    x.Key.x + deltaX, x.Key.y + deltaY),
+                    x => x.Value
+        );
+
+        return new FiniteGrid(
+        items,
+        empty,
+        new(bottomright.x + deltaX + 1, bottomright.y + deltaY + 1)
+    );
+    }
+
+    public int Count() => items.Count;
+}
+
+class InfiniteGrid3D
+{
+    readonly Dictionary<Coordinate3D, char> items = new();
+    readonly char empty = '.';
+    public char this[Coordinate3D p]
+    {
+        get {
+            return items.TryGetValue(p, out var c) ? c : empty;
+        }
+        set {
+            if (value == empty)
+            {
+                items.Remove(p);
+            }
+            else
+            {
+                items[p] = value;
+            }
+        }
+    }
+
+    public char this[(int x, int y, int z) p] => this[new Coordinate3D(p.x, p.y, p.z)];
+    public char this[int x, int y, int z] => this[new Coordinate3D(x, y, z)];
+
+    private Coordinate3D origin => new(
+        items.Keys.Min(x => x.x), 
+        items.Keys.Min(x => x.y),
+        items.Keys.Min(x => x.z)
+        );
+    private Coordinate3D target => new(
+        items.Keys.Max(x => x.x), 
+        items.Keys.Max(x => x.y),
+        items.Keys.Max(x => x.z)
+        );
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        for (int z = origin.z; z <= target.z; z++)
+        {
+            sb.AppendLine($"z={z}");
+            for (int y = origin.y; y <= target.y; y++)
+            {
+                for (int x = origin.x; x <= target.x; x++)
+                    sb.Append(this[x, y, z]);
+                sb.AppendLine();
+            }
+            sb.AppendLine();
             sb.AppendLine();
         }
         return sb.ToString();
