@@ -62,12 +62,57 @@ for (int i = 2; i < MAX; i++) {#>
 
 <# for (int i = 2; i < MAX; i++) {#>
     public static T Max<T>(this <#=GenerateTupleDeclaration(i, "T ")#> tuple) where T : INumber<T>
-        => tuple.AsEnumerable().Max()!;
+    {
+        var max = tuple.a;
+<# for (int j = 1; j < i; j++) {#>
+         if (tuple.<#= (char)(j+'a')#> > max) max = tuple.<#= (char)(j+'a')#>;
+<#}#>
+        return max;
+    }
 <#}#>
 
 <# for (int i = 2; i < MAX; i++) {#>
     public static T Min<T>(this <#=GenerateTupleDeclaration(i, "T ")#> tuple) where T : INumber<T>
-        => tuple.AsEnumerable().Min()!;
+    {
+        var min = tuple.a;
+<# for (int j = 1; j < i; j++) {#>
+         if (tuple.<#= (char)(j+'a')#> < min) min = tuple.<#= (char)(j+'a')#>;
+<#}#>
+        return min;
+    }
+<#}#>
+
+
+<# for (int i = 2; i < MAX; i++) {#>
+    public static T MaxBy<T>(this <#=GenerateTupleDeclaration(i, "T ")#> tuple, Func<T, int> f) 
+    {
+        var max = tuple.a;
+        var maxValue = f(max);
+<# for (int j = 1; j < i; j++) {#>
+        if (f(tuple.<#= (char)(j+'a')#>) > maxValue) 
+        {
+           max = tuple.<#= (char)(j+'a')#>;
+           maxValue = f(max);
+        }
+<#}#>
+        return max;
+    }
+<#}#>
+
+<# for (int i = 2; i < MAX; i++) {#>
+    public static T MinBy<T>(this <#=GenerateTupleDeclaration(i, "T ")#> tuple, Func<T, int> f)
+    {
+        var min = tuple.a;
+        var minValue = f(min);
+<# for (int j = 1; j < i; j++) {#>
+        if (f(tuple.<#= (char)(j+'a')#>) < minValue) 
+        {
+            min = tuple.<#= (char)(j+'a')#>;
+            minValue = f(min);
+        }
+<#}#>
+        return min;
+    }
 <#}#>
 
 }

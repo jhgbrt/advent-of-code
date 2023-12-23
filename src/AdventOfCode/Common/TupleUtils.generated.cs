@@ -611,34 +611,499 @@ static partial class TupleUtils
     }
 
     public static T Max<T>(this (T a,T b) tuple) where T : INumber<T>
-        => tuple.AsEnumerable().Max()!;
+    {
+        var max = tuple.a;
+         if (tuple.b > max) max = tuple.b;
+        return max;
+    }
     public static T Max<T>(this (T a,T b,T c) tuple) where T : INumber<T>
-        => tuple.AsEnumerable().Max()!;
+    {
+        var max = tuple.a;
+         if (tuple.b > max) max = tuple.b;
+         if (tuple.c > max) max = tuple.c;
+        return max;
+    }
     public static T Max<T>(this (T a,T b,T c,T d) tuple) where T : INumber<T>
-        => tuple.AsEnumerable().Max()!;
+    {
+        var max = tuple.a;
+         if (tuple.b > max) max = tuple.b;
+         if (tuple.c > max) max = tuple.c;
+         if (tuple.d > max) max = tuple.d;
+        return max;
+    }
     public static T Max<T>(this (T a,T b,T c,T d,T e) tuple) where T : INumber<T>
-        => tuple.AsEnumerable().Max()!;
+    {
+        var max = tuple.a;
+         if (tuple.b > max) max = tuple.b;
+         if (tuple.c > max) max = tuple.c;
+         if (tuple.d > max) max = tuple.d;
+         if (tuple.e > max) max = tuple.e;
+        return max;
+    }
     public static T Max<T>(this (T a,T b,T c,T d,T e,T f) tuple) where T : INumber<T>
-        => tuple.AsEnumerable().Max()!;
+    {
+        var max = tuple.a;
+         if (tuple.b > max) max = tuple.b;
+         if (tuple.c > max) max = tuple.c;
+         if (tuple.d > max) max = tuple.d;
+         if (tuple.e > max) max = tuple.e;
+         if (tuple.f > max) max = tuple.f;
+        return max;
+    }
     public static T Max<T>(this (T a,T b,T c,T d,T e,T f,T g) tuple) where T : INumber<T>
-        => tuple.AsEnumerable().Max()!;
+    {
+        var max = tuple.a;
+         if (tuple.b > max) max = tuple.b;
+         if (tuple.c > max) max = tuple.c;
+         if (tuple.d > max) max = tuple.d;
+         if (tuple.e > max) max = tuple.e;
+         if (tuple.f > max) max = tuple.f;
+         if (tuple.g > max) max = tuple.g;
+        return max;
+    }
     public static T Max<T>(this (T a,T b,T c,T d,T e,T f,T g,T h) tuple) where T : INumber<T>
-        => tuple.AsEnumerable().Max()!;
+    {
+        var max = tuple.a;
+         if (tuple.b > max) max = tuple.b;
+         if (tuple.c > max) max = tuple.c;
+         if (tuple.d > max) max = tuple.d;
+         if (tuple.e > max) max = tuple.e;
+         if (tuple.f > max) max = tuple.f;
+         if (tuple.g > max) max = tuple.g;
+         if (tuple.h > max) max = tuple.h;
+        return max;
+    }
 
     public static T Min<T>(this (T a,T b) tuple) where T : INumber<T>
-        => tuple.AsEnumerable().Min()!;
+    {
+        var min = tuple.a;
+         if (tuple.b < min) min = tuple.b;
+        return min;
+    }
     public static T Min<T>(this (T a,T b,T c) tuple) where T : INumber<T>
-        => tuple.AsEnumerable().Min()!;
+    {
+        var min = tuple.a;
+         if (tuple.b < min) min = tuple.b;
+         if (tuple.c < min) min = tuple.c;
+        return min;
+    }
     public static T Min<T>(this (T a,T b,T c,T d) tuple) where T : INumber<T>
-        => tuple.AsEnumerable().Min()!;
+    {
+        var min = tuple.a;
+         if (tuple.b < min) min = tuple.b;
+         if (tuple.c < min) min = tuple.c;
+         if (tuple.d < min) min = tuple.d;
+        return min;
+    }
     public static T Min<T>(this (T a,T b,T c,T d,T e) tuple) where T : INumber<T>
-        => tuple.AsEnumerable().Min()!;
+    {
+        var min = tuple.a;
+         if (tuple.b < min) min = tuple.b;
+         if (tuple.c < min) min = tuple.c;
+         if (tuple.d < min) min = tuple.d;
+         if (tuple.e < min) min = tuple.e;
+        return min;
+    }
     public static T Min<T>(this (T a,T b,T c,T d,T e,T f) tuple) where T : INumber<T>
-        => tuple.AsEnumerable().Min()!;
+    {
+        var min = tuple.a;
+         if (tuple.b < min) min = tuple.b;
+         if (tuple.c < min) min = tuple.c;
+         if (tuple.d < min) min = tuple.d;
+         if (tuple.e < min) min = tuple.e;
+         if (tuple.f < min) min = tuple.f;
+        return min;
+    }
     public static T Min<T>(this (T a,T b,T c,T d,T e,T f,T g) tuple) where T : INumber<T>
-        => tuple.AsEnumerable().Min()!;
+    {
+        var min = tuple.a;
+         if (tuple.b < min) min = tuple.b;
+         if (tuple.c < min) min = tuple.c;
+         if (tuple.d < min) min = tuple.d;
+         if (tuple.e < min) min = tuple.e;
+         if (tuple.f < min) min = tuple.f;
+         if (tuple.g < min) min = tuple.g;
+        return min;
+    }
     public static T Min<T>(this (T a,T b,T c,T d,T e,T f,T g,T h) tuple) where T : INumber<T>
-        => tuple.AsEnumerable().Min()!;
+    {
+        var min = tuple.a;
+         if (tuple.b < min) min = tuple.b;
+         if (tuple.c < min) min = tuple.c;
+         if (tuple.d < min) min = tuple.d;
+         if (tuple.e < min) min = tuple.e;
+         if (tuple.f < min) min = tuple.f;
+         if (tuple.g < min) min = tuple.g;
+         if (tuple.h < min) min = tuple.h;
+        return min;
+    }
+
+
+    public static T MaxBy<T>(this (T a,T b) tuple, Func<T, int> f) 
+    {
+        var max = tuple.a;
+        var maxValue = f(max);
+        if (f(tuple.b) > maxValue) 
+        {
+           max = tuple.b;
+           maxValue = f(max);
+        }
+        return max;
+    }
+    public static T MaxBy<T>(this (T a,T b,T c) tuple, Func<T, int> f) 
+    {
+        var max = tuple.a;
+        var maxValue = f(max);
+        if (f(tuple.b) > maxValue) 
+        {
+           max = tuple.b;
+           maxValue = f(max);
+        }
+        if (f(tuple.c) > maxValue) 
+        {
+           max = tuple.c;
+           maxValue = f(max);
+        }
+        return max;
+    }
+    public static T MaxBy<T>(this (T a,T b,T c,T d) tuple, Func<T, int> f) 
+    {
+        var max = tuple.a;
+        var maxValue = f(max);
+        if (f(tuple.b) > maxValue) 
+        {
+           max = tuple.b;
+           maxValue = f(max);
+        }
+        if (f(tuple.c) > maxValue) 
+        {
+           max = tuple.c;
+           maxValue = f(max);
+        }
+        if (f(tuple.d) > maxValue) 
+        {
+           max = tuple.d;
+           maxValue = f(max);
+        }
+        return max;
+    }
+    public static T MaxBy<T>(this (T a,T b,T c,T d,T e) tuple, Func<T, int> f) 
+    {
+        var max = tuple.a;
+        var maxValue = f(max);
+        if (f(tuple.b) > maxValue) 
+        {
+           max = tuple.b;
+           maxValue = f(max);
+        }
+        if (f(tuple.c) > maxValue) 
+        {
+           max = tuple.c;
+           maxValue = f(max);
+        }
+        if (f(tuple.d) > maxValue) 
+        {
+           max = tuple.d;
+           maxValue = f(max);
+        }
+        if (f(tuple.e) > maxValue) 
+        {
+           max = tuple.e;
+           maxValue = f(max);
+        }
+        return max;
+    }
+    public static T MaxBy<T>(this (T a,T b,T c,T d,T e,T f) tuple, Func<T, int> f) 
+    {
+        var max = tuple.a;
+        var maxValue = f(max);
+        if (f(tuple.b) > maxValue) 
+        {
+           max = tuple.b;
+           maxValue = f(max);
+        }
+        if (f(tuple.c) > maxValue) 
+        {
+           max = tuple.c;
+           maxValue = f(max);
+        }
+        if (f(tuple.d) > maxValue) 
+        {
+           max = tuple.d;
+           maxValue = f(max);
+        }
+        if (f(tuple.e) > maxValue) 
+        {
+           max = tuple.e;
+           maxValue = f(max);
+        }
+        if (f(tuple.f) > maxValue) 
+        {
+           max = tuple.f;
+           maxValue = f(max);
+        }
+        return max;
+    }
+    public static T MaxBy<T>(this (T a,T b,T c,T d,T e,T f,T g) tuple, Func<T, int> f) 
+    {
+        var max = tuple.a;
+        var maxValue = f(max);
+        if (f(tuple.b) > maxValue) 
+        {
+           max = tuple.b;
+           maxValue = f(max);
+        }
+        if (f(tuple.c) > maxValue) 
+        {
+           max = tuple.c;
+           maxValue = f(max);
+        }
+        if (f(tuple.d) > maxValue) 
+        {
+           max = tuple.d;
+           maxValue = f(max);
+        }
+        if (f(tuple.e) > maxValue) 
+        {
+           max = tuple.e;
+           maxValue = f(max);
+        }
+        if (f(tuple.f) > maxValue) 
+        {
+           max = tuple.f;
+           maxValue = f(max);
+        }
+        if (f(tuple.g) > maxValue) 
+        {
+           max = tuple.g;
+           maxValue = f(max);
+        }
+        return max;
+    }
+    public static T MaxBy<T>(this (T a,T b,T c,T d,T e,T f,T g,T h) tuple, Func<T, int> f) 
+    {
+        var max = tuple.a;
+        var maxValue = f(max);
+        if (f(tuple.b) > maxValue) 
+        {
+           max = tuple.b;
+           maxValue = f(max);
+        }
+        if (f(tuple.c) > maxValue) 
+        {
+           max = tuple.c;
+           maxValue = f(max);
+        }
+        if (f(tuple.d) > maxValue) 
+        {
+           max = tuple.d;
+           maxValue = f(max);
+        }
+        if (f(tuple.e) > maxValue) 
+        {
+           max = tuple.e;
+           maxValue = f(max);
+        }
+        if (f(tuple.f) > maxValue) 
+        {
+           max = tuple.f;
+           maxValue = f(max);
+        }
+        if (f(tuple.g) > maxValue) 
+        {
+           max = tuple.g;
+           maxValue = f(max);
+        }
+        if (f(tuple.h) > maxValue) 
+        {
+           max = tuple.h;
+           maxValue = f(max);
+        }
+        return max;
+    }
+
+    public static T MinBy<T>(this (T a,T b) tuple, Func<T, int> f)
+    {
+        var min = tuple.a;
+        var minValue = f(min);
+        if (f(tuple.b) < minValue) 
+        {
+            min = tuple.b;
+            minValue = f(min);
+        }
+        return min;
+    }
+    public static T MinBy<T>(this (T a,T b,T c) tuple, Func<T, int> f)
+    {
+        var min = tuple.a;
+        var minValue = f(min);
+        if (f(tuple.b) < minValue) 
+        {
+            min = tuple.b;
+            minValue = f(min);
+        }
+        if (f(tuple.c) < minValue) 
+        {
+            min = tuple.c;
+            minValue = f(min);
+        }
+        return min;
+    }
+    public static T MinBy<T>(this (T a,T b,T c,T d) tuple, Func<T, int> f)
+    {
+        var min = tuple.a;
+        var minValue = f(min);
+        if (f(tuple.b) < minValue) 
+        {
+            min = tuple.b;
+            minValue = f(min);
+        }
+        if (f(tuple.c) < minValue) 
+        {
+            min = tuple.c;
+            minValue = f(min);
+        }
+        if (f(tuple.d) < minValue) 
+        {
+            min = tuple.d;
+            minValue = f(min);
+        }
+        return min;
+    }
+    public static T MinBy<T>(this (T a,T b,T c,T d,T e) tuple, Func<T, int> f)
+    {
+        var min = tuple.a;
+        var minValue = f(min);
+        if (f(tuple.b) < minValue) 
+        {
+            min = tuple.b;
+            minValue = f(min);
+        }
+        if (f(tuple.c) < minValue) 
+        {
+            min = tuple.c;
+            minValue = f(min);
+        }
+        if (f(tuple.d) < minValue) 
+        {
+            min = tuple.d;
+            minValue = f(min);
+        }
+        if (f(tuple.e) < minValue) 
+        {
+            min = tuple.e;
+            minValue = f(min);
+        }
+        return min;
+    }
+    public static T MinBy<T>(this (T a,T b,T c,T d,T e,T f) tuple, Func<T, int> f)
+    {
+        var min = tuple.a;
+        var minValue = f(min);
+        if (f(tuple.b) < minValue) 
+        {
+            min = tuple.b;
+            minValue = f(min);
+        }
+        if (f(tuple.c) < minValue) 
+        {
+            min = tuple.c;
+            minValue = f(min);
+        }
+        if (f(tuple.d) < minValue) 
+        {
+            min = tuple.d;
+            minValue = f(min);
+        }
+        if (f(tuple.e) < minValue) 
+        {
+            min = tuple.e;
+            minValue = f(min);
+        }
+        if (f(tuple.f) < minValue) 
+        {
+            min = tuple.f;
+            minValue = f(min);
+        }
+        return min;
+    }
+    public static T MinBy<T>(this (T a,T b,T c,T d,T e,T f,T g) tuple, Func<T, int> f)
+    {
+        var min = tuple.a;
+        var minValue = f(min);
+        if (f(tuple.b) < minValue) 
+        {
+            min = tuple.b;
+            minValue = f(min);
+        }
+        if (f(tuple.c) < minValue) 
+        {
+            min = tuple.c;
+            minValue = f(min);
+        }
+        if (f(tuple.d) < minValue) 
+        {
+            min = tuple.d;
+            minValue = f(min);
+        }
+        if (f(tuple.e) < minValue) 
+        {
+            min = tuple.e;
+            minValue = f(min);
+        }
+        if (f(tuple.f) < minValue) 
+        {
+            min = tuple.f;
+            minValue = f(min);
+        }
+        if (f(tuple.g) < minValue) 
+        {
+            min = tuple.g;
+            minValue = f(min);
+        }
+        return min;
+    }
+    public static T MinBy<T>(this (T a,T b,T c,T d,T e,T f,T g,T h) tuple, Func<T, int> f)
+    {
+        var min = tuple.a;
+        var minValue = f(min);
+        if (f(tuple.b) < minValue) 
+        {
+            min = tuple.b;
+            minValue = f(min);
+        }
+        if (f(tuple.c) < minValue) 
+        {
+            min = tuple.c;
+            minValue = f(min);
+        }
+        if (f(tuple.d) < minValue) 
+        {
+            min = tuple.d;
+            minValue = f(min);
+        }
+        if (f(tuple.e) < minValue) 
+        {
+            min = tuple.e;
+            minValue = f(min);
+        }
+        if (f(tuple.f) < minValue) 
+        {
+            min = tuple.f;
+            minValue = f(min);
+        }
+        if (f(tuple.g) < minValue) 
+        {
+            min = tuple.g;
+            minValue = f(min);
+        }
+        if (f(tuple.h) < minValue) 
+        {
+            min = tuple.h;
+            minValue = f(min);
+        }
+        return min;
+    }
 
 }
 
