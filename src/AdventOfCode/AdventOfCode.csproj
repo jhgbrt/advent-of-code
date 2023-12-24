@@ -9,6 +9,7 @@
     <RootNameSpace>AdventOfCode</RootNameSpace>
     <UserSecretsId>cd1c8a1e-0d6e-4552-b229-c2832fbbf40b</UserSecretsId>
     <NoWarn>CS8524;CS8509;CS8846</NoWarn>
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
   </PropertyGroup>
   <ItemGroup>
     <None Include="Template\AoC.cs" />
@@ -42,6 +43,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
     <PackageReference Include="Microsoft.NET.Test.SDK" Version="17.8.0" />
+    <PackageReference Include="Microsoft.Z3" Version="4.12.2" />
     <PackageReference Include="Sandwych.QuickGraph.Core" Version="1.0.0" />
     <PackageReference Include="sprache" Version="3.0.0-develop-00049" />
     <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
@@ -53,6 +55,7 @@
     <PackageReference Include="Xunit.SkippableFact" Version="1.4.13" />
     <PackageReference Include="Net.Code.AdventOfCode.Toolkit" Version="2.0.0" />
     <PackageReference Include="Dijkstra.net" Version="1.2.1" />
+    <PackageReference Include="Z3.Linq" Version="2.0.0" />
   </ItemGroup>
   <!--
   <ItemGroup>
