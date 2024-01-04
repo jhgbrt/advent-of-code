@@ -14,7 +14,7 @@ public class AoC202320
             let p = s[0] switch
             {
                 '&' or '%' => (type: s[0], name: s[1..]),
-                _ => (type: ' ', name: s)
+                _ => (type: default, name: s)
             }
             let targets = split[1].Split(", ")
             select (p.type, source: p.name, targets)
