@@ -1,16 +1,14 @@
-using Spectre.Console;
-
 namespace AdventOfCode.Year2023.Day13;
 public class AoC202313
 {
     public AoC202313() : this(Console.Out, Read.InputLines()) { }
 
-    readonly ImmutableArray<Grid> items;
+    readonly ImmutableArray<Grid> grids;
     readonly TextWriter writer;
-    internal IEnumerable<Grid> Items => items;
+    internal IEnumerable<Grid> Items => grids;
     public AoC202313(TextWriter writer, string[] input)
     {
-        items = Parse(input).ToImmutableArray();
+        grids = Parse(input).ToImmutableArray();
         this.writer = writer;
     }
 
@@ -25,28 +23,23 @@ public class AoC202313
         }
     }
 
-    public object Part1()
-    {
-
-        return (from grid in items
-                let mirror = grid.FindMirror()
-                select mirror.x.HasValue ? mirror.x.Value
-                : mirror.y!.Value * 100).Sum();
-    }
-    public object Part2()
-    {
-    var q = (from grid in items
-            let mirror = (
-                from p in grid.Points()
-                let flipped = grid.Flip(p)
-                let mirror = flipped.FindMirror()
-                where mirror.x.HasValue || mirror.y.HasValue
-                select mirror).First()
-            select mirror.x.HasValue ? mirror.x.Value
-                : mirror.y!.Value * 100
-                ).Sum();
-        return q;
-    }
+    public int Part1() => (from grid in grids
+                           let rotated = grid.Rotate90()
+                           select FindMirror(rotated, 0) ?? FindMirror(grid, 0) * 100 ?? 0
+                            ).Sum();
+    public int Part2() => (from grid in grids
+                           let rotated = grid.Rotate90()
+                           select FindMirror(rotated, 1) ?? FindMirror(grid, 1) * 100 ?? 0
+                            ).Sum();
+    int? FindMirror(Grid grid, int smudges = 0) 
+        => (from y in Range(0, grid.Height - 1)
+            let count = Min(y + 1, grid.Height - y - 1)
+            let diffs = (
+                from offset in Range(0, count)
+                select grid.Columns.Count(x => grid[x, y - offset] != grid[x, y + offset + 1])
+                ).Sum()
+            where diffs == smudges
+            select (int?)(y + 1)).FirstOrDefault();
 }
 
 
@@ -59,15 +52,15 @@ class Grid
     readonly char empty;
     public int Height => bottomright.y;
     public int Width => bottomright.x;
-    public Grid(string[] input, char empty = '.')
-    {
-        items = (from y in Range(0, input.Length)
-                 from x in Range(0, input[y].Length)
-                 where input[y][x] != empty
-                 select (x, y, c: input[y][x])).ToImmutableDictionary(t => new Coordinate(t.x, t.y), t => t.c);
-        bottomright = new(input[0].Length, input.Length);
-        this.empty = empty;
-    }
+    public Grid(string[] input, char empty = '.') 
+    : this(ToDictionary(input, empty), empty, new(input[0].Length, input.Length))
+    {}
+
+    static ImmutableDictionary<Coordinate, char> ToDictionary(string[] input, char empty)
+    => (from y in Range(0, input.Length)
+        from x in Range(0, input[y].Length)
+        where input[y][x] != empty
+        select (x, y, c: input[y][x])).ToImmutableDictionary(t => new Coordinate(t.x, t.y), t => t.c);
 
     private Grid(ImmutableDictionary<Coordinate, char> items, char empty, Coordinate bottomright)
     {
@@ -79,74 +72,21 @@ class Grid
     public char this[Coordinate p] => items.TryGetValue(p, out var c) ? c : empty;
     public char this[(int x, int y) p] => this[new Coordinate(p.x, p.y)];
     public char this[int x, int y] => this[new Coordinate(x, y)];
-
-    public (int? x, int? y) FindMirror()
+    public IEnumerable<int> Rows => Range(0, Height);
+    public IEnumerable<int> Columns => Range(0, Width);
+    public Grid Rotate90() => Transform(p => (Height - p.y - 1, p.x));
+    public Grid Transform(Func<(int x, int y), (int x, int y)> transform)
     {
-        foreach (var col in Range(0, Width))
-        {
-            if (IsVerticalSymmetryAxis(col)) return (col, null);
-        }
-        foreach (var row in Range(0, Height))
-        {
-            if (IsHorizontalSymmetryAxis(row)) return (null, row);
-        }
+        var q = (
+            from x in Range(0, Width)
+            from y in Range(0, Height)
+            where items.ContainsKey(new(x, y))
+            let transformed = transform((x,y))
+            select (transformed.x, transformed.y, c: items[new(x, y)])
+            ).ToImmutableDictionary(v => new Coordinate(v.x, v.y), v => v.c);
 
-        return (null, null);
+        return new(q, empty, new(q.Keys.Max(k => k.x)+1, q.Keys.Max(k => k.y)+1));
     }
-
-    public Grid Flip(Coordinate p)
-    {
-        var b = items.ToBuilder();
-        if (b.ContainsKey(p)) b.Remove(p);
-        else b[p] = '#';
-        return new(b.ToImmutable(), empty, bottomright);
-    }
-
-    internal bool IsVerticalSymmetryAxis(int axis)
-    {
-        if (axis < 1) return false;
-        if (axis >= Width) return false;
-        foreach (var y in Range(0, Height))
-        {
-            if (!IsSymmetricRow(axis, y)) return false;
-        }
-        return true;
-    }
-    internal bool IsHorizontalSymmetryAxis(int axis)
-    {
-        if (axis < 1) return false;
-        if (axis >= Height) return false;
-        foreach (var x in Range(0, Width))
-        {
-            if (!IsSymmetricColumn(axis, x)) return false;
-        }
-        return true;
-    }
-
-    bool IsSymmetricRow(int axis, int y)
-    {
-        for (int offset = 0; axis - offset - 1 >= 0 && axis + offset < Width; offset++)
-        {
-            if (this[axis - offset - 1, y] != this[axis + offset, y]) return false;
-        }
-        return true;
-    }
-
-    bool IsSymmetricColumn(int axis, int x)
-    {
-        for (int offset = 0; axis - offset - 1 >= 0 && axis + offset < Height; offset++)
-        {
-            if (this[x, axis - offset - 1] != this[x, axis + offset]) return false;
-        }
-        return true;
-    }
-
-    public IEnumerable<Coordinate> Points() =>
-        from y in Range(origin.y, bottomright.y)
-        from x in Range(origin.x, bottomright.x)
-        select new Coordinate(x, y);
-
-
 
     public override string ToString()
     {
@@ -163,12 +103,7 @@ class Grid
 
 }
 
-readonly record struct Coordinate(int x, int y)
-{
-    public static Coordinate Origin = new(0, 0);
-    public override string ToString() => $"({x},{y})";
-    public static Coordinate operator +(Coordinate left, (int dx, int dy) p) => new(left.x + p.dx, left.y + p.dy);
-}
+readonly record struct Coordinate(int x, int y);
 
 public class AoC202313Tests
 {
@@ -198,7 +133,7 @@ public class AoC202313Tests
 
     [Theory]
     [InlineData(1, 400)]
-    [InlineData(2, 709)]
+    [InlineData(2, 1400)]
     public void TestPart2(int sample, int expected)
     {
         var input = Read.Sample(sample).Lines().ToArray();
@@ -206,111 +141,4 @@ public class AoC202313Tests
         Assert.Equal(expected, sut.Part2());
     }
 
-    [Fact]
-    public void IsVerticalSymmetryAxisTest()
-    {
-        var grid = new Grid(Read.String("""
-        ##.
-        ..#
-        """));
-        Assert.True(grid.IsVerticalSymmetryAxis(1));
-        Assert.False(grid.IsVerticalSymmetryAxis(0));
-        Assert.False(grid.IsVerticalSymmetryAxis(2));
-    }
-
-    [Fact]
-    public void IsHorizontalSymmetryAxisTest()
-    {
-        var grid = new Grid(Read.String("""
-        #.
-        #.
-        .#
-        """));
-        Assert.True(grid.IsHorizontalSymmetryAxis(1));
-        Assert.False(grid.IsHorizontalSymmetryAxis(0));
-        Assert.False(grid.IsHorizontalSymmetryAxis(2));
-    }
-
-    [Theory]
-    [InlineData("""
-    #.###..#..###
-    .#...##.####.
-    .#...##.####.
-    #.###..#..###
-    .#######.##.#
-    .#..##.#.#..#
-    """, null, 2)]
-    [InlineData("""
-    .#...##.####.
-    .#...##.####.
-    .#######.##.#
-    .#..##.#.#..#
-    """, null, 1)]
-    [InlineData("""
-    .#######.##.#
-    .#..##.#.#..#
-    .#...##.####.
-    .#...##.####.
-    """, null, 3)]
-    [InlineData("""
-    #..#..
-    #..#.#
-    .##...
-    """, 2, null)]
-    [InlineData("""
-    ##..#..
-    ##..#..
-    ###...#
-    """, 1, null)]
-    [InlineData("""
-    ##
-    ..
-    ##
-    """, 1, null)]
-    [InlineData("""
-    ..##
-    ..##
-    .###
-    """, 3, null)]
-    [InlineData("""
-    ..####
-    ..####
-    .#####
-    """, 4, null)]
-
-    [InlineData("""
-    ##..#..#..##.#.##
-    .###....###.###.#
-    .#.##..##.#....#.
-    ####.##..###.####
-    .###....###.....#
-    .#.#....#.#..#...
-    .##.####.##.##...
-    .##.####.##.##...
-    """, null, 7)]
-    [InlineData("""
-    ###.##..##.
-    .#.###..###
-    ###...##...
-    ......##...
-    .##.##..##.
-    ...#..##..#
-    #.#.######.
-    #.#.#.##.#.
-    ..###....##
-    ###..#####.
-    .##.#.##.#.
-    .##########
-    .#.........
-    ###...##...
-    ##..#.##.#.
-    #.##.####.#
-    #.##.####.#
-    """, null, 16)]
-    public void FindMirrorTest(string input, int? x, int? y)
-    {
-        var grid = new Grid(Read.String(input));
-        var result = grid.FindMirror();
-        Assert.Equal((x, y), result);
-    }
 }

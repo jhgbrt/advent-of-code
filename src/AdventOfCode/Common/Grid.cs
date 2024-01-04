@@ -19,20 +19,35 @@ class FiniteGrid
     public int Height => endmarker.y;
     public int Width => endmarker.x;
     public FiniteGrid(string[] input, char empty = '.')
+    : this(ToDictionary(input, empty), empty, new(input[0].Length, input.Length))
     {
-        items = (from y in Range(0, input.Length)
-                 from x in Range(0, input[y].Length)
-                 where input[y][x] != empty
-                 select (x, y, c: input[y][x])).ToImmutableDictionary(t => new Coordinate(t.x, t.y), t => t.c);
-        endmarker = new(input[0].Length, input.Length);
-        this.empty = empty;
     }
+    static ImmutableDictionary<Coordinate, char> ToDictionary(string[] input, char empty)
+    => (from y in Range(0, input.Length)
+        from x in Range(0, input[y].Length)
+        where input[y][x] != empty
+        select (x, y, c: input[y][x])).ToImmutableDictionary(t => new Coordinate(t.x, t.y), t => t.c);
 
     internal FiniteGrid(ImmutableDictionary<Coordinate,char> items, char empty, Coordinate endmarker)
     {
         this.items = items;
         this.empty = empty;
         this.endmarker = endmarker;
+    }
+    public FiniteGrid Rotate90() => Transform(p => (Height - p.y - 1, p.x));
+    public FiniteGrid Rotate180() => Transform(p => (Width - p.x - 1, Height - p.y - 1));
+    public FiniteGrid Rotate270() => Transform(p => (p.y, Width - p.x - 1));
+    public FiniteGrid Transform(Func<(int x, int y), (int x, int y)> transform)
+    {
+        var q = (
+            from x in Range(0, Width)
+            from y in Range(0, Height)
+            where items.ContainsKey(new(x, y))
+            let transformed = transform((x, y))
+            select (transformed.x, transformed.y, c: items[new(x, y)])
+            ).ToImmutableDictionary(v => new Coordinate(v.x, v.y), v => v.c);
+
+        return new(q, empty, new(q.Keys.Max(k => k.x) + 1, q.Keys.Max(k => k.y) + 1));
     }
 
     public FiniteGrid With(Action<ImmutableDictionary<Coordinate, char>.Builder> action) 
