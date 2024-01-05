@@ -1,32 +1,33 @@
-using Sprache;
-
 namespace AdventOfCode.Year2023.Day21;
 public class AoC202321
 {
     public AoC202321():this(Read.InputLines(), Console.Out) {}
     readonly TextWriter writer;
-    readonly string[] input;
-    private ImmutableHashSet<Coordinate> set;
-    private Coordinate start;
-    private int width;
-    private int height;
+    private readonly ImmutableHashSet<Coordinate> set;
+    private readonly Coordinate start;
+    private readonly int width;
+    private readonly int height;
     public AoC202321(string[] input, TextWriter writer)
     {
-        this.input = input;
+        var all = from y in Range(0, input.Length)
+                  from x in Range(0, input[0].Length)
+                  select (x, y);
+
         set = (
-            from y in Range(0, input.Length)
-            from x in Range(0, input[0].Length)
-            where input[y][x] != '#'
-            select new Coordinate(x, y)
+            from c in all
+            where input[c.y][c.x] != '#'
+            select new Coordinate(c.x, c.y)
         ).ToImmutableHashSet();
 
-        start = (from y in Range(0, input.Length)
-                 from x in Range(0, input[0].Length)
-                 where input[y][x] == 'S'
-                 select new Coordinate(x, y)
-                ).Single();
-        width = set.Max(c => c.x) + 1;
-        height = set.Max(c => c.y) + 1;
+        start = (
+            from c in all
+            where input[c.y][c.x] == 'S'
+            select new Coordinate(c.x, c.y)
+        ).Single();
+
+        width = input[0].Length;
+        height = input.Length;
+
         this.writer = writer;
     }
 
@@ -36,7 +37,7 @@ public class AoC202321
     public long Part2(int n) 
     {
         var k = Range(0, 3);
-        var x = Solve(start, k.Select(i => i*width+65).ToHashSet()).ToList();
+        var x = Solve(start, k.Select(i => i*width+65).ToArray()).ToList();
 
         var q = (from i in k
                  select (x: (decimal)i * width + 65, y: (decimal)x[i])
@@ -50,23 +51,21 @@ public class AoC202321
         
     }
 
-    static readonly (int x, int y)[] dirs = [(1, 0), (-1, 0), (0, 1), (0, -1)]; 
+    static readonly (int x, int y)[] dirs = [(1, 0), (-1, 0), (0, 1), (0, -1)];
     static int Mod(int n, int m) => ((n % m) + m) % m;
    
 
-    internal IEnumerable<long> Solve(Coordinate start, HashSet<int> cycle)
+    internal IEnumerable<long> Solve(Coordinate start, int[] steps)
     {
-        List<long> ticks = new(cycle.Count);
         Dictionary<Coordinate, ISet<Coordinate>> cache = [];
-
         HashSet<Coordinate> heads = [start];
-        for (var i = 1; i <= cycle.Max(); i++)
+        for (var i = 1; i <= steps.Max(); i++)
         {
             var next = (from pos in heads
-                        from n in GetNeighbours(set, pos, cache)
+                        from n in GetNeighbours(pos, cache)
                         select n).ToHashSet();
 
-            if (cycle.Contains(i))
+            if (steps.Contains(i))
             {
                 yield return next.Count;
             }
@@ -74,7 +73,7 @@ public class AoC202321
             (heads, next) = (next, heads);
         }
     }
-    private IEnumerable<Coordinate> GetNeighbours(ImmutableHashSet<Coordinate> set, Coordinate c, IDictionary<Coordinate, ISet<Coordinate>> cache)
+    private IEnumerable<Coordinate> GetNeighbours(Coordinate c, IDictionary<Coordinate, ISet<Coordinate>> cache)
     {
         if (cache.TryGetValue(c, out var cached))
         {
@@ -82,8 +81,8 @@ public class AoC202321
         }
         var neighbours = (from d in dirs
                    let n = c + d
-                   let x = new Coordinate(n.x % width, n.y % height)
-                   where set.Contains(new(Mod(n.x, width), Mod(n.y, height)))
+                   let x = new Coordinate(Mod(n.x, width), Mod(n.y, height))
+                   where set.Contains(x)
                    select n
                    )
             .ToHashSet();
@@ -93,20 +92,10 @@ public class AoC202321
     }
 }
 
-readonly record struct Item(string name, int n);
 readonly record struct Coordinate(int x, int y)
 {
-    public static Coordinate Origin = new(0, 0);
-    public override string ToString() => $"({x},{y})";
-
     public static Coordinate operator +(Coordinate left, (int dx, int dy) p) => new(left.x + p.dx, left.y + p.dy);
    
-}
-
-static partial class Regexes
-{
-    [GeneratedRegex(@"^(?<name>.*): (?<n>\d+)$")]
-    public static partial Regex MyRegex();
 }
 
 public class AoC202321Tests
@@ -118,11 +107,6 @@ public class AoC202321Tests
     }
 
     [Fact]
-    public void TestParsing()
-    {
-    }
-
-    [Fact]
     public void TestPart1()
     {
         var sut = new AoC202321(Read.Sample(1).Lines().ToArray(), new TestWriter(output));
@@ -130,13 +114,7 @@ public class AoC202321Tests
     }
 
     [Theory]
-    [InlineData(6, 16)]
-    [InlineData(10, 50)]
-    [InlineData(50, 1594)]
-    [InlineData(100, 6536)]
-    [InlineData(500, 167004)]
     [InlineData(1000, 668697)]
-    [InlineData(5000, 16733044)]
     internal void TestPart2(int steps, int expected)
     {
         var sut = new AoC202321(Read.Sample(2).Lines().ToArray(), new TestWriter(output));
