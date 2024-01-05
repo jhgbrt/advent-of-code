@@ -42,7 +42,7 @@ public class AoC202325
             var algo = new ConnectedComponentsAlgorithm<string, SEdge<string>>(graph);
             algo.Compute();
             var count = algo.ComponentCount;
-            writer.WriteLine(count);
+            //writer.WriteLine(count);
 
             if (count == 3)
             {
