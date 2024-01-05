@@ -3,30 +3,18 @@ public class AoC202323
 {
     public AoC202323():this(Read.InputLines(), Console.Out) {}
     readonly TextWriter writer;
-    readonly ImmutableArray<Item> items;
-    internal IEnumerable<Item> Items => items;
+    readonly FiniteGrid grid;
     public AoC202323(string[] input, TextWriter writer)
     {
-        items = input.Select(s => Regexes.MyRegex().As<Item>(s)).ToImmutableArray();
+        grid = new FiniteGrid(input);
         this.writer = writer;
     }
 
     public object Part1()
     {
-        foreach (var item in items)
-            Console.WriteLine(item);
-
         return -1;
     }
     public object Part2() => "";
-}
-
-readonly record struct Item(string name, int n);
-
-static partial class Regexes
-{
-    [GeneratedRegex(@"^(?<name>.*): (?<n>\d+)$")]
-    public static partial Regex MyRegex();
 }
 
 public class AoC202323Tests
@@ -41,9 +29,6 @@ public class AoC202323Tests
     [Fact]
     public void TestParsing()
     {
-        Assert.Equal(2, sut.Items.Count());
-        Assert.Equal("foo", sut.Items.First().name);
-        Assert.Equal(1, sut.Items.First().n);
     }
 
     [Fact]

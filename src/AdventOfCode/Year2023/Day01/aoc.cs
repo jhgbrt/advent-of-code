@@ -1,14 +1,15 @@
 namespace AdventOfCode.Year2023.Day01;
 public class AoC202301
 {
-    static bool usesample = false;
-    static string[] sample1 = Read.SampleLines(1);
-    static string[] sample2 = Read.SampleLines(2);
-    static string[] realinput = Read.InputLines();
+    string[] input;
+    public AoC202301(): this(Read.InputLines()) { }
+    public AoC202301(string[] input)
+    {
+        this.input = input;
+    }
 
     public object Part1()
     {
-        var input = usesample ? sample1 : realinput;
         var query = from line in input
                     let first = line.First(Char.IsDigit) - '0'
                     let last = line.Last(Char.IsDigit) - '0'
@@ -19,7 +20,6 @@ public class AoC202301
     }
     public object Part2() 
     {
-        var input = usesample ? sample2 : realinput;
         var list = new List<int>();
         foreach (var line in input)
         {
@@ -74,8 +74,21 @@ public class AoC202301
     }
 }
 
-public class Tests
+public class AoC202301Tests
 {
+    [Fact]
+    public void TestPart1()
+    {
+        var sut = new AoC202301(Read.SampleLines(1));
+        Assert.Equal(142, sut.Part1());
+    }
+    [Fact]
+    public void TestPart2()
+    {
+        var sut = new AoC202301(Read.SampleLines(1));
+        Assert.Equal(281, sut.Part2());
+    }
+
     [Theory]
     [InlineData("one2three", 1, 2, 3)]
     [InlineData("onetwothree", 1, 2, 3)]
