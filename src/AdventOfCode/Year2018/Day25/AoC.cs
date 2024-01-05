@@ -5,7 +5,7 @@ public class AoC201825
     static string[] input = Read.InputLines();
     static Point[] points = (
         from line in input
-        let ints = (int[])MyConvert.ChangeType(line, typeof(int[]), new CsvLineFormatInfo())
+        let ints = MyConvert.ChangeType(line, typeof(int[]), new CsvLineFormatInfo()) as int[]
         select new Point(ints[0], ints[1], ints[2], ints[3])
         ).ToArray();
 

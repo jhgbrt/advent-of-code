@@ -1,3 +1,5 @@
+using AdventOfCode.Common;
+
 using System;
 
 namespace AdventOfCode.Year2016.Day17;

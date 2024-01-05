@@ -4,15 +4,8 @@ namespace AdventOfCode.Year2020.Day04;
 
 public class AoC202004
 {
-    public object Part1() => Driver.Part1();
-    public object Part2() => Driver.Part2();
-}
-
-
-static class Driver
-{
-    internal static long Part1() => Parse(Read.InputText()).Count(RequiredFieldsPresent);
-    internal static long Part2() => Parse(Read.InputText()).Where(RequiredFieldsPresent).Count(IsValid);
+    public object Part1() => Parse(Read.InputText()).Count(Ex.RequiredFieldsPresent);
+    public object Part2() => Parse(Read.InputText()).Where(Ex.RequiredFieldsPresent).Count(Ex.IsValid);
     internal static IEnumerable<IReadOnlyDictionary<string, string>> Parse(string input, Action<string>? log = null)
         => Parse(new StringReader(input.Replace("\r\n", "\n")), log);
 
@@ -63,8 +56,11 @@ static class Driver
         _ => (cb.AppendToKey(c), OnKey)
     };
 
-    static string ToCSharpLiteral(this char c) => SymbolDisplay.FormatLiteral(c, false);
 
+}
+static class Ex
+{
+    internal static string ToCSharpLiteral(this char c) => SymbolDisplay.FormatLiteral(c, false);
     static readonly string[] ValidKeys = new[] { "byr", "ecl", "eyr", "hcl", "hgt", "iyr", "pid" };
 
     internal static bool RequiredFieldsPresent(this IReadOnlyDictionary<string, string> credential) => (

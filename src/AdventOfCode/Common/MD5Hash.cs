@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 
-namespace AdventOfCode
+namespace AdventOfCode.Common
 {
     internal static class MD5Hash
     {
@@ -10,7 +10,7 @@ namespace AdventOfCode
         {
             var hash = md5.ComputeHash(Encoding.ASCII.GetBytes(input));
             StringBuilder sb = new();
-            for (int i = 0; i < hash.Length; i++)
+            for (var i = 0; i < hash.Length; i++)
             {
                 sb.Append(hash[i].ToString("X2"));
             }

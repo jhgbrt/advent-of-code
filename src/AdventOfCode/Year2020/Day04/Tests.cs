@@ -12,7 +12,7 @@ public class Tests
     public void TestParse()
     {
         var tr = new StringReader("byr:abc def:123\nxyz:asdf\n\nbyr:edf");
-        var items = Driver.Parse(tr, s => _output.WriteLine(s)).ToList();
+        var items = AoC202004.Parse(tr, s => _output.WriteLine(s)).ToList();
         Assert.Equal("asdf", items[0]["xyz"]);
         Assert.Equal("abc", items[0]["byr"]);
         Assert.Equal("123", items[0]["def"]);
@@ -48,7 +48,7 @@ public class Tests
     [InlineData("#12345g", false)]
     public void ValidColor(string input, bool expected)
     {
-        Assert.Equal(expected, Driver.IsValid("hcl", input));
+        Assert.Equal(expected, Ex.IsValid("hcl", input));
     }
 
     [Theory]
@@ -69,6 +69,6 @@ public class Tests
     [InlineData("eyr", "2025", true)]
     public void IsValidYear(string key, string value, bool expected)
     {
-        Assert.Equal(expected, Driver.IsValid(key, value));
+        Assert.Equal(expected, Ex.IsValid(key, value));
     }
 }

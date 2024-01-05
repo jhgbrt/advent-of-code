@@ -1,3 +1,5 @@
+using AdventOfCode.Common;
+
 using System.Runtime.CompilerServices;
 
 namespace AdventOfCode.Year2016.Day14;
