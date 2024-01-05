@@ -32,22 +32,22 @@ public class AoC202325
 
     public object Part1()
     {
-        foreach (var e in edges.GetPermutations(3))
+        //foreach (var e in edges.GetPermutations(3))
         {
-            var graph = edges.Except(e).Select(p => p.ToEdge()).ToUndirectedGraph();
+            //var graph = edges.Except(e).Select(p => p.ToEdge()).ToUndirectedGraph();
 
             //Dictionary<string, int> components = [];
             //var count = graph.ConnectedComponents(components);
 
-            var algo = new ConnectedComponentsAlgorithm<string, SEdge<string>>(graph);
-            algo.Compute();
-            var count = algo.ComponentCount;
+            //var algo = new ConnectedComponentsAlgorithm<string, SEdge<string>>(graph);
+            //algo.Compute();
+            //var count = algo.ComponentCount;
             //writer.WriteLine(count);
 
-            if (count == 3)
-            {
-                Debugger.Break();
-            }
+            //if (count == 3)
+            //{
+            //    Debugger.Break();
+            //}
         }
 
 
