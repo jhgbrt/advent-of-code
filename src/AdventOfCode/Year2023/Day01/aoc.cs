@@ -85,7 +85,7 @@ public class AoC202301Tests
     [Fact]
     public void TestPart2()
     {
-        var sut = new AoC202301(Read.SampleLines(1));
+        var sut = new AoC202301(Read.SampleLines(2));
         Assert.Equal(281, sut.Part2());
     }
 
