@@ -11,14 +11,14 @@ public class AoCYYYYDD
         this.writer = writer;
     }
 
-    public object Part1()
+    public int Part1()
     {
         foreach (var item in items)
             Console.WriteLine(item);
 
         return -1;
     }
-    public object Part2() => "";
+    public int Part2() => -1;
 }
 
 readonly record struct Item(string name, int n);
@@ -55,6 +55,6 @@ public class AoCYYYYDDTests
     [Fact]
     public void TestPart2()
     {
-        Assert.Equal(string.Empty, sut.Part2());
+        Assert.Equal(-1, sut.Part2());
     }
 }

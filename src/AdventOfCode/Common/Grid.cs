@@ -1,4 +1,6 @@
-﻿namespace AdventOfCode;
+﻿using Spectre.Console;
+
+namespace AdventOfCode;
 
 enum Direction{ N, NE, E, SE, S, SW, W, NW }
 
@@ -66,6 +68,42 @@ class FiniteGrid
         from x in Range(origin.x, endmarker.x)
         select new Coordinate(x, y);
 
+
+    public IEnumerable<(Coordinate coordinate, char value)> this[int? x, int? y]
+    {
+        get
+        {
+            if (x.HasValue && y.HasValue)
+            {
+                yield return (new Coordinate(x.Value, y.Value), this[x.Value, y.Value]);
+            }
+            else if (x.HasValue)
+            {
+                foreach (var y1 in Range(0, Height))
+                {
+                    yield return (new Coordinate(x.Value, y1), this[x.Value, y1]);
+                }
+            }
+            else if (y.HasValue)
+            {
+                foreach (var x1 in Range(0, Width))
+                {
+                    yield return (new Coordinate(x1, y.Value), this[x1, y.Value]);
+                }
+            }
+            else
+            {
+                foreach (var y1 in Range(0, Height))
+                {
+                    foreach (var x1 in Range(0, Width))
+                    {
+                        yield return (new Coordinate(x1, y1), this[x1, y1]);
+                    }
+                }
+            }
+        }
+    }
+
     public IEnumerable<(Direction d, Coordinate c)> Neighbours(Coordinate p)
     {
         return
@@ -125,7 +163,7 @@ class FiniteGrid
         return sb.ToString();
     }
 
-    public bool Contains(Coordinate c) => items.ContainsKey(c);
+    public bool Contains(Coordinate c) => IsValid(c);
 
 }
 
