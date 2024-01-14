@@ -61,6 +61,29 @@ for (int i = 2; i < MAX; i++) {#>
 <#}#>
 
 <# for (int i = 2; i < MAX; i++) {#>
+    public static IEnumerable<TResult> Select<TSource, TResult>(this <#= GenerateTupleDeclaration(i, "TSource ") #> tuple, Func<TSource, TResult> resultSelector)
+    {
+<# for (int j = 0; j < i; j++) {#>
+        yield return resultSelector(tuple.<#= (char)(j+'a') #>);
+<#}#>
+    }
+<#}#>
+
+<# for (int i = 2; i < MAX; i++) {#>
+    public static IEnumerable<TResult> SelectMany<TSource, TCollection, TResult>(this IEnumerable<TSource> source, Func<TSource, <#= GenerateTupleDeclaration(i, "TCollection ") #>> collectionSelector, Func<TSource, TCollection, TResult> resultSelector)
+    {
+        foreach (var item in source)
+        {
+            var tuple = collectionSelector(item);
+<# for (int j = 0; j < i; j++) {#>
+            yield return resultSelector(item, tuple.<#= (char)(j+'a') #>);
+<#}#>
+        }
+    }
+<#}#>
+
+
+<# for (int i = 2; i < MAX; i++) {#>
     public static T Max<T>(this <#=GenerateTupleDeclaration(i, "T ")#> tuple) where T : INumber<T>
     {
         var max = tuple.a;

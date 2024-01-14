@@ -22,7 +22,7 @@ public class AoC202325
                  let s = line.Split(": ")
                  let left = s[0]
                  from right in s[1].Split(' ')
-                 from e in new[] { Edge.Create(left, right, 1), Edge.Create(right, left, 1) }
+                 from e in (Edge.Create(left, right, 1), Edge.Create(right, left, 1))
                  select e
                  );
 

@@ -610,6 +610,149 @@ static partial class TupleUtils
         yield return tuple.h;
     }
 
+    public static IEnumerable<TResult> Select<TSource, TResult>(this (TSource a,TSource b) tuple, Func<TSource, TResult> resultSelector)
+    {
+        yield return resultSelector(tuple.a);
+        yield return resultSelector(tuple.b);
+    }
+    public static IEnumerable<TResult> Select<TSource, TResult>(this (TSource a,TSource b,TSource c) tuple, Func<TSource, TResult> resultSelector)
+    {
+        yield return resultSelector(tuple.a);
+        yield return resultSelector(tuple.b);
+        yield return resultSelector(tuple.c);
+    }
+    public static IEnumerable<TResult> Select<TSource, TResult>(this (TSource a,TSource b,TSource c,TSource d) tuple, Func<TSource, TResult> resultSelector)
+    {
+        yield return resultSelector(tuple.a);
+        yield return resultSelector(tuple.b);
+        yield return resultSelector(tuple.c);
+        yield return resultSelector(tuple.d);
+    }
+    public static IEnumerable<TResult> Select<TSource, TResult>(this (TSource a,TSource b,TSource c,TSource d,TSource e) tuple, Func<TSource, TResult> resultSelector)
+    {
+        yield return resultSelector(tuple.a);
+        yield return resultSelector(tuple.b);
+        yield return resultSelector(tuple.c);
+        yield return resultSelector(tuple.d);
+        yield return resultSelector(tuple.e);
+    }
+    public static IEnumerable<TResult> Select<TSource, TResult>(this (TSource a,TSource b,TSource c,TSource d,TSource e,TSource f) tuple, Func<TSource, TResult> resultSelector)
+    {
+        yield return resultSelector(tuple.a);
+        yield return resultSelector(tuple.b);
+        yield return resultSelector(tuple.c);
+        yield return resultSelector(tuple.d);
+        yield return resultSelector(tuple.e);
+        yield return resultSelector(tuple.f);
+    }
+    public static IEnumerable<TResult> Select<TSource, TResult>(this (TSource a,TSource b,TSource c,TSource d,TSource e,TSource f,TSource g) tuple, Func<TSource, TResult> resultSelector)
+    {
+        yield return resultSelector(tuple.a);
+        yield return resultSelector(tuple.b);
+        yield return resultSelector(tuple.c);
+        yield return resultSelector(tuple.d);
+        yield return resultSelector(tuple.e);
+        yield return resultSelector(tuple.f);
+        yield return resultSelector(tuple.g);
+    }
+    public static IEnumerable<TResult> Select<TSource, TResult>(this (TSource a,TSource b,TSource c,TSource d,TSource e,TSource f,TSource g,TSource h) tuple, Func<TSource, TResult> resultSelector)
+    {
+        yield return resultSelector(tuple.a);
+        yield return resultSelector(tuple.b);
+        yield return resultSelector(tuple.c);
+        yield return resultSelector(tuple.d);
+        yield return resultSelector(tuple.e);
+        yield return resultSelector(tuple.f);
+        yield return resultSelector(tuple.g);
+        yield return resultSelector(tuple.h);
+    }
+
+    public static IEnumerable<TResult> SelectMany<TSource, TCollection, TResult>(this IEnumerable<TSource> source, Func<TSource, (TCollection a,TCollection b)> collectionSelector, Func<TSource, TCollection, TResult> resultSelector)
+    {
+        foreach (var item in source)
+        {
+            var tuple = collectionSelector(item);
+            yield return resultSelector(item, tuple.a);
+            yield return resultSelector(item, tuple.b);
+        }
+    }
+    public static IEnumerable<TResult> SelectMany<TSource, TCollection, TResult>(this IEnumerable<TSource> source, Func<TSource, (TCollection a,TCollection b,TCollection c)> collectionSelector, Func<TSource, TCollection, TResult> resultSelector)
+    {
+        foreach (var item in source)
+        {
+            var tuple = collectionSelector(item);
+            yield return resultSelector(item, tuple.a);
+            yield return resultSelector(item, tuple.b);
+            yield return resultSelector(item, tuple.c);
+        }
+    }
+    public static IEnumerable<TResult> SelectMany<TSource, TCollection, TResult>(this IEnumerable<TSource> source, Func<TSource, (TCollection a,TCollection b,TCollection c,TCollection d)> collectionSelector, Func<TSource, TCollection, TResult> resultSelector)
+    {
+        foreach (var item in source)
+        {
+            var tuple = collectionSelector(item);
+            yield return resultSelector(item, tuple.a);
+            yield return resultSelector(item, tuple.b);
+            yield return resultSelector(item, tuple.c);
+            yield return resultSelector(item, tuple.d);
+        }
+    }
+    public static IEnumerable<TResult> SelectMany<TSource, TCollection, TResult>(this IEnumerable<TSource> source, Func<TSource, (TCollection a,TCollection b,TCollection c,TCollection d,TCollection e)> collectionSelector, Func<TSource, TCollection, TResult> resultSelector)
+    {
+        foreach (var item in source)
+        {
+            var tuple = collectionSelector(item);
+            yield return resultSelector(item, tuple.a);
+            yield return resultSelector(item, tuple.b);
+            yield return resultSelector(item, tuple.c);
+            yield return resultSelector(item, tuple.d);
+            yield return resultSelector(item, tuple.e);
+        }
+    }
+    public static IEnumerable<TResult> SelectMany<TSource, TCollection, TResult>(this IEnumerable<TSource> source, Func<TSource, (TCollection a,TCollection b,TCollection c,TCollection d,TCollection e,TCollection f)> collectionSelector, Func<TSource, TCollection, TResult> resultSelector)
+    {
+        foreach (var item in source)
+        {
+            var tuple = collectionSelector(item);
+            yield return resultSelector(item, tuple.a);
+            yield return resultSelector(item, tuple.b);
+            yield return resultSelector(item, tuple.c);
+            yield return resultSelector(item, tuple.d);
+            yield return resultSelector(item, tuple.e);
+            yield return resultSelector(item, tuple.f);
+        }
+    }
+    public static IEnumerable<TResult> SelectMany<TSource, TCollection, TResult>(this IEnumerable<TSource> source, Func<TSource, (TCollection a,TCollection b,TCollection c,TCollection d,TCollection e,TCollection f,TCollection g)> collectionSelector, Func<TSource, TCollection, TResult> resultSelector)
+    {
+        foreach (var item in source)
+        {
+            var tuple = collectionSelector(item);
+            yield return resultSelector(item, tuple.a);
+            yield return resultSelector(item, tuple.b);
+            yield return resultSelector(item, tuple.c);
+            yield return resultSelector(item, tuple.d);
+            yield return resultSelector(item, tuple.e);
+            yield return resultSelector(item, tuple.f);
+            yield return resultSelector(item, tuple.g);
+        }
+    }
+    public static IEnumerable<TResult> SelectMany<TSource, TCollection, TResult>(this IEnumerable<TSource> source, Func<TSource, (TCollection a,TCollection b,TCollection c,TCollection d,TCollection e,TCollection f,TCollection g,TCollection h)> collectionSelector, Func<TSource, TCollection, TResult> resultSelector)
+    {
+        foreach (var item in source)
+        {
+            var tuple = collectionSelector(item);
+            yield return resultSelector(item, tuple.a);
+            yield return resultSelector(item, tuple.b);
+            yield return resultSelector(item, tuple.c);
+            yield return resultSelector(item, tuple.d);
+            yield return resultSelector(item, tuple.e);
+            yield return resultSelector(item, tuple.f);
+            yield return resultSelector(item, tuple.g);
+            yield return resultSelector(item, tuple.h);
+        }
+    }
+
+
     public static T Max<T>(this (T a,T b) tuple) where T : INumber<T>
     {
         var max = tuple.a;
