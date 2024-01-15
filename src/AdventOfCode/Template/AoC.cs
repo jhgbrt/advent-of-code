@@ -14,7 +14,7 @@ public class AoCYYYYDD
     public int Part1()
     {
         foreach (var item in items)
-            Console.WriteLine(item);
+            writer.WriteLine(item);
 
         return -1;
     }

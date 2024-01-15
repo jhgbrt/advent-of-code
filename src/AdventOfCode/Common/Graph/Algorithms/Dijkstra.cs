@@ -21,7 +21,7 @@ public record DijkstraShortestPathResult<TVertex>(
 public static class Dijkstra
 {
     public static DijkstraShortestPathResult<TVertex> ShortestPaths<TVertex>(IGraph<TVertex, int> graph, TVertex start)
-        where TVertex : IEquatable<TVertex>, IComparable<TVertex>
+        where TVertex : IEquatable<TVertex>
     {
         int[,] adjacencymatrix = graph.ToAdjacencyMatrix();
 
