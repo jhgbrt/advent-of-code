@@ -3,7 +3,7 @@ public class AoC201913
 {
     internal static string[] input = Read.InputLines();
 
-    ImmutableDictionary<int, int> program = input.First().Split(',').Select(int.Parse).Select((n, i) => (n, i: (int)i)).ToImmutableDictionary(x => x.i, x => x.n);
+    long[] program = input.First().Split(',').Select(long.Parse).ToArray();
 
     public object Part1() => (from chunk in new IntCode(program).Run().Chunked3()
                               let x = chunk.a
@@ -13,10 +13,10 @@ public class AoC201913
                               select id).Count();
     public object Part2()
     {
-        program = program.SetItem(0, 2);
+        program[0] = 2;
         var cpu = new IntCode(program);
 
-        var (paddle, ball, score) = (0, 0, 0);
+        var (paddle, ball, score) = (0L, 0L, 0L);
         
         while (!cpu.IsTerminated)
         {
@@ -27,11 +27,11 @@ public class AoC201913
                 0 => 0
             };
             
-            (paddle, ball, score) = cpu.Step(input) switch
+            (paddle, ball, score) = Step(cpu, input) switch
             {
-                (-1, 0, int id) => (paddle, ball, id),
-                (int x, _, 3) => (x, ball, score),
-                (int x, _, 4) => (paddle, x, score),
+                (-1, 0, var id) => (paddle, ball, id),
+                (var x, _, 3L) => (x, ball, score),
+                (var x, _, 4L) => (paddle, x, score),
                 _ => (paddle, ball, score)
             };
            
@@ -39,6 +39,7 @@ public class AoC201913
 
         return score;
     }
+    private static (long a, long b, long c) Step(IntCode cpu, long input) => (cpu.Run(input), cpu.Run(input), cpu.Run(input));
 }
 
 enum Direction

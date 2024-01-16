@@ -12,7 +12,7 @@ public class AoC201915
     public AoC201915(string[] input, TextWriter writer)
     {
         this.writer = writer;
-        var program = input.First().Split(',').Select(int.Parse).Select((n, i) => (n, i: i)).ToImmutableDictionary(x => x.i, x => x.n);
+        var program = input.First().Split(',').Select(long.Parse).ToArray();
         machine = new IntCode(program);
         grid = new Grid();
         FillGrid(grid, Coordinate.Origin, Direction.N);

@@ -53,11 +53,11 @@ public class Specs
     }
 
     [Theory]
-    [InlineData(1, 1, Mode.Position, Mode.Position, Mode.Position)]
-    [InlineData(199, 99, Mode.Immediate, Mode.Position, Mode.Position)]
-    [InlineData(1199, 99, Mode.Immediate, Mode.Immediate, Mode.Position)]
-    [InlineData(11143, 43, Mode.Immediate, Mode.Immediate, Mode.Immediate)]
-    public void DecodeTest(int value, int expectedOpCode, params Mode[] expectedModes)
+    [InlineData(1, 1, IntCode.Mode.Position, IntCode.Mode.Position, IntCode.Mode.Position)]
+    [InlineData(199, 99, IntCode.Mode.Immediate, IntCode.Mode.Position, IntCode.Mode.Position)]
+    [InlineData(1199, 99, IntCode.Mode.Immediate, IntCode.Mode.Immediate, IntCode.Mode.Position)]
+    [InlineData(11143, 43, IntCode.Mode.Immediate, IntCode.Mode.Immediate, IntCode.Mode.Immediate)]
+    public void DecodeTest(int value, int expectedOpCode, params IntCode.Mode[] expectedModes)
     {
         (var opcode, var modes) = Decode(value);
         Assert.Equal(expectedOpCode, opcode);
