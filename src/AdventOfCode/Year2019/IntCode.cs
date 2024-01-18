@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +16,7 @@ class IntCode
     public bool IsTerminated { get; private set; }
     private Dictionary<int, long> program;
 
-    Parameter[] parametersBuffer = new Parameter[3];
+    Parameter[] parameters = new Parameter[3];
     Mode[] modes = new Mode[3];
     long[] values = new long[3];
 
@@ -24,17 +26,16 @@ class IntCode
         this.output = output;
     }
 
-
     public IEnumerable<long> Run(params long[] input)
     {
-        if (input.Length == 0) input = [0L];
+        if (input.Length == 0) input = new[] { 0L };
         foreach (var i in input)
         {
             while (!IsTerminated)
             {
-                var returnValue = Run(0);
-                if (!IsTerminated)
-                    yield return returnValue;
+                var returnValue = Run(i);
+                if (returnValue.HasValue)
+                    yield return returnValue!.Value;
             }
             IsTerminated = false;
         }
@@ -43,64 +44,67 @@ class IntCode
     int index = 0;
     int offset = 0;
 
-    public long Run(long input)
+    public long? Run(long input)
     {
         output?.WriteLine(input);
-
-        long opcode;
-        while (!IsTerminated)
+        long? returnValue = null;
+        while (!returnValue.HasValue)
         {
-            (opcode, var modes) = Decode(program[index]);
+            long opcode;
+            opcode = Decode(program[index]);
 
             output?.WriteLine((opcode, string.Join(",", modes)));
 
             if (opcode == 99)
+            {
+                IsTerminated = true;
                 break;
-
-            var parameters = opcode switch
-            {
-                1 or 2 or 7 or 8 => GetParameters(index, modes, 3),
-                3 or 4 or 9 => GetParameters(index, modes, 1),
-                5 or 6 => GetParameters(index, modes, 2)
-            };
-
-            output?.WriteLine(string.Join(",", parameters));
-
-            var parameterValues = opcode switch
-            {
-                1 or 2 or 5 or 6 or 7 or 8 => GetValues(parameters, offset, 2),
-                4 or 9 => GetValues(parameters, offset, 1),
-                _ => Managed(Array.Empty<long>(), 0)
-            };
-
-            int parameterCount = parameters.Count;
-            int jump = parameterCount + 1;
-
-            if (opcode == 4)
-            {
-                index += jump;
-                return parameterValues[0];
             }
 
+            var (np, nv) = opcode switch
+            {
+                1 => (3, 2),
+                2 => (3, 2),
+                3 => (1, 0),
+                4 => (1, 1),
+                5 => (2, 2),
+                6 => (2, 2),
+                7 => (3, 2),
+                8 => (3, 2),
+                9 => (1, 1)
+            };
+
+            var parameters = GetParameters(index, np);
+
+            var values = GetValues(parameters, offset, nv);
+
+            output?.WriteLine(string.Join(",", parameters));
+            output?.WriteLine(string.Join(",", values));
+
+
+            int jump = parameters.Count + 1;
             long? value = null;
             int? o = null;
-            (value, o, jump) = opcode switch
+
+            (value, o, jump, returnValue) = opcode switch
             {
-                1 => (parameterValues.Sum(), o, jump),
-                2 => (parameterValues.Product(), o, jump),
-                3 => (input, o, jump),
-                5 when parameterValues[0] != 0 => (value, o, int.CreateChecked(parameterValues[1]) - index),
-                6 when parameterValues[0] == 0 => (value, o, int.CreateChecked(parameterValues[1]) - index),
-                5 or 6 => (value, o, jump),
-                7 => (parameterValues[0] < parameterValues[1] ? 1 : 0, o, jump),
-                8 => (parameterValues[0] == parameterValues[1] ? 1 : 0, o, jump),
-                9 => (value, int.CreateChecked(parameterValues[0]), jump)
+                1 => (values.Sum(), o, jump, returnValue),
+                2 => (values.Product(), o, jump, returnValue),
+                3 => (input, o, jump, returnValue),
+                4 => (value, o, jump, values[0]),
+                5 when values[0] != 0 => (value, o, int.CreateChecked(values[1]) - index, returnValue),
+                6 when values[0] == 0 => (value, o, int.CreateChecked(values[1]) - index, returnValue),
+                5 or 6 => (value, o, jump, returnValue),
+                7 => (values[0] < values[1] ? 1 : 0, o, jump, returnValue),
+                8 => (values[0] == values[1] ? 1 : 0, o, jump, returnValue),
+                9 => (value, int.CreateChecked(values[0]), jump, returnValue)
             };
 
             if (value.HasValue)
             {
                 SetValue(parameters[^1], offset, value.Value);
             }
+
             if (o.HasValue)
             {
                 offset += o.Value;
@@ -108,13 +112,11 @@ class IntCode
 
             index += jump;
         }
-
-        IsTerminated = true;
-        return long.MinValue;
+        return returnValue;
     }
 
 
-    (long opcode, Mode[] modes) Decode(long value)
+    internal long Decode(long value)
     {
         var opcode = value % 100;
         value /= 100;
@@ -123,17 +125,18 @@ class IntCode
             modes[i] = (Mode)(value % 10);
             value /= 10;
         }
-        return (opcode, modes);
+        return opcode;
     }
-    ManagedBuffer<Parameter> GetParameters(int index, Mode[] modes, int n)
+
+    ManagedBuffer<Parameter> GetParameters(int index, int n)
     {
         for (int i = 0; i < n; i++)
         {
             var m = modes[i];
             var value = program.ContainsKey(index + i + 1) ? program[index + i + 1] : 0;
-            parametersBuffer[i] = new(value, m);
+            parameters[i] = new(value, m);
         }
-        return Managed(parametersBuffer, n);
+        return Managed(parameters, n);
     }
 
     void SetValue(Parameter parameter, int offset, long value)
@@ -181,13 +184,13 @@ class IntCode
     {
         public (int index, long value) Get(int offset) => mode switch
         {
-            Mode.Relative => (int.CreateChecked(value) + offset, -1),
             Mode.Position => (int.CreateChecked(value), -1),
-            Mode.Immediate => (-1, value)
+            Mode.Immediate => (-1, value),
+            Mode.Relative => (int.CreateChecked(value) + offset, -1)
         };
         public long Value => value;
     }
-    enum Mode
+    internal enum Mode
     {
         Position = 0,
         Immediate = 1,

@@ -1,31 +1,39 @@
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
 namespace AdventOfCode.Year2019.Day12;
 
-public static class AoC201912
+public class AoC201912
 {
-    internal static string[] input = Read.InputLines();
-    static ImmutableArray<Moon> GetMoons(string[] input) => (
+    public AoC201912() : this(Read.InputLines()) { }
+    public AoC201912(string[] input)
+    {
+        this.input = input;
+    }
+
+    internal string[] input;
+    ImmutableArray<Moon> GetMoons() => (
         from line in input
         let position = Regexes.Coordinate().As<Coordinate3D>(line)
         select new Moon(position, Velocity.Zero)
         ).ToImmutableArray();
 
-    public static object Part1() => GetMoons(input).Steps(1000).Sum(m => m.PotentialEnergy * m.KineticEnergy);
-    public static object Part2() => GetMoons(input).FindSteps();
+    public object Part1(int steps) => GetMoons().Steps(steps).Sum(m => m.PotentialEnergy * m.KineticEnergy);
+    public object Part1() => Part1(1000);
+    public object Part2() => GetMoons().FindSteps();
 
-    public static object Test1() => GetMoons(Read.SampleLines(1)).Steps(10).Sum(m => m.PotentialEnergy * m.KineticEnergy);
-    public static object Test2() => GetMoons(Read.SampleLines(2)).Steps(100).Sum(m => m.PotentialEnergy * m.KineticEnergy);
-    public static object Test3() => GetMoons(Read.SampleLines(1)).FindSteps();
-    public static object Test4() => GetMoons(Read.SampleLines(2)).FindSteps();
+    
 
-    private static BigInteger FindSteps(this ImmutableArray<Moon> moons)
+
+}
+static class Ex{
+    internal static BigInteger FindSteps(this ImmutableArray<Moon> moons)
     {
-        var stepsx = FindSteps(moons, m => (m.position.x, m.velocity.dx));
-        var stepsy = FindSteps(moons, m => (m.position.y, m.velocity.dy));
-        var stepsz = FindSteps(moons, m => (m.position.z, m.velocity.dz));
+        var stepsx = Ex.FindSteps(moons, m => (m.position.x, m.velocity.dx));
+        var stepsy = Ex.FindSteps(moons, m => (m.position.y, m.velocity.dy));
+        var stepsz = Ex.FindSteps(moons, m => (m.position.z, m.velocity.dz));
         return LeastCommonMultiplier(stepsx, stepsy, stepsz);
     }
-
-    private static long FindSteps(ImmutableArray<Moon> moons, Func<Moon, (int, int)> f)
+    internal static long FindSteps(this ImmutableArray<Moon> moons, Func<Moon, (int, int)> f)
     {
         long steps = 0;
         var initial = moons.Select(f).ToArray();
@@ -36,14 +44,14 @@ public static class AoC201912
         } while (!moons.Select(f).SequenceEqual(initial));
         return steps;
     }
-
-    static ImmutableArray<Moon> Steps(this ImmutableArray<Moon> moons, int steps)
+    internal static ImmutableArray<Moon> Steps(this ImmutableArray<Moon> moons, int steps)
         => Range(0, steps).Aggregate(moons, (moons, _) => Step(moons));
 
     private static ImmutableArray<Moon> Step(ImmutableArray<Moon> moons)
         => moons
             .Select(moon => moon.AdjustVelocity(moons.Where(m => m != moon)).Move())
             .ToImmutableArray();
+
 }
 
 readonly record struct Moon(Coordinate3D position, Velocity velocity)
@@ -86,4 +94,30 @@ static partial class Regexes
 {
     [GeneratedRegex("<x=(?<x>[^,]*), y=(?<y>[^,]*), z=(?<z>[^>]*)>")]
     internal static partial Regex Coordinate();
+}
+
+public class Tests
+{
+
+    [Fact]
+    public void Test1()
+    {
+        var sut = new AoC201912(Read.SampleLines(1));
+        Assert.Equal(179, sut.Part1(10));
+    }
+
+    [Fact]
+    public void Test2()
+    {
+        var sut = new AoC201912(Read.SampleLines(2));
+        Assert.Equal(1940, sut.Part1(100));
+    }
+
+    [Fact]
+    public void Test3()
+    {
+        var sut = new AoC201912(Read.SampleLines(2));
+        Assert.Equal(new BigInteger(4686774924), sut.Part2());
+    }
+
 }

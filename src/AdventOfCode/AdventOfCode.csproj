@@ -14,6 +14,10 @@
   <ItemGroup>
     <None Include="Template\AoC.cs" />
     <None Include="Template\aoc.csproj" />
+    <None Include="Template\IntCode\AoC.cs" />
+    <None Include="Template\IntCode\aoc.csproj" />
+    <None Include="Template\Regex\AoC.cs" />
+    <None Include="Template\Regex\aoc.csproj" />
     <Compile Remove="Year2015/**" />
     <Compile Remove="Year2016/**" />
     <Compile Remove="Year2017/**" />
@@ -23,6 +27,9 @@
     <Compile Remove="Year2021/**" />
     <Compile Remove="Year2022/**" />
     <Compile Remove="Year2023/**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Template/**" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="System.Diagnostics" />
@@ -55,8 +62,6 @@
     </PackageReference>
     <PackageReference Include="Xunit.SkippableFact" Version="1.4.13" />
     <PackageReference Include="Net.Code.AdventOfCode.Toolkit" Version="2.0.1" />
-    <!--<ProjectReference Include="..\..\..\advent-of-code-toolkit\src\Net.Code.AdventOfCode.Toolkit\Net.Code.AdventOfCode.Toolkit.csproj" />-->
-    <PackageReference Include="Z3.Linq" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Common\TupleUtils.generated.tt">
