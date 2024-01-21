@@ -1,26 +1,42 @@
-using Sprache;
-
-using System.Collections;
 
 namespace AdventOfCode.Year2019.Day17;
-public class AoC201917
+public partial class AoC201917
 {
-    public AoC201917() : this(IntCodeToGrid(Read.InputLines()), Console.Out) { }
-    readonly TextWriter writer;
-    FiniteGrid grid;
-    internal static string[] IntCodeToGrid(string[] input)
+    public AoC201917() : this(Read.InputLines(), Console.Out) { }
+    readonly TextWriter? writer;
+    Grid grid;
+    string[]? input;
+
+    public AoC201917(string[] input, TextWriter? writer)
     {
-        var program = input.First().Split(',').Select(long.Parse).ToArray();
-        var intcode = new IntCode(program);
-        var sb = new StringBuilder();
-        var r = intcode.Run().Select(i => (char)i);
-        foreach (var c in r) sb.Append(c);
-        return Read.String(sb.ToString());
-    }
-    public AoC201917(string[] input, TextWriter writer)
-    {
-        grid = new FiniteGrid(input);
+        this.input = input;
         this.writer = writer;
+        this.grid = CreateGrid();
+    }
+
+    internal AoC201917(Grid grid, TextWriter? writer)
+    {
+        this.grid = grid;
+        this.writer = writer;
+    }
+    internal void Print() => writer?.WriteLine(CreateGrid());
+
+    IntCode GetIntCode(int? n)
+    {
+        var program = input![0].Split(',').Select(long.Parse).ToArray();
+        if (n.HasValue) program[0] = n.Value;
+        var intcode = new IntCode(program);
+        return intcode;
+    }
+
+
+    Grid CreateGrid()
+    {
+        var intcode = GetIntCode(null);
+        var sb = new StringBuilder();
+        foreach (var c in intcode.Run().Select(i => (char)i)) sb.Append(c);
+        var lines = Read.String(sb.ToString());
+        return new Grid(lines);
     }
 
     public int Part1() => (from c in grid.Points()
@@ -28,47 +44,158 @@ public class AoC201917
                            where grid[c] == '#'
                            && n.All(n => grid[n] == '#')
                            select c.x * c.y).Sum();
-    public int Part2() => -1;
+
+    public long Part2()
+    {
+        var grid = CreateGrid();
+
+        var position = grid.Find('^', '>', 'v', '<');
+        var orientation = (Direction)grid[position];
+        char? turn = null;
+        List<Instruction> instructions = [];
+        while (true)
+        {
+            int n = 0;
+            var next = position + orientation;
+            while (grid.Contains(next) && grid[next] == '#')
+            {
+                n++;
+                position = next;
+                next = position + orientation;
+            }
+            if (n > 0)
+            {
+                instructions.Add(new(turn, n));
+            }
+
+            var (left, right) = (position + orientation.Left(), position + orientation.Right());
+
+            if (grid[right] == '#')
+            {
+                orientation = orientation.Right();
+                turn = 'R';
+            }
+            else if (grid[left] == '#')
+            {
+                orientation = orientation.Left();
+                turn = 'L';
+            }
+            else
+            {
+                break;
+            }
+        }
+      
+        var path = string.Join(",", instructions.Select(i => i.ToString())) + ",";
+
+        var regex = new Regex(@"^(.{1,20})\1*(.{1,20})(?:\1|\2)*(.{1,20})(?:\1|\2|\3)*$");
+        var match = regex.Match(path);
+        var (A, B, C) = (match.Groups[1].Value, match.Groups[2].Value, match.Groups[3].Value);
+
+
+        var main = path.Replace(A, "A,").Replace(B, "B,").Replace(C, "C,").TrimEnd(',');
+
+        var icinput = $"{main}\n{A.TrimEnd(',')}\n{B.TrimEnd(',')}\n{C.TrimEnd(',')}\nn\n".Select(c => (long)c).ToArray();
+        
+        var intcode = GetIntCode(2);
+
+        return intcode.Run(icinput).Last();
+
+    }
+
+
+}
+
+readonly record struct Instruction(char? Turn, int? Move)
+{
+    public override string ToString() => $"{Turn},{Move}";
 }
 
 public class AoC201917Tests
 {
-    private readonly AoC201917 sut;
     private readonly ITestOutputHelper output;
 
     public AoC201917Tests(ITestOutputHelper output)
     {
-        var input = Read.SampleLines();
-        sut = new AoC201917(input, new TestWriter(output));
         this.output = output;
     }
 
     [Fact]
     public void TestParsing()
     {
+        var input = Read.SampleLines();
+        var sut = new AoC201917(input, null);
     }
 
     [Fact]
+    public void TestSample()
+    {
+        var input = Read.SampleLines(1);
+        var sut = new AoC201917(new Grid(input), null);
+        Assert.Equal(76, sut.Part1());
+    }
+    [Fact]
     public void TestPart1()
     {
-        Assert.Equal(76, sut.Part1());
+        var input = Read.SampleLines();
+        var sut = new AoC201917(input, null);
+        Assert.Equal(4800, sut.Part1());
     }
 
     [Fact]
     public void TestPart2()
     {
-        Assert.Equal(-1, sut.Part2());
+        var input = Read.SampleLines();
+        var sut = new AoC201917(input, null);//, new TestWriter(output));
+
+        Assert.Equal(982279, sut.Part2());
+
     }
-  
+
 
 }
 
 
+enum Direction : byte
+{
+    N = (byte)'^', E = (byte)'>', S = (byte)'v', W = (byte)'<'
+}
+static class DirectionEx
+{
+    public static Direction Left(this Direction direction) => direction switch
+    {
+        Direction.N => Direction.W,
+        Direction.W => Direction.S,
+        Direction.S => Direction.E,
+        Direction.E => Direction.N
+    };
+    public static Direction Right(this Direction direction) => direction switch
+    {
+        Direction.N => Direction.E,
+        Direction.E => Direction.S,
+        Direction.S => Direction.W,
+        Direction.W => Direction.N
+    };
+}
 
-enum Direction { N, E, S, W }
+readonly record struct Coordinate(int x, int y)
+{
+    public static Coordinate Origin = new(0, 0);
+    public int ManhattanDistance(Coordinate o) => Abs(x - o.x) + Abs(y - o.y);
+    public override string ToString() => $"({x},{y})";
 
 
-class FiniteGrid
+    public static Coordinate operator +(Coordinate left, (int dx, int dy) p) => new(left.x + p.dx, left.y + p.dy);
+    public static Coordinate operator +(Coordinate c, Direction d) => d switch
+    {
+        Direction.N => c + (0, -1),
+        Direction.E => c + (1, 0),
+        Direction.S => c + (0, 1),
+        Direction.W => c + (-1, 0),
+    };
+}
+
+class Grid
 {
 
     //        x
@@ -83,7 +210,7 @@ class FiniteGrid
     readonly char empty;
     public int Height => endmarker.y;
     public int Width => endmarker.x;
-    public FiniteGrid(string[] input, char empty = '.')
+    public Grid(string[] input, char empty = '.')
     : this(ToDictionary(input, empty), empty, new(input[0].Length, input.Length))
     {
     }
@@ -93,35 +220,14 @@ class FiniteGrid
         where input[y][x] != empty
         select (x, y, c: input[y][x])).ToImmutableDictionary(t => new Coordinate(t.x, t.y), t => t.c);
 
-    internal FiniteGrid(ImmutableDictionary<Coordinate, char> items, char empty, Coordinate endmarker)
+    internal Grid(ImmutableDictionary<Coordinate, char> items, char empty, Coordinate endmarker)
     {
         this.items = items;
         this.empty = empty;
         this.endmarker = endmarker;
     }
-    public FiniteGrid Rotate90() => Transform(p => (Height - p.y - 1, p.x));
-    public FiniteGrid Rotate180() => Transform(p => (Width - p.x - 1, Height - p.y - 1));
-    public FiniteGrid Rotate270() => Transform(p => (p.y, Width - p.x - 1));
-    public FiniteGrid Transform(Func<(int x, int y), (int x, int y)> transform)
-    {
-        var q = (
-            from x in Range(0, Width)
-            from y in Range(0, Height)
-            where items.ContainsKey(new(x, y))
-            let transformed = transform((x, y))
-            select (transformed.x, transformed.y, c: items[new(x, y)])
-            ).ToImmutableDictionary(v => new Coordinate(v.x, v.y), v => v.c);
 
-        return new(q, empty, new(q.Keys.Max(k => k.x) + 1, q.Keys.Max(k => k.y) + 1));
-    }
-
-    public FiniteGrid With(Action<ImmutableDictionary<Coordinate, char>.Builder> action)
-    {
-        var builder = items.ToBuilder();
-        action(builder);
-        return new FiniteGrid(builder.ToImmutable(), empty, endmarker);
-    }
-    public Coordinate Find(char c) => items.Where(i => i.Value == c).First().Key;
+    public Coordinate Find(params char[] chars) => items.Where(i => chars.Any(c => i.Value == c)).First().Key;
     public char this[Coordinate p] => items.TryGetValue(p, out var c) ? c : empty;
     public char this[(int x, int y) p] => this[new Coordinate(p.x, p.y)];
     public char this[int x, int y] => this[new Coordinate(x, y)];
@@ -130,41 +236,6 @@ class FiniteGrid
         from y in Range(origin.y, endmarker.y)
         from x in Range(origin.x, endmarker.x)
         select new Coordinate(x, y);
-
-
-    public IEnumerable<(Coordinate coordinate, char value)> this[int? x, int? y]
-    {
-        get {
-            if (x.HasValue && y.HasValue)
-            {
-                yield return (new Coordinate(x.Value, y.Value), this[x.Value, y.Value]);
-            }
-            else if (x.HasValue)
-            {
-                foreach (var y1 in Range(0, Height))
-                {
-                    yield return (new Coordinate(x.Value, y1), this[x.Value, y1]);
-                }
-            }
-            else if (y.HasValue)
-            {
-                foreach (var x1 in Range(0, Width))
-                {
-                    yield return (new Coordinate(x1, y.Value), this[x1, y.Value]);
-                }
-            }
-            else
-            {
-                foreach (var y1 in Range(0, Height))
-                {
-                    foreach (var x1 in Range(0, Width))
-                    {
-                        yield return (new Coordinate(x1, y1), this[x1, y1]);
-                    }
-                }
-            }
-        }
-    }
 
     public IEnumerable<Coordinate> Neighbours(Coordinate p)
     {
@@ -212,4 +283,5 @@ class FiniteGrid
     public bool Contains(Coordinate c) => IsValid(c);
 
 }
+
 

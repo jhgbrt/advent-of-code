@@ -7,6 +7,7 @@ class IntCode
 {
     TextWriter? output;
     public bool Halted { get; private set; }
+    public long LastOutput { get; private set; }
     private Dictionary<int, long> program;
 
     public IntCode(IEnumerable<int> program, TextWriter? output = null) : this(program.Select(i=>(long)i), output)
@@ -97,8 +98,10 @@ class IntCode
             };
 
             if (returnValue.HasValue)
+            {
                 output?.WriteLine($"output: {returnValue}");
-
+                LastOutput = returnValue.Value;
+            }
             if (halt)
             {
                 output?.WriteLine("halt");
