@@ -10,12 +10,22 @@ public class AoC201907
         select Run(p)
         ).Max();
 
-    static int Run(IEnumerable<int> phaseSettings)
+    static long Run(IEnumerable<int> phaseSettings)
     {
+       // var intcode = new Year2019.IntCode(program.Select(i => (long)i).ToArray(), null);
         int next = 0;
         foreach (var i in phaseSettings)
         {
-            next = IntCode.Run(program, i, next).Last();
+            var l1 = IntCode.Run(program, null, i, next).ToList();
+            //Console.WriteLine("--");
+            var l2 = new Year2019.IntCode(program.ToArray()).Run(new[] { (long)i, next }).ToList();
+
+            if (!l1.Select(i => (long)i).SequenceEqual(l2))
+            {
+                Console.WriteLine("ANOMALY");
+                Debugger.Break();
+            }
+            next = l1.Last();
         }
         return next;
     }
@@ -211,7 +221,7 @@ class Amplifier
 
 static class IntCode
 {
-    internal static IEnumerable<int> Run(ImmutableArray<int> program, params int[] inputs)
+    internal static IEnumerable<int> Run(ImmutableArray<int> program, TextWriter? writer, params int[] inputs)
     {
         int index = 0;
         int opcode;
@@ -219,6 +229,7 @@ static class IntCode
         do
         {
             (opcode, var modes) = Decode(program[index]);
+            writer?.WriteLine((index, program[index], opcode, modes[0], modes[1], modes[2]));
             int? value = null;
             switch (opcode)
             {
@@ -269,6 +280,7 @@ static class IntCode
                         var parameters = program.GetParameters(index, modes, parameterCount);
                         (var a, var b) = program.GetValues(parameters);
                         index = a == 0 ? index + parameterCount + 1 : b;
+                        writer?.WriteLine((parameterCount, a, b, index));
                     }
                     break;
                 case 6:
@@ -314,7 +326,7 @@ static class IntCode
     static IEnumerable<(int value, Mode mode)> GetParameters(this IEnumerable<int> program, int index, IEnumerable<Mode> modes, int n)
         => program.Skip(index + 1).Take(n).Zip(modes, (l, r) => (value: l, mode: r));
 
-    static (int opcode, IReadOnlyCollection<Mode> modes) Decode(int value)
+    static (int opcode, Mode[] modes) Decode(int value)
     {
         Mode[] modes = new Mode[3];
         var opcode = value % 100;

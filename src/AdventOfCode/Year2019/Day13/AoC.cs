@@ -1,7 +1,6 @@
 namespace AdventOfCode.Year2019.Day13;
 public class AoC201913
 {
-    internal static string[] input = Read.InputLines();
     public AoC201913() : this(Read.InputLines()){ }
     public AoC201913(string[] input)
     {
@@ -10,12 +9,7 @@ public class AoC201913
 
     long[] program;
 
-    public object Part1() => (from chunk in new IntCode(program).Run().Chunked3()
-                              let x = chunk.a
-                              let y = chunk.b
-                              let id = chunk.c
-                              where id == 2
-                              select id).Count();
+    public int Part1() => new IntCode(program).Run().Chunked3().Count(c => c.c == 2);
     public long Part2()
     {
         program[0] = 2;
@@ -23,7 +17,7 @@ public class AoC201913
 
         (long paddle, long ball, long score) = (0, 0, 0);
         
-        while (!cpu.IsTerminated)
+        while (!cpu.Halted)
         {
             var input = (paddle - ball) switch
             {
@@ -68,5 +62,8 @@ public class Tests
         var sut = new AoC201913(Read.SampleLines());
         Assert.Equal(18647L, sut.Part2());
     }
+
 }
+
+
 
