@@ -106,7 +106,7 @@ public readonly record struct Item(long quantity, string name)
 {
     public override string ToString() => $"{quantity} {name}";
 }
-public readonly record struct Reaction(IImmutableList<Item> inputs, Item output)
+public readonly record struct Reaction(ValueList<Item> inputs, Item output)
 {
     public override string ToString() => $"{inputs} => {output}";
 }

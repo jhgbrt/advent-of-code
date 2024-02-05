@@ -2,5 +2,5 @@
 
 static class ImmutableCollectionExtensions
 {
-    public static ImmutableListWithValueSemantics<T> WithValueSemantics<T>(this IImmutableList<T> list) => new ImmutableListWithValueSemantics<T>(list);
+    public static ValueList<T> WithValueSemantics<T>(this IEnumerable<T> list) => new ValueList<T>(list);
 }
