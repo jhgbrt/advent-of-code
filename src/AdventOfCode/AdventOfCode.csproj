@@ -56,14 +56,14 @@
     <PackageReference Include="Microsoft.Z3" Version="4.12.2" />
     <PackageReference Include="Sandwych.QuickGraph.Core" Version="1.0.0" />
     <PackageReference Include="sprache" Version="3.0.0-develop-00049" />
-    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
-    <PackageReference Include="xunit" Version="2.6.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.4">
+    <PackageReference Include="System.Drawing.Common" Version="8.0.1" />
+    <PackageReference Include="xunit" Version="2.6.6" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.6">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Xunit.SkippableFact" Version="1.4.13" />
-    <PackageReference Include="Net.Code.AdventOfCode.Toolkit" Version="2.0.1" />
+    <PackageReference Include="Net.Code.AdventOfCode.Toolkit" Version="2.0.2" />
     <PackageReference Include="Z3.Linq" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>
