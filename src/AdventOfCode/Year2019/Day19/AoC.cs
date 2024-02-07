@@ -1,11 +1,12 @@
 using AdventOfCode.Common.Collections;
+using AdventOfCode.Tests;
 
 using System.Collections.Concurrent;
 
 namespace AdventOfCode.Year2019.Day19;
 public class AoC201919
 {
-    public AoC201919() : this(Read.InputLines(), Console.Out) {}
+    public AoC201919() : this(Read.InputLines(), Console.Out) { }
     readonly TextWriter writer;
     long[] program;
 
@@ -13,38 +14,40 @@ public class AoC201919
     {
         program = input.First().Split(',').Select(long.Parse).ToArray();
         this.writer = writer;
-        Print(50);
     }
 
     public long Part1() => (from c in Coordinates(50)
-                            select IsCovered(c.x, c.y) ? 1 : 0).Sum();
+                            select Run(c.x, c.y) ? 1 : 0).Sum();
 
-    bool IsCovered(long x, long y) => new IntCode(program).Run((x,y).AsEnumerable()).First() == 1;
+    bool Run(long x, long y) => new IntCode(program).Run((x, y).AsEnumerable()).First() == 1;
 
     IEnumerable<(int x, int y)> Coordinates(int n)
     {
         for (int y = 0; y < n; y++)
-            for (int x = 0; x < n; x ++)
+            for (int x = 0; x < n; x++)
             {
                 yield return (x, y);
             }
     }
 
+    private (decimal m1, decimal m2) CalculateSlopes()
+    {
+        int y = 1000;
+        int x1 = 0;
+        while (!Run(x1, y)) x1++;
+        int x2 = x1;
+        while (Run(x2, y)) x2++;
+        return ((decimal)y / x2, (decimal)y / x1);
+    }
+
     public void Print(int n)
     {
-
-        int x1 = 0;
-        while (!IsCovered(x1, 100)) x1++;
-        int x2 = x1;
-        while (IsCovered(x2, 100)) x2++;
-        var c1 = (100 - x1);
-        var c2 = (100 - x2);
 
         for (int y = 0; y < n; ++y)
         {
             for (int x = 0; x < n; ++x)
             {
-                writer.Write(IsCovered(x, y) ? '#' : '.');
+                writer.Write(Run(x, y) ? '#' : '.');
             }
             writer.WriteLine();
         }
@@ -52,7 +55,6 @@ public class AoC201919
 
     public int Part2()
     {
-
         var (x, y) = FindSquare(100);
         return 10000 * x + y;
     }
@@ -62,7 +64,12 @@ public class AoC201919
         Range beam = 0..0;
         var queue = new FixedSizedQueue<(int y, Range range)>(n);
 
-        var y = 1000;
+        // estimation for the starting point
+        var (m1, m2) = CalculateSlopes();
+        var x1 = ((m1 * n - 1) + n - 1) / (m2 - m1);
+        var y1 = (m2 * x1) - (n - 1);
+
+        var y = (int)y1;
         while (queue.Count < n || queue.Peek().range.End != (beam.Start + n))
         {
             beam = GetBeam(beam, y, n);
@@ -81,7 +88,7 @@ public class AoC201919
         int x = previous.Start;
         while (!result && x < y)
         {
-            result = IsCovered(x, y);
+            result = Run(x, y);
             x++;
         }
 
@@ -93,7 +100,7 @@ public class AoC201919
         var start = x - 1;
         x += n;
 
-        if (!(result = IsCovered(x, y)))
+        if (!(result = Run(x, y)))
         {
             return start..start;
         }
@@ -101,7 +108,7 @@ public class AoC201919
         while (result)
         {
             x++;
-            result = IsCovered(x, y);
+            result = Run(x, y);
         }
         return start..x;
     }
