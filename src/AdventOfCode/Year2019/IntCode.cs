@@ -56,18 +56,18 @@ class IntCode
             var b = intvalue / 1000 % 10;
             var c = intvalue / 10000 % 10;
      
-            var (nofparams, nofargs) = opcode switch
+            var (nofparams, nofargs, description) = opcode switch
             {
-                1 => (3, 2),
-                2 => (3, 2),
-                3 => (1, 0),
-                4 => (1, 1),
-                5 => (2, 2),
-                6 => (2, 2),
-                7 => (3, 2),
-                8 => (3, 2),
-                9 => (1, 1),
-                99 => (0, 0)
+                1 => (3, 2, "add"),
+                2 => (3, 2, "multiply"),
+                3 => (1, 0, "input"),
+                4 => (1, 1, "output"),
+                5 => (2, 2, "jump-if-true"),
+                6 => (2, 2, "jump-if-false"),
+                7 => (3, 2, "less-than"),
+                8 => (3, 2, "equals"),
+                9 => (1, 1, "adjust-offset"),
+                99 => (0, 0, "halt")
             };
 
             var parameters = new Parameters(
@@ -81,14 +81,14 @@ class IntCode
                 b: nofargs < 2 ? 0L : GetValue(parameters.b)
             );
             
-            output?.WriteLine($"this[{index}] = {intvalue}; // {opcode}/{a}-{b}-{c}/np={nofparams},na={nofargs}/values={string.Join(",", args)}");
+            output?.WriteLine($"{description}: this[{index}] = {intvalue}; // {opcode}/{a}-{b}-{c}/np={nofparams},na={nofargs}/values={string.Join(",", args)}");
             long? @null = null;
             (bool halt, long? value, int delta, int jump, returnValue) = opcode switch
             {
                 1 => (false, args.a + args.b, 0, nofparams + 1, @null),
                 2 => (false, args.a * args.b, 0, nofparams + 1, @null),
                 3 => input.MoveNext() ? (false, input.Current, 0, nofparams + 1, @null) : throw new Exception("No more input"),
-                4 => (false, @null, 0, nofparams+1, args.a),
+                4 => (false, @null, 0, nofparams + 1, args.a),
                 5 => (false, @null, 0, args.a != 0 ? int.CreateChecked(args.b) - index : nofparams + 1, @null),
                 6 => (false, @null, 0, args.a == 0 ? int.CreateChecked(args.b) - index : nofparams + 1, @null),
                 7 => (false, args.a < args.b ? 1L : 0L, 0, nofparams + 1, @null),
@@ -116,7 +116,9 @@ class IntCode
             }
 
             if (delta > 0)
+            {
                 output?.WriteLine($"offset += {delta} = {offset + delta}");
+            }
             offset += delta;
 
             output?.WriteLine($"index += {jump} = {index + jump}");
