@@ -102,8 +102,18 @@ public class AoC201914
     }
 }
 
-public readonly record struct Item(long quantity, string name)
+public readonly record struct Item(long quantity, string name) : IComparable<Item>
 {
+    public int CompareTo(Item other)
+    {
+        var result = quantity.CompareTo(other.quantity);
+        return result switch
+        {
+            0 => name.CompareTo(other.name),
+            _ => result
+        };
+    }
+
     public override string ToString() => $"{quantity} {name}";
 }
 public readonly record struct Reaction(ValueList<Item> inputs, Item output)
