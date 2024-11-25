@@ -1,18 +1,47 @@
 ﻿using Net.Code.AdventOfCode.Toolkit;
+
+FormatTime(TimeSpan.FromMinutes(5));
+
+var sw = Stopwatch.StartNew();
+
 await AoC.RunAsync(args);
 
-/*
-Console.WriteLine($"GC collections: Gen 0: {GC.CollectionCount(0)}");
-Console.WriteLine($"GC collections: Gen 1: {GC.CollectionCount(1)}");
-Console.WriteLine($"GC collections: Gen 2: {GC.CollectionCount(2)}");
-var info = GC.GetGCMemoryInfo();
-Console.WriteLine($"GC generation: {info.Generation}");
-Console.WriteLine($"GC pause time percentage: {info.PauseTimePercentage}%");
-Console.WriteLine($"Fragmented bytes: {info.FragmentedBytes}");
-Console.WriteLine($"Heap size bytes: {info.HeapSizeBytes}");
-Console.WriteLine($"High memoryload threshold bytes: {info.HighMemoryLoadThresholdBytes}");
-Console.WriteLine($"memoryload load bytes: {info.MemoryLoadBytes}");
-Console.WriteLine($"promoted bytes: {info.PromotedBytes}");
-Console.WriteLine($"total available memory bytes: {info.TotalAvailableMemoryBytes}");
-Console.WriteLine($"Committed bytes: {info.TotalCommittedBytes}");
-*/
+double bytes = GC.GetTotalAllocatedBytes();
+string bytesAllocated = FormatBytes(bytes);
+
+var ts = sw.Elapsed;
+string duration = FormatTime(ts);
+
+var separator = "+" + new string(Repeat('-', 78).ToArray()) + "+";
+Console.WriteLine(separator);
+Console.WriteLine("| Total time      | " + duration.PadLeft(58) + " |");
+Console.WriteLine(separator);
+Console.WriteLine("| Bytes allocated | " + bytesAllocated.PadLeft(58) + " |");
+Console.WriteLine(separator);
+
+static string FormatBytes(double bytes)
+{
+    string[] sizes = { "B", "KB", "MB", "GB", "TB" };
+    int n = 0;
+    while (bytes >= 1024 && n < sizes.Length - 1)
+    {
+        n++;
+        bytes /= 1024;
+    }
+    var bytesAllocated = $"{bytes:0.0000} {sizes[n]}";
+    return bytesAllocated;
+}
+
+static string FormatTime(TimeSpan ts)
+{
+    return ts switch
+    {
+        { TotalHours: > 1 } => $@"{ts:hh\:mm\:ss}",
+        { TotalMinutes: > 1 } => $@"{ts:mm\:ss}",
+        { TotalSeconds: > 10 } => $"{ts.TotalSeconds} s",
+        { TotalSeconds: > 1 } => $@"{ts:ss\.fff} s",
+        { TotalMilliseconds: > 10 } => $"{ts.TotalMilliseconds} ms",
+        { TotalMilliseconds: > 1 } => $"{ts.TotalMicroseconds} μs",
+        _ => $"{ts.TotalNanoseconds} ns"
+    };
+}
