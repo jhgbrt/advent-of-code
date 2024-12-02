@@ -1,16 +1,13 @@
 ﻿using Net.Code.AdventOfCode.Toolkit;
 
-FormatTime(TimeSpan.FromMinutes(5));
-
 var sw = Stopwatch.StartNew();
 
 await AoC.RunAsync(args);
 
-double bytes = GC.GetTotalAllocatedBytes();
-string bytesAllocated = FormatBytes(bytes);
+var bytesAllocated = GC.GetTotalAllocatedBytes().FormatBytes();
 
 var ts = sw.Elapsed;
-string duration = FormatTime(ts);
+string duration = ts.FormatTime();
 
 var separator = "+" + new string(Repeat('-', 78).ToArray()) + "+";
 Console.WriteLine(separator);
@@ -19,29 +16,29 @@ Console.WriteLine(separator);
 Console.WriteLine("| Bytes allocated | " + bytesAllocated.PadLeft(58) + " |");
 Console.WriteLine(separator);
 
-static string FormatBytes(double bytes)
+static class Helpers
 {
-    string[] sizes = { "B", "KB", "MB", "GB", "TB" };
-    int n = 0;
-    while (bytes >= 1024 && n < sizes.Length - 1)
+    internal static string FormatBytes(this long b)
     {
-        n++;
-        bytes /= 1024;
+        double bytes = b;
+        string[] sizes = ["B", "KB", "MB", "GB", "TB"];
+        int n = 0;
+        while (bytes >= 1024 && n < sizes.Length - 1)
+        {
+            n++;
+            bytes /= 1024;
+        }
+        return $"{bytes:0.0000} {sizes[n]}";
     }
-    var bytesAllocated = $"{bytes:0.0000} {sizes[n]}";
-    return bytesAllocated;
-}
 
-static string FormatTime(TimeSpan ts)
-{
-    return ts switch
+    internal static string FormatTime(this TimeSpan timespan) => timespan switch
     {
-        { TotalHours: > 1 } => $@"{ts:hh\:mm\:ss}",
-        { TotalMinutes: > 1 } => $@"{ts:mm\:ss}",
-        { TotalSeconds: > 10 } => $"{ts.TotalSeconds} s",
-        { TotalSeconds: > 1 } => $@"{ts:ss\.fff} s",
-        { TotalMilliseconds: > 10 } => $"{ts.TotalMilliseconds} ms",
-        { TotalMilliseconds: > 1 } => $"{ts.TotalMicroseconds} μs",
-        _ => $"{ts.TotalNanoseconds} ns"
+        { TotalHours: > 1 } ts => $@"{ts:hh\:mm\:ss}",
+        { TotalMinutes: > 1 } ts => $@"{ts:mm\:ss}",
+        { TotalSeconds: > 10 } ts => $"{ts.TotalSeconds} s",
+        { TotalSeconds: > 1 } ts => $@"{ts:ss\.fff} s",
+        { TotalMilliseconds: > 10 } ts => $"{ts.TotalMilliseconds} ms",
+        { TotalMilliseconds: > 1 } ts => $"{ts.TotalMicroseconds} μs",
+        TimeSpan ts => $"{ts.TotalNanoseconds} ns"
     };
 }

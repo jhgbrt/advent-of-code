@@ -87,9 +87,11 @@ class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
 
         var constructors = (from c in aocclass.DescendantNodes().OfType<ConstructorDeclarationSyntax>()
                             select c).ToArray();
+        var classparameters = aocclass.ParameterList;
 
         IEnumerable<StatementSyntax> initialization = Array.Empty<StatementSyntax>();
-        if (constructors.Length > 0)
+
+        if (constructors.Length > 0 )
         {
 
             var initializerArguments = (
@@ -104,17 +106,23 @@ class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
                 from c in constructors
                 where c.ParameterList.Parameters.Count == initializerArguments.Count
                 select c
-                ).Single();
+                ).SingleOrDefault();
+
+            var parameterList = constructor?.ParameterList ?? aocclass.ParameterList;
+
+            if (parameterList is null) throw new InvalidOperationException("Could not convert AOC class for export");
 
             initialization = (
-                from item in initializerArguments.Zip(constructor.ParameterList.Parameters)
+                from item in initializerArguments.Zip(parameterList.Parameters)
                 let value = item.First
                 let name = item.Second.Identifier.Value
                 select ParseStatement($"var {name} = {value};")
              ).Concat(
-                from statement in constructor.DescendantNodes().OfType<BlockSyntax>().First().ChildNodes().OfType<StatementSyntax>()
-                where !IsSimpleThisAssignment(statement)
-                select ConvertConstructorInitializationStatement(statement)
+                constructor is not null ?
+                    from statement in constructor.DescendantNodes().OfType<BlockSyntax>().First().ChildNodes().OfType<StatementSyntax>()
+                    where !IsSimpleThisAssignment(statement)
+                    select ConvertConstructorInitializationStatement(statement)
+                : Array.Empty<StatementSyntax>()
              ).ToArray();
         }
 
@@ -171,30 +179,74 @@ class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
             .WithUsings(List(usings))
             .WithMembers(
                 List(Enumerable.Empty<GlobalStatementSyntax>()
-                    .Concat(fields.Select(GlobalStatement))
                     .Concat(initialization.Select(GlobalStatement))
-                    .Concat(new[]
-                    {
+                    .Concat(fields.Select(GlobalStatement))
+                    .Concat(
+                    [
                         GlobalStatement(ParseStatement("var sw = Stopwatch.StartNew();\r\n")!),
                         GenerateGlobalStatement(1, implementations),
                         GenerateGlobalStatement(2, implementations)
-                    })
-                    .Concat(new[]
-                    {
-                        GlobalStatement(ParseStatement("Console.WriteLine((part1, part2, sw.Elapsed));\r\n")!),
-                    })
+                    ])
+                    .Concat(
+                    [
+                        GlobalStatement(ParseStatement("Output.WriteResult(part1, part2, sw.Elapsed);\r\n")!),
+                    ])
                     .Concat(List<MemberDeclarationSyntax>(methods))
                     .Concat(List<MemberDeclarationSyntax>(records))
                     .Concat(List<MemberDeclarationSyntax>(classes))
                     .Concat(List<MemberDeclarationSyntax>(enums))
                 )
             );
-
+;
         var workspace = new AdhocWorkspace();
         var code = Formatter.Format(result.NormalizeWhitespace(), workspace, workspace.Options
             .WithChangedOption(CSharpFormattingOptions.IndentBlock, true)
-            ).ToString();
+            ).ToString()
+            + Helpers();
         return code;
+    }
+
+    public string Helpers()
+    {
+
+        return """
+
+            static class Output
+            {
+                internal static void WriteResult<T1, T2>(T1 part1, T2 part2, TimeSpan time)
+                {
+                    Console.WriteLine($"+".PadRight(39, '-') + "+");
+                    Console.WriteLine($"| Part 1    | {part1}".PadRight(39) + "|");
+                    Console.WriteLine($"| Part 2    | {part2}".PadRight(39) + "|");
+                    Console.WriteLine($"| Time      | {time.FormatTime()}".PadRight(39) + "|");
+                    Console.WriteLine($"| Allocated | {GC.GetTotalAllocatedBytes().FormatBytes()}".PadRight(39) + "|");
+                    Console.WriteLine($"+".PadRight(39, '-') + "+");
+                }
+                static string FormatBytes(this long b)
+                {
+                    double bytes = b;
+                    string[] sizes = ["B", "KB", "MB", "GB", "TB"];
+                    int n = 0;
+                    while (bytes >= 1024 && n < sizes.Length - 1)
+                    {
+                        n++;
+                        bytes /= 1024;
+                    }
+                    return $"{bytes:0.00} {sizes[n]}";
+                }
+                static string FormatTime(this TimeSpan timespan) => timespan switch
+                {
+                    { TotalHours: > 1 } ts => $@"{ts:hh\:mm\:ss}",
+                    { TotalMinutes: > 1 } ts => $@"{ts:mm\:ss}",
+                    { TotalSeconds: > 10 } ts => $"{ts.TotalSeconds} s",
+                    { TotalSeconds: > 1 } ts => $@"{ts:ss\.fff} s",
+                    { TotalMilliseconds: > 10 } ts => $"{ts.TotalMilliseconds:0.0} ms",
+                    { TotalMilliseconds: > 1 } ts => $"{ts.TotalMicroseconds:0.0} μs",
+                    TimeSpan ts => $"{ts.TotalNanoseconds} ns"
+                };
+            }
+            """;
+
     }
 
     private bool IsInitialized(FieldDeclarationSyntax node, IEnumerable<StatementSyntax> initialization)
@@ -229,9 +281,9 @@ class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
         var value = assignment.Right;
         var variableDeclarator = VariableDeclarator(identifierName.Identifier)
             .WithInitializer(EqualsValueClause(value));
-        var variableDeclaration = VariableDeclaration(IdentifierName("var"))
-            .WithVariables(SingletonSeparatedList(variableDeclarator));
-        return LocalDeclarationStatement(variableDeclaration);        
+        var variableDeclaration = VariableDeclaration(IdentifierName("var").WithoutTrivia())
+            .WithVariables(SingletonSeparatedList(variableDeclarator.WithoutTrivia()));
+        return LocalDeclarationStatement(variableDeclaration).WithoutTrivia();        
     }
     private LocalDeclarationStatementSyntax ToLocalDeclaration(FieldDeclarationSyntax node)
     {

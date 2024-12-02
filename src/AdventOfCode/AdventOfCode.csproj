@@ -24,7 +24,7 @@
     <Compile Remove="Year2016/**" />
     <Compile Remove="Year2017/**" />
     <Compile Remove="Year2018/**" />
-    <!--<Compile Remove="Year2019/**" />-->
+    <Compile Remove="Year2019/**" />
     <Compile Remove="Year2020/**" />
     <Compile Remove="Year2021/**" />
     <Compile Remove="Year2022/**" />

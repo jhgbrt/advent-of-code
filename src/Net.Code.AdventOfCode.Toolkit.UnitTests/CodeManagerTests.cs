@@ -97,7 +97,7 @@ public class CodeManagerTests
     }
 
     [Theory]
-    [InlineData("""
+    [InlineData(1, """
         public class AoC202103
         {
             public object Part1() => 1;
@@ -107,9 +107,9 @@ public class CodeManagerTests
         var sw = Stopwatch.StartNew();
         var part1 = 1;
         var part2 = 1;
-        Console.WriteLine((part1, part2, sw.Elapsed));
+        Output.WriteResult(part1, part2, sw.Elapsed);
         """)]
-    [InlineData("""
+    [InlineData(2, """
         namespace AoC.Year2021.Day03;
     
         public class AoC202103
@@ -123,9 +123,9 @@ public class CodeManagerTests
         var sw = Stopwatch.StartNew();
         var part1 = 1;
         var part2 = 1;
-        Console.WriteLine((part1, part2, sw.Elapsed));
+        Output.WriteResult(part1, part2, sw.Elapsed);
         """)]
-    [InlineData("""
+    [InlineData(3, """
         namespace AoC.Year2021.Day03;
     
         public class AoC202103
@@ -141,40 +141,55 @@ public class CodeManagerTests
             public object Part2() => 1;
         }
         """, """
-        int A = 42;
         var input = File.ReadAllLines("input.txt");
         var grid = new Grid(input);
+        int A = 42;
         var sw = Stopwatch.StartNew();
         var part1 = 1;
         var part2 = 1;
-        Console.WriteLine((part1, part2, sw.Elapsed));
+        Output.WriteResult(part1, part2, sw.Elapsed);
         """)]
-    [InlineData("""
+    [InlineData(4, """
         namespace AoC.Year2021.Day03;
     
-        public class AoC202103
+        public class AoC202103(string[] input)
+        {
+            public AoC202103() : this(Read.InputLines()) {}
+            const int A = 42;
+            Grid grid = new Grid(input);
+            public object Part1() => 1;
+            public object Part2() => 1;
+        }
+        """, """
+        var input = File.ReadAllLines("input.txt");
+        int A = 42;
+        Grid grid = new Grid(input);
+        var sw = Stopwatch.StartNew();
+        var part1 = 1;
+        var part2 = 1;
+        Output.WriteResult(part1, part2, sw.Elapsed);
+        """)]
+    [InlineData(5, """
+        namespace AoC.Year2021.Day03;
+    
+        public class AoC202103(string[] input, TextWriter writer)
         {
             public AoC202103() : this(Read.InputLines(), Console.Out) {}
-            Grid grid;
+            Grid grid = new Grid(input);
             TextWriter writer;
-            public AoC202103(string[] input, TextWriter writer)
-            {
-                this.writer = writer;
-                grid = new Grid(input);
-            }
             public object Part1() => 1;
             public object Part2() => 1;
         }
         """, """
         var input = File.ReadAllLines("input.txt");
         var writer = Console.Out;
-        var grid = new Grid(input);
+        Grid grid = new Grid(input);
         var sw = Stopwatch.StartNew();
         var part1 = 1;
         var part2 = 1;
-        Console.WriteLine((part1, part2, sw.Elapsed));
+        Output.WriteResult(part1, part2, sw.Elapsed);
         """)]
-    [InlineData("""
+    [InlineData(6, """
         namespace AoC.Year2021.Day03;
     
         public class AoC202103
@@ -187,10 +202,10 @@ public class CodeManagerTests
         var sw = Stopwatch.StartNew();
         var part1 = Solve(1);
         var part2 = Solve(2);
-        Console.WriteLine((part1, part2, sw.Elapsed));
+        Output.WriteResult(part1, part2, sw.Elapsed);
         object Solve(int i) => i;
         """)]
-    [InlineData("""
+    [InlineData(7, """
         public class AoC202103
         {
             string[] input;
@@ -206,9 +221,9 @@ public class CodeManagerTests
         var sw = Stopwatch.StartNew();
         var part1 = 1;
         var part2 = 2;
-        Console.WriteLine((part1, part2, sw.Elapsed));
+        Output.WriteResult(part1, part2, sw.Elapsed);
         """)]
-        [InlineData("""
+        [InlineData(8, """
         public class AoC202103
         {
             public AoC202318():this(Read.InputLines(), Console.Out) {}
@@ -238,15 +253,39 @@ public class CodeManagerTests
         var sw = Stopwatch.StartNew();
         var part1 = 1;
         var part2 = 2;
-        Console.WriteLine((part1, part2, sw.Elapsed));
+        Output.WriteResult(part1, part2, sw.Elapsed);
         """)]
-    public async Task GenerateCodeTests(string input, string expected)
+    [InlineData(9, """
+        public class AoC202103(string[] input, TextWriter writer)
+        {
+            public AoC202318():this(Read.InputLines(), Console.Out) {}
+            readonly TextWriter writer;
+            string[] input;
+            readonly ImmutableArray<string> items = input.Select(s =>
+            {
+                return s;
+            }) .ToImmutableArray();;
+            public object Part1() => 1;
+            public object Part2() => 2;
+        }
+        """, """
+        var input = File.ReadAllLines("input.txt");
+        var writer = Console.Out;
+        ImmutableArray<string> items = input.Select(s =>
+        {
+            return s;
+        }).ToImmutableArray();
+        var sw = Stopwatch.StartNew();
+        var part1 = 1;
+        var part2 = 2;
+        Output.WriteResult(part1, part2, sw.Elapsed);
+        """)]
+    public async Task GenerateCodeTests(int n, string input, string expected)
     {
         var m = CreateCodeManager(true, input);
 
         var code = await m.GenerateCodeAsync(new(2021, 3));
-
-        Assert.Equal(expected, code);
+        Assert.Equal(expected, code[..^1429]);
     }
 
     [Fact]
@@ -263,7 +302,7 @@ public class CodeManagerTests
             var sw = Stopwatch.StartNew();
             var part1 = Solve(1);
             var part2 = Part2();
-            Console.WriteLine((part1, part2, sw.Elapsed));
+            Output.WriteResult(part1, part2, sw.Elapsed);
             object Part2()
             {
                 return Solve(2);
@@ -278,6 +317,40 @@ public class CodeManagerTests
             record MyRecord();
             class MyClass
             {
+            }
+            static class Output
+            {
+                internal static void WriteResult<T1, T2>(T1 part1, T2 part2, TimeSpan time)
+                {
+                    Console.WriteLine($"+".PadRight(39, '-') + "+");
+                    Console.WriteLine($"| Part 1    | {part1}".PadRight(39) + "|");
+                    Console.WriteLine($"| Part 2    | {part2}".PadRight(39) + "|");
+                    Console.WriteLine($"| Time      | {time.FormatTime()}".PadRight(39) + "|");
+                    Console.WriteLine($"| Allocated | {GC.GetTotalAllocatedBytes().FormatBytes()}".PadRight(39) + "|");
+                    Console.WriteLine($"+".PadRight(39, '-') + "+");
+                }
+                static string FormatBytes(this long b)
+                {
+                    double bytes = b;
+                    string[] sizes = ["B", "KB", "MB", "GB", "TB"];
+                    int n = 0;
+                    while (bytes >= 1024 && n < sizes.Length - 1)
+                    {
+                        n++;
+                        bytes /= 1024;
+                    }
+                    return $"{bytes:0.00} {sizes[n]}";
+                }
+                static string FormatTime(this TimeSpan timespan) => timespan switch
+                {
+                    { TotalHours: > 1 } ts => $@"{ts:hh\:mm\:ss}",
+                    { TotalMinutes: > 1 } ts => $@"{ts:mm\:ss}",
+                    { TotalSeconds: > 10 } ts => $"{ts.TotalSeconds} s",
+                    { TotalSeconds: > 1 } ts => $@"{ts:ss\.fff} s",
+                    { TotalMilliseconds: > 10 } ts => $"{ts.TotalMilliseconds:0.0} ms",
+                    { TotalMilliseconds: > 1 } ts => $"{ts.TotalMicroseconds:0.0} μs",
+                    TimeSpan ts => $"{ts.TotalNanoseconds} ns"
+                };
             }
             """, result, ignoreLineEndingDifferences: true);
 
