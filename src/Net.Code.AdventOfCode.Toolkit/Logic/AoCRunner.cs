@@ -36,7 +36,7 @@ class AoCRunner : IAoCRunner
 
         var t2 = day < 25
             ? await Run(() => aoc.Part2())
-            : new Result(ResultStatus.Ok, "", TimeSpan.Zero);
+            : new Result(ResultStatus.Ok, "", TimeSpan.Zero, 12);
         logger.LogDebug($"{key}, Part 2: result = {t2.Value} - {t2.Elapsed}");
         progress(2, t2);
 
@@ -119,9 +119,10 @@ class AoCRunner : IAoCRunner
    
     static async Task<Result> Run(Func<object> f)
     {
+        var bytes = GC.GetTotalAllocatedBytes();
         var sw = Stopwatch.StartNew();
         var result = await Task.Run(f);
-        return result is null or "" or -1 ? Result.Empty : new Result(ResultStatus.Unknown, result.ToString() ?? string.Empty, sw.Elapsed);
+        return result is null or "" or -1 ? Result.Empty : new Result(ResultStatus.Unknown, result.ToString() ?? string.Empty, sw.Elapsed, GC.GetTotalAllocatedBytes() - bytes);
     }
 
 }

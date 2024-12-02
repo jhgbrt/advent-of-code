@@ -1,8 +1,8 @@
 ﻿namespace Net.Code.AdventOfCode.Toolkit.Core;
 
-record Result(ResultStatus Status, string Value, TimeSpan Elapsed)
+record Result(ResultStatus Status, string Value, TimeSpan Elapsed, long bytes)
 {
-    public readonly static Result Empty = new Result(ResultStatus.NotImplemented, string.Empty, TimeSpan.Zero);
+    public readonly static Result Empty = new Result(ResultStatus.NotImplemented, string.Empty, TimeSpan.Zero, 0);
     public Result Verify(string answer) => Status switch
     {
         ResultStatus.Unknown when string.IsNullOrEmpty(answer) => this,

@@ -25,7 +25,7 @@ class Run(IAoCRunner manager, IPuzzleManager puzzleManager, AoCLogic aocLogic, I
 
         var puzzle = await puzzleManager.GetPuzzle(key);
 
-        var result = await manager.Run(typeName, key, (part, result) => io.MarkupLine($"part {part}: {result.Value} ({result.Elapsed})"));
+        var result = await manager.Run(typeName, key, (part, result) => io.MarkupLine($"part {part}: {result.Value} ({result.Elapsed.FormatTimeSpan()} - {result.bytes.FormatBytes()})"));
 
         if (result is not null)
         {

@@ -7,7 +7,7 @@ await AoC.RunAsync(args);
 var bytesAllocated = GC.GetTotalAllocatedBytes().FormatBytes();
 
 var ts = sw.Elapsed;
-string duration = ts.FormatTime();
+string duration = ts.FormatTimeSpan();
 
 var separator = "+" + new string(Repeat('-', 78).ToArray()) + "+";
 Console.WriteLine(separator);
@@ -28,17 +28,17 @@ static class Helpers
             n++;
             bytes /= 1024;
         }
-        return $"{bytes:0.0000} {sizes[n]}";
+        return $"{bytes:0} {sizes[n]}";
     }
 
-    internal static string FormatTime(this TimeSpan timespan) => timespan switch
+    internal static string FormatTimeSpan(this TimeSpan timespan) => timespan switch
     {
         { TotalHours: > 1 } ts => $@"{ts:hh\:mm\:ss}",
         { TotalMinutes: > 1 } ts => $@"{ts:mm\:ss}",
         { TotalSeconds: > 10 } ts => $"{ts.TotalSeconds} s",
         { TotalSeconds: > 1 } ts => $@"{ts:ss\.fff} s",
-        { TotalMilliseconds: > 10 } ts => $"{ts.TotalMilliseconds} ms",
-        { TotalMilliseconds: > 1 } ts => $"{ts.TotalMicroseconds} μs",
-        TimeSpan ts => $"{ts.TotalNanoseconds} ns"
+        { TotalMilliseconds: > 1 } ts => $"{ts.TotalMilliseconds:0} ms",
+        { TotalMicroseconds: > 1 } ts => $"{ts.TotalMicroseconds:0} μs",
+        TimeSpan ts => $"{ts.TotalNanoseconds:0} ns"
     };
 }
