@@ -1,17 +1,9 @@
 ﻿namespace AdventOfCode.YearYYYY.DayDD;
-public class AoCYYYYDD
+public class AoCYYYYDD(string[] input, TextWriter writer)
 {
     public AoCYYYYDD() : this(Read.InputLines(), Console.Out) {}
     readonly TextWriter writer;
-    long[] program;
-    IntCode intcode;
-
-    public AoCYYYYDD(string[] input, TextWriter writer)
-    {
-        program = input.First().Split(',').Select(long.Parse).ToArray();
-        intcode = new IntCode(program);
-        this.writer = writer;
-    }
+    IntCode intcode = new IntCode(input.First().Split(',').Select(long.Parse).ToArray());
 
     public int Part1()
     {

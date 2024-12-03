@@ -20,13 +20,15 @@ static class TableFactory
         int n = 1;
         foreach (var line in entries)
         {
-            table.AddRow(
-                n.ToString(),
-                line.name,
-                line.score.ToString(),
-                line.stars.ToString(),
+            string[] strings = [
+                n.ToString(), 
+                line.name, 
+                line.score.ToString(), 
+                line.stars.ToString(), 
                 line.lastStar.ToLocalTime().ToString("dd MMM yyyy HH:mm:ss") ?? string.Empty
-                );
+                ];
+
+            table.AddRow(strings);
             n++;
         }
         return table;

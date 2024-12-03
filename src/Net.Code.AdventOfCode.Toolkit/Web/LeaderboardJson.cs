@@ -56,7 +56,8 @@ record LeaderboardJson(string content)
                         _ => result
                     };
                 }
-                yield return result;
+                if (result.Name is not null)
+                    yield return result;
             }
         }
 

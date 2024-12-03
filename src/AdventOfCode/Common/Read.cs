@@ -7,7 +7,6 @@ internal static class Read
     public static IReader Sample(int? n = null) => new Reader($"sample{n}.txt");
 
     public static IReader Input() => new Reader("input.txt");
-
     public static string InputText([CallerFilePath] string path = "") => Input().Text(path);
     public static string[] InputLines([CallerFilePath] string path = "") => Input().Lines(path).ToArray();
     public static Stream InputStream([CallerFilePath] string path = "") => Input().Stream(path);

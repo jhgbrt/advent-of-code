@@ -1,15 +1,11 @@
 ﻿namespace AdventOfCode.YearYYYY.DayDD;
-public class AoCYYYYDD
+
+public class AoCYYYYDD(string[] input, TextWriter writer)
 {
-    public AoCYYYYDD():this(Read.InputLines(), Console.Out) {}
+    public AoCYYYYDD() : this(Read.InputLines(), Console.Out) {}
     readonly TextWriter writer;
     readonly ImmutableArray<Item> items;
-    internal IEnumerable<Item> Items => items;
-    public AoCYYYYDD(string[] input, TextWriter writer)
-    {
-        items = input.Select(s => Regexes.MyRegex().As<Item>(s)).ToImmutableArray();
-        this.writer = writer;
-    }
+    internal IEnumerable<Item> Items = input.Select(s => Regexes.MyRegex().As<Item>(s)).ToImmutableArray();
 
     public int Part1()
     {
