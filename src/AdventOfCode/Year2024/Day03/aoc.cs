@@ -53,7 +53,7 @@ readonly struct @mul(int l, int r) : Instruction
     {
         var mul = slice[4..^1];
         var separator = mul.IndexOf(',');
-        var l = int.Parse(mul[0..separator]);
+        var l = int.Parse(mul[..separator]);
         var r = int.Parse(mul[(separator+1)..]);
         return new mul(l, r);
     }

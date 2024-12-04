@@ -10,15 +10,15 @@ public class AoC202401(Stream stream, int size)
         var r = new List<int>(1000);
 
         var sr = new StreamReader(stream);
-        var buffer = new char[2*size + 3 + 1];
+        Span<char> buffer = stackalloc char[2*size + 3 + 1];
 
         // file contains lines of 5 digits, 3 spaces, 5 digits and \n (= 14 characters)
         // the first 5 digits are the left number, the second 5 digits are the right number
         while (!sr.EndOfStream)
         {
             sr.ReadBlock(buffer);
-            l.Add(int.Parse(new string(buffer, 0, size)));
-            r.Add(int.Parse(new string(buffer, size + 3, size)));
+            l.Add(int.Parse(buffer[0..size]));
+            r.Add(int.Parse(buffer[(size + 3)..(2*size +3)]));
         }
         return (l, r);
     }

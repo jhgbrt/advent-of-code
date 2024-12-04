@@ -19,6 +19,30 @@ public class AoC202404(string[] input)
         select r
         ).Count();
 
+    public int Part1Fast()
+    {
+        var directions = Enum.GetValues<Direction>();
+        int count = 0;
+        for (int y = 0; y < Y; y++)
+        {
+            for (int x = 0; x < X; x++)
+            {
+                if (input[y][x] == 'X')
+                {
+                    foreach (var d in directions)
+                    {
+                        var r = Get(x, y, d);
+                        if (r is ('X', 'M', 'A', 'S'))
+                        {
+                            count++;
+                        }
+                    }
+                }
+            }
+        }
+        return count;
+    }
+
     enum Direction
     {
         N, NE, E, SE, S, SW, W, NW
@@ -46,10 +70,35 @@ public class AoC202404(string[] input)
         let nwse = (input[y - 1][x - 1], input[y + 1][x + 1])
         let swne = (input[y - 1][x + 1], input[y + 1][x - 1])
         where (
-               nwse is ('M', 'S') or ('S', 'M') 
+               nwse is ('M', 'S') or ('S', 'M')
             && swne is ('M', 'S') or ('S', 'M')
         )
         select c).Count();
+    public int Part2Fast()
+    {
+        int count = 0;
+        for (int y = 1; y < Y-1; y++)
+        {
+            for (int x = 1; x < X - 1; x++)
+            {
+                if (input[y][x] != 'A')
+                {
+                    continue;
+                }
+
+                var nwse = (input[y - 1][x - 1], input[y + 1][x + 1]);
+                var swne = (input[y - 1][x + 1], input[y + 1][x - 1]);
+                if (
+                    (nwse is ('M', 'S') or ('S', 'M'))
+                    && (swne is ('M', 'S') or ('S', 'M'))
+                )
+                {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
 
     private bool IsValid(int x, int y) => IsValidX(x) && IsValidY(y);
     private bool IsValidX(int x) => rX.Contains(x, X);
