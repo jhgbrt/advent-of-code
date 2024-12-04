@@ -9,12 +9,13 @@ var bytesAllocated = GC.GetTotalAllocatedBytes().FormatBytes();
 var ts = sw.Elapsed;
 string duration = ts.FormatTimeSpan();
 
-var separator = "+" + new string(Repeat('-', 78).ToArray()) + "+";
-Console.WriteLine(separator);
-Console.WriteLine("| Total time      | " + duration.PadLeft(58) + " |");
-Console.WriteLine(separator);
-Console.WriteLine("| Bytes allocated | " + bytesAllocated.PadLeft(58) + " |");
-Console.WriteLine(separator);
+Console.WriteLine($"{duration} - {bytesAllocated}");
+//var separator = "+" + new string(Repeat('-', 78).ToArray()) + "+";
+//Console.WriteLine(separator);
+//Console.WriteLine("| Total time      | " + duration.PadLeft(58) + " |");
+//Console.WriteLine(separator);
+//Console.WriteLine("| Bytes allocated | " + bytesAllocated.PadLeft(58) + " |");
+//Console.WriteLine(separator);
 
 static class Helpers
 {

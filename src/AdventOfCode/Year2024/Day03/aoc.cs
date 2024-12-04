@@ -4,38 +4,62 @@ public class AoC202403(string input)
 {
     public AoC202403() : this(Read.InputText()) {}
 
-    public int Part1() => GetResult(input, false);
+    public int Part1() => tokens.OfType<@mul>().Select(m => m.result).Sum();
+    public int Part2() => GetActiveTokens(tokens).Select(m => m.result).Sum();
 
-    public int Part2() => GetResult(input, true);
+    readonly List<Instruction> tokens = Parse(input);
 
-    private static int GetResult(ReadOnlySpan<char> span, bool activeOnly)
+    private static List<Instruction> Parse(ReadOnlySpan<char> span)
     {
-        int result = 0;
-        bool shouldreturn = true;
+        List<Instruction> tokens = [];
         foreach (var m in Regexes.AoC202403Regex().EnumerateMatches(span))
         {
             var slice = span.Slice(m.Index, m.Length);
-            shouldreturn = !activeOnly || slice switch
+            tokens.Add(slice switch
             {
-                "do()" => true,
-                "don't()" => false,
-                _ => shouldreturn
-            };
-
-            if (shouldreturn && slice.StartsWith("mul("))
-            {
-                var openbracket = slice.IndexOf('(');
-                var comma = slice.IndexOf(',');
-                var closebracket = slice.IndexOf(')');
-                var left = int.Parse(slice[(openbracket + 1)..comma]);
-                var right = int.Parse(slice[(comma + 1)..closebracket]);
-                result += left * right;
-            }
+                "do()" => new @do(),
+                "don't()" => new @dont(),
+                _ => @mul.Parse(slice)
+            });
         }
-        return result;
+        return tokens;
     }
 
+    private static IEnumerable<@mul> GetActiveTokens(IList<Instruction> tokens)
+    {
+        bool active = true;
+
+        foreach (var token in tokens)
+        {
+            active = token switch
+            {
+                @do _ => true,
+                @dont _ => false,
+                _ => active
+            };
+            if (active && token is mul m)
+            {
+                yield return m;
+            }
+        }
+    }
 }
+
+interface Instruction { }
+readonly struct @mul(int l, int r) : Instruction 
+{
+    public int result => l * r;
+    public static Instruction Parse(ReadOnlySpan<char> slice)
+    {
+        var mul = slice[4..^1];
+        var separator = mul.IndexOf(',');
+        var l = int.Parse(mul[0..separator]);
+        var r = int.Parse(mul[(separator+1)..]);
+        return new mul(l, r);
+    }
+} 
+readonly struct @do : Instruction;
+readonly struct @dont : Instruction;
 
 static partial class Regexes
 {
@@ -55,7 +79,6 @@ public class AoC202403Tests
     [Fact]
     public void TestParsing()
     {
-
     }
 
     [Fact]
