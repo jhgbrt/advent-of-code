@@ -142,10 +142,12 @@ internal class TemplateFolder : Folder, ITemplateFolder
     private string NOTEBOOK => GetFileName("aoc.ipynb");
     private string CSPROJ => GetFileName("aoc.csproj");
     private string SAMPLE => GetFileName("sample.txt");
+    private string HELPERS => GetFileName("Helpers.cs");
     public FileInfo Code => new FileInfo(CODE);
     public FileInfo CsProj => new FileInfo(CSPROJ);
     public FileInfo Notebook => new FileInfo(NOTEBOOK);
     public FileInfo Sample => new FileInfo(SAMPLE);
+    public FileInfo Helpers => new FileInfo(HELPERS);
     public async Task<string> ReadCode(PuzzleKey key)
     {
         var template = await ReadFile(CODE);

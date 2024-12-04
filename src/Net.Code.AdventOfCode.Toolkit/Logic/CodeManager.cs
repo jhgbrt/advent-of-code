@@ -167,15 +167,18 @@ class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
         var classes = tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>()
             .Where(cd => cd.Identifier.Value != aocclass.Identifier.Value && !cd.Identifier.ToString().Contains("Tests"));
 
+        var structs = tree.GetRoot().DescendantNodes().OfType<StructDeclarationSyntax>();
+        var interfaces = tree.GetRoot().DescendantNodes().OfType<InterfaceDeclarationSyntax>();
 
-            // build new compilation unit:
-            // - usings
-            // - top level variables
-            // - top level statements
-            // - top level methods
-            // - records, classes, enums
 
-            var result = CompilationUnit()
+        // build new compilation unit:
+        // - usings
+        // - top level variables
+        // - top level statements
+        // - top level methods
+        // - records, classes, enums
+
+        var result = CompilationUnit()
             .WithUsings(List(usings))
             .WithMembers(
                 List(Enumerable.Empty<GlobalStatementSyntax>()
@@ -192,7 +195,9 @@ class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
                         GlobalStatement(ParseStatement("Output.WriteResult(part1, part2, sw.Elapsed);\r\n")!),
                     ])
                     .Concat(List<MemberDeclarationSyntax>(methods))
+                    .Concat(List<MemberDeclarationSyntax>(interfaces))
                     .Concat(List<MemberDeclarationSyntax>(records))
+                    .Concat(List<MemberDeclarationSyntax>(structs))
                     .Concat(List<MemberDeclarationSyntax>(classes))
                     .Concat(List<MemberDeclarationSyntax>(enums))
                 )
@@ -201,52 +206,8 @@ class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
         var workspace = new AdhocWorkspace();
         var code = Formatter.Format(result.NormalizeWhitespace(), workspace, workspace.Options
             .WithChangedOption(CSharpFormattingOptions.IndentBlock, true)
-            ).ToString()
-            + Helpers();
+            ).ToString();
         return code;
-    }
-
-    public string Helpers()
-    {
-
-        return """
-
-            static class Output
-            {
-                internal static void WriteResult<T1, T2>(T1 part1, T2 part2, TimeSpan time)
-                {
-                    Console.WriteLine($"+".PadRight(39, '-') + "+");
-                    Console.WriteLine($"| Part 1    | {part1}".PadRight(39) + "|");
-                    Console.WriteLine($"| Part 2    | {part2}".PadRight(39) + "|");
-                    Console.WriteLine($"| Time      | {time.FormatTime()}".PadRight(39) + "|");
-                    Console.WriteLine($"| Allocated | {GC.GetTotalAllocatedBytes().FormatBytes()}".PadRight(39) + "|");
-                    Console.WriteLine($"+".PadRight(39, '-') + "+");
-                }
-                static string FormatBytes(this long b)
-                {
-                    double bytes = b;
-                    string[] sizes = ["B", "KB", "MB", "GB", "TB"];
-                    int n = 0;
-                    while (bytes >= 1024 && n < sizes.Length - 1)
-                    {
-                        n++;
-                        bytes /= 1024;
-                    }
-                    return $"{bytes:0.00} {sizes[n]}";
-                }
-                static string FormatTime(this TimeSpan timespan) => timespan switch
-                {
-                    { TotalHours: > 1 } ts => $@"{ts:hh\:mm\:ss}",
-                    { TotalMinutes: > 1 } ts => $@"{ts:mm\:ss}",
-                    { TotalSeconds: > 10 } ts => $"{ts.TotalSeconds} s",
-                    { TotalSeconds: > 1 } ts => $@"{ts:ss\.fff} s",
-                    { TotalMilliseconds: > 10 } ts => $"{ts.TotalMilliseconds:0.0} ms",
-                    { TotalMilliseconds: > 1 } ts => $"{ts.TotalMicroseconds:0.0} μs",
-                    TimeSpan ts => $"{ts.TotalNanoseconds} ns"
-                };
-            }
-            """;
-
     }
 
     private bool IsInitialized(FieldDeclarationSyntax node, IEnumerable<StatementSyntax> initialization)
@@ -417,6 +378,7 @@ class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
             outputDir.CopyFile(codeDir.Sample);
 
         outputDir.CopyFile(templateDir.CsProj);
+        outputDir.CopyFile(templateDir.Helpers);
 
         if (includecommon is { Length: >0 } && commonDir.Exists)
         {

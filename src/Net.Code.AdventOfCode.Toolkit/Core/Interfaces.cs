@@ -98,6 +98,7 @@ interface ITemplateFolder
     FileInfo CsProj { get; }
     FileInfo Notebook { get; }
     FileInfo Sample { get; }
+    FileInfo Helpers { get; }
     bool Exists { get; }
     Task<string> ReadCode(PuzzleKey key);
 }
