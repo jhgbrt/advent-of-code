@@ -4,6 +4,8 @@ using Net.Code.AdventOfCode.Toolkit.Infrastructure;
 using Spectre.Console.Cli;
 
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Text;
 
 namespace Net.Code.AdventOfCode.Toolkit.Commands;
 
@@ -44,3 +46,54 @@ class Run(IAoCRunner manager, IPuzzleManager puzzleManager, AoCLogic aocLogic, I
 }
 
 
+class PerfStats
+{
+    Stopwatch sw = Stopwatch.StartNew();
+    long bytes = GC.GetTotalAllocatedBytes();
+    public TimeSpan Elapsed => sw.Elapsed;
+    public long Bytes => GC.GetTotalAllocatedBytes() - bytes;
+    public PerfStats()
+    {
+        _ticks = [("start", sw.Elapsed, Bytes)];
+    }
+
+    List<(string label, TimeSpan elapsed, long bytes)> _ticks;
+    public void Tick(string label)
+    {
+        _ticks.Add((label, Elapsed, Bytes));
+    }
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        foreach (var ((l1, e1, b1), (label, e2, b2)) in _ticks.Zip(_ticks.Skip(1)))
+        {
+            sb.AppendLine($"{label}: {FormatTime(e2-e1)} - {FormatBytes(b2 - b1)}");
+        }
+        return sb.ToString();
+    }
+
+
+    static string FormatBytes(long b)
+    {
+        double bytes = b;
+        string[] sizes = ["B", "KB", "MB", "GB", "TB"];
+        int n = 0;
+        while (bytes >= 1024 && n < sizes.Length - 1)
+        {
+            n++;
+            bytes /= 1024;
+        }
+        return $"{bytes:0.00} {sizes[n]}";
+    }
+    static string FormatTime(TimeSpan timespan) => timespan switch
+    {
+        { TotalHours: > 1 } ts => $@"{ts:hh\:mm\:ss}",
+        { TotalMinutes: > 1 } ts => $@"{ts:mm\:ss}",
+        { TotalSeconds: > 10 } ts => $"{ts.TotalSeconds} s",
+        { TotalSeconds: > 1 } ts => $@"{ts:ss\.fff} s",
+        { TotalMilliseconds: > 1 } ts => $"{ts.TotalMilliseconds:0} ms",
+        { TotalMicroseconds: > 1 } ts => $"{ts.TotalMicroseconds:0} μs",
+        TimeSpan ts => $"{ts.TotalNanoseconds:0} ns"
+    };
+}
