@@ -1,62 +1,40 @@
 namespace AdventOfCode.Year2024.Day05;
 
-public class AoC202405(Stream stream)
+public class AoC202405(string[] lines)
 {
-    public AoC202405() : this(Read.InputStream()) {}
+    public AoC202405() : this(Read.InputLines()) {}
 
-    (IList<(int left, int right)> rules, IList<IList<int>> updates) input = ReadInput(stream);
-    IComparer<int> comparer => new CustomComparer(input.rules);
+    ((int left, int right)[] rules, int[][] updates) input = ReadInput(lines);
 
-    private static (IList<(int, int)>, IList<IList<int>>) ReadInput(Stream stream)
+    private static ((int left, int right)[], int[][]) ReadInput(string[] lines)
     {
-        IList<(int, int)> rules = [];
-        IList<IList<int>> updates = [];
+        var rules = from line in lines.TakeWhile(l => l != "")
+                    let parts = line.Split('|')
+                    select (int.Parse(parts[0]), int.Parse(parts[1]));
 
-        var sr = new StreamReader(stream);
+        var updates = from line in lines.SkipWhile(l => l != "").Skip(1)
+                      select line.Split(',').Select(int.Parse).ToArray();
 
-        var readingRules = true;
-
-        while (!sr.EndOfStream)
-        {
-            var line = sr.ReadLine();
-            if (readingRules && line == "")
-            {
-                readingRules = false;
-                continue;
-            }
-            if (string.IsNullOrEmpty(line)) continue;
-            if (readingRules)
-            {
-                var separator = line.IndexOf('|');
-                rules.Add((int.Parse(line[..separator]), int.Parse(line[(separator+1)..])));
-            }
-            else
-            {
-                var splits = line.Split( ',').Select(int.Parse).ToList();
-                updates.Add(splits);
-            }
-
-        }
-
-        return (rules, updates);
+        return (rules.ToArray(), updates.ToArray());
     }
 
 
     public int Part1() => (
             from update in input.updates
             where !InvalidRules(update).Any()
-            select update[update.Count / 2]
+            select update[update.Length / 2]
             ).Sum();
 
-
-    public int Part2() => (
-            from update in (
-                from update in input.updates
-                where InvalidRules(update).Any()
-                select update.Order(comparer).ToList()
-                ).ToList()
-            select update[update.Count / 2]
+    public int Part2()
+    {
+        var comparer = new CustomComparer(input.rules);
+        return (
+            from update in input.updates
+            where InvalidRules(update).Any()
+            select update.Order(comparer).Skip(update.Length / 2).First()
             ).Sum();
+    }
+
     IEnumerable<(int left, int right)> InvalidRules(IList<int> update)
         => from rule in input.rules
            where update.Contains(rule.left) && update.Contains(rule.right)
@@ -83,7 +61,7 @@ public class AoC202405Tests
     private readonly AoC202405 sut;
     public AoC202405Tests(ITestOutputHelper output)
     {
-        var input = Read.SampleStream();
+        var input = Read.SampleLines();
         sut = new AoC202405(input);
     }
 

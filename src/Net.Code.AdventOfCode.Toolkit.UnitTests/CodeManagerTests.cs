@@ -104,10 +104,12 @@ public class CodeManagerTests
             public object Part2() => 1;
         }
         """, """
-        var sw = Stopwatch.StartNew();
+        var stats = new Stats();
+        stats.Report("Init");
         var part1 = 1;
+        stats.Report(1, part1);
         var part2 = 1;
-        Output.WriteResult(part1, part2, sw.Elapsed);
+        stats.Report(2, part2);
         """)]
     [InlineData(2, """
         namespace AoC.Year2021.Day03;
@@ -119,11 +121,13 @@ public class CodeManagerTests
             public object Part2() => 1;
         }
         """, """
+        var stats = new Stats();
         string[] input = File.ReadAllLines("input.txt");
-        var sw = Stopwatch.StartNew();
+        stats.Report("Init");
         var part1 = 1;
+        stats.Report(1, part1);
         var part2 = 1;
-        Output.WriteResult(part1, part2, sw.Elapsed);
+        stats.Report(2, part2);
         """)]
     [InlineData(3, """
         namespace AoC.Year2021.Day03;
@@ -141,13 +145,15 @@ public class CodeManagerTests
             public object Part2() => 1;
         }
         """, """
+        var stats = new Stats();
         var input = File.ReadAllLines("input.txt");
         var grid = new Grid(input);
         int A = 42;
-        var sw = Stopwatch.StartNew();
+        stats.Report("Init");
         var part1 = 1;
+        stats.Report(1, part1);
         var part2 = 1;
-        Output.WriteResult(part1, part2, sw.Elapsed);
+        stats.Report(2, part2);
         """)]
     [InlineData(4, """
         namespace AoC.Year2021.Day03;
@@ -161,13 +167,15 @@ public class CodeManagerTests
             public object Part2() => 1;
         }
         """, """
+        var stats = new Stats();
         var input = File.ReadAllLines("input.txt");
         int A = 42;
         Grid grid = new Grid(input);
-        var sw = Stopwatch.StartNew();
+        stats.Report("Init");
         var part1 = 1;
+        stats.Report(1, part1);
         var part2 = 1;
-        Output.WriteResult(part1, part2, sw.Elapsed);
+        stats.Report(2, part2);
         """)]
     [InlineData(5, """
         namespace AoC.Year2021.Day03;
@@ -181,13 +189,15 @@ public class CodeManagerTests
             public object Part2() => 1;
         }
         """, """
+        var stats = new Stats();
         var input = File.ReadAllLines("input.txt");
         var writer = Console.Out;
         Grid grid = new Grid(input);
-        var sw = Stopwatch.StartNew();
+        stats.Report("Init");
         var part1 = 1;
+        stats.Report(1, part1);
         var part2 = 1;
-        Output.WriteResult(part1, part2, sw.Elapsed);
+        stats.Report(2, part2);
         """)]
     [InlineData(6, """
         namespace AoC.Year2021.Day03;
@@ -199,10 +209,12 @@ public class CodeManagerTests
             private object Solve(int i) => i;
         }
         """, """
-        var sw = Stopwatch.StartNew();
+        var stats = new Stats();
+        stats.Report("Init");
         var part1 = Solve(1);
+        stats.Report(1, part1);
         var part2 = Solve(2);
-        Output.WriteResult(part1, part2, sw.Elapsed);
+        stats.Report(2, part2);
         object Solve(int i) => i;
         """)]
     [InlineData(7, """
@@ -217,11 +229,13 @@ public class CodeManagerTests
             public object Part2() => 2;
         }
         """, """
+        var stats = new Stats();
         var input = File.ReadAllLines("input.txt");
-        var sw = Stopwatch.StartNew();
+        stats.Report("Init");
         var part1 = 1;
+        stats.Report(1, part1);
         var part2 = 2;
-        Output.WriteResult(part1, part2, sw.Elapsed);
+        stats.Report(2, part2);
         """)]
         [InlineData(8, """
         public class AoC202103
@@ -244,16 +258,18 @@ public class CodeManagerTests
             public object Part2() => 2;
         }
         """, """
+        var stats = new Stats();
         var input = File.ReadAllLines("input.txt");
         var writer = Console.Out;
         var items = input.Select(s =>
         {
             return s;
         }).ToImmutableArray();
-        var sw = Stopwatch.StartNew();
+        stats.Report("Init");
         var part1 = 1;
+        stats.Report(1, part1);
         var part2 = 2;
-        Output.WriteResult(part1, part2, sw.Elapsed);
+        stats.Report(2, part2);
         """)]
     [InlineData(9, """
         public class AoC202103(string[] input, TextWriter writer)
@@ -269,16 +285,18 @@ public class CodeManagerTests
             public object Part2() => 2;
         }
         """, """
+        var stats = new Stats();
         var input = File.ReadAllLines("input.txt");
         var writer = Console.Out;
         ImmutableArray<string> items = input.Select(s =>
         {
             return s;
         }).ToImmutableArray();
-        var sw = Stopwatch.StartNew();
+        stats.Report("Init");
         var part1 = 1;
+        stats.Report(1, part1);
         var part2 = 2;
-        Output.WriteResult(part1, part2, sw.Elapsed);
+        stats.Report(2, part2);
         """)]
     public async Task GenerateCodeTests(int n, string input, string expected)
     {
@@ -296,13 +314,15 @@ public class CodeManagerTests
         var result = await m.GenerateCodeAsync(new(2021, 3));
 
         Assert.Equal("""
+            var stats = new Stats();
             var input = File.ReadAllLines("input.txt");
             var writer = Console.Out;
             var myvariable = input.Select(int.Parse).ToArray();
-            var sw = Stopwatch.StartNew();
+            stats.Report("Init");
             var part1 = Solve(1);
+            stats.Report(1, part1);
             var part2 = Part2();
-            Output.WriteResult(part1, part2, sw.Elapsed);
+            stats.Report(2, part2);
             object Part2()
             {
                 return Solve(2);

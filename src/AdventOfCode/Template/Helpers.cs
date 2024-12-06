@@ -1,20 +1,19 @@
-﻿static class Output
+﻿class Stats
 {
-    internal static void WriteResult<T>(int part, T value, TimeSpan time, long bytes)
-    {
-        Console.WriteLine($"Part {part}: {value} ({time.FormatTime()} - {bytes.FormatBytes()})");
-    }
+    Stopwatch sw = Stopwatch.StartNew();
+    long bytes = GC.GetTotalAllocatedBytes();
 
-    internal static void WriteResult<T1, T2>(T1 part1, T2 part2, TimeSpan time)
+    public void Report(string label)
     {
-        Console.WriteLine($"+".PadRight(39, '-') + "+");
-        Console.WriteLine($"| Part 1    | {part1}".PadRight(39) + "|");
-        Console.WriteLine($"| Part 2    | {part2}".PadRight(39) + "|");
-        Console.WriteLine($"| Time      | {time.FormatTime()}".PadRight(39) + "|");
-        Console.WriteLine($"| Allocated | {GC.GetTotalAllocatedBytes().FormatBytes()}".PadRight(39) + "|");
-        Console.WriteLine($"+".PadRight(39, '-') + "+");
+        Console.WriteLine($"{label,-18} took {FormatTime(sw.Elapsed),-6} and allocated {FormatBytes(GC.GetTotalAllocatedBytes() - bytes), 6}");
+        sw.Restart();
+        bytes = GC.GetTotalAllocatedBytes();
     }
-    static string FormatBytes(this long b)
+    public void Report<T>(int part, T value)
+    {
+        Report($"Part {part} = {value}");
+    }
+    static string FormatBytes(long b)
     {
         double bytes = b;
         string[] sizes = ["B", "KB", "MB", "GB", "TB"];
@@ -24,16 +23,16 @@
             n++;
             bytes /= 1024;
         }
-        return $"{bytes:0.00} {sizes[n]}";
+        return $"{bytes:0} {sizes[n]}";
     }
-    static string FormatTime(this TimeSpan timespan) => timespan switch
+    static string FormatTime(TimeSpan timespan) => timespan switch
     {
         { TotalHours: > 1 } ts => $@"{ts:hh\:mm\:ss}",
         { TotalMinutes: > 1 } ts => $@"{ts:mm\:ss}",
         { TotalSeconds: > 10 } ts => $"{ts.TotalSeconds} s",
         { TotalSeconds: > 1 } ts => $@"{ts:ss\.fff} s",
-        { TotalMilliseconds: > 1 } ts => $"{ts.TotalMilliseconds:0} ms",
-        { TotalMicroseconds: > 1 } ts => $"{ts.TotalMicroseconds:0} μs",
-        TimeSpan ts => $"{ts.TotalNanoseconds:0} ns"
+        { TotalMilliseconds: > 1 } ts => $"{ts.TotalMilliseconds,3:0} ms",
+        { TotalMicroseconds: > 1 } ts => $"{ts.TotalMicroseconds,3:0} μs",
+        TimeSpan ts => $"{ts.TotalNanoseconds,3:0} ns"
     };
 }

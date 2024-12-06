@@ -182,17 +182,16 @@ class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
             .WithUsings(List(usings))
             .WithMembers(
                 List(Enumerable.Empty<GlobalStatementSyntax>()
+                    .Concat([GlobalStatement(ParseStatement("var stats = new Stats();\r\n"))!])
                     .Concat(initialization.Select(GlobalStatement))
                     .Concat(fields.Select(GlobalStatement))
                     .Concat(
                     [
-                        GlobalStatement(ParseStatement("var sw = Stopwatch.StartNew();\r\n")!),
+                        GlobalStatement(ParseStatement("stats.Report(\"Init\");\r\n"))!,
                         GenerateGlobalStatement(1, implementations),
-                        GenerateGlobalStatement(2, implementations)
-                    ])
-                    .Concat(
-                    [
-                        GlobalStatement(ParseStatement("Output.WriteResult(part1, part2, sw.Elapsed);\r\n")!),
+                        GlobalStatement(ParseStatement("stats.Report(1, part1);\r\n"))!,
+                        GenerateGlobalStatement(2, implementations),
+                        GlobalStatement(ParseStatement("stats.Report(2, part2);\r\n"))!,
                     ])
                     .Concat(List<MemberDeclarationSyntax>(methods))
                     .Concat(List<MemberDeclarationSyntax>(interfaces))
