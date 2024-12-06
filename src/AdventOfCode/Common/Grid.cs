@@ -1,11 +1,79 @@
 ﻿using Spectre.Console;
 
+using System.Collections;
+using System.Diagnostics.CodeAnalysis;
+
 namespace AdventOfCode;
 
 enum Direction{ N, NE, E, SE, S, SW, W, NW }
 
+class Grid2 : IReadOnlyDictionary<Coordinate, char>
+{
+    char[,] items;
+    public Grid2(string[] input)
+    {
+        items = new char[input[0].Length, input.Length];
+        for (int y = 0; y < input.Length; y++)
+            for (int x = 0; x < input[y].Length; x++)
+                items[x, y] = input[y][x];
+    }
+    private Grid2(char[,] items)
+    {
+        this.items = items;
+    }
 
-class FiniteGrid
+    public char this[Coordinate p] => this[p.x, p.y];
+    public char this[int x, int y] => IsValid(x, y) ? items[x, y] : '.';
+    bool IsValid(int x, int y) => x >= 0 && y >= 0 && x < Width && y < Height;
+    public int Width => items.GetLength(0);
+    public int Height => items.GetLength(1);
+
+    public Coordinate Find(char c) => this.Keys.Where(k => this[k] == c).First();
+
+    public Grid2 With(Action<char[,]> action)
+    {
+        var copy = (char[,])items.Clone();
+        action(copy);
+        return new Grid2(copy);
+    }
+
+    public IEnumerable<Coordinate> Keys
+    {
+        get
+        {
+            for (int y = 0; y < items.GetLength(1); y++)
+                for (int x = 0; x < items.GetLength(0); x++)
+                    yield return new Coordinate(x, y);
+        }
+    }
+    public IEnumerable<char> Values => Keys.Select(k => this[k]);
+    public int Count => items.Length;
+
+    public bool ContainsKey(Coordinate key) => key.x >= 0 && key.y >= 0 && key.x < Width && key.y < Height;
+
+    public IEnumerator<KeyValuePair<Coordinate, char>> GetEnumerator()
+    {
+        foreach (var k in Keys) yield return new KeyValuePair<Coordinate, char>(k, this[k]);
+    }
+
+    public bool TryGetValue(Coordinate key, [MaybeNullWhen(false)] out char value)
+    {
+        if (ContainsKey(key))
+        {
+            value = this[key];
+            return true;
+        }
+        value = default;
+        return false;
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+}
+
+class FiniteGrid : IReadOnlyDictionary<Coordinate, char>
 {
 
     //        x
@@ -20,6 +88,21 @@ class FiniteGrid
     readonly char empty;
     public int Height => endmarker.y;
     public int Width => endmarker.x;
+
+    public IEnumerable<Coordinate> Keys
+    {
+        get
+        {
+            for (int y = origin.y; y < Height; y++)
+                for (int x = origin.x; x < endmarker.x; x++)
+                    yield return new Coordinate(x, y);
+        }
+    }
+
+    public IEnumerable<char> Values => Keys.Select(k => this[k]);
+
+    public int Count => Width * Height;
+
     public FiniteGrid(string[] input, char empty = '.')
     : this(ToDictionary(input, empty), empty, new(input[0].Length, input.Length))
     {
@@ -165,10 +248,27 @@ class FiniteGrid
 
     public bool Contains(Coordinate c) => IsValid(c);
 
+    public bool ContainsKey(Coordinate key) => IsValid(key);
+
+    public bool TryGetValue(Coordinate key, [MaybeNullWhen(false)] out char value)
+    {
+        if (IsValid(key))
+        {
+            value = this[key];
+            return true;
+        }
+        value = default;
+        return false;
+    }
+
+    public IEnumerator<KeyValuePair<Coordinate, char>> GetEnumerator() => Keys.Select(k => new KeyValuePair<Coordinate, char>(k, this[k])).GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 }
 
-
-class InfiniteGrid
+// Sparse & safe - no need to check bounds
+// Dictionary functionality like Count, Values, Keys etc will only take into account non-empty cells
+class InfiniteGrid : IReadOnlyDictionary<Coordinate, char>
 {
     readonly Dictionary<Coordinate, char> items = new();
     readonly char empty = '.';
@@ -196,6 +296,12 @@ class InfiniteGrid
 
     private Coordinate topleft => new(items.Keys.Min(x => x.x), items.Keys.Min(x => x.y));
     private Coordinate bottomright => new(items.Keys.Max(x => x.x), items.Keys.Max(x => x.y));
+
+    public IEnumerable<Coordinate> Keys => items.Keys;
+
+    public IEnumerable<char> Values => items.Values;
+
+    int IReadOnlyCollection<KeyValuePair<Coordinate, char>>.Count => items.Count;
 
     public override string ToString()
     {
@@ -227,6 +333,14 @@ class InfiniteGrid
     }
 
     public int Count() => items.Count;
+
+    public bool ContainsKey(Coordinate key) => items.ContainsKey(key);
+
+    public bool TryGetValue(Coordinate key, [MaybeNullWhen(false)] out char value) => items.TryGetValue(key, out value);
+
+    public IEnumerator<KeyValuePair<Coordinate, char>> GetEnumerator() => items.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => items.GetEnumerator();
 }
 
 class InfiniteGrid3D
