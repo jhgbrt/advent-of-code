@@ -1,5 +1,7 @@
 using Operator = System.Func<long, long, long>;
+
 namespace AdventOfCode.Year2024.Day07;
+using static Operators;
 
 public class AoC202407(Stream input)
 {
@@ -18,7 +20,7 @@ public class AoC202407(Stream input)
             var result = long.Parse(span[..separator]);
             var numbers = span[(separator + 2)..];
             var list = new List<long>(numbers.Count(' ') + 1);
-            foreach (var range in Regex.EnumerateSplits(span[(separator + 2)..], " "))
+            foreach (var range in numbers.Split(" "))
             {
                 list.Add(long.Parse(numbers[range]));
             }
@@ -26,12 +28,16 @@ public class AoC202407(Stream input)
         }
     }
 
-    public long Part1() => equations.Where(e => e.IsValid(operators1)).Sum(e => e.target);
-    public long Part2() => equations.Where(e => e.IsValid(operators2)).Sum(e => e.target);
+    public long Part1() => equations.AsParallel().Where(e => e.IsValid(operators1)).Sum(e => e.target);
+    public long Part2() => equations.AsParallel().Where(e => e.IsValid(operators2)).Sum(e => e.target);
 
-    static long Add(long left, long right) => left + right;
-    static long Multiply(long left, long right) => left * right;
-    static long Concatenate(long left, long right)
+
+}
+static class Operators
+{
+    public static long Add(long left, long right) => left + right;
+    public static long Multiply(long left, long right) => left * right;
+    public static long Concatenate(long left, long right)
     {
         long factor = 1;
         while (factor <= right)
@@ -40,7 +46,6 @@ public class AoC202407(Stream input)
         }
         return left * factor + right;
     }
-
 }
 
 readonly record struct Equation(long target, List<long> numbers)
@@ -50,7 +55,6 @@ readonly record struct Equation(long target, List<long> numbers)
 
         int n = operators.Length;
         int combinations = (int)Pow(n, numbers.Count - 1);
-
         for (int i = 0; i < combinations; i++)
         {
             var result = numbers[0];
@@ -61,6 +65,10 @@ readonly record struct Equation(long target, List<long> numbers)
                 int index = mask % n;
                 mask /= n;
                 result = operators[index](result, numbers[j]);
+                if (result > target)
+                {
+                    break;
+                }
             }
 
             if (result == target)
