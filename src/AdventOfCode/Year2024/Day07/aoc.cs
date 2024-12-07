@@ -1,24 +1,20 @@
-using Operator = System.Func<long, long, long>;
-
 namespace AdventOfCode.Year2024.Day07;
-using static Operators;
 
-public class AoC202407(Stream input)
+public class AoC202407(IEnumerable<string> input)
 {
-    public AoC202407() : this(Read.InputStream()) {}
+    public AoC202407() : this(Read.Input().Lines()) 
+    {
+    }
 
     readonly Equation[] equations = ParseInput(input).ToArray();
-    static readonly Operator[] operators1 = [Add, Multiply];
-    static readonly Operator[] operators2 = [Add, Multiply, Concatenate];
-    static IEnumerable<Equation> ParseInput(Stream input)
+
+    static IEnumerable<Equation> ParseInput(IEnumerable<string> input)
     {
-        var sr = new StreamReader(input);
-        while (sr.ReadLine() is string line)
+        foreach (ReadOnlySpan<char> line in input)
         {
-            var span = line.AsSpan();
-            var separator = span.IndexOf(':');
-            var result = long.Parse(span[..separator]);
-            var numbers = span[(separator + 2)..];
+            var separator = line.IndexOf(':');
+            var result = long.Parse(line[..separator]);
+            var numbers = line[(separator + 2)..];
             var list = new List<long>(numbers.Count(' ') + 1);
             foreach (var range in numbers.Split(" "))
             {
@@ -28,32 +24,20 @@ public class AoC202407(Stream input)
         }
     }
 
-    public long Part1() => equations.AsParallel().Where(e => e.IsValid(operators1)).Sum(e => e.target);
-    public long Part2() => equations.AsParallel().Where(e => e.IsValid(operators2)).Sum(e => e.target);
-
-
+    public long Part1() => equations.Where(e => e.IsValid(2)).Sum(e => e.target);
+    public long Part2() => equations.AsParallel().Where(e => e.IsValid(3)).Sum(e => e.target);
 }
-static class Operators
+enum Operation
 {
-    public static long Add(long left, long right) => left + right;
-    public static long Multiply(long left, long right) => left * right;
-    public static long Concatenate(long left, long right)
-    {
-        long factor = 1;
-        while (factor <= right)
-        {
-            factor *= 10;
-        }
-        return left * factor + right;
-    }
+    Add, Multiply, Concatenate
 }
 
 readonly record struct Equation(long target, List<long> numbers)
 {
-    public bool IsValid(Operator[] operators)
+    public bool IsValid(int n)
     {
+        var target = this.target;
 
-        int n = operators.Length;
         int combinations = (int)Pow(n, numbers.Count - 1);
         for (int i = 0; i < combinations; i++)
         {
@@ -62,9 +46,18 @@ readonly record struct Equation(long target, List<long> numbers)
 
             for (int j = 1; j < numbers.Count; j++)
             {
-                int index = mask % n;
-                mask /= n;
-                result = operators[index](result, numbers[j]);
+                (var operation, mask) = ((Operation)(mask % n), mask /= n);
+                result = operation switch 
+                {
+                    Operation.Add => result + numbers[j],
+                    Operation.Multiply => result * numbers[j],
+                    Operation.Concatenate => result * numbers[j] switch
+                    {
+                        < 10 => 10,
+                        < 100 => 100,
+                        < 1000 => 1000
+                    } + numbers[j]
+                };
                 if (result > target)
                 {
                     break;
@@ -87,13 +80,20 @@ public class AoC202407Tests
     private readonly AoC202407 sut;
     public AoC202407Tests(ITestOutputHelper output)
     {
-        var input = Read.SampleStream();
+        var input = Read.SampleLines();
         sut = new AoC202407(input);
     }
 
     [Fact]
     public void TestParsing()
     {
+    }
+    
+    [Fact]
+    public void EquationIsValidTest()
+    {
+        var equation = new Equation(1344480, [7,466,85,43,7,56,424]);
+        Assert.True(equation.IsValid(3));
     }
 
     [Fact]
