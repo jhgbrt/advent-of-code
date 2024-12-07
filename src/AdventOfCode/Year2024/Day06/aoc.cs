@@ -28,8 +28,7 @@ public class AoC202406
 
     static IEnumerable<(Coordinate c, Direction d)> Traverse(IReadOnlyDictionary<Coordinate, char> g, Coordinate start, Coordinate? obstruction = null)
     {
-        var pos = start;
-        var d = Direction.N;
+        var (pos, d) = (start, Direction.N);
         while (g.ContainsKey(pos))
         {
             yield return (pos, d);
@@ -87,7 +86,7 @@ class Grid : IReadOnlyDictionary<Coordinate, char>
         get
         {
             for (int y = origin.y; y < Height; y++)
-                for (int x = origin.x; x < endmarker.x; x++)
+                for (int x = origin.x; x < Width; x++)
                     yield return new Coordinate(x, y);
         }
     }
