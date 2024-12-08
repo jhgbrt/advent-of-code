@@ -9,7 +9,8 @@ public static class GraphBuilder
     class GraphBuilderImpl<TVertex, TValue> : IGraphBuilder<TVertex, TValue> where TVertex : IEquatable<TVertex>
     {
         private readonly HashSet<TVertex> vertices = [];
-        private readonly List<Edge<TVertex, TValue>> edges = [];
+        private readonly HashSet<Edge<TVertex, TValue>> edges = [];
+        private IReadOnlyDictionary<TVertex, string> labels = ImmutableDictionary<TVertex, string>.Empty;
         public IGraphBuilder<TVertex, TValue> AddVertex(TVertex source)
         {
             vertices.Add(source);
@@ -35,9 +36,16 @@ public static class GraphBuilder
             return this;
         }
 
+        public IGraphBuilder<TVertex, TValue> WithLabels(IReadOnlyDictionary<TVertex, string> labels)
+        {
+            this.labels = labels;
+            return this;
+        }
+
         public IGraph<TVertex, TValue> BuildGraph() => new Graph<TVertex, TValue>(
                 vertices.ToImmutableHashSet(),
-                edges.ToLookup(e => e.Source)
+                edges.ToLookup(e => e.Source),
+                labels
             );
     }
 
@@ -50,4 +58,5 @@ public interface IGraphBuilder<TVertex, TValue> where TVertex : IEquatable<TVert
     IGraphBuilder<TVertex, TValue> AddVertex(TVertex source);
     IGraphBuilder<TVertex, TValue> AddVertices(IEnumerable<TVertex> vertices);
     IGraph<TVertex, TValue> BuildGraph();
+    IGraphBuilder<TVertex, TValue> WithLabels(IReadOnlyDictionary<TVertex, string> labels);
 }

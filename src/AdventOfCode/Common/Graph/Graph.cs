@@ -27,14 +27,17 @@ internal class Graph<TVertex, TValue> : IGraph<TVertex, TValue>
     private readonly TVertex[] vertices;
     private readonly IReadOnlyDictionary<TVertex, int> vertexToIndex;
     private readonly ILookup<TVertex, Edge<TVertex, TValue>> edgesBySource;
+    private readonly IReadOnlyDictionary<TVertex, string> labels;
     internal Graph(
         ImmutableHashSet<TVertex> vertices,
-        ILookup<TVertex, Edge<TVertex, TValue>> edgesBySource
+        ILookup<TVertex, Edge<TVertex, TValue>> edgesBySource,
+        IReadOnlyDictionary<TVertex, string>? labels = null
     )
     {
-        this.vertices = vertices.ToArray();
+        this.vertices = [.. vertices];
         this.vertexToIndex = vertices.Select((v, i) => (v, i)).ToDictionary(t => t.v, t => t.i);
         this.edgesBySource = edgesBySource;
+        this.labels = labels ?? ImmutableDictionary<TVertex, string>.Empty;
     }
 
     public IEnumerable<TVertex> Vertices => vertices;
@@ -75,7 +78,7 @@ internal class Graph<TVertex, TValue> : IGraph<TVertex, TValue>
     public override string ToString()
     {
         var sb = new StringBuilder();
-        DotGraphWriter.WriteTo(this.ToDotGraph(), sb);
+        DotGraphWriter.WriteTo(this.ToDotGraph(labels), sb);
         return sb.ToString();
     }
 

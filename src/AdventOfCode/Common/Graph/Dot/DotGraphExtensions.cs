@@ -68,11 +68,17 @@ public static class DotGraphExtensions
         foreach (var edge in graph.Edges) result.Add(toedge(edge));
         return result;
     }
-    public static DotGraph ToDotGraph<TVertex, TValue>(this IGraph<TVertex, TValue> graph)
+    public static DotGraph ToDotGraph<TVertex, TValue>(this IGraph<TVertex, TValue> graph, IReadOnlyDictionary<TVertex, string> labels)
         where TVertex : IEquatable<TVertex>
     {
         var result = new DotGraph("G").Strict();
-        foreach (var node in graph.Vertices) result.Add(new DotNode().WithIdentifier(node.ToString()!));
+        foreach (var node in graph.Vertices)
+        {
+            var dotnode = new DotNode().WithIdentifier(node.ToString()!);
+            if (labels.TryGetValue(node, out var label))
+                dotnode = dotnode.WithLabel($"{label}({node})");
+            result.Add(dotnode);
+        }
         foreach (var edge in graph.Edges) result.Add(new DotEdge().From(edge.Source.ToString()!).To(edge.Destination.ToString()!).WithLabel(edge.Value!.ToString()!));
         result.Directed(false /* TODO */);
         return result;
