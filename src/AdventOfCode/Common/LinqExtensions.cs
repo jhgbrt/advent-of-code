@@ -25,6 +25,19 @@ static class LinqExtensions
         }
     }
 
+    public static IEnumerable<(T first,T second)> Combinations<T>(this IEnumerable<T> items)
+    {
+        if (items is not IReadOnlyList<T> list) list = items.ToList();
+            
+        for (int i = 0; i < list.Count; i++)
+        {
+            for (int j = i + 1; j < list.Count; j++)
+            {
+                yield return (list[i], list[j]);
+            }
+        }
+    }
+
     public static LinkedListNode<T> PreviousOrLast<T>(this LinkedListNode<T> node) => node.Previous ?? node?.List?.Last ?? throw new Exception("Inconsistent linked list");
     public static LinkedListNode<T> NextOrFirst<T>(this LinkedListNode<T> node) => node.Next ?? node?.List?.First ?? throw new Exception("Inconsistent linked list");
     public static IEnumerable<IEnumerable<T>> GetPermutations<T>(this IEnumerable<T> list, int length) => length == 1
