@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-
 namespace AdventOfCode.Year2024.Day08;
 public class AoC202408(string[] input)
 {
@@ -41,12 +37,10 @@ public class AoC202408(string[] input)
     }
     IEnumerable<Coordinate> GetEquidistantPoints(Coordinate c, Delta d)
     {
-        int i = 0;
         while (IsValid(c))
         {
             yield return c;
             c += d;
-            i++;
         }
     }
 
