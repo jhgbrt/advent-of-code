@@ -336,7 +336,7 @@ public class AoC202019Tests(ITestOutputHelper output)
 
 }
 
-class Donut(Box outside, Box inside, Grid grid)
+class Donut(Box outside, Box inside)
 {
     public bool Contains(Coordinate c) => outside.Contains(c) && !inside.Contains(c);
     public bool IsOutside(Coordinate c)
@@ -382,7 +382,7 @@ class Donut(Box outside, Box inside, Grid grid)
         var bottomright = new Coordinate(g.Width - width1 - 1, g.Height - width1 - 1);
         var outside = new Box(topleft, bottomright);
         var inside = new Box(topleft + (width2, width2), bottomright - (width2, width2));
-        return new Donut(outside, inside, g);
+        return new Donut(outside, inside);
     }
 }
 record struct Box(Coordinate TopLeft, Coordinate BottomRight)
