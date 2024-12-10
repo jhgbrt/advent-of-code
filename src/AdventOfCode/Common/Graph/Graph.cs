@@ -21,6 +21,7 @@ public interface IGraph<TVertex, TValue> where TVertex : IEquatable<TVertex>
     Dictionary<int, List<(int dest, TValue value)>> ToDictionary();
 }
 
+
 internal class Graph<TVertex, TValue> : IGraph<TVertex, TValue>
     where TVertex : IEquatable<TVertex>
 {
@@ -54,7 +55,7 @@ internal class Graph<TVertex, TValue> : IGraph<TVertex, TValue>
         => edgesBySource[source].OrderBy(e => e.Destination);
 
     public IEnumerable<TVertex> GetAdjacentVertices(TVertex source)
-        => edgesBySource[source].Select(e => e.Destination).Order();
+        => edgesBySource[source].Select(e => e.Destination);
 
     public TValue[,] ToAdjacencyMatrix()
     {

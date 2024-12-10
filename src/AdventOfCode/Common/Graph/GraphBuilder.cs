@@ -60,3 +60,6 @@ public interface IGraphBuilder<TVertex, TValue> where TVertex : IEquatable<TVert
     IGraph<TVertex, TValue> BuildGraph();
     IGraphBuilder<TVertex, TValue> WithLabels(IReadOnlyDictionary<TVertex, string> labels);
 }
+
+public interface IGraphBuilder<TVertex> : IGraphBuilder<TVertex, int> where TVertex : IEquatable<TVertex>
+{ }

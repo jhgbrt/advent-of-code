@@ -151,72 +151,16 @@ class FiniteGrid : IReadOnlyDictionary<Coordinate, char>
         from x in Range(origin.x, endmarker.x)
         select new Coordinate(x, y);
 
-
-    public IEnumerable<(Coordinate coordinate, char value)> this[int? x, int? y]
+    static (int, int)[] deltas = [(0, 1), (1, 0), (0, -1), (-1, 0)];
+    public IEnumerable<Coordinate> Neighbours(Coordinate p)
     {
-        get
-        {
-            if (x.HasValue && y.HasValue)
-            {
-                yield return (new Coordinate(x.Value, y.Value), this[x.Value, y.Value]);
-            }
-            else if (x.HasValue)
-            {
-                foreach (var y1 in Range(0, Height))
-                {
-                    yield return (new Coordinate(x.Value, y1), this[x.Value, y1]);
-                }
-            }
-            else if (y.HasValue)
-            {
-                foreach (var x1 in Range(0, Width))
-                {
-                    yield return (new Coordinate(x1, y.Value), this[x1, y.Value]);
-                }
-            }
-            else
-            {
-                foreach (var y1 in Range(0, Height))
-                {
-                    foreach (var x1 in Range(0, Width))
-                    {
-                        yield return (new Coordinate(x1, y1), this[x1, y1]);
-                    }
-                }
-            }
-        }
-    }
-
-    public IEnumerable<(Direction d, Coordinate c)> Neighbours(Coordinate p)
-    {
+        
         return
-            from d in new (Direction direction, (int x, int y) delta)[] 
-            { 
-                (Direction.NW, (-1, -1)), 
-                (Direction.W, (-1, 0)), 
-                (Direction.SW, (-1, 1)), 
-                (Direction.S, (0, 1)),
-                (Direction.SE, (1, 1)), 
-                (Direction.E, (1, 0)), 
-                (Direction.NE, (1, -1)), 
-                (Direction.N, (0, -1)) 
-            }
-            where IsValid(p + d.delta)
-            select (d.direction, p + d.delta);
+            from d in deltas
+            where ContainsKey(p + d)
+            select  p + d;
     }
 
-    public Coordinate? GetNeighbour(Coordinate p, Direction d) => d switch
-    {
-        Direction.N => IfValid(new(p.x, p.y - 1)),
-        Direction.NE => IfValid(new(p.x + 1, p.y - 1)),
-        Direction.E => IfValid(new(p.x + 1, p.y)),
-        Direction.SE => IfValid(new(p.x + 1, p.y + 1)),
-        Direction.S => IfValid(new(p.x, p.y + 1)),
-        Direction.SW => IfValid(new(p.x - 1, p.y + 1)),
-        Direction.W => IfValid(new(p.x - 1, p.y)),
-        Direction.NW => IfValid(new(p.x - 1, p.y - 1))
-    };
-    Coordinate? IfValid(Coordinate p) => IsValid(p) ? p : null;
     bool IsValid(Coordinate p) => p.x >= 0 && p.y >= 0 && p.x < endmarker.x && p.y < endmarker.y;
 
     public IEnumerable<Coordinate> BoundingBox(Coordinate p, int length)

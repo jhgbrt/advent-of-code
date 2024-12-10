@@ -16,7 +16,7 @@ public static class GraphTraversal
         }
     }
 
-    public static IEnumerable<TVertex> DepthFirst<TVertex, TValue>(this IGraph<TVertex, TValue> graph, TVertex start) where TVertex : IEquatable<TVertex>, IComparable<TVertex>
+    public static IEnumerable<TVertex> DepthFirst<TVertex, TValue>(this IGraph<TVertex, TValue> graph, TVertex start) where TVertex : IEquatable<TVertex>
     {
         var stack = new Stack<TVertex>();
         stack.Push(start);
@@ -36,7 +36,7 @@ public static class GraphTraversal
         }
     }
 
-    public static IEnumerable<TVertex> BreadthFirst<TVertex, TValue>(this IGraph<TVertex, TValue> graph, TVertex start) where TVertex : IEquatable<TVertex>, IComparable<TVertex>
+    public static IEnumerable<TVertex> BreadthFirst<TVertex, TValue>(this IGraph<TVertex, TValue> graph, TVertex start) where TVertex : IEquatable<TVertex>
     {
         var queue = new Queue<TVertex>();
         queue.Enqueue(start);
@@ -56,4 +56,6 @@ public static class GraphTraversal
             yield return current;
         }
     }
+
+   
 }
