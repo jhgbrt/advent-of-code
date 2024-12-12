@@ -20,15 +20,15 @@
     <None Include="Template\Regex\AoC.cs" />
     <None Include="Template\Regex\aoc.csproj" />
     <None Include="Template\Helpers.cs" />
-    <!--<Compile Remove="Year2015/**" />
+    <Compile Remove="Year2015/**" />
     <Compile Remove="Year2016/**" />
     <Compile Remove="Year2017/**" />
     <Compile Remove="Year2018/**" />
-    --><!--<Compile Remove="Year2019/**" />--><!--
+    <Compile Remove="Year2019/**" />
     <Compile Remove="Year2020/**" />
     <Compile Remove="Year2021/**" />
     <Compile Remove="Year2022/**" />
-    <Compile Remove="Year2023/**" />-->
+    <Compile Remove="Year2023/**" />
     <Compile Remove="Template/**" />
   </ItemGroup>
   <ItemGroup>
