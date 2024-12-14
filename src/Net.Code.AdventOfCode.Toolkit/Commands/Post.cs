@@ -32,11 +32,11 @@ class Post(IPuzzleManager manager, AoCLogic logic, IInputOutputService io) : Sin
         if (string.IsNullOrEmpty(value))
         {
             var result = await manager.GetPuzzleResult(key);
-            if (result.result.Part1.Status == ResultStatus.Unknown)
+            if (result.Comparison.part1 == ResultStatus.Unknown)
             {
                 value = result.result.Part1.Value;
             }
-            else if (result.result.Part2.Status == ResultStatus.Unknown)
+            else if (result.Comparison.part2 == ResultStatus.Unknown)
             {
                 value = result.result.Part2.Value;
             }
@@ -61,7 +61,7 @@ class Post(IPuzzleManager manager, AoCLogic logic, IInputOutputService io) : Sin
                 return 1;
             }
         }
-
+        io.MarkupLine($"Posting answer {value} for {key}...");
         var (success, content) = await manager.PostAnswer(key, value);
 
         var color = success ? Color.Green : Color.Red;
