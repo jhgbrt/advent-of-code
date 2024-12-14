@@ -190,8 +190,6 @@ class FiniteGrid : IReadOnlyDictionary<Coordinate, char>
         return sb.ToString();
     }
 
-    public bool Contains(Coordinate c) => IsValid(c);
-
     public bool ContainsKey(Coordinate key) => IsValid(key);
 
     public bool TryGetValue(Coordinate key, [MaybeNullWhen(false)] out char value)
@@ -201,8 +199,8 @@ class FiniteGrid : IReadOnlyDictionary<Coordinate, char>
             value = this[key];
             return true;
         }
-        value = default;
-        return false;
+        value = empty;
+        return true;
     }
 
     public IEnumerator<KeyValuePair<Coordinate, char>> GetEnumerator() => Keys.Select(k => new KeyValuePair<Coordinate, char>(k, this[k])).GetEnumerator();

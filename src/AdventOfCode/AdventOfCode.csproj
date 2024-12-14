@@ -13,6 +13,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="Template\aoc.csproj" />
+    <None Include="Template\AoC.cs" />
     <None Include="Template\Grid\AoC.cs" />
     <None Include="Template\Grid\aoc.csproj" />
     <None Include="Template\IntCode\AoC.cs" />

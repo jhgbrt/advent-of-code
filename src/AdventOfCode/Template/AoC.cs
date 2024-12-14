@@ -3,26 +3,13 @@
 public class AoCYYYYDD(string[] input, TextWriter writer)
 {
     public AoCYYYYDD() : this(Read.InputLines(), Console.Out) {}
-    readonly TextWriter writer;
-    readonly ImmutableArray<Item> items;
-    internal IEnumerable<Item> Items = input.Select(s => Regexes.MyRegex().As<Item>(s)).ToImmutableArray();
 
     public int Part1()
     {
-        foreach (var item in items)
-            writer.WriteLine(item);
 
         return -1;
     }
     public int Part2() => -1;
-}
-
-readonly record struct Item(string name, int n);
-
-static partial class Regexes
-{
-    [GeneratedRegex(@"^(?<name>.*): (?<n>\d+)$")]
-    public static partial Regex MyRegex();
 }
 
 public class AoCYYYYDDTests
@@ -37,9 +24,6 @@ public class AoCYYYYDDTests
     [Fact]
     public void TestParsing()
     {
-        Assert.Equal(2, sut.Items.Count());
-        Assert.Equal("foo", sut.Items.First().name);
-        Assert.Equal(1, sut.Items.First().n);
     }
 
     [Fact]
