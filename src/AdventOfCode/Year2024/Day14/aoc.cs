@@ -39,7 +39,8 @@ public class AoC202414(string[] input, TextWriter writer, int width, int height)
             if (n % 10000 == 0) writer.WriteLine(n);
         } while (!IsChristmasTree(set, out bounds));
 
-        DrawImage(bounds, set);
+        if (Environment.CommandLine.Contains("draw"))
+            DrawImage(bounds, set);
 
         return n;
     }
@@ -145,90 +146,6 @@ public class AoC202414(string[] input, TextWriter writer, int width, int height)
         Console.ResetColor();
     }
 
-}
-
-class FiniteGrid : IReadOnlyDictionary<Coordinate, char>
-{
-
-    //        x
-    //   +---->
-    //   |
-    //   |
-    // y v
-
-    readonly ImmutableDictionary<Coordinate, char> items;
-    readonly Coordinate origin = new(0, 0);
-    readonly Coordinate endmarker;
-    readonly char empty;
-    public int Height => endmarker.y;
-    public int Width => endmarker.x;
-
-    public IEnumerable<Coordinate> Keys
-    {
-        get
-        {
-            for (int y = origin.y; y < Height; y++)
-                for (int x = origin.x; x < endmarker.x; x++)
-                    yield return new Coordinate(x, y);
-        }
-    }
-
-    public IEnumerable<char> Values => Keys.Select(k => this[k]);
-
-    public int Count => Width * Height;
-
-    public FiniteGrid(string[] input, char empty = '.')
-    : this(ToDictionary(input, empty), empty, new(input[0].Length, input.Length))
-    {
-    }
-    static ImmutableDictionary<Coordinate, char> ToDictionary(string[] input, char empty)
-    => (from y in Range(0, input.Length)
-        from x in Range(0, input[y].Length)
-        where input[y][x] != empty
-        select (x, y, c: input[y][x])).ToImmutableDictionary(t => new Coordinate(t.x, t.y), t => t.c);
-
-    internal FiniteGrid(ImmutableDictionary<Coordinate, char> items, char empty, Coordinate endmarker)
-    {
-        this.items = items;
-        this.empty = empty;
-        this.endmarker = endmarker;
-    }
-
-    public char this[Coordinate p] => items.TryGetValue(p, out var c) ? c : empty;
-    public char this[(int x, int y) p] => this[new Coordinate(p.x, p.y)];
-    public char this[int x, int y] => this[new Coordinate(x, y)];
-
-
-    bool IsValid(Coordinate p) => p.x >= 0 && p.y >= 0 && p.x < endmarker.x && p.y < endmarker.y;
-
-
-    public override string ToString()
-    {
-        var sb = new StringBuilder();
-        for (int y = origin.y; y < endmarker.y; y++)
-        {
-            for (int x = origin.x; x < endmarker.x; x++) sb.Append(this[x, y]);
-            sb.AppendLine();
-        }
-        return sb.ToString();
-    }
-
-    public bool ContainsKey(Coordinate key) => IsValid(key);
-
-    public bool TryGetValue(Coordinate key, [MaybeNullWhen(false)] out char value)
-    {
-        if (IsValid(key))
-        {
-            value = this[key];
-            return true;
-        }
-        value = empty;
-        return true;
-    }
-
-    public IEnumerator<KeyValuePair<Coordinate, char>> GetEnumerator() => Keys.Select(k => new KeyValuePair<Coordinate, char>(k, this[k])).GetEnumerator();
-
-    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 }
 
 record struct Delta(int x, int y);
