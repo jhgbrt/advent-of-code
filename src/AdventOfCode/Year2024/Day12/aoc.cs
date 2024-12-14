@@ -17,21 +17,24 @@ public class AoC202412(string[] input)
             {
                 var c = new Coordinate(x, y);
                 if (visited.Contains(c)) continue;
-                islands.Add(Flood(input, c, visited));
+                var island = new HashSet<Coordinate>();
+                Flood(input, c, visited, island);
+                islands.Add(island);
             }
         }
         return islands;
     }
 
-    static HashSet<Coordinate> Flood(string[] input, Coordinate c, HashSet<Coordinate> visited)
+    static void Flood(string[] input, Coordinate c, HashSet<Coordinate> visited, HashSet<Coordinate> island)
     {
-        if (visited.Contains(c)) return [];
+        if (visited.Contains(c)) return;
         visited.Add(c);
-        var parts = from n in c.Neighbours().Where(c => c.x >= 0 && c.y >= 0 && c.x < input[0].Length && c.y < input.Length)
-                    where input[n.y][n.x] == input[c.y][c.x]
-                    from f in Flood(input, n, visited)
-                    select f;
-        return parts.Append(c).ToHashSet();
+        island.Add(c);
+        var neighbours = 
+            from n in c.Neighbours().Where(c => c.x >= 0 && c.y >= 0 && c.x < input[0].Length && c.y < input.Length)
+            where input[n.y][n.x] == input[c.y][c.x]
+            select n;
+        foreach (var n in neighbours) Flood(input, n, visited, island);
     }
 
     public int Part1() => (from island in islands
