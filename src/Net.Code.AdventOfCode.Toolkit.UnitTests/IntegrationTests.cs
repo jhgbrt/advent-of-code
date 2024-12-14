@@ -100,11 +100,12 @@ public class IntegrationTests(ITestOutputHelper output, DateTime Now, (int year,
         return Do(["stats"], http);
     }
 
-    protected Task<int> Post(string value, int? year = null, int? day = null)
+    protected Task<int> Post(string? value = null, int? year = null, int? day = null)
     {
-        IEnumerable<string> args = ["post", value];
+        IEnumerable<string> args = ["post"];
         if (year.HasValue) args = args.Append($"{year}");
         if (day.HasValue) args = args.Append($"{day}");
+        if (value != null) args = args.Append(value);
 
         if (!year.HasValue) year = Year;
         if (!day.HasValue) day = Day;
@@ -176,7 +177,7 @@ public class IntegrationTests(ITestOutputHelper output, DateTime Now, (int year,
         public async Task TestPost()
         {
             await Init();
-            var result = await Post("123", Year, Day);
+            var result = await Post();
             Assert.Equal(0, result);
         }
 
@@ -185,8 +186,8 @@ public class IntegrationTests(ITestOutputHelper output, DateTime Now, (int year,
         {
             await Init();
             await Run();
-            await Post("answer1");
-            await Post("answer2");
+            await Post();
+            await Post();
             var result = await Verify();
             Assert.Equal(0, result);
         }

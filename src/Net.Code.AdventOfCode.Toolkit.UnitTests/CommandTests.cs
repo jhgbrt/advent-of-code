@@ -132,6 +132,16 @@ public class CommandTests
     }
 
     [Fact]
+    public async Task Post_WhenPuzzleIsValid_StoredAnswer()
+    {
+        var manager = CreatePuzzleManager();
+        var sut = new Post(manager, AoCLogic, Substitute.For<IInputOutputService>());
+        PuzzleKey key = new(Year, 5);
+        await sut.ExecuteAsync(key, new Post.Settings());
+        await manager.Received().PostAnswer(key, "answer2");
+    }
+
+    [Fact]
     public async Task Report()
     {
         var manager = CreatePuzzleManager();
@@ -172,8 +182,8 @@ public class CommandTests
         var manager = Substitute.For<IPuzzleManager>();
         foreach (var key in AoCLogic.Puzzles())
         {
-            var puzzle = Puzzle.Create(key, "input", Answer.Empty);
-            var result = DayResult.NotImplemented(key);
+            var puzzle = Puzzle.Create(key, "input", new Answer("answer1", "answer2"));
+            var result = new DayResult(key, new(ResultStatus.Ok, "answer1", TimeSpan.FromSeconds(10), 12), new (ResultStatus.Unknown, "answer2", TimeSpan.FromSeconds(1), 12));
             var status = new PuzzleResultStatus(puzzle, result);
             manager.GetPuzzle(key).Returns(puzzle);
             manager.SyncPuzzle(key).Returns(puzzle);

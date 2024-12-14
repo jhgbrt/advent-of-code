@@ -190,9 +190,9 @@ namespace Net.Code.AdventOfCode.Toolkit.UnitTests
 
             Dictionary<PuzzleKey, DayResult> results = new[]
             {
-            new DayResult(new(2017, 1), new Result(ResultStatus.Ok, "answer1", TimeSpan.FromMilliseconds(5), 12), new Result(ResultStatus.Ok, "answer2", TimeSpan.FromMilliseconds(5), 12)),
-            new DayResult(new(2017, 2), new Result(ResultStatus.Ok, "answer1", TimeSpan.FromMilliseconds(5), 12), Result.Empty),
-            DayResult.NotImplemented(new(2017, 3))
+                new DayResult(new(2017, 1), new Result(ResultStatus.Ok, "answer1", TimeSpan.FromMilliseconds(5), 12), new Result(ResultStatus.Ok, "answer2", TimeSpan.FromMilliseconds(5), 12)),
+                new DayResult(new(2017, 2), new Result(ResultStatus.Ok, "answer1", TimeSpan.FromMilliseconds(5), 12), Result.Empty),
+                new DayResult(new(2017, 3), new Result(ResultStatus.Unknown, "answer1", TimeSpan.FromMilliseconds(5), 12), Result.Empty),
         }.ToDictionary(r => r.Key);
 
             public IQueryable<Puzzle> Puzzles => puzzles.Values.AsQueryable();

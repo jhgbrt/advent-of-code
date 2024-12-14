@@ -122,6 +122,10 @@ class PuzzleManager(IAoCClient client, IAoCDbContext db, AoCLogic logic) : IPuzz
 
             var stats = await client.GetPersonalStatsAsync(key.Year);
             content = new StringBuilder(content).AppendLine().AppendLine($"You now have {stats?.TotalStars} stars and a score of {stats?.LocalScore}").ToString();
+
+            var result = await GetPuzzleResult(key);
+            result.ConfirmResult(answer);
+
         }
         return (success, content);
     }

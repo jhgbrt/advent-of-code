@@ -39,6 +39,18 @@ record PuzzleResultStatus(Puzzle puzzle, DayResult result)
         _ => throw new NotImplementedException($"{status} is an unhandled result status")
     };
 
+    internal void ConfirmResult(AnswerToPost answer)
+    {
+        if (answer.part ==1)
+        {
+            result.Part1 = result.Part1 with { Status = ResultStatus.Ok };
+        }
+        else
+        {
+            result.Part2 = result.Part2 with { Status = ResultStatus.Ok };
+        }
+    }
+
     public ComparisonResult Comparison
     {
         get
