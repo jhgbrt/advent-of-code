@@ -147,8 +147,8 @@ class FiniteGrid : IReadOnlyDictionary<Coordinate, char>
     public char this[int x, int y] => this[new Coordinate(x, y)];
 
     public IEnumerable<Coordinate> Points() =>
-        from y in Range(origin.y, endmarker.y)
-        from x in Range(origin.x, endmarker.x)
+        from y in Range(origin.y, Height)
+        from x in Range(origin.x, Width)
         select new Coordinate(x, y);
 
     static (int, int)[] deltas = [(0, 1), (1, 0), (0, -1), (-1, 0)];
@@ -161,7 +161,7 @@ class FiniteGrid : IReadOnlyDictionary<Coordinate, char>
             select  p + d;
     }
 
-    bool IsValid(Coordinate p) => p.x >= 0 && p.y >= 0 && p.x < endmarker.x && p.y < endmarker.y;
+    bool IsValid(Coordinate p) => p.x >= 0 && p.y >= 0 && p.x < Width && p.y < Height;
 
     public IEnumerable<Coordinate> BoundingBox(Coordinate p, int length)
     {
@@ -169,22 +169,22 @@ class FiniteGrid : IReadOnlyDictionary<Coordinate, char>
             from x in Range(p.x - 1, length + 2)
             from y in new[]{p.y - 1, p.y, p.y + 1}
             where x >= 0 && y >= 0
-            && x < endmarker.x
-            && y < endmarker.y
+            && x < Width
+            && y < Height
             select new Coordinate(x, y);
     }
 
     public IEnumerable<Coordinate> InteriorPoints() =>
-        from y in Range(origin.y + 1, endmarker.y - 2)
-        from x in Range(origin.x + 1, endmarker.x - 2)
+        from y in Range(origin.y + 1, Height - 2)
+        from x in Range(origin.x + 1, Width - 2)
         select new Coordinate(x, y);
 
     public override string ToString()
     {
         var sb = new StringBuilder();
-        for (int y = origin.y; y < endmarker.y; y++)
+        for (int y = 0; y < Height; y++)
         {
-            for (int x = origin.x; x < endmarker.x; x++) sb.Append(this[x, y]);
+            for (int x = 0; x < Width; x++) sb.Append(this[x, y]);
             sb.AppendLine();
         }
         return sb.ToString();
