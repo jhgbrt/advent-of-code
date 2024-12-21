@@ -39,7 +39,7 @@ public static class Dijkstra
     static (int[] distance, Dictionary<int, int> ancestors) ComputeShortestPaths(int[,] graph, int source, int verticesCount)
     {
         var distance = new int[verticesCount];
-        var visited = new bool[verticesCount];
+        var visited = new BitArray(verticesCount);
         Dictionary<int, int> ancestors = [];
         for (int i = 0; i < verticesCount; ++i)
         {
@@ -66,7 +66,7 @@ public static class Dijkstra
 
         return (distance, ancestors);
 
-        static int MinimumDistance(int[] distance, bool[] visited, int verticesCount) => (
+        static int MinimumDistance(int[] distance, BitArray visited, int verticesCount) => (
                 from v in Enumerable.Range(0, verticesCount)
                 where !visited[v]
                 select (v, distance: distance[v])
