@@ -304,6 +304,8 @@ public class CodeManagerTests
 
         var code = await m.GenerateCodeAsync(new(2021, 3));
         Assert.Equal(expected, code);
+
+        GC.KeepAlive(n); // only there to identify the test
     }
 
     [Fact]

@@ -14,6 +14,11 @@ namespace Net.Code.AdventOfCode.Toolkit.Logic;
 
 class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
 {
+    public bool IsInitialized(Puzzle puzzle)
+    {
+        var codeFolder = fileSystem.GetCodeFolder(puzzle.Key);
+        return codeFolder.Exists;
+    }
     public async Task InitializeCodeAsync(Puzzle puzzle, bool force, string? template, Action<string> progress)
     {
         var codeFolder = fileSystem.GetCodeFolder(puzzle.Key);

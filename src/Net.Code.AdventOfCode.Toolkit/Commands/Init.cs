@@ -24,7 +24,14 @@ class Init(IPuzzleManager puzzleManager, ICodeManager codeManager, AoCLogic logi
         var template = options.template;
         output.WriteLine($"The puzzle for {key} is unlocked; initializing code using {template ?? "default"} template...");
         var puzzle = await puzzleManager.SyncPuzzle(key);
-        await codeManager.InitializeCodeAsync(puzzle, force, options.template, output.WriteLine);
+        if (codeManager.IsInitialized(puzzle))
+        {
+            output.WriteLine("Already initialized!");
+        }
+        else
+        {
+            await codeManager.InitializeCodeAsync(puzzle, force, options.template, output.WriteLine);
+        }
         return 0;
     }
 

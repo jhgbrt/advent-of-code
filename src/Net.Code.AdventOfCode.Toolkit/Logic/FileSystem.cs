@@ -75,6 +75,7 @@ internal class Folder : IFolder
         logger.LogTrace($"WRITE: {name}");
         return filesystem.WriteAllTextAsync(name, content);
     }
+
     protected Task DeleteIfExists(string name)
     {
         var n = GetFileName(name);

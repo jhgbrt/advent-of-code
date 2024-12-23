@@ -27,6 +27,7 @@ interface ICodeManager
     Task<string> GenerateCodeAsync(PuzzleKey key);
     Task InitializeCodeAsync(Puzzle puzzle, bool force, string? template, Action<string> progress);
     Task SyncPuzzleAsync(Puzzle puzzle);
+    bool IsInitialized(Puzzle puzzle);
 }
 
 interface IPuzzleManager
