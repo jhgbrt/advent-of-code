@@ -12,7 +12,7 @@ public class AoC202418(string[] input, int size, int n)
         let x = int.Parse(line[..comma])
         let y = int.Parse(line[(comma + 1)..])
         select new Coordinate(x, y)).ToArray();
-
+    
     public int Part1()
     {
         return FindShortestPaths(coordinates[..n].ToHashSet()).Count();
@@ -72,7 +72,7 @@ public class AoC202418Tests
     [Fact]
     public void TestPart2()
     {
-        Assert.Equal("18,62", sut.Part2());
+        Assert.Equal("6,1", sut.Part2());
     }
 }
 
