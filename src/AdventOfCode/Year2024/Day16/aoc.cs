@@ -1,9 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 
 namespace AdventOfCode.Year2024.Day16;
-public class AoC202416(string[] input, TextWriter? _)
+public class AoC202416(string[] input)
 {
-    public AoC202416() : this(Read.InputLines(), null) {}
+    public AoC202416() : this(Read.InputLines()) {}
 
     Grid grid = new(input);
 
@@ -111,7 +111,7 @@ public class AoC202416(string[] input, TextWriter? _)
 
 }
 
-public class AoC202416Tests(ITestOutputHelper output)
+public class AoC202416Tests()
 {
  
     [Theory]
@@ -123,7 +123,7 @@ public class AoC202416Tests(ITestOutputHelper output)
     [InlineData(6, 4006)]
     public void TestPart1(int sample, int expected)
     {
-        var sut = new AoC202416(Read.SampleLines(sample), new TestWriter(output));
+        var sut = new AoC202416(Read.SampleLines(sample));
         Assert.Equal(expected, sut.Part1());
     }
 
@@ -136,7 +136,7 @@ public class AoC202416Tests(ITestOutputHelper output)
     [InlineData(6, 7)] 
     public void TestPart2(int sample, int expected)
     {
-        var sut = new AoC202416(Read.SampleLines(sample), new TestWriter(output));
+        var sut = new AoC202416(Read.SampleLines(sample));
         Assert.Equal(expected, sut.Part2());
     }
 }

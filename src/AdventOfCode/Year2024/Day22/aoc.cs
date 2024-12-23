@@ -1,8 +1,8 @@
 namespace AdventOfCode.Year2024.Day22;
 
-public class AoC202422(string[] input, TextWriter writer)
+public class AoC202422(string[] input)
 {
-    public AoC202422() : this(Read.InputLines(), Console.Out) {}
+    public AoC202422() : this(Read.InputLines()) {}
 
     long[] numbers = input.Select(long.Parse).ToArray();
 
@@ -29,7 +29,7 @@ public class AoC202422Tests(ITestOutputHelper output)
     public void TestParsing()
     {
         var input = Read.SampleLines(1);
-        var sut = new AoC202422(input, new TestWriter(output));
+        var sut = new AoC202422(input);
     }
 
     [Fact]
@@ -41,7 +41,6 @@ public class AoC202422Tests(ITestOutputHelper output)
         Assert.Equal(0x1000000, (int)Math.Pow(2, 24));
         Assert.Equal(0x0800000, (int)Math.Pow(2, 23));
         output.WriteLine($"{(int)Math.Pow(2, 23)}");
-        var x = 8388608;
         Assert.Equal(123123887681726 % 0x1000000, 123123887681726 & (0x1000000 - 1));
     }
 
@@ -49,7 +48,7 @@ public class AoC202422Tests(ITestOutputHelper output)
     public void TestPart1()
     {
         var input = Read.SampleLines(1);
-        var sut = new AoC202422(input, new TestWriter(output));
+        var sut = new AoC202422(input);
         Assert.Equal(37327623, sut.Part1());
     }
 
@@ -57,7 +56,7 @@ public class AoC202422Tests(ITestOutputHelper output)
     public void TestPart2()
     {
         var input = Read.SampleLines(2);
-        var sut = new AoC202422(input, new TestWriter(output));
+        var sut = new AoC202422(input);
         Assert.Equal(-1, sut.Part2());
     }
 }

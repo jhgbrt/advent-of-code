@@ -3,9 +3,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace AdventOfCode.Year2024.Day14;
 
-public class AoC202414(string[] input, TextWriter writer, int width, int height)
+public class AoC202414(string[] input, int width, int height)
 {
-    public AoC202414() : this(Read.InputLines(), Console.Out, 101, 103) {}
+    public AoC202414() : this(Read.InputLines(), 101, 103) {}
 
     ImmutableArray<Robot> robots = ReadInput(input).ToImmutableArray();
 
@@ -36,7 +36,6 @@ public class AoC202414(string[] input, TextWriter writer, int width, int height)
                 span[i] = span[i].Move(1, width, height);
                 set.Add(span[i].p);
             }
-            if (n % 10000 == 0) writer.WriteLine(n);
         } while (!IsChristmasTree(set, out bounds));
 
         if (Environment.CommandLine.Contains("draw"))
@@ -198,10 +197,10 @@ static partial class Regexes
 public class AoC202414Tests
 {
     private readonly AoC202414 sut;
-    public AoC202414Tests(ITestOutputHelper output)
+    public AoC202414Tests()
     {
         var input = Read.SampleLines();
-        sut = new AoC202414(input, new TestWriter(output), 11, 7);
+        sut = new AoC202414(input, 11, 7);
     }
 
     [Fact]

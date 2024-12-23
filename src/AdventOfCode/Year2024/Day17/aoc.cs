@@ -41,8 +41,6 @@ public class AoC202417(string[] input)
                     current = candidate;
                     break;
                 }
-                if (i % 1000000 == 0)
-                    Console.WriteLine(i);
             }
         }
         return current;

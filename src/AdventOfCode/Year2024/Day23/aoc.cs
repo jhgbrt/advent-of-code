@@ -1,13 +1,8 @@
-using Net.Code.Graph;
-using Net.Code.Graph.Dot;
+﻿namespace AdventOfCode.Year2024.Day23;
 
-using Sprache;
-
-namespace AdventOfCode.Year2024.Day23;
-
-public class AoC202423(string[] input, TextWriter writer)
+public class AoC202423(string[] input)
 {
-    public AoC202423() : this(Read.InputLines(), Console.Out) {}
+    public AoC202423() : this(Read.InputLines()) {}
     Dictionary<string,HashSet<string>> graph = ReadInput(input);
     static Dictionary<string, HashSet<string>> ReadInput(string[] input)
     {
@@ -32,35 +27,7 @@ public class AoC202423(string[] input, TextWriter writer)
         }
         return graph;
     }
-    static List<HashSet<string>> FindMaximalCliques(Dictionary<string, HashSet<string>> graph)
-    {
-        var cliques = new List<HashSet<string>>();
-        BronKerbosch([], [.. graph.Keys], [], graph, cliques);
-        return cliques;
-    }
-
-    static void BronKerbosch(HashSet<string> R, HashSet<string> P, HashSet<string> X, IDictionary<string, HashSet<string>> graph, List<HashSet<string>> cliques)
-    {
-        if (P.Count == 0 && X.Count == 0)
-        {
-            cliques.Add([.. R]);
-            return;
-        }
-
-        foreach (var v in P)
-        {
-            var neighbors = graph[v];
-            BronKerbosch(
-                [.. R, v],
-                [.. P.Intersect(neighbors)],
-                [.. X.Intersect(neighbors)],
-                graph,
-                cliques
-            );
-            P.Remove(v);
-            X.Add(v);
-        }
-    }
+   
     public int Part1() => (
             from a in graph.Keys
             from b in graph[a]
@@ -70,17 +37,47 @@ public class AoC202423(string[] input, TextWriter writer)
             let t = (a, b, c).Ordered()
             select t).Distinct().Count();
 
+    public string Part2() => string.Join(",", FindMaximalCliques().MaxBy(cl => cl.Count)!.Order());
 
-    public string Part2() => string.Join(",", FindMaximalCliques(graph).MaxBy(cl => cl.Count)!.Order());
+    IEnumerable<HashSet<string>> FindMaximalCliques()
+    {
+        var cliques = new List<HashSet<string>>();
+        BronKerbosch([], [.. graph.Keys], [], cliques);
+        return cliques;
+    }
+
+    void BronKerbosch(
+        HashSet<string> R, HashSet<string> P, HashSet<string> X,
+        List<HashSet<string>> cliques)
+    {
+        if ((P, X) is ({Count: 0 }, {Count:0}))
+        {
+            cliques.Add([.. R]);
+            return;
+        }
+
+        var u = P.Union(X).First();
+
+        var nonNeighbors = P.Except(graph[u]);
+
+        foreach (var v in nonNeighbors)
+        {
+            var neighbors = graph[v];
+            BronKerbosch([.. R, v], [.. P.Intersect(neighbors)], [.. X.Intersect(neighbors)], cliques);
+            P.Remove(v);
+            X.Add(v);
+        }
+    }
+
 }
 
 public class AoC202423Tests
 {
     private readonly AoC202423 sut;
-    public AoC202423Tests(ITestOutputHelper output)
+    public AoC202423Tests()
     {
         var input = Read.SampleLines();
-        sut = new AoC202423(input, new TestWriter(output));
+        sut = new AoC202423(input);
     }
 
     [Fact]

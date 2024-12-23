@@ -2,9 +2,9 @@ using Z3.Linq;
 
 namespace AdventOfCode.Year2024.Day13;
 
-public class AoC202413(Stream input, TextWriter writer)
+public class AoC202413(Stream input)
 {
-    public AoC202413() : this(Read.InputStream(), Console.Out) {}
+    public AoC202413() : this(Read.InputStream()) {}
     readonly ImmutableArray<Machine> items = ReadInput(input).ToImmutableArray();
 
     private static IEnumerable<Machine> ReadInput(Stream stream)
@@ -63,10 +63,10 @@ static partial class Regexes
 public class AoC202413Tests
 {
     private readonly AoC202413 sut;
-    public AoC202413Tests(ITestOutputHelper output)
+    public AoC202413Tests()
     {
         var input = Read.SampleStream();
-        sut = new AoC202413(input, new TestWriter(output));
+        sut = new AoC202413(input);
     }
 
     [Fact]
