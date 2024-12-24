@@ -25,6 +25,7 @@ public class AoC202422(string[] input)
         var totals = new Dictionary<Sequence, int>();
         Span<byte> prices = new byte[2000];
         var seen = new HashSet<Sequence>();
+
         foreach (var n in numbers)
         {
             seen.Clear();
