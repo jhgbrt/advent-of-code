@@ -26,7 +26,7 @@ public class AoC202424(string[] input)
         while (queue.Count > 0)
         {
             var gate = queue.Dequeue();
-            if (wires.ContainsKey(gate.left) && wires.ContainsKey(gate.right))
+            if (wires.ContainsKey(gate.in1) && wires.ContainsKey(gate.in2))
             {
                 wires[gate.output] = gate.Process(wires);
             }
@@ -48,38 +48,25 @@ public class AoC202424(string[] input)
 
         // identifies the wrong gates
         // inspired by https://www.reddit.com/r/adventofcode/comments/1hl698z/comment/m3kt1je/
-        var q = from g in gates
+        var wrong = from g in gates
                 where g switch
                 {
-                    (_, not '^', _, ['z', ..] output) 
-                        => output != maxZ,
-                    ([not ('x' or 'y' or 'z'), ..], 
-                     '^', 
-                     [not ('x' or 'y' or 'z'), ..], 
-                     [not ('x' or 'y' or 'z'), ..])
-                        => true,
-                    (not "x00", '&', not "x00", _)
-                        => (from s in gates
-                            where s.IsConnectedTo(g) && s.@operator != '|'
-                            select g).Any(),
-                    (_, '^', _, _)
-                        => (from s in gates
-                            where s.IsConnectedTo(g) && s.@operator == '|'
-                            select g).Any(),
-                    _
-                        => false
+                    (_, not '^', _, ['z', ..] output)  => output != maxZ,
+                    ([< 'x', ..],  '^',  [< 'x', ..], [< 'x', ..]) => true,
+                    (not "x00", '&', not "x00", _) => gates.Where(s => s.IsConnectedTo(g) && s.op != '|').Any(),
+                    (_, '^', _, _) => gates.Where(s => s.IsConnectedTo(g) && s.op == '|').Any(),
+                    _ => false
                 }
+                orderby g.output
                 select g.output;
 
-        var wrong = q.ToHashSet();
-
-        return string.Join(",", wrong.OrderBy(x => x));
+        return string.Join(",", wrong.Distinct());
 
     }
 
 }
 
-public class AoC202424Tests(ITestOutputHelper output)
+public class AoC202424Tests
 {
 
     [Fact]
@@ -99,9 +86,7 @@ public class AoC202424Tests(ITestOutputHelper output)
     }
 }
 
-
-
-record struct Gate(string left, char @operator, string right, string output)
+record struct Gate(string in1, char op, string in2, string output)
 {
     public static Gate Parse(string line) => line.Split(' ') switch
     {
@@ -115,13 +100,13 @@ record struct Gate(string left, char @operator, string right, string output)
             }, right, output),
             _ => default
     };
-    public readonly int Process(Dictionary<string, int> wires) => @operator switch
+    public readonly int Process(Dictionary<string, int> wires) => op switch
     {
-        '&' => wires[left] & wires[right],
-        '|' => wires[left] | wires[right],
-        '^' => wires[left] ^ wires[right],
+        '&' => wires[in1] & wires[in2],
+        '|' => wires[in1] | wires[in2],
+        '^' => wires[in1] ^ wires[in2],
         _ => throw new Exception()
     };
-    public readonly bool IsConnectedTo(Gate other) => left == other.output || right == other.output;
+    public readonly bool IsConnectedTo(Gate other) => in1 == other.output || in2 == other.output;
 }
 
