@@ -74,7 +74,87 @@ public class AoC201920(string[] input, TextWriter writer)
         GC.KeepAlive(writer);
         return path.Count();
     }
-    public object Part2() => "";
+    public object Part2()
+    {
+        var grid = new Grid(input);
+        var donut = Donut.From(grid);
+
+        var letters = (
+            from pos in grid.Keys
+            let c = grid[pos]
+            where char.IsLetter(c)
+            select (pos, value: c)
+        );
+
+        var labels = (
+            from a in letters
+            from b in letters
+            where a.pos.S == b.pos || a.pos.E == b.pos
+            select new Label(a.pos, b.pos, $"{a.value}{b.value}")
+        ).ToList();
+
+        var ports =
+            (from p in labels
+             group p by p.label into g
+             where g.Skip(1).Any()
+             let first = g.First().GetPosition(donut)
+             let second = g.Skip(1).First().GetPosition(donut)
+             select (label: g.Key, first, second)).ToList();
+
+        var start = labels.First(p => p.label == "AA").GetPosition(donut);
+        var end = labels.First(p => p.label == "ZZ").GetPosition(donut);
+
+        var portalByPosition = new Dictionary<Coordinate, (Coordinate target, bool isOuter)>();
+        foreach (var p in ports)
+        {
+            if (p.label is "AA" or "ZZ") continue; // AA/ZZ are start/end only
+            // Outer portals are adjacent to the outer border of the map; inner portals are deeper inside.
+            bool IsOuter(Coordinate c)
+                => c.x <= 2 || c.y <= 2 || c.x >= grid.Width - 3 || c.y >= grid.Height - 3;
+
+            var firstIsOuter = IsOuter(p.first);
+            var secondIsOuter = IsOuter(p.second);
+            portalByPosition[p.first] = (p.second, isOuter: firstIsOuter);
+            portalByPosition[p.second] = (p.first, isOuter: secondIsOuter);
+        }
+
+        var q = new Queue<(Coordinate pos, int level, int dist)>();
+        var seen = new HashSet<(Coordinate pos, int level)>();
+        q.Enqueue((start, 0, 0));
+        seen.Add((start, 0));
+
+        while (q.Count > 0)
+        {
+            var (pos, level, dist) = q.Dequeue();
+            if (pos == end && level == 0)
+            {
+                return dist;
+            }
+
+            // Move to neighbours
+            foreach (var n in grid.Neighbours(pos))
+            {
+                if (grid[n] != '.') continue;
+                var state = (n, level);
+                if (seen.Add(state)) q.Enqueue((n, level, dist + 1));
+            }
+
+            // Use portal if available
+            if (portalByPosition.TryGetValue(pos, out var portal))
+            {
+                var nextLevel = portal.isOuter ? level - 1 : level + 1;
+                if (nextLevel >= 0)
+                {
+                    var state = (portal.target, nextLevel);
+                    if (seen.Add(state)) q.Enqueue((portal.target, nextLevel, dist + 1));
+                }
+            }
+        }
+
+        writer.WriteLine("no solution");
+
+        return -1; // no path
+    }
 
 
 
