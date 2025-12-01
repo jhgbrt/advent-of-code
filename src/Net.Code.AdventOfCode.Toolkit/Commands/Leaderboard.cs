@@ -29,7 +29,7 @@ class Leaderboard(ILeaderboardManager manager, IInputOutputService io, AoCLogic 
         public bool all { get; set; }
     }
 
-    public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings options, CancellationToken ct)
     {
         var year = options.year ?? clock.GetCurrentInstant().InUtc().YearOfEra;
 

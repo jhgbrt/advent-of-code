@@ -5,6 +5,7 @@ using Net.Code.AdventOfCode.Toolkit.Infrastructure;
 using Spectre.Console.Cli;
 
 using System.ComponentModel;
+using System.Threading;
 
 [Description("Initialize the code for a specific puzzle. Requires AOC_SESSION set as an environment variable")]
 class Init(IPuzzleManager puzzleManager, ICodeManager codeManager, AoCLogic logic, IInputOutputService output) : SinglePuzzleCommand<Init.Settings>(logic)
@@ -18,7 +19,7 @@ class Init(IPuzzleManager puzzleManager, ICodeManager codeManager, AoCLogic logi
         [CommandOption("-t|--template")]
         public string? template{ get; set; }
     }
-    public override async Task<int> ExecuteAsync(PuzzleKey key, Settings options)
+    public override async Task<int> ExecuteAsync(PuzzleKey key, Settings options, CancellationToken ct)
     {
         var force = options.force ?? false;
         var template = options.template;

@@ -28,7 +28,7 @@ public class CommandTests
         var manager = CreateCodeManager();
         var puzzleManager = CreatePuzzleManager();
         var sut = new Init(puzzleManager, manager, AoCLogic, Substitute.For<IInputOutputService>());
-        await sut.ExecuteAsync(new(Year, 1), new());
+        await sut.ExecuteAsync(new(Year, 1), new(), ct);
         await manager.Received(1).InitializeCodeAsync(Arg.Is<Puzzle>(p => p.Year == 2021 && p.Day == 1), false, null, Arg.Any<Action<string>>());
     }
 
@@ -37,7 +37,7 @@ public class CommandTests
     {
         var manager = CreateLeaderboardManager();
         var run = new Leaderboard(manager, Substitute.For<IInputOutputService>(), AoCLogic, Clock);
-        await run.ExecuteAsync(new CommandContext([], Substitute.For<IRemainingArguments>(), "leaderboard", default), new Leaderboard.Settings { year = 2021, id = 123 });
+        await run.ExecuteAsync(new CommandContext([], Substitute.For<IRemainingArguments>(), "leaderboard", default), new Leaderboard.Settings { year = 2021, id = 123 }, CancellationToken.None);
         await manager.Received(1).GetLeaderboardAsync(123, Year);
 
     }
@@ -47,7 +47,7 @@ public class CommandTests
     {
         var manager = CreateLeaderboardManager();
         var run = new Leaderboard(manager, Substitute.For<IInputOutputService>(), AoCLogic, Clock);
-        await run.ExecuteAsync(new CommandContext([], Substitute.For<IRemainingArguments>(), "leaderboard", default), new Leaderboard.Settings { year = 2021 });
+        await run.ExecuteAsync(new CommandContext([], Substitute.For<IRemainingArguments>(), "leaderboard", default), new Leaderboard.Settings { year = 2021 }, CancellationToken.None);
         await manager.Received(1).GetLeaderboardAsync(123, Year);
     }
     [Fact]
@@ -55,7 +55,7 @@ public class CommandTests
     {
         var manager = CreateLeaderboardManager();
         var run = new Leaderboard(manager, Substitute.For<IInputOutputService>(), AoCLogic, Clock);
-        await run.ExecuteAsync(new CommandContext([], Substitute.For<IRemainingArguments>(), "leaderboard", default), new Leaderboard.Settings { year = 2021, all = true });
+        await run.ExecuteAsync(new CommandContext([], Substitute.For<IRemainingArguments>(), "leaderboard", default), new Leaderboard.Settings { year = 2021, all = true }, CancellationToken.None);
         await manager.Received().GetLeaderboardsAsync(123, Arg.Any<IEnumerable<int>>());
     }
 
@@ -67,7 +67,7 @@ public class CommandTests
         var key = new PuzzleKey(2021, 1);
         manager.Run(null, key, Arg.Any<Action<int, Result>>()).Returns(DayResult.NotImplemented(key));
         var run = new Run(manager, puzzleManager, AoCLogic, Substitute.For<IInputOutputService>());
-        await run.ExecuteAsync(new(2021, 1), new());
+        await run.ExecuteAsync(new(2021, 1), new(), ct);
         await manager.Received(1).Run(null, new(2021, 1), Arg.Any<Action<int, Result>>());
     }
     [Fact]
@@ -75,7 +75,7 @@ public class CommandTests
     {
         IPuzzleManager manager = CreatePuzzleManager();
         var run = new Verify(manager, AoCLogic, Substitute.For<IInputOutputService>());
-        await run.ExecuteAsync(new(Year, 1), new());
+        await run.ExecuteAsync(new(Year, 1), new(), ct);
         await manager.Received(1).GetPuzzleResult(new(Year, 1));
     }
 
@@ -85,7 +85,7 @@ public class CommandTests
         var manager = CreateCodeManager();
         var puzzleManager = CreatePuzzleManager();
         var sut = new Sync(puzzleManager, manager, AoCLogic, Substitute.For<IInputOutputService>());
-        await sut.ExecuteAsync(new(Year, 1), new());
+        await sut.ExecuteAsync(new(Year, 1), new(), ct);
         await manager.Received(1).SyncPuzzleAsync(Arg.Is<Puzzle>(p => p.Year == 2021 && p.Day == 1));
     }
 
@@ -94,7 +94,7 @@ public class CommandTests
     {
         var manager = CreateCodeManager();
         var sut = new Export(manager, AoCLogic, Substitute.For<IInputOutputService>());
-        await sut.ExecuteAsync(new(Year, 1), new());
+        await sut.ExecuteAsync(new(Year, 1), new(), ct);
         await manager.Received(1).GenerateCodeAsync(new(Year, 1));
         await manager.DidNotReceive().ExportCode(Arg.Any<PuzzleKey>(), Arg.Any<string>(), Arg.Any<string[]>(), Arg.Any<string>());
     }
@@ -105,7 +105,7 @@ public class CommandTests
         var manager = CreateCodeManager();
         var sut = new Export(manager, AoCLogic, Substitute.For<IInputOutputService>());
         PuzzleKey key = new(Year, 1);
-        await sut.ExecuteAsync(key, new Export.Settings { output = "output.txt" });
+        await sut.ExecuteAsync(key, new Export.Settings { output = "output.txt" }, ct);
         await manager.Received(1).GenerateCodeAsync(key);
         await manager.Received(1).ExportCode(key, "public class AoC202101 {}", null, "output.txt");
     }
@@ -116,7 +116,7 @@ public class CommandTests
         var sut = new Export(manager, AoCLogic, Substitute.For<IInputOutputService>());
         PuzzleKey key = new(Year, 1);
         var common = new[] { "file1", "file2" };
-        await sut.ExecuteAsync(key, new Export.Settings { output = "output", includecommon = common });
+        await sut.ExecuteAsync(key, new Export.Settings { output = "output", includecommon = common }, ct);
         await manager.Received(1).GenerateCodeAsync(key);
         await manager.Received(1).ExportCode(key, "public class AoC202101 {}", common, "output");
     }
@@ -127,7 +127,7 @@ public class CommandTests
         var manager = CreatePuzzleManager();
         var sut = new Post(manager, AoCLogic, Substitute.For<IInputOutputService>());
         PuzzleKey key = new(Year, 5);
-        await sut.ExecuteAsync(key, new Post.Settings { value = "SOLUTION" });
+        await sut.ExecuteAsync(key, new Post.Settings { value = "SOLUTION" }, ct);
         await manager.Received().PostAnswer(key, "SOLUTION");
     }
 
@@ -137,7 +137,7 @@ public class CommandTests
         var manager = CreatePuzzleManager();
         var sut = new Post(manager, AoCLogic, Substitute.For<IInputOutputService>());
         PuzzleKey key = new(Year, 5);
-        await sut.ExecuteAsync(key, new Post.Settings());
+        await sut.ExecuteAsync(key, new Post.Settings(), ct);
         await manager.Received().PostAnswer(key, "answer2");
     }
 
@@ -146,7 +146,7 @@ public class CommandTests
     {
         var manager = CreatePuzzleManager();
         var run = new Report(manager, Substitute.For<IInputOutputService>());
-        await run.ExecuteAsync(new CommandContext([], Substitute.For<IRemainingArguments>(), "report", default), new());
+        await run.ExecuteAsync(new CommandContext([], Substitute.For<IRemainingArguments>(), "report", default), new(), CancellationToken.None);
         await manager.Received().GetPuzzleResults(Arg.Any<int?>(), Arg.Any<TimeSpan?>());
     }
 
@@ -155,7 +155,7 @@ public class CommandTests
     {
         var manager = CreateLeaderboardManager();
         var run = new Stats(manager, Substitute.For<IInputOutputService>(), AoCLogic);
-        await run.ExecuteAsync(new CommandContext([], Substitute.For<IRemainingArguments>(), "stats", default), default!);
+        await run.ExecuteAsync(new CommandContext([], Substitute.For<IRemainingArguments>(), "stats", default), default!, CancellationToken.None);
         manager.Received().GetMemberStats(Arg.Any<IEnumerable<int>>());
     }
 

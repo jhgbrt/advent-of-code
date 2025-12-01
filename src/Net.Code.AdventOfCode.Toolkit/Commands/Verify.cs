@@ -3,11 +3,12 @@
 using Net.Code.AdventOfCode.Toolkit.Core;
 using Net.Code.AdventOfCode.Toolkit.Infrastructure;
 using System.ComponentModel;
+using System.Threading;
 
 [Description("Verify the results for the given puzzle(s). Does not run the puzzle code.")]
 class Verify(IPuzzleManager manager, AoCLogic aocLogic, IInputOutputService io) : ManyPuzzlesCommand<AoCSettings>(aocLogic)
 {
-    public override async Task<int> ExecuteAsync(PuzzleKey key, AoCSettings options)
+    public override async Task<int> ExecuteAsync(PuzzleKey key, AoCSettings options, CancellationToken ct)
     {
         var resultStatus = await manager.GetPuzzleResult(key);
         var reportLine = resultStatus.ToReportLineMarkup();

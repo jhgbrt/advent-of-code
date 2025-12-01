@@ -7,7 +7,7 @@ using Spectre.Console.Cli;
 
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-
+using System.Threading;
 
 [Description("Post an answer for a puzzle part. Requires AOC_SESSION set as an environment variable.")]
 class Post(IPuzzleManager manager, AoCLogic logic, IInputOutputService io) : SinglePuzzleCommand<Post.Settings>(logic)
@@ -26,7 +26,7 @@ class Post(IPuzzleManager manager, AoCLogic logic, IInputOutputService io) : Sin
         public string? value { get; set; }
 
     }
-    public override async Task<int> ExecuteAsync(PuzzleKey key, Settings options)
+    public override async Task<int> ExecuteAsync(PuzzleKey key, Settings options, CancellationToken ct)
     {
         var value = options.value;
         if (string.IsNullOrEmpty(value))

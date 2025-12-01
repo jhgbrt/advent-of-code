@@ -23,7 +23,7 @@ class Report(IPuzzleManager manager, IInputOutputService io) : AsyncCommand<Repo
         public int? year { get; set; }
     }
 
-    public override async Task<int> ExecuteAsync(CommandContext context, Settings options)
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings options, CancellationToken ct)
     {
         var (status, slowerthan, year) = (options.status, options.slowerthan, options.year);
        

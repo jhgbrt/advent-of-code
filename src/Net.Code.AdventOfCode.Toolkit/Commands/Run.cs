@@ -21,7 +21,7 @@ class Run(IAoCRunner manager, IPuzzleManager puzzleManager, AoCLogic aocLogic, I
         public string? typeName { get; set; }
     }
 
-    public override async Task<int> ExecuteAsync(PuzzleKey key, Settings options)
+    public override async Task<int> ExecuteAsync(PuzzleKey key, Settings options, CancellationToken ct)
     {
         var typeName = options.typeName;
 

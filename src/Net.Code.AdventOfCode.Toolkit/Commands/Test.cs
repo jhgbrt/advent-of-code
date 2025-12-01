@@ -8,7 +8,7 @@ namespace Net.Code.AdventOfCode.Toolkit.Commands;
 
 class Test : AsyncCommand<AoCSettings>
 {
-    public override Task<int> ExecuteAsync(CommandContext context, AoCSettings settings)
+    public override Task<int> ExecuteAsync(CommandContext context, AoCSettings settings, CancellationToken ct)
     {
         Debugger.Break();
         return Task.FromResult(0);

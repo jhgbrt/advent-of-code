@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GenerateProgramFile>false</GenerateProgramFile>
@@ -21,15 +21,6 @@
     <None Include="Template\Regex\AoC.cs" />
     <None Include="Template\Regex\aoc.csproj" />
     <None Include="Template\Helpers.cs" />
-    <Compile Remove="Year2015/**" />
-    <Compile Remove="Year2016/**" />
-    <Compile Remove="Year2017/**" />
-    <Compile Remove="Year2018/**" />
-    <Compile Remove="Year2019/**" />
-    <Compile Remove="Year2020/**" />
-    <Compile Remove="Year2021/**" />
-    <Compile Remove="Year2022/**" />
-    <Compile Remove="Year2023/**" />
     <Compile Remove="Template/**" />
   </ItemGroup>
   <ItemGroup>
@@ -49,17 +40,17 @@
     <Using Include="AdventOfCode.BigIntegerExtensions" Static="true" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.SDK" Version="17.11.1" />
+    <PackageReference Include="Microsoft.NET.Test.SDK" Version="18.0.1" />
     <PackageReference Include="Microsoft.Z3" Version="4.12.2" />
     <PackageReference Include="Sandwych.QuickGraph.Core" Version="1.0.0" />
     <PackageReference Include="sprache" Version="3.0.0-develop-00049" />
-    <PackageReference Include="System.Drawing.Common" Version="9.0.0-rc.2.24474.1" />
-    <PackageReference Include="xunit" Version="2.9.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0-pre.35">
+    <PackageReference Include="System.Drawing.Common" Version="10.0.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Xunit.SkippableFact" Version="1.4.13" />
+    <PackageReference Include="Xunit.SkippableFact" Version="1.5.23" />
     <PackageReference Include="Z3.Linq" Version="2.0.1" />
   </ItemGroup>
   <ItemGroup>

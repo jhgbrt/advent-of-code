@@ -20,7 +20,7 @@ class Export(ICodeManager manager, AoCLogic logic, IInputOutputService output) :
         [CommandOption("-c|--include-common")]
         public string[]? includecommon { get; set; }
     }
-    public override async Task<int> ExecuteAsync(PuzzleKey key, Settings options)
+    public override async Task<int> ExecuteAsync(PuzzleKey key, Settings options, CancellationToken ct)
     {
         var includecommon = options.includecommon;
         string code = await manager.GenerateCodeAsync(key);

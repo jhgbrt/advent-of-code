@@ -6,7 +6,7 @@ namespace Net.Code.AdventOfCode.Toolkit.Infrastructure;
 
 abstract class SinglePuzzleCommand<TSettings>(AoCLogic aoCLogic) : AsyncCommand<TSettings> where TSettings : CommandSettings, IAoCSettings
 {
-    public override async Task<int> ExecuteAsync(CommandContext context, TSettings options)
+    public override async Task<int> ExecuteAsync(CommandContext context, TSettings options, CancellationToken ct)
     {
         (var year, var day) = (options.year, options.day);
         if (!year.HasValue || !day.HasValue)
@@ -21,9 +21,9 @@ abstract class SinglePuzzleCommand<TSettings>(AoCLogic aoCLogic) : AsyncCommand<
         if (!aoCLogic.IsValidAndUnlocked(year.Value, day.Value))
             throw new AoCException($"Not a valid puzzle, or puzzle not yet unlocked: {year}/{day}");
 
-        return await ExecuteAsync(new PuzzleKey(year.Value, day.Value), options);
+        return await ExecuteAsync(new PuzzleKey(year.Value, day.Value), options, ct);
     }
 
-    public abstract Task<int> ExecuteAsync(PuzzleKey key, TSettings options);
+    public abstract Task<int> ExecuteAsync(PuzzleKey key, TSettings options, CancellationToken ct);
 
 }
