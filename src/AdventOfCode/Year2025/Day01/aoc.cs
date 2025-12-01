@@ -5,7 +5,7 @@ public class AoC202501
     int[] instructions;
     public AoC202501(string[] input)
     {
-        this.instructions = [.. input.Select(line => (line[0] == 'L' ? -1 : 1) * int.Parse(line[1..]))];
+        instructions = [.. input.Select(line => (line[0] == 'L' ? -1 : 1) * int.Parse(line[1..]))];
     }
 
     public AoC202501() : this(Read.InputLines()) 
@@ -14,25 +14,19 @@ public class AoC202501
 
     public int Part1() => instructions.Aggregate((value: 50, password: 0), (acc, i) =>
     {
-        var next = Mod(acc.value + i, 100);
+        var next = (acc.value + 100 + i) % 100;
         var increment = next == 0 ? 1 : 0;
         return acc with { value = next, password = acc.password + increment };
     }).password;
 
     public int Part2() => instructions.Aggregate((value: 50, password: 0), (acc, i) =>
     {
-        var next = Mod(acc.value + i, 100);
+        var next = (acc.value + 100 + i) % 100;
         var increment = i >= 0
             ? (acc.value + i) / 100
             : (-i - acc.value + (acc.value == 0 ? 0 : 100)) / 100;
         return acc with { value = next, password = acc.password + increment };
     }).password;
-
-    private static int Mod(int value, int mod)
-    {
-        var result = value % mod;
-        return result < 0 ? result + mod : result;
-    }
 }
 
 public class AoC202501Tests
