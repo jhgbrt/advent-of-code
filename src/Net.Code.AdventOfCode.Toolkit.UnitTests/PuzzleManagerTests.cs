@@ -18,7 +18,7 @@ namespace Net.Code.AdventOfCode.Toolkit.UnitTests
             var m = new PuzzleManager(client, cache, logic);
 
             PuzzleKey key = new(2021, 1);
-            cache.GetPuzzle(key).Returns(Puzzle.Create(key, "", Answer.Empty));
+            cache.GetPuzzle(key).Returns(Puzzle.Create(key, "", Answer.Empty, string.Empty));
 
             var puzzle = await m.GetPuzzle(key);
         }
@@ -49,7 +49,7 @@ namespace Net.Code.AdventOfCode.Toolkit.UnitTests
             var cache = Substitute.For<IAoCDbContext>();
 
             PuzzleKey key = new(2021, 1);
-            var puzzle = Puzzle.Create(key, "input", Answer.Empty);
+            var puzzle = Puzzle.Create(key, "input", Answer.Empty, string.Empty);
             puzzle.Status = currentStatus;
             puzzle.Answer = part == 1 ? new("answer1", "") : new("answer1", "answer2");
 

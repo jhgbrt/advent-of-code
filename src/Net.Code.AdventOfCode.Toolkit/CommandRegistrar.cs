@@ -36,6 +36,7 @@ static class CommandRegistrar
 		AddCommand<Run>(config);
 		AddCommand<Stats>(config);
 		AddCommand<Sync>(config);
+		AddCommand<Show>(config);
 		AddCommand<Test>(config);
 		AddCommand<Verify>(config);
 	}

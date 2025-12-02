@@ -183,7 +183,7 @@ public class CommandTests
         var manager = Substitute.For<IPuzzleManager>();
         foreach (var key in AoCLogic.Puzzles())
         {
-            var puzzle = Puzzle.Create(key, "input", new Answer("answer1", ""));
+            var puzzle = Puzzle.Create(key, "input", new Answer("answer1", ""), string.Empty);
             var result = new DayResult(key, new(ResultStatus.Ok, "answer1", TimeSpan.FromSeconds(10), 12), new (ResultStatus.Unknown, "answer2", TimeSpan.FromSeconds(1), 12));
             var status = new PuzzleResultStatus(puzzle, result);
             manager.GetPuzzle(key).Returns(puzzle);
@@ -208,14 +208,14 @@ public class PuzzleTests
     [Fact]
     public void CreateAnswer_WhenPuzzleIsCompleted_Throws()
     {
-        var puzzle = new Puzzle(new(2015, 1), "input", new Answer("a", "b"), Status.Completed);
+        var puzzle = new Puzzle(new(2015, 1), "input", new Answer("a", "b"), Status.Completed, string.Empty);
         Assert.Throws<AlreadyCompletedException>(() => puzzle.CreateAnswer("any"));
     }
 
     [Fact]
     public void CreateAnswer_WhenPuzzleIsUnlocked_ReturnsAnswerForPart1()
     {
-        var puzzle = Puzzle.Create(new(2015, 1), "input", Answer.Empty);
+        var puzzle = Puzzle.Create(new(2015, 1), "input", Answer.Empty, string.Empty);
         var answer = puzzle.CreateAnswer("answer");
         Assert.Equal((1, "answer"), (answer.part, answer.value));
     }
@@ -223,7 +223,7 @@ public class PuzzleTests
     [Fact]
     public void CreateAnswer_WhenPart1IsAnswered_ReturnsAnswerForPart2()
     {
-        var puzzle = Puzzle.Create(new(2015, 1), "input", new Answer("part1", string.Empty));
+        var puzzle = Puzzle.Create(new(2015, 1), "input", new Answer("part1", string.Empty), string.Empty);
         var answer = puzzle.CreateAnswer("answer");
         Assert.Equal((2, "answer"), (answer.part, answer.value));
     }

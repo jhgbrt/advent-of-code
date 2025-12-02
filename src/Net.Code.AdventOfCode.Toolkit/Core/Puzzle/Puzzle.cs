@@ -8,8 +8,9 @@ class Puzzle : IHavePuzzleKey
     public string Input { get; private set; }
     public Answer Answer { get; set; }
     public Status Status { get; set; }
+    public string Html { get; set; } = string.Empty;
 
-    public Puzzle(PuzzleKey key, string input, Answer answer, Status status)
+    public Puzzle(PuzzleKey key, string input, Answer answer, Status status, string html)
     {
         Key = key;
         Year = key.Year;
@@ -17,6 +18,7 @@ class Puzzle : IHavePuzzleKey
         Input = input;
         Answer = answer;
         Status = status;
+        Html = html;
     }
     private Puzzle()
     {
@@ -24,14 +26,14 @@ class Puzzle : IHavePuzzleKey
         Answer = Answer.Empty;
     }
 
-    public static Puzzle Locked(PuzzleKey key) => new(key, string.Empty, Answer.Empty, Status.Locked);
-    public static Puzzle Create(PuzzleKey key, string input, Answer answer) => new(key, input, answer, answer switch
+    public static Puzzle Locked(PuzzleKey key) => new(key, string.Empty, Answer.Empty, Status.Locked, string.Empty);
+    public static Puzzle Create(PuzzleKey key, string input, Answer answer, string html) => new(key, input, answer, answer switch
     {
         { part1: "", part2: "" } => Status.Unlocked,
         { part1: not "", part2: "" } => key.Day < 25 ? Status.AnsweredPart1 : Status.Completed,
         { part1: not "", part2: not "" } => Status.Completed,
         _ => throw new Exception($"inconsistent state for {key}/{answer}")
-    });
+    }, html);
 
     public AnswerToPost CreateAnswer(string answer) => Status switch
     {
@@ -57,5 +59,6 @@ class Puzzle : IHavePuzzleKey
         Answer = remote.Answer;
         Status = remote.Status;
         Input = remote.Input;
+        Html = remote.Html;
     }
 }

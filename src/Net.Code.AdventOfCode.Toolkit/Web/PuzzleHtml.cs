@@ -25,6 +25,6 @@ record PuzzleHtml(PuzzleKey key, string html, string input)
             _ => throw new Exception($"expected 0, 1 or 2 answers, not {answers.Length}")
         };
 
-        return Puzzle.Create(key, input, answer);
+        return Puzzle.Create(key, input, answer, html);
     }
 }
