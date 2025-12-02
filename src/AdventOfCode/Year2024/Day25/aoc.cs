@@ -25,7 +25,7 @@ public class AoC202425
                 {
                     '#' => (value << 1) | 1,
                     '.' => value << 1,
-                    '\n' => value
+                    _ => value
                 };
             }
             (buffer[0] switch { '#' => locks, '.' => keys }).Add(value);

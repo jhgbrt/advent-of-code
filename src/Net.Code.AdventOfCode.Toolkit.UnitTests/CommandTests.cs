@@ -13,6 +13,7 @@ namespace Net.Code.AdventOfCode.Toolkit.UnitTests;
 
 public class CommandTests
 {
+    static readonly CancellationToken ct = CancellationToken.None;
     const int Year = 2021;
     const int Day = 26;
     public CommandTests()
@@ -182,7 +183,7 @@ public class CommandTests
         var manager = Substitute.For<IPuzzleManager>();
         foreach (var key in AoCLogic.Puzzles())
         {
-            var puzzle = Puzzle.Create(key, "input", new Answer("answer1", "answer2"));
+            var puzzle = Puzzle.Create(key, "input", new Answer("answer1", ""));
             var result = new DayResult(key, new(ResultStatus.Ok, "answer1", TimeSpan.FromSeconds(10), 12), new (ResultStatus.Unknown, "answer2", TimeSpan.FromSeconds(1), 12));
             var status = new PuzzleResultStatus(puzzle, result);
             manager.GetPuzzle(key).Returns(puzzle);

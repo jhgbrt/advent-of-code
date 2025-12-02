@@ -10,6 +10,7 @@ namespace Net.Code.AdventOfCode.Toolkit.UnitTests;
 
 public class ManyPuzzlesCommandTest
 {
+    private readonly CancellationToken ct = CancellationToken.None;
     private static ManyPuzzlesCommand<AoCSettings> CreateSystemUnderTest(int year, int month, int day)
     {
         var clock = TestClock.Create(year, month, day, 0, 0, 0);

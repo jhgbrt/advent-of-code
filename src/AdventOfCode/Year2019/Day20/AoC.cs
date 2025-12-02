@@ -280,7 +280,7 @@ public class AoC202019Tests(ITestOutputHelper output)
     public void TestPart2()
     {
         var aoc = new AoC201920(Read.SampleLines(1), new TestWriter(output));
-        Assert.Equal("", aoc.Part2());
+        Assert.Equal(26, aoc.Part2());
     }
 
     [Theory]
