@@ -1,10 +1,10 @@
-using System.Runtime.CompilerServices;
-
 namespace AdventOfCode.Year2025.Day02;
 
-readonly record struct RepeatedDigits(long start, long end) : IEnumerable<long>
+enum RepetitionCount { Two, Any }
+
+readonly record struct RepeatedDigits(long start, long end)
 {
-    public static RepeatedDigits Parse(string s) 
+    public static RepeatedDigits Parse(string s)
     {
         var parts = s.Split('-');
         var start = long.Parse(parts[0]);
@@ -12,62 +12,80 @@ readonly record struct RepeatedDigits(long start, long end) : IEnumerable<long>
         return new RepeatedDigits(start, end);
     }
 
-    public IEnumerator<long> GetEnumerator()
+    public IEnumerable<long> Get(RepetitionCount mode)
     {
-        var digitsStart = NumDigits(start);
-        var digitsEnd = NumDigits(end);
+        var nofDigitsStart = NumDigits(start);
+        var nofDigitsEnd = NumDigits(end);
 
-        for (int n = digitsStart; n <= digitsEnd; n++)
+        for (int nofDigits = nofDigitsStart; nofDigits <= nofDigitsEnd; nofDigits++)
         {
-            // skip odd digit lengths; only even digit lengths can form N = XX
-            if ((n & 1) == 1)   
-                continue;
-
-            int k = n / 2;
-            long pow10k = Pow10(k);     // e.g. when start = 1234, k = 2, pow10k = 100
-            long @base = pow10k / 10;   // smallest k-digit x (e.g. 10 for k=2)
-            long max = pow10k - 1;
-
-            // generate candidates: N = x * 10^k + x
-            // max = largest  k-digit x (e.g. 99 for k=2)
-            long xMin = LowerBoundX(start, pow10k, @base, max: pow10k - 1);
-            long xMax = UpperBoundX(end, pow10k, @base, max: pow10k - 1); 
-
-            if (xMin > xMax)
-                continue;
-
-            for (long x = xMin; x <= xMax; x++)
+            var maxRepetitions = mode == RepetitionCount.Two ? 2 : nofDigits;
+            for (int repetitionCount = 2; repetitionCount <= maxRepetitions; repetitionCount++)
             {
-                yield return Repeat(x, pow10k);
+                if (nofDigits % repetitionCount != 0) continue; // nofDigits has to be divisible by repetitionCount
+                int sequenceLength = nofDigits / repetitionCount;
+
+                // to repeat a base number b with l digits exactly r times to form a number S:
+                // S = b * 10^(0*l) + b * 10^(1*l) + ... + b * 10^((r-1)*l)
+                // => S = b * (10^(0*l) + b * 10^(1*l) + ... + b * 10^((r-1)*l))
+                // => multiplier m = (10^(0*l) + b * 10^(1*l) + ... + b * 10^((r-1)*l))
+
+                // e.g. 1234 repeated 3 times: b = 1234, l = 4, r = 3
+
+                // m:
+                //  i = 0: 10^0 
+                //  i = 1: 10^4  
+                //  i = 2: 10^8 
+                // m = 100010001
+
+                // S = b * m = 1234 * 100010001 = 123412341234
+
+                long multiplier = 0;
+                for (int i = 0; i < repetitionCount; i++)
+                {
+                    multiplier += Pow10(i * sequenceLength);
+                }
+
+                // Find bounds for the base sequence
+                long min = Pow10(sequenceLength - 1); // smallest number with sequenceLength digits (e.g. 1000 for 4 digits)
+                long max = Pow10(sequenceLength) - 1; // largest number with sequenceLength digits (e.g. 9999 for 4 digits)
+                long bMin = LowerBound(multiplier, min, max);
+                long bMax = UpperBound(multiplier, min, max);
+
+                if (bMin > bMax) continue;
+
+                for (long b = bMin; b <= bMax; b++)
+                {
+                    yield return b * multiplier;
+                }
             }
         }
     }
 
-    // find smallest x such that Repeat(x) = x * 10^k + x = x * (10^k + 1) >= target
-    private static long LowerBoundX(long target, long pow10k, long @base, long max)
+    // Find smallest base such that base * multiplier >= start and min <= base <= max
+    private long LowerBound(long multiplier, long min, long max)
     {
-        // if Repeat(base) is already >= target, return it
-        if (Repeat(@base, pow10k) >= target)
-            return @base;
-        long x = (target + (pow10k + 1) - 1) / (pow10k + 1);
-        if (x < @base) return @base;
-        if (x > max) return max;
-        return x;
+        if (min * multiplier >= start) // start of the range is smaller than the minimum value
+        {
+            return min;
+        }
+
+        long b = (start + multiplier - 1) / multiplier; // ceiling division
+        if (b < min) return min;
+        if (b > max) return max;
+        return b;
     }
 
-    // find largest x such that Repeat(x) = x * 10^k + x = x * (10^k + 1) <= target
-    private static long UpperBoundX(long target, long pow10k, long @base, long max)
+    // find largest base such that base * multiplier <= end and min <= base <= max
+    private long UpperBound(long multiplier, long min, long max)
     {
-        long x = target / (pow10k + 1);
-        if (x < @base) return @base - 1;
-        if (x > max) return max;
-        return x;
+        long b = end / multiplier; // floor division
+        if (b < min) return min - 1;
+        if (b > max) return max;
+        return b;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static long Repeat(long baseVal, long pow10k) => baseVal * pow10k + baseVal;
-
-
+  
     private static long Pow10(int exp)
     {
         long result = 1;
@@ -80,6 +98,7 @@ readonly record struct RepeatedDigits(long start, long end) : IEnumerable<long>
 
     private int NumDigits(long n)
     {
+        if (n == 0) return 0;
         var count = 0;
         while (n > 0)
         {
@@ -88,22 +107,16 @@ readonly record struct RepeatedDigits(long start, long end) : IEnumerable<long>
         }
         return count;
     }
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
-public class AoC202502(string[] input, TextWriter writer)
+public class AoC202502(string[] input)
 {
-    public AoC202502() : this(Read.InputLines(), Console.Out) {}
+    public AoC202502() : this(Read.InputLines()) { }
 
-    RepeatedDigits[] ranges = input[0].Split(',').Select(RepeatedDigits.Parse).ToArray();
+    RepeatedDigits[] ranges = [.. input[0].Split(',').Select(RepeatedDigits.Parse)];
 
-   
-    public long Part1()
-    {
-        return ranges.SelectMany(r => r).Sum();
-    }
-    public long Part2() => -1;
+    public long Part1() => ranges.SelectMany(r => r.Get(RepetitionCount.Two)).Sum();
+    public long Part2() => ranges.SelectMany(r => r.Get(RepetitionCount.Any)).Distinct().Sum();
 }
 
 public class AoC202502Tests
@@ -112,7 +125,7 @@ public class AoC202502Tests
     public AoC202502Tests(ITestOutputHelper output)
     {
         var input = Read.SampleLines();
-        sut = new AoC202502(input, new TestWriter(output));
+        sut = new AoC202502(input);
     }
 
     [Fact]
