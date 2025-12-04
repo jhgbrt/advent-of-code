@@ -1,21 +1,11 @@
 namespace AdventOfCode.Year2025.Day03;
 
-public class AoC202503(Stream input)
+public class AoC202503(string[] input)
 {
-    public AoC202503() : this(Read.InputStream()) { }
+    public AoC202503() : this(Read.InputLines()) { }
 
-    public long Part1() => ReadAllNDigitNumbers(input, 2).Sum();
-    public long Part2() => ReadAllNDigitNumbers(input, 12).Sum();
-
-    IEnumerable<long> ReadAllNDigitNumbers(Stream input, int n)
-    {
-        using var reader = new StreamReader(input);
-        string? line;
-        while ((line = reader.ReadLine()) != null)
-        {
-            yield return GetLargestNDigitNumber(line, n);
-        }
-    }
+    public long Part1() => input.Sum(l => GetLargestNDigitNumber(l, 2));
+    public long Part2() => input.Sum(l => GetLargestNDigitNumber(l, 12));
 
     internal static long GetLargestNDigitNumber(ReadOnlySpan<char> input, int n)
     {
@@ -56,7 +46,7 @@ public class AoC202503Tests
     private readonly AoC202503 sut;
     public AoC202503Tests(ITestOutputHelper output)
     {
-        var input = Read.SampleStream();
+        var input = Read.SampleLines();
         sut = new AoC202503(input);
     }
 
