@@ -187,18 +187,52 @@ class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
             .WithUsings(List(usings))
             .WithMembers(
                 List(Enumerable.Empty<GlobalStatementSyntax>()
-                    .Concat([GlobalStatement(ParseStatement("var stats = new Stats();\r\n"))!])
+                    .Concat([GlobalStatement(ParseStatement("using System.Diagnostics;\r\n"))!])
                     .Concat(initialization.Select(GlobalStatement))
                     .Concat(fields.Select(GlobalStatement))
                     .Concat(
                     [
-                        GlobalStatement(ParseStatement("stats.Report(\"Init\");\r\n"))!,
+                        GlobalStatement(ParseStatement("var (sw, bytes) = (Stopwatch.StartNew(), 0L);\r\n"))!,
+                        GlobalStatement(ParseStatement("Report(0, \"\", sw, ref bytes);\r\n"))!,
                         GenerateGlobalStatement(1, implementations),
-                        GlobalStatement(ParseStatement("stats.Report(1, part1);\r\n"))!,
+                        GlobalStatement(ParseStatement("Report(1, part1, sw, ref bytes);\r\n"))!,
                         GenerateGlobalStatement(2, implementations),
-                        GlobalStatement(ParseStatement("stats.Report(2, part2);\r\n"))!,
+                        GlobalStatement(ParseStatement("Report(2, part2, sw, ref bytes);\r\n"))!,
                     ])
                     .Concat(List<MemberDeclarationSyntax>(methods))
+                    .Concat([
+                        GlobalStatement(ParseStatement("""
+                        void Report<T>(int part, T value, Stopwatch sw, ref long bytes)
+                        {
+                            var label = part switch 
+                            {
+                                1 => $"Part 1: [{value}]",
+                                2 => $"Part 2: [{value}]",
+                                _ => "Init"
+                            };
+
+                            var time = sw.Elapsed switch 
+                            {
+                                { TotalMicroseconds: < 1 } => $"{sw.Elapsed.TotalNanoseconds:N0} ns",
+                                { TotalMilliseconds: < 1 } => $"{sw.Elapsed.TotalMicroseconds:N0} µs",
+                                { TotalSeconds: < 1 } => $"{sw.Elapsed.TotalMilliseconds:N0} ms",
+                                _ => $"{sw.Elapsed.TotalSeconds:N2} s"
+                            };
+
+                            var newbytes = GC.GetTotalAllocatedBytes(false);
+
+                            var memory = (newbytes - bytes) switch
+                            {
+                                < 1024 => $"{newbytes - bytes} B",
+                                < 1024 * 1024 => $"{(newbytes - bytes) / 1024:N0} KB",
+                                _ => $"{(newbytes - bytes) / (1024 * 1024):N0} MB"
+                            };
+
+                            Console.WriteLine($"{label} ({time} - {memory})");
+                            bytes = newbytes;
+                        }
+                        """))
+                    ])
                     .Concat(List<MemberDeclarationSyntax>(interfaces))
                     .Concat(List<MemberDeclarationSyntax>(records))
                     .Concat(List<MemberDeclarationSyntax>(structs))
@@ -381,8 +415,8 @@ class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
         if (codeDir.Sample.Exists)
             outputDir.CopyFile(codeDir.Sample);
 
-        outputDir.CopyFile(templateDir.CsProj);
-        outputDir.CopyFile(templateDir.Helpers);
+        //outputDir.CopyFile(templateDir.CsProj);
+        //outputDir.CopyFile(templateDir.Helpers);
 
         if (includecommon is { Length: >0 } && commonDir.Exists)
         {
