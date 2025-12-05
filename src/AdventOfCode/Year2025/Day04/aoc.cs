@@ -1,9 +1,9 @@
 namespace AdventOfCode.Year2025.Day04;
 
-public class AoC202504(string[] input, TextWriter writer)
+public class AoC202504(string[] input)
 {
     Grid grid = new(input);
-    public AoC202504() : this(Read.InputLines(), Console.Out) {}
+    public AoC202504() : this(Read.InputLines()) { }
 
     private bool CanBeRemoved(Coordinate pos) => grid[pos] == '@' && grid.CountNeighbours(pos) < 4;
 
@@ -31,7 +31,7 @@ public class AoC202504Tests
     public AoC202504Tests(ITestOutputHelper output)
     {
         var input = Read.SampleLines();
-        sut = new AoC202504(input, new TestWriter(output));
+        sut = new AoC202504(input);
     }
 
     [Fact]
