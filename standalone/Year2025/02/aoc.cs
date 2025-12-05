@@ -1,12 +1,16 @@
 using System.Diagnostics;
+
 var input = File.ReadAllLines("input.txt");
 RepeatedDigits[] ranges = [.. input[0].Split(',').Select(RepeatedDigits.Parse)];
 var (sw, bytes) = (Stopwatch.StartNew(), 0L);
 Report(0, "", sw, ref bytes);
+
 var part1 = ranges.SelectMany(r => r.Get(RepetitionCount.Two)).Sum();
 Report(1, part1, sw, ref bytes);
+
 var part2 = ranges.SelectMany(r => r.Get(RepetitionCount.Any)).Distinct().Sum();
 Report(2, part2, sw, ref bytes);
+
 void Report<T>(int part, T value, Stopwatch sw, ref long bytes)
 {
     var label = part switch
