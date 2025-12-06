@@ -40,6 +40,7 @@
     <Using Include="AdventOfCode.BigIntegerExtensions" Static="true" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.4.0" />
     <PackageReference Include="Microsoft.NET.Test.SDK" Version="18.0.1" />
     <PackageReference Include="Microsoft.Z3" Version="4.12.2" />
     <PackageReference Include="Sandwych.QuickGraph.Core" Version="1.0.0" />
