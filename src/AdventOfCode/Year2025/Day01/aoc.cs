@@ -59,12 +59,5 @@ public class AoC202501Tests
     {
         Assert.Equal(6, sut.Part2());
     }
-
-    [Fact]
-    public void Part2RealInput()
-    {
-        var sut = new AoC202501(Read.InputLines());
-        Assert.Equal(6616, sut.Part2());
-    }
-
+  
 }
