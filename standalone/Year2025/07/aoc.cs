@@ -1,5 +1,10 @@
 using System.Diagnostics;
-var input = File.ReadAllLines("input.txt");
+var filename = args switch
+{
+    ["sample"] => "sample.txt",
+    _ => "input.txt"
+};
+var input = File.ReadAllLines(filename);
 var (sw, bytes) = (Stopwatch.StartNew(), 0L);
 Report(0, "", sw, ref bytes);
 var part1 = Part1();
@@ -28,13 +33,10 @@ int Part1()
                 newBeams.Add(x);
             }
         }
-
         (beams, newBeams) = (newBeams, beams);
     }
-
     return count;
 }
-
 long Part2()
 {
     var start = input[0].IndexOf('S');
@@ -65,7 +67,6 @@ long Part2()
 
     return paths.Values.Sum();
 }
-
 void Report<T>(int part, T value, Stopwatch sw, ref long bytes)
 {
     var label = part switch
@@ -74,6 +75,7 @@ void Report<T>(int part, T value, Stopwatch sw, ref long bytes)
         2 => $"Part 2: [{value}]",
         _ => "Init"
     };
+
     var time = sw.Elapsed switch
     {
         { TotalMicroseconds: < 1 } => $"{sw.Elapsed.TotalNanoseconds:N0} ns",
@@ -81,13 +83,16 @@ void Report<T>(int part, T value, Stopwatch sw, ref long bytes)
         { TotalSeconds: < 1 } => $"{sw.Elapsed.TotalMilliseconds:N0} ms",
         _ => $"{sw.Elapsed.TotalSeconds:N2} s"
     };
+
     var newbytes = GC.GetTotalAllocatedBytes(false);
+
     var memory = (newbytes - bytes) switch
     {
         < 1024 => $"{newbytes - bytes} B",
         < 1024 * 1024 => $"{(newbytes - bytes) / 1024:N0} KB",
         _ => $"{(newbytes - bytes) / (1024 * 1024):N0} MB"
     };
+
     Console.WriteLine($"{label} ({time} - {memory})");
     bytes = newbytes;
 }

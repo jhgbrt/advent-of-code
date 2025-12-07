@@ -188,16 +188,36 @@ class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
             .WithMembers(
                 List(Enumerable.Empty<GlobalStatementSyntax>()
                     .Concat([GlobalStatement(ParseStatement("using System.Diagnostics;\r\n"))!])
+                    .Concat([GlobalStatement(ParseStatement("""
+                        var filename = args switch 
+                        {
+                            ["sample"] => "sample.txt",
+                            _ => "input.txt"
+                        };
+
+                        """
+                    ))])
                     .Concat(initialization.Select(GlobalStatement))
                     .Concat(fields.Select(GlobalStatement))
                     .Concat(
                     [
-                        GlobalStatement(ParseStatement("var (sw, bytes) = (Stopwatch.StartNew(), 0L);\r\n"))!,
-                        GlobalStatement(ParseStatement("Report(0, \"\", sw, ref bytes);\r\n"))!,
+                        GlobalStatement(ParseStatement("""
+                        
+                            var (sw, bytes) = (Stopwatch.StartNew(), 0L);
+                            Report(0, "", sw, ref bytes);
+
+                            """))!,
                         GenerateGlobalStatement(1, implementations),
-                        GlobalStatement(ParseStatement("Report(1, part1, sw, ref bytes);\r\n"))!,
+                        GlobalStatement(ParseStatement("""
+                            Report(1, part1, sw, ref bytes);
+
+                            """))!,
+                        
                         GenerateGlobalStatement(2, implementations),
-                        GlobalStatement(ParseStatement("Report(2, part2, sw, ref bytes);\r\n"))!,
+                        GlobalStatement(ParseStatement("""                        
+                            Report(2, part2, sw, ref bytes);
+                        
+                            """))!,
                     ])
                     .Concat(List<MemberDeclarationSyntax>(methods))
                     .Concat([
@@ -242,7 +262,7 @@ class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
             );
 ;
         var workspace = new AdhocWorkspace();
-        var code = Formatter.Format(result.NormalizeWhitespace(), workspace, workspace.Options
+        var code = Formatter.Format(result, workspace, workspace.Options
             .WithChangedOption(CSharpFormattingOptions.IndentBlock, true)
             ).ToString();
         return code;
@@ -341,15 +361,7 @@ class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
                     ArgumentList(
                         SingletonSeparatedList(
                             Argument(
-                                LiteralExpression(
-                                    SyntaxKind.StringLiteralExpression,
-                                    Literal(right switch
-                                    {
-                                        "InputText" or "InputLines" or "InputStream" => "input.txt",
-                                        "SampleText" or "SampleLines" or "SampleStream" => "sample.txt",
-                                        _ => throw new NotSupportedException("Can not convert this call")
-                                    })
-                                    )
+                                IdentifierName("filename")
                                 )
                             )
                         )
