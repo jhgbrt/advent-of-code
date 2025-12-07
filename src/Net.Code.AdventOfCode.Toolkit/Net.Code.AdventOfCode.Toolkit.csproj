@@ -123,6 +123,9 @@
         <DependentUpon>CommandRegistrar.tt</DependentUpon>
       </Compile>
     </ItemGroup>
+    <ItemGroup>
+        <InternalsVisibleTo Include="Net.Code.AdventOfCode.Toolkit.UnitTests" />
+    </ItemGroup>
 
 
 
