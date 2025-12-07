@@ -1,12 +1,14 @@
-ï»¿using Net.Code.AdventOfCode.Toolkit.Core;
+using Net.Code.AdventOfCode.Toolkit.Core;
 
 using Net.Code.AdventOfCode.Toolkit.Logic;
 
 using NSubstitute;
 
+using Xunit.Abstractions;
+
 namespace Net.Code.AdventOfCode.Toolkit.UnitTests;
 
-public class CodeManagerTests
+public class CodeManagerTests(ITestOutputHelper output)
 {
     const string code = """
         namespace AoC.Year2021.Day03;
@@ -104,12 +106,13 @@ public class CodeManagerTests
             public object Part2() => 1;
         }
         """, """
-        var stats = new Stats();
-        stats.Report("Init");
+        {{HEADER}}
+        {{REPORT0}}
         var part1 = 1;
-        stats.Report(1, part1);
+        {{REPORT1}}
         var part2 = 1;
-        stats.Report(2, part2);
+        {{REPORT2}}
+        {{REPORTFUNCTION}}
         """)]
     [InlineData(2, """
         namespace AoC.Year2021.Day03;
@@ -121,13 +124,14 @@ public class CodeManagerTests
             public object Part2() => 1;
         }
         """, """
-        var stats = new Stats();
-        string[] input = File.ReadAllLines("input.txt");
-        stats.Report("Init");
+        {{HEADER}}
+        string[] input = File.ReadAllLines(filename);
+        {{REPORT0}}
         var part1 = 1;
-        stats.Report(1, part1);
+        {{REPORT1}}
         var part2 = 1;
-        stats.Report(2, part2);
+        {{REPORT2}}
+        {{REPORTFUNCTION}}
         """)]
     [InlineData(3, """
         namespace AoC.Year2021.Day03;
@@ -145,15 +149,16 @@ public class CodeManagerTests
             public object Part2() => 1;
         }
         """, """
-        var stats = new Stats();
-        var input = File.ReadAllLines("input.txt");
+        {{HEADER}}
+        var input = File.ReadAllLines(filename);
         var grid = new Grid(input);
         int A = 42;
-        stats.Report("Init");
+        {{REPORT0}}
         var part1 = 1;
-        stats.Report(1, part1);
+        {{REPORT1}}
         var part2 = 1;
-        stats.Report(2, part2);
+        {{REPORT2}}
+        {{REPORTFUNCTION}}
         """)]
     [InlineData(4, """
         namespace AoC.Year2021.Day03;
@@ -167,15 +172,16 @@ public class CodeManagerTests
             public object Part2() => 1;
         }
         """, """
-        var stats = new Stats();
-        var input = File.ReadAllLines("input.txt");
+        {{HEADER}}
+        var input = File.ReadAllLines(filename);
         int A = 42;
         Grid grid = new Grid(input);
-        stats.Report("Init");
+        {{REPORT0}}
         var part1 = 1;
-        stats.Report(1, part1);
+        {{REPORT1}}
         var part2 = 1;
-        stats.Report(2, part2);
+        {{REPORT2}}
+        {{REPORTFUNCTION}}
         """)]
     [InlineData(5, """
         namespace AoC.Year2021.Day03;
@@ -189,15 +195,16 @@ public class CodeManagerTests
             public object Part2() => 1;
         }
         """, """
-        var stats = new Stats();
-        var input = File.ReadAllLines("input.txt");
+        {{HEADER}}
+        var input = File.ReadAllLines(filename);
         var writer = Console.Out;
         Grid grid = new Grid(input);
-        stats.Report("Init");
+        {{REPORT0}}
         var part1 = 1;
-        stats.Report(1, part1);
+        {{REPORT1}}
         var part2 = 1;
-        stats.Report(2, part2);
+        {{REPORT2}}
+        {{REPORTFUNCTION}}
         """)]
     [InlineData(6, """
         namespace AoC.Year2021.Day03;
@@ -209,13 +216,14 @@ public class CodeManagerTests
             private object Solve(int i) => i;
         }
         """, """
-        var stats = new Stats();
-        stats.Report("Init");
+        {{HEADER}}
+        {{REPORT0}}
         var part1 = Solve(1);
-        stats.Report(1, part1);
+        {{REPORT1}}
         var part2 = Solve(2);
-        stats.Report(2, part2);
+        {{REPORT2}}
         object Solve(int i) => i;
+        {{REPORTFUNCTION}}
         """)]
     [InlineData(7, """
         public class AoC202103
@@ -229,15 +237,16 @@ public class CodeManagerTests
             public object Part2() => 2;
         }
         """, """
-        var stats = new Stats();
-        var input = File.ReadAllLines("input.txt");
-        stats.Report("Init");
+        {{HEADER}}
+        var input = File.ReadAllLines(filename);
+        {{REPORT0}}
         var part1 = 1;
-        stats.Report(1, part1);
+        {{REPORT1}}
         var part2 = 2;
-        stats.Report(2, part2);
+        {{REPORT2}}
+        {{REPORTFUNCTION}}
         """)]
-        [InlineData(8, """
+    [InlineData(8, """
         public class AoC202103
         {
             public AoC202318():this(Read.InputLines(), Console.Out) {}
@@ -258,18 +267,19 @@ public class CodeManagerTests
             public object Part2() => 2;
         }
         """, """
-        var stats = new Stats();
-        var input = File.ReadAllLines("input.txt");
+        {{HEADER}}
+        var input = File.ReadAllLines(filename);
         var writer = Console.Out;
         var items = input.Select(s =>
         {
             return s;
         }).ToImmutableArray();
-        stats.Report("Init");
+        {{REPORT0}}
         var part1 = 1;
-        stats.Report(1, part1);
+        {{REPORT1}}
         var part2 = 2;
-        stats.Report(2, part2);
+        {{REPORT2}}
+        {{REPORTFUNCTION}}
         """)]
     [InlineData(9, """
         public class AoC202103(string[] input, TextWriter writer)
@@ -285,27 +295,74 @@ public class CodeManagerTests
             public object Part2() => 2;
         }
         """, """
-        var stats = new Stats();
-        var input = File.ReadAllLines("input.txt");
+        {{HEADER}}
+        var input = File.ReadAllLines(filename);
         var writer = Console.Out;
         ImmutableArray<string> items = input.Select(s =>
         {
             return s;
         }).ToImmutableArray();
-        stats.Report("Init");
+        {{REPORT0}}
         var part1 = 1;
-        stats.Report(1, part1);
+        {{REPORT1}}
         var part2 = 2;
-        stats.Report(2, part2);
+        {{REPORT2}}
+        {{REPORTFUNCTION}}
         """)]
     public async Task GenerateCodeTests(int n, string input, string expected)
     {
         var m = CreateCodeManager(true, input);
 
         var code = await m.GenerateCodeAsync(new(2021, 3));
-        Assert.Equal(expected, code);
+        output.WriteLine($"--- Result - test case {n} ---");
+        output.WriteLine(code);
+        output.WriteLine($"--- Expected - test case {n} ---");
+        output.WriteLine(expected);
 
-        GC.KeepAlive(n); // only there to identify the test
+        Assert.Equal(expected.Replace("{{HEADER}}", """
+            using System.Diagnostics;
+            var (sw, bytes) = (Stopwatch.StartNew(), 0L);
+            var filename = args switch
+            {
+                ["sample"] => "sample.txt",
+                _ => "input.txt"
+            };
+            """).Replace("{{REPORT0}}", """
+            Report(0, "", sw, ref bytes);
+            """).Replace("{{REPORT1}}", """
+            Report(1, part1, sw, ref bytes);
+            """).Replace("{{REPORT2}}", """
+            Report(2, part2, sw, ref bytes);
+            """).Replace("{{REPORTFUNCTION}}", """
+            void Report<T>(int part, T value, Stopwatch sw, ref long bytes)
+            {
+                var label = part switch
+                {
+                    1 => $"Part 1: [{value}]",
+                    2 => $"Part 2: [{value}]",
+                    _ => "Init"
+                };
+                var time = sw.Elapsed switch
+                {
+                    { TotalMicroseconds: < 1 } => $"{sw.Elapsed.TotalNanoseconds:N0} ns",
+                    { TotalMilliseconds: < 1 } => $"{sw.Elapsed.TotalMicroseconds:N0} µs",
+                    { TotalSeconds: < 1 } => $"{sw.Elapsed.TotalMilliseconds:N0} ms",
+                    _ => $"{sw.Elapsed.TotalSeconds:N2} s"
+                };
+                var newbytes = GC.GetTotalAllocatedBytes(false);
+                var memory = (newbytes - bytes) switch
+                {
+                    < 1024 => $"{newbytes - bytes} B",
+                    < 1024 * 1024 => $"{(newbytes - bytes) / 1024:N0} KB",
+                    _ => $"{(newbytes - bytes) / (1024 * 1024):N0} MB"
+                };
+                Console.WriteLine($"{label} ({time} - {memory})");
+                bytes = newbytes;
+            }
+            """)
+        , code);
+
+        //GC.KeepAlive(n); // only there to identify the test
     }
 
     [Fact]
@@ -314,17 +371,23 @@ public class CodeManagerTests
         var m = CreateCodeManager(true, code);
 
         var result = await m.GenerateCodeAsync(new(2021, 3));
-
+        output.WriteLine(result);
         Assert.Equal("""
-            var stats = new Stats();
-            var input = File.ReadAllLines("input.txt");
+            using System.Diagnostics;
+            var (sw, bytes) = (Stopwatch.StartNew(), 0L);
+            var filename = args switch
+            {
+                ["sample"] => "sample.txt",
+                _ => "input.txt"
+            };
+            var input = File.ReadAllLines(filename);
             var writer = Console.Out;
             var myvariable = input.Select(int.Parse).ToArray();
-            stats.Report("Init");
+            Report(0, "", sw, ref bytes);
             var part1 = Solve(1);
-            stats.Report(1, part1);
+            Report(1, part1, sw, ref bytes);
             var part2 = Part2();
-            stats.Report(2, part2);
+            Report(2, part2, sw, ref bytes);
             object Part2()
             {
                 return Solve(2);
@@ -334,8 +397,34 @@ public class CodeManagerTests
             {
                 return ToLong(part);
             }
-
+            
             long ToLong(int i) => i;
+            void Report<T>(int part, T value, Stopwatch sw, ref long bytes)
+            {
+                var label = part switch
+                {
+                    1 => $"Part 1: [{value}]",
+                    2 => $"Part 2: [{value}]",
+                    _ => "Init"
+                };
+                var time = sw.Elapsed switch
+                {
+                    { TotalMicroseconds: < 1 } => $"{sw.Elapsed.TotalNanoseconds:N0} ns",
+                    { TotalMilliseconds: < 1 } => $"{sw.Elapsed.TotalMicroseconds:N0} µs",
+                    { TotalSeconds: < 1 } => $"{sw.Elapsed.TotalMilliseconds:N0} ms",
+                    _ => $"{sw.Elapsed.TotalSeconds:N2} s"
+                };
+                var newbytes = GC.GetTotalAllocatedBytes(false);
+                var memory = (newbytes - bytes) switch
+                {
+                    < 1024 => $"{newbytes - bytes} B",
+                    < 1024 * 1024 => $"{(newbytes - bytes) / 1024:N0} KB",
+                    _ => $"{(newbytes - bytes) / (1024 * 1024):N0} MB"
+                };
+                Console.WriteLine($"{label} ({time} - {memory})");
+                bytes = newbytes;
+            }
+            
             record MyRecord();
             class MyClass
             {
