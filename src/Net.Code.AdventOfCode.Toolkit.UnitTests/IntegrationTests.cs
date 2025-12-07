@@ -125,6 +125,20 @@ public class IntegrationTests(ITestOutputHelper output, DateTime Now, (int year,
         return Do(Args("verify", year, day), []);
     }
 
+    protected Task<int> Show(int? year = null, int? day = null)
+    {
+        if (!year.HasValue) year = Year;
+        if (!day.HasValue) day = Day;
+
+        IEnumerable<(HttpMethod, string, HttpStatusCode, string)> http = [
+              (HttpMethod.Get, "2015/day/4/input", HttpStatusCode.OK, string.Empty)
+            , (HttpMethod.Get, $"{year}/day/{day}", HttpStatusCode.OK, TestContent.HtmlContentNoAnswers)
+            , (HttpMethod.Get, $"{year}/day/{day}/input", HttpStatusCode.OK, "input")
+            ];
+
+        return Do(Args("show", year, day), http);
+    }
+
     public class DuringAdvent_OnDayOfPuzzle(ITestOutputHelper output) 
         : IntegrationTests(output, new(2017, 12, 3), (2017, 3))
     {
@@ -162,7 +176,7 @@ public class IntegrationTests(ITestOutputHelper output, DateTime Now, (int year,
         public async Task TestRun()
         {
             await Init();
-            var result = await Sync();
+            var result = await Run();
             Assert.Equal(0, result);
         }
 
@@ -189,6 +203,13 @@ public class IntegrationTests(ITestOutputHelper output, DateTime Now, (int year,
             await Post();
             await Post();
             var result = await Verify();
+            Assert.Equal(0, result);
+        }
+
+        [Fact]
+        public async Task TestShow()
+        {
+            var result = await Show();
             Assert.Equal(0, result);
         }
     }
@@ -251,8 +272,15 @@ public class IntegrationTests(ITestOutputHelper output, DateTime Now, (int year,
             var result = await Verify(Year, Day);
             Assert.Equal(0, result);
         }
-    }
 
+        [Fact]
+        public async Task TestShow()
+        {
+            var result = await Show(Year, Day);
+            Assert.Equal(0, result);
+        }
+    }
+    
     public class AfterAdvent(ITestOutputHelper output) : IntegrationTests(output, new(2017, 12, 27), (2017, 3))
     {
      
@@ -319,6 +347,13 @@ public class IntegrationTests(ITestOutputHelper output, DateTime Now, (int year,
             var result = await Verify(Year, Day);
             Assert.Equal(0, result);
         }
+
+        [Fact]
+        public async Task TestShow()
+        {
+            var result = await Show(Year, Day);
+            Assert.Equal(0, result);
+        }
     }
 
     public class LockedPuzzle(ITestOutputHelper output) : IntegrationTests(output, new(2017, 12, 1), (2019, 3))
@@ -366,6 +401,12 @@ public class IntegrationTests(ITestOutputHelper output, DateTime Now, (int year,
         public async Task TestVerify()
         {
             await Assert.ThrowsAnyAsync<AoCException>(() => Verify(Year, Day));
+        }
+
+        [Fact]
+        public async Task TestShow()
+        {
+            await Assert.ThrowsAnyAsync<AoCException>(() => Show(Year, Day));
         }
     }
 
