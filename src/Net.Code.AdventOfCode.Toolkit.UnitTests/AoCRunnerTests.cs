@@ -4,6 +4,8 @@ using Microsoft.Extensions.Logging;
 using Net.Code.AdventOfCode.Toolkit.Core;
 using Net.Code.AdventOfCode.Toolkit.Logic;
 
+using NodaTime;
+
 using NSubstitute;
 
 using System.Reflection;
@@ -21,7 +23,7 @@ namespace Net.Code.AdventOfCode.Toolkit.UnitTests
             var resolver = Substitute.For<IAssemblyResolver>();
             var assembly = Assembly.GetExecutingAssembly();
             resolver.GetEntryAssembly().Returns(assembly);
-            var runner = new AoCRunner(logger, resolver);
+            var runner = new AoCRunner(logger, resolver, new AoCLogic());
             var result = await runner.Run("AoCTest.Year{0}.Day{1:00}.AoC{0}{1:00}", new(2017, 3), (i, s) => { });
             Assert.Equal("answer1", result!.Part1.Value);
             Assert.Equal("answer2", result.Part2.Value);
@@ -33,7 +35,7 @@ namespace Net.Code.AdventOfCode.Toolkit.UnitTests
             var resolver = Substitute.For<IAssemblyResolver>();
             var assembly = Assembly.GetExecutingAssembly();
             resolver.GetEntryAssembly().Returns(assembly);
-            var runner = new AoCRunner(logger, resolver);
+            var runner = new AoCRunner(logger, resolver, new AoCLogic());
             var result = await runner.Run(null, new(2017, 3), (i, s) => { });
             Assert.Equal("answer1", result!.Part1.Value);
             Assert.Equal("answer2", result.Part2.Value);

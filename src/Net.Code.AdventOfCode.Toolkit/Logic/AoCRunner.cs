@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 using Net.Code.AdventOfCode.Toolkit.Core;
 
@@ -13,11 +12,13 @@ class AoCRunner : IAoCRunner
 {
     ILogger<AoCRunner> logger;
     private readonly IAssemblyResolver resolver;
+    private readonly AoCLogic aocLogic;
 
-    public AoCRunner(ILogger<AoCRunner> logger, IAssemblyResolver resolver)
+    public AoCRunner(ILogger<AoCRunner> logger, IAssemblyResolver resolver, AoCLogic aoCLogic)
     {
         this.logger = logger;
         this.resolver = resolver;
+        this.aocLogic = aoCLogic;
     }
 
     public async Task<DayResult?> Run(string? typeName, PuzzleKey key, Action<int, Result> progress)
@@ -34,7 +35,7 @@ class AoCRunner : IAoCRunner
         logger.LogDebug($"{key}, Part 1: result = {t1.Value} - {t1.Elapsed}");
         progress(1, t1);
 
-        var t2 = day < 25
+        var t2 = aocLogic.Has2Parts(year, day)
             ? await Run(() => aoc.Part2())
             : new Result(ResultStatus.Ok, "", TimeSpan.Zero, 12);
         logger.LogDebug($"{key}, Part 2: result = {t2.Value} - {t2.Elapsed}");

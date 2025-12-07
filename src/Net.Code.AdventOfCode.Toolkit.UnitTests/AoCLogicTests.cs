@@ -1,4 +1,3 @@
-﻿
 using Net.Code.AdventOfCode.Toolkit.Core;
 
 using NodaTime;
@@ -19,7 +18,7 @@ namespace Net.Code.AdventOfCode.Toolkit.UnitTests
         [InlineData(2015, 12, 1, 0, 0, 0, 2015, 2)]
         [InlineData(2015, 12, 2, 0, 0, 0, 2015, 3)]
         [InlineData(2015, 12, 24, 0, 0, 0, 2015, 25)]
-        [InlineData(2121, 12, 24, 0, 0, 0, 2121, 25)]
+        [InlineData(2025, 12, 12, 0, 0, 0, 2025, 13)]
         public void WhenNowIsBeforeDayOfPuzzle_PuzzleIsInvalid(int year, int month, int day, int hour, int min, int sec, int pyear, int pday)
         {
             SetClock(year, month, day, hour, min, sec);
@@ -31,8 +30,11 @@ namespace Net.Code.AdventOfCode.Toolkit.UnitTests
         [InlineData(2015, 12, 2, 0, 0, 0, 2015, 1)]
         [InlineData(2015, 12, 2, 0, 0, 0, 2015, 2)]
         [InlineData(2015, 12, 25, 0, 0, 0, 2015, 25)]
-        [InlineData(2121, 12, 25, 0, 0, 0, 2121, 25)]
-        [InlineData(2121, 12, 25, 0, 0, 0, 2121, 24)]
+        
+        
+        [InlineData(2025, 12, 12, 0, 0, 0, 2025, 12)]
+        [InlineData(2025, 12, 13, 0, 0, 0, 2025, 12)]
+        [InlineData(2025, 12, 13, 0, 0, 0, 2025, 11)]
         public void WhenNowIsAfterDayOfPuzzle_PuzzleIsInvalid(int year, int month, int day, int hour, int min, int sec, int pyear, int pday)
         {
             SetClock(year, month, day, hour, min, sec);
