@@ -130,7 +130,6 @@ internal class CodeFolder : Folder, ICodeFolder
     public Task WriteCode(string content) => WriteFile(CODE, content);
     public Task WriteInput(string content) => WriteFile(INPUT, content);
     public Task WriteSample(string content) => WriteFile(SAMPLE, content);
-
     public IEnumerable<FileInfo> GetCodeFiles() => GetFiles("*.cs").Where(f => !f.FullName.Equals(CODE, StringComparison.OrdinalIgnoreCase));
 }
 internal class TemplateFolder : Folder, ITemplateFolder

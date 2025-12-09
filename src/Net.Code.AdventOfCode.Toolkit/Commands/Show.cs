@@ -2,13 +2,11 @@
 
 using Net.Code.AdventOfCode.Toolkit.Core;
 using Net.Code.AdventOfCode.Toolkit.Infrastructure;
+using DocumentParagraph = Core.Paragraph;
+using DocumentText = Core.Text;
 using System.Text;
-
-using Spectre.Console.Rendering;
 using Spectre.Console;
 using Spectre.Console.Cli;
-
-using System;
 using System.ComponentModel;
 using System.Threading;
 using HtmlAgilityPack;
@@ -45,7 +43,7 @@ internal static class HtmlToSpectreMarkup
     {
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml(html);
-        var doc = AdventOfCodeDocument.LoadFrom(htmlDoc, status);
+        var doc = AdventOfCodeDocument.LoadFrom(htmlDoc);
         return RenderDocument(doc);
     }
 
@@ -61,52 +59,30 @@ internal static class HtmlToSpectreMarkup
         return sb.ToString();
     }
 
-    private static string RenderElement(DocumentElement elem)
+    private static string RenderElement(DocumentElement elem) => elem switch
     {
-        switch (elem)
-        {
-            case Heading h:
-                return $"\n[bold]{EscapeMarkup(h.Text)}[/]\n\n";
-            case Paragraph p:
-                var markup = string.Concat(p.Inlines.Select(RenderInline));
-                return markup + "\n";
-            case List l:
-                return RenderList(l, 0);
-            case Article a:
-                return string.Concat(a.Children.Select(RenderElement));
-            case InlineContent c:
-                return string.Concat(c.Inlines.Select(RenderInline));
-            default:
-                return string.Empty;
-        }
-    }
+        Heading h => $"\n[bold]{EscapeMarkup(h.Text)}[/]\n\n",
+        DocumentParagraph p => string.Concat(p.Inlines.Select(RenderInline)) + "\n",
+        List l => RenderList(l, 0),
+        Article a => string.Concat(a.Children.Select(RenderElement)),
+        InlineContent c => string.Concat(c.Inlines.Select(RenderInline)),
+        Preformatted pre => $"\n[dim]{EscapeMarkup(pre.Content)}[/]\n\n",
+        _ => string.Empty,
+    };
 
     private static string RenderInline(InlineElement elem)
     {
-        switch (elem)
+        return elem switch
         {
-            case Text t:
-                return $"[dim]{EscapeMarkup(t.Content)}[/]";
-            case Bold b:
-                return $"[bold]{EscapeMarkup(b.Content)}[/]";
-            case Italic i:
-                var style = i.IsStarStyled ? "yellow" : "bold";
-                return $"[{style}]{EscapeMarkup(i.Content)}[/]";
-            case Code c:
-                var codeInner = string.Concat(c.Inlines.Select(RenderInline));
-                return codeInner;
-            case Link l:
-                var linkInner = string.Concat(l.Inlines.Select(RenderInline));
-                if (!string.IsNullOrEmpty(l.Href))
-                {
-                    linkInner += $"[dim] ([/][blue]{EscapeMarkup(l.Href)}[/][dim])[/]";
-                }
-                return linkInner;
-            case EasterEgg e:
-                return $"[dim]{EscapeMarkup(e.VisibleText)}[/][dim] ({EscapeMarkup(e.Tooltip)})[/]";
-            default:
-                return string.Empty;
-        }
+            DocumentText t => $"[dim]{EscapeMarkup(t.Content)}[/]",
+            Bold b => $"[bold]{EscapeMarkup(b.Content)}[/]",
+            Italic i => $"[{(i.IsStarStyled ? "yellow" : "bold")}]{EscapeMarkup(i.Content)}[/]",
+            Code c => string.Concat(c.Inlines.Select(RenderInline)),
+            Link l => string.Concat(l.Inlines.Select(RenderInline))
+                        + (!string.IsNullOrEmpty(l.Href) ? $"[dim] ([/][blue]{EscapeMarkup(l.Href)}[/][dim])[/]" : string.Empty),
+            EasterEgg e => $"[dim]{EscapeMarkup(e.VisibleText)}[/][dim] ({EscapeMarkup(e.Tooltip)})[/]",
+            _ => string.Empty,
+        };
     }
 
     private static string RenderList(List list, int indentLevel)
@@ -125,10 +101,7 @@ internal static class HtmlToSpectreMarkup
         return sb.ToString();
     }
 
-    private static string EscapeMarkup(string text)
-    {
-        return text.Replace("[", "[[").Replace("]", "]]");
-    }
+    private static string EscapeMarkup(string text) => text.Replace("[", "[[").Replace("]", "]]");
 }
 
 
@@ -138,7 +111,7 @@ internal static class HtmlToMarkdown
     {
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml(html);
-        var doc = AdventOfCodeDocument.LoadFrom(htmlDoc, status);
+        var doc = AdventOfCodeDocument.LoadFrom(htmlDoc);
         return RenderDocument(doc);
     }
 
@@ -156,30 +129,23 @@ internal static class HtmlToMarkdown
 
     private static string RenderElement(DocumentElement elem)
     {
-        switch (elem)
+        return elem switch
         {
-            case Heading h:
-                var hashes = new string('#', h.Level);
-                return $"{hashes} {EscapeMarkdown(h.Text)}\n\n";
-            case Paragraph p:
-                var markup = string.Concat(p.Inlines.Select(RenderInline));
-                return markup + "\n\n";
-            case List l:
-                return RenderList(l, 0);
-            case Article a:
-                return string.Concat(a.Children.Select(RenderElement));
-            case InlineContent c:
-                return string.Concat(c.Inlines.Select(RenderInline)) + "\n\n";
-            default:
-                return string.Empty;
-        }
+            Heading h => $"{new string('#', h.Level)} {EscapeMarkdown(h.Text)}\n\n",
+            DocumentParagraph p => string.Concat(p.Inlines.Select(RenderInline)) + "\n\n",
+            List l => RenderList(l, 0),
+            Article a => string.Concat(a.Children.Select(RenderElement)),
+            InlineContent c => string.Concat(c.Inlines.Select(RenderInline)) + "\n\n",
+            Preformatted pre => $"```\n{pre.Content}\n```\n\n",
+            _ => string.Empty,
+        };
     }
 
     private static string RenderInline(InlineElement elem)
     {
         switch (elem)
         {
-            case Text t:
+            case DocumentText t:
                 return EscapeMarkdown(t.Content);
             case Bold b:
                 return $"**{EscapeMarkdown(b.Content)}**";

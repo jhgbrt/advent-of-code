@@ -6,16 +6,18 @@ class Puzzle : IHavePuzzleKey
     public int Year { get; init; }
     public int Day { get; init; }
     public string Input { get; private set; }
+    public string Example {  get; private set; }
     public Answer Answer { get; set; }
     public Status Status { get; set; }
     public string Html { get; set; } = string.Empty;
 
-    public Puzzle(PuzzleKey key, string input, Answer answer, Status status, string html)
+    public Puzzle(PuzzleKey key, string input, string example, Answer answer, Status status, string html)
     {
         Key = key;
         Year = key.Year;
         Day = key.Day;
         Input = input;
+        Example = example;
         Answer = answer;
         Status = status;
         Html = html;
@@ -23,11 +25,12 @@ class Puzzle : IHavePuzzleKey
     private Puzzle()
     {
         Input = string.Empty;
+        Example = string.Empty;
         Answer = Answer.Empty;
     }
 
-    public static Puzzle Locked(PuzzleKey key) => new(key, string.Empty, Answer.Empty, Status.Locked, string.Empty);
-    public static Puzzle Create(PuzzleKey key, string input, Answer answer, string html) => new(key, input, answer, answer switch
+    public static Puzzle Locked(PuzzleKey key) => new(key, string.Empty, string.Empty, Answer.Empty, Status.Locked, string.Empty);
+    public static Puzzle Create(PuzzleKey key, string input, string example, Answer answer, string html) => new(key, input, example, answer, answer switch
     {
         { part1: "", part2: "" } => Status.Unlocked,
         { part1: not "", part2: "" } => key.Day < 25 ? Status.AnsweredPart1 : Status.Completed,
@@ -59,6 +62,7 @@ class Puzzle : IHavePuzzleKey
         Answer = remote.Answer;
         Status = remote.Status;
         Input = remote.Input;
+        Example = remote.Example;
         Html = remote.Html;
     }
 }

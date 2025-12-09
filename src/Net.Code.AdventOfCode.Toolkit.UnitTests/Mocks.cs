@@ -183,9 +183,9 @@ namespace Net.Code.AdventOfCode.Toolkit.UnitTests
         {
             Dictionary<PuzzleKey, Puzzle> puzzles = new[]
             {
-                Puzzle.Create(new(2017,1), "input", new("answer1", "answer2"), string.Empty),
-                Puzzle.Create(new(2017,2), "input", new("answer1", ""), string.Empty),
-                Puzzle.Create(new(2017,3), "input", new("", ""), string.Empty),
+                Puzzle.Create(new(2017,1), "input", string.Empty, new("answer1", "answer2"), string.Empty),
+                Puzzle.Create(new(2017,2), "input", string.Empty, new("answer1", ""), string.Empty),
+                Puzzle.Create(new(2017,3), "input", string.Empty, new("", ""), string.Empty),
             }.ToDictionary(p => p.Key);
 
             Dictionary<PuzzleKey, DayResult> results = new[]

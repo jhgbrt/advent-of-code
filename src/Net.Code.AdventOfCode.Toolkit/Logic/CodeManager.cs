@@ -40,21 +40,13 @@ class CodeManager(IFileSystemFactory fileSystem, ILogger<CodeManager> logger) : 
             throw new AoCException($"Puzzle for {puzzle.Key} already initialized. Use --force to re-initialize.");
         }
 
-        var input = puzzle.Input;
 
         await codeFolder.CreateIfNotExists();
 
         var code = await templateDir.ReadCode(puzzle.Key);
         await codeFolder.WriteCode(code);
-        if (templateDir.Sample.Exists)
-        {
-            codeFolder.CopyFile(templateDir.Sample);
-        }
-        else
-        {
-            await codeFolder.WriteSample("");
-        }
-        await codeFolder.WriteInput(input);
+        await codeFolder.WriteSample(puzzle.Example);
+        await codeFolder.WriteInput(puzzle.Input);
         if (templateDir.Notebook.Exists)
         {
             codeFolder.CopyFile(templateDir.Notebook);

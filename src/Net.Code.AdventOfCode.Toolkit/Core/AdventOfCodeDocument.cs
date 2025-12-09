@@ -1,9 +1,12 @@
-namespace Net.Code.AdventOfCode.Toolkit.Commands;
+namespace Net.Code.AdventOfCode.Toolkit.Core;
 
 using HtmlAgilityPack;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+
+internal readonly record struct PuzzleMetadata(Answer Answer, Status Status);
 
 public abstract class DocumentElement { }
 
@@ -53,6 +56,11 @@ public class Paragraph : DocumentElement
     public List<InlineElement> Inlines { get; set; } = new();
 }
 
+public class Preformatted : DocumentElement
+{
+    public string Content { get; set; } = string.Empty;
+}
+
 public class List : DocumentElement
 {
     public List<ListItem> Items { get; set; } = new();
@@ -77,18 +85,46 @@ public class InlineContent : DocumentElement
 public class AdventOfCodeDocument : DocumentElement
 {
     public List<DocumentElement> Children { get; set; } = new();
+    public string Example { get; private set; } = string.Empty;
+    internal PuzzleMetadata Metadata { get; private set; } = new PuzzleMetadata(Answer.Empty, Status.Locked);
 
-    public static AdventOfCodeDocument LoadFrom(HtmlDocument htmlDoc, Core.Status status)
+    internal static PuzzleMetadata ExtractPuzzleMetadata(HtmlDocument htmlDoc)
     {
-        var main = htmlDoc.DocumentNode.SelectSingleNode("//main");
-        if (main == null) return new AdventOfCodeDocument();
-        return BuildDocument(main, status);
+        if (htmlDoc == null)
+            throw new ArgumentNullException(nameof(htmlDoc));
+
+        var answer = ExtractAnswers(htmlDoc);
+        var status = DetermineStatus(htmlDoc, answer);
+        return new PuzzleMetadata(answer, status);
     }
 
-    private static AdventOfCodeDocument BuildDocument(HtmlNode main, Core.Status status)
+    public static AdventOfCodeDocument LoadFrom(HtmlDocument htmlDoc)
+    {
+        if (htmlDoc == null)
+            throw new ArgumentNullException(nameof(htmlDoc));
+
+        var metadata = ExtractPuzzleMetadata(htmlDoc);
+        var main = htmlDoc.DocumentNode.SelectSingleNode("//main");
+
+        AdventOfCodeDocument document;
+        if (main == null)
+        {
+            document = new AdventOfCodeDocument();
+        }
+        else
+        {
+            document = BuildDocument(main, metadata);
+            document.Example = ExtractExample(main).Replace("\r\n", "\n").Replace("\r", "\n");
+        }
+
+        document.Metadata = metadata;
+        return document;
+    }
+
+    private static AdventOfCodeDocument BuildDocument(HtmlNode main, PuzzleMetadata metadata)
     {
         var doc = new AdventOfCodeDocument();
-        var state = status;
+        var state = metadata.Status;
 
         foreach (var node in main.ChildNodes)
         {
@@ -141,6 +177,27 @@ public class AdventOfCodeDocument : DocumentElement
         return doc;
     }
 
+    private static string ExtractExample(HtmlNode main)
+    {
+        var paragraph = main
+            .Descendants("p")
+            .FirstOrDefault(p => string.Equals(p.InnerText?.Trim(), "For example:", StringComparison.OrdinalIgnoreCase));
+
+        if (paragraph == null)
+            return string.Empty;
+
+        var next = paragraph.NextSibling;
+        while (next != null && next.NodeType != HtmlNodeType.Element)
+            next = next.NextSibling;
+
+        if (next == null || !next.Name.Equals("pre", StringComparison.OrdinalIgnoreCase))
+            return string.Empty;
+
+        var codeNode = next.SelectSingleNode("./code") ?? next;
+        var content = HtmlEntity.DeEntitize(codeNode.InnerText ?? string.Empty);
+        return content;
+    }
+
     private static DocumentElement BuildBlockElement(HtmlNode node)
     {
         var name = node.Name.ToLowerInvariant();
@@ -148,6 +205,7 @@ public class AdventOfCodeDocument : DocumentElement
         {
             "h1" or "h2" or "h3" => new Heading { Level = int.Parse(name[1].ToString()), Text = node.InnerText?.Trim() ?? string.Empty },
             "p" => new Paragraph { Inlines = BuildInlineElements(node) },
+            "pre" => new Preformatted { Content = HtmlEntity.DeEntitize(node.InnerText ?? string.Empty) },
             "article" => new Article { Children = BuildChildren(node) },
             "ul" => BuildListElement(node, 0),
             _ => new Article { Children = BuildChildren(node) }
@@ -163,7 +221,7 @@ public class AdventOfCodeDocument : DocumentElement
             if (child.NodeType == HtmlNodeType.Element)
             {
                 var name = child.Name.ToLowerInvariant();
-                if (name is "article" or "p" or "h1" or "h2" or "h3" or "ul")
+                if (name is "article" or "p" or "pre" or "h1" or "h2" or "h3" or "ul")
                 {
                     hasBlock = true;
                     children.Add(BuildBlockElement(child));
@@ -247,5 +305,64 @@ public class AdventOfCodeDocument : DocumentElement
             list.Items.Add(item);
         }
         return list;
+    }
+
+    private static Answer ExtractAnswers(HtmlDocument htmlDoc)
+    {
+        var answers = (
+            from node in htmlDoc.DocumentNode.Descendants("p")
+            let text = node.InnerText?.TrimStart() ?? string.Empty
+            where text.StartsWith("Your puzzle answer was", StringComparison.OrdinalIgnoreCase)
+            let code = node.SelectSingleNode(".//code")?.InnerText ?? string.Empty
+            where !string.IsNullOrEmpty(code)
+            select code
+        ).ToArray();
+
+        return answers.Length switch
+        {
+            0 => Answer.Empty,
+            1 => new Answer(answers[0], string.Empty),
+            2 => new Answer(answers[0], answers[1]),
+            _ => throw new Exception($"expected 0, 1 or 2 answers, not {answers.Length}")
+        };
+    }
+
+    private static Status DetermineStatus(HtmlDocument htmlDoc, Answer answer)
+    {
+        if (!string.IsNullOrEmpty(answer.part2) || HasDaySuccessParagraph(htmlDoc, "Both parts"))
+            return Status.Completed;
+
+        if (HasSubmissionForm(htmlDoc, "2"))
+            return Status.AnsweredPart1;
+
+        if (!string.IsNullOrEmpty(answer.part1))
+            return Status.AnsweredPart1;
+
+        if (HasSubmissionForm(htmlDoc, "1"))
+            return Status.Unlocked;
+
+        return Status.Unlocked;
+    }
+
+    private static bool HasSubmissionForm(HtmlDocument htmlDoc, string level)
+    {
+        return htmlDoc.DocumentNode
+            .Descendants("form")
+            .Any(form => form
+                .Descendants("input")
+                .Any(input => input.GetAttributeValue("name", string.Empty) == "level"
+                           && input.GetAttributeValue("value", string.Empty) == level));
+    }
+
+    private static bool HasDaySuccessParagraph(HtmlDocument htmlDoc, string containsText)
+    {
+        return htmlDoc.DocumentNode
+            .Descendants("p")
+            .Any(p =>
+                p.GetAttributeValue("class", string.Empty)
+                 .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                 .Any(className => className.Equals("day-success", StringComparison.OrdinalIgnoreCase))
+                && (containsText == null
+                    || p.InnerText.Contains(containsText, StringComparison.OrdinalIgnoreCase)));
     }
 }

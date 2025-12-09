@@ -91,7 +91,7 @@ public class CodeManagerTests(ITestOutputHelper output)
     public async Task InitializeCode_WhenCodeFolderDoesNotExist_Succeeds()
     {
         CodeManager m = CreateCodeManager(false, code);
-        var puzzle = Puzzle.Create(new(2021, 3), "input", Answer.Empty, string.Empty);
+        var puzzle = Puzzle.Create(new(2021, 3), "input", string.Empty, Answer.Empty, string.Empty);
         await m.InitializeCodeAsync(puzzle, false, null, s => { });
     }
 
@@ -100,7 +100,7 @@ public class CodeManagerTests(ITestOutputHelper output)
     {
         CodeManager m = CreateCodeManager(true, code);
 
-        var puzzle = Puzzle.Create(new(2021, 3), "input", Answer.Empty, string.Empty);
+        var puzzle = Puzzle.Create(new(2021, 3), "input", string.Empty, Answer.Empty, string.Empty);
         await m.InitializeCodeAsync(puzzle, true, null, s => { });
     }
 
@@ -108,7 +108,7 @@ public class CodeManagerTests(ITestOutputHelper output)
     public async Task InitializeCode_WhenCodeFolderExists_Throws()
     {
         CodeManager m = CreateCodeManager(true, code);
-        var puzzle = Puzzle.Create(new (2021, 3), "input", Answer.Empty, string.Empty);
+        var puzzle = Puzzle.Create(new (2021, 3), "input", string.Empty, Answer.Empty, string.Empty);
         await Assert.ThrowsAnyAsync<AoCException>(async () => await m.InitializeCodeAsync(puzzle, false, null, s => { }));
     }
     const string HEADER = """

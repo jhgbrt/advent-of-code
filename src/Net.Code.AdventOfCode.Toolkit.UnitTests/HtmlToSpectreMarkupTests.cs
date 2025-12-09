@@ -38,7 +38,7 @@ public class HtmlToSpectreMarkupTests
     [Fact]
     public void Transform_AnsweredPart1_ReturnsDescriptionAndPart2()
     {
-        var html = @"<html><body><main><article class='day-desc'><h2>--- Part 1: Title ---</h2><p>Part 1</p></article><p>Your answer was 123.</p><p class='day-success'>Part 1 complete</p><article class='day-desc'>Part 2</article><form>Answer form</form></main></body></html>";
+        var html = @"<html><body><main><article class='day-desc'><h2>--- Part 1: Title ---</h2><p>Part 1</p></article><p>Your puzzle answer was <code>123</code>.</p><p class='day-success'>Part 1 complete</p><article class='day-desc'>Part 2</article><form>Answer form</form></main></body></html>";
         var status = Core.Status.AnsweredPart1;
         var result = HtmlToSpectreMarkup.Transform(html, status);
 
