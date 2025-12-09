@@ -1,18 +1,24 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using Microsoft.Build.Framework;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Formatting;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.Extensions.Logging;
 
 using Net.Code.AdventOfCode.Toolkit.Core;
 
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
+using System.Text.RegularExpressions;
 
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Net.Code.AdventOfCode.Toolkit.Logic;
 
-class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
+class CodeManager(IFileSystemFactory fileSystem, ILogger<CodeManager> logger) : ICodeManager
 {
     public bool IsInitialized(Puzzle puzzle)
     {
@@ -64,9 +70,14 @@ class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
     public async Task<string> GenerateCodeAsync(PuzzleKey key)
     {
         var dir = fileSystem.GetCodeFolder(key);
-        var aoc = await dir.ReadCode();
-        var tree = CSharpSyntaxTree.ParseText(aoc);
+        var aoc = await dir.ReadCode(); 
+        return ConvertAoCClassToTopLevelStatements(aoc);
+    }
 
+    public string ConvertAoCClassToTopLevelStatements(string aoc)
+    {
+
+        var tree = CSharpSyntaxTree.ParseText(aoc);
         tree = tree.WithRootAndOptions(tree.GetRoot(), tree.Options);
 
         // find a class with 2 methods without arguments called Part1() and Part2()
@@ -187,7 +198,6 @@ class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
             .WithUsings(List(usings))
             .WithMembers(
                 List(Enumerable.Empty<GlobalStatementSyntax>()
-                    .Concat([GlobalStatement(ParseStatement("using System.Diagnostics;\r\n"))!])
                     .Concat([GlobalStatement(ParseStatement("var (sw, bytes) = (Stopwatch.StartNew(), 0L);"))!])
                     .Concat([GlobalStatement(ParseStatement("var filename = args switch { [\"sample\"] => \"sample.txt\", _ => \"input.txt\" };"))])
                     .Concat(initialization.Select(GlobalStatement))
@@ -201,7 +211,7 @@ class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
                         GenerateGlobalStatement(2, implementations),
                         GlobalStatement(ParseStatement("Report(2, part2, sw, ref bytes);"))!,
                     ])
-                    .Concat(List<MemberDeclarationSyntax>(methods))
+                    .Concat(List(methods.Select(m => GlobalStatement(TransformToLocalFunctionStatement(m)))))
                     .Concat([
                         GlobalStatement(ParseStatement("""
                         void Report<T>(int part, T value, Stopwatch sw, ref long bytes)
@@ -242,7 +252,9 @@ class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
                     .Concat(List<MemberDeclarationSyntax>(enums))
                 )
             );
-;
+
+        result = CompileAndFix(result);
+
         var workspace = new AdhocWorkspace();
         var code = Formatter.Format(result.NormalizeWhitespace(), workspace, workspace.Options
             .WithChangedOption(CSharpFormattingOptions.IndentBlock, true)
@@ -250,6 +262,129 @@ class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
         return code;
     }
 
+    private CompilationUnitSyntax CompileAndFix(CompilationUnitSyntax unit)
+    {
+        const int maxAttempts = 5;
+
+        for (var attempt = 0; attempt < maxAttempts; attempt++)
+        {
+            var (diagnostics, _) = CSharpSingleFileHelper.Verify(unit);
+            var errors = diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+
+            if (errors.Length == 0)
+                return unit;
+
+            if (!TryApplyHeuristicFixes(errors, ref unit))
+            {
+                foreach (var error in errors)
+                    logger.LogError($"Unfixable: {error.Id}: {error.GetMessage()}");
+
+                return unit;
+            }
+        }
+
+        return unit;
+    }
+
+    private bool TryApplyHeuristicFixes(IEnumerable<Diagnostic> diagnostics, ref CompilationUnitSyntax unit)
+    {
+        var changed = false;
+
+        foreach (var diagnostic in diagnostics)
+        {
+            if (TryApplyMessageBasedFix(diagnostic, ref unit))
+            {
+                changed = true;
+                continue;
+            }
+
+            if (SymbolFixDiagnosticIds.Contains(diagnostic.Id) && TryApplySymbolBasedFix(diagnostic, ref unit))
+            {
+                changed = true;
+            }
+        }
+
+        return changed;
+    }
+
+    private bool TryApplyMessageBasedFix(Diagnostic diagnostic, ref CompilationUnitSyntax unit)
+    {
+        var message = diagnostic.GetMessage();
+
+        foreach (var (fragment, usingDirective) in MessageBasedUsingFixes)
+        {
+            if (message.Contains(fragment, StringComparison.Ordinal) && TryAddUsingDirective(ref unit, usingDirective))
+                return true;
+        }
+
+        return false;
+    }
+
+    private bool TryApplySymbolBasedFix(Diagnostic diagnostic, ref CompilationUnitSyntax unit)
+    {
+        var symbolName = ExtractIdentifierName(diagnostic);
+        if (symbolName is null)
+            return false;
+
+        return SymbolNameUsingFixes.TryGetValue(symbolName, out var usingDirective)
+            && TryAddUsingDirective(ref unit, usingDirective);
+    }
+
+    private static string? ExtractIdentifierName(Diagnostic diagnostic)
+    {
+        var tree = diagnostic.Location.SourceTree;
+        if (tree is null)
+            return null;
+
+        var node = tree.GetRoot().FindNode(diagnostic.Location.SourceSpan);
+        return node switch
+        {
+            IdentifierNameSyntax ident => ident.Identifier.ValueText,
+            GenericNameSyntax gen => gen.Identifier.ValueText,
+            MemberAccessExpressionSyntax member when member.Name is IdentifierNameSyntax id => id.Identifier.ValueText,
+            _ => null
+        };
+    }
+
+    private static bool TryAddUsingDirective(ref CompilationUnitSyntax unit, string usingDirective)
+    {
+        if (unit.Usings.Any(u => u.ToString().Equals(usingDirective, StringComparison.Ordinal)))
+            return false;
+
+        var parsed = SyntaxFactory.ParseCompilationUnit(usingDirective + "\n").Usings.First();
+        unit = unit.AddUsings(parsed);
+        return true;
+    }
+
+    private static readonly (string fragment, string usingDirective)[] MessageBasedUsingFixes =
+    [
+        ("The type or namespace name 'HashSet<>' could not be found", "using System.Collections.Generic;"),
+        ("The type or namespace name 'Dictionary<,>' could not be found", "using System.Collections.Generic;"),
+        ("The type or namespace name 'IEnumerable<>' could not be found", "using System.Collections.Generic;"),
+        ("Non-invocable member 'Range' cannot be used like a method.", "using static System.Linq.Enumerable;")
+    ];
+
+    private static readonly Dictionary<string, string> SymbolNameUsingFixes = new(StringComparer.Ordinal)
+    {
+        ["Stopwatch"] = "using System.Diagnostics;",
+        ["StringBuilder"] = "using System.Text;",
+        ["Regex"] = "using System.Text.RegularExpressions;",
+        ["Min"] = "using static System.Math;",
+        ["Max"] = "using static System.Math;",
+        ["Pow"] = "using static System.Math;",
+        ["Sqrt"] = "using static System.Math;",
+        ["Log"] = "using static System.Math;",
+        ["Abs"] = "using static System.Math;",
+        ["ToImmutableArray"] = "using System.Collections.Immutable;"
+    };
+
+    private static readonly HashSet<string> SymbolFixDiagnosticIds = new(StringComparer.Ordinal)
+    {
+        "CS0103",
+        "CS0246",
+        "CS1061"
+    };
+    
     private bool IsInitialized(FieldDeclarationSyntax node, IEnumerable<StatementSyntax> initialization)
     {
         return initialization.OfType<LocalDeclarationStatementSyntax>().Any(ld => IsInitializationFor(ld, node));
@@ -272,13 +407,27 @@ class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
         return left.Name.ToString().Equals(right.ToString());
     }
 
-    // Converts 'a = b' to 'var a = b'
+    // Converts 'a = b' or 'this.a = b' to 'var a = b'
     private StatementSyntax ConvertConstructorInitializationStatement(StatementSyntax node)
     {
         if (node is not ExpressionStatementSyntax ess) return node;
         var child = ess.ChildNodes().Single();
         if (child is not AssignmentExpressionSyntax assignment) return node;
-        if (assignment.Left is not IdentifierNameSyntax identifierName) return node;
+        
+        IdentifierNameSyntax identifierName;
+        if (assignment.Left is IdentifierNameSyntax idn)
+        {
+            identifierName = idn;
+        }
+        else if (assignment.Left is MemberAccessExpressionSyntax maes && maes.Expression is ThisExpressionSyntax)
+        {
+            identifierName = (IdentifierNameSyntax)maes.Name;
+        }
+        else
+        {
+            return node;
+        }
+        
         var value = assignment.Right;
         var variableDeclarator = VariableDeclarator(identifierName.Identifier)
             .WithInitializer(EqualsValueClause(value));
@@ -311,7 +460,7 @@ class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
     }
 
 
-    private ClassDeclarationSyntax AdjustInputReading(ClassDeclarationSyntax aocclass)
+    private static ClassDeclarationSyntax AdjustInputReading(ClassDeclarationSyntax aocclass)
     {
         var invocations = from i in aocclass.DescendantNodes().OfType<InvocationExpressionSyntax>()
                           where i.Expression is MemberAccessExpressionSyntax
@@ -356,7 +505,7 @@ class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
 
     private static LocalFunctionStatementSyntax TransformToLocalFunctionStatement(MethodDeclarationSyntax method)
     {
-        return LocalFunctionStatement(
+        var localFunction = LocalFunctionStatement(
             TokenList(method.Modifiers.Where(m => !m.IsKind(SyntaxKind.PublicKeyword))),
             method.ReturnType,
             method.Identifier,
@@ -366,6 +515,13 @@ class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
             method.Body,
             method.ExpressionBody
             );
+
+        if (method is { Body: null, ExpressionBody: not null })
+        {
+            localFunction = localFunction.WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+        }
+
+        return localFunction;
     }
 
     private static MemberDeclarationSyntax GenerateGlobalStatement(int part, IReadOnlyDictionary<string, ExpressionSyntax> implementations)
@@ -424,4 +580,106 @@ class CodeManager(IFileSystemFactory fileSystem) : ICodeManager
             }
         }
     }
+}
+
+
+public static class CSharpSingleFileHelper
+{
+    public static (Diagnostic[] diagnostics, CSharpCompilation compilation) Compile(CompilationUnitSyntax root)
+    {
+        // Extract original using names
+        var originalUsingNames = root.Usings
+            .Select(u => u.Name?.ToString())
+            .Where(n => n is not null)
+            .ToHashSet();
+
+        // Add implicit usings that aren't already present
+        string[] implicitUsingNamespaces =
+        [
+            "System", "System.IO", "System.Collections.Generic",
+                "System.Linq", "System.Net.Http", "System.Threading",
+                "System.Threading.Tasks"
+        ];
+
+        var addedImplicitUsings = implicitUsingNamespaces
+            .Where(n => !originalUsingNames.Contains(n))
+            .Select(n => CreateUsingDirective(n))
+            .ToArray();
+
+        var updatedRoot = root.AddUsings(addedImplicitUsings);
+
+        // Compile with implicit usings
+        var compilation = CreateCompilation(updatedRoot);
+
+        // Filter diagnostics: exclude CS8019 warnings for implicit usings we added
+        return (compilation.GetDiagnostics()
+            .Where(diag => !IsRedundantImplicitUsingWarning(diag, addedImplicitUsings, updatedRoot))
+            .ToArray(), compilation);
+    }
+
+    private static UsingDirectiveSyntax CreateUsingDirective(ReadOnlySpan<char> namespaceName)
+    {
+        Span<Range> parts = stackalloc Range[32];
+        int partCount = namespaceName.Split(parts, '.');
+
+        NameSyntax nameNode = IdentifierName(new string(namespaceName[parts[0]]));
+
+        for (int i = 1; i < partCount; i++)
+            nameNode = QualifiedName(nameNode, IdentifierName(new string(namespaceName[parts[i]])));
+
+        return UsingDirective(nameNode);
+    }
+
+    private static CSharpCompilation CreateCompilation(CompilationUnitSyntax root)
+    {
+        var parseOptions = new CSharpParseOptions(LanguageVersion.Preview);
+        var tree = CSharpSyntaxTree.Create(root, parseOptions);
+
+        var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
+            .Split(Path.PathSeparator)
+            .Select(path => MetadataReference.CreateFromFile(path));
+
+        return CSharpCompilation.Create(
+            assemblyName: "Verification",
+            syntaxTrees: [tree],
+            references: references,
+            options: new CSharpCompilationOptions(OutputKind.ConsoleApplication));
+    }
+
+    private static bool IsRedundantImplicitUsingWarning(
+        Diagnostic diagnostic,
+        UsingDirectiveSyntax[] addedImplicitUsings,
+        CompilationUnitSyntax root)
+    {
+        if (diagnostic.Id != "CS8019")
+            return false;
+
+        var span = diagnostic.Location.SourceSpan;
+        var usingNode = root.DescendantNodes(span)
+            .OfType<UsingDirectiveSyntax>()
+            .FirstOrDefault(u => u.Span == span);
+
+        return usingNode is not null &&
+               addedImplicitUsings.Any(u => u.Name?.ToString() == usingNode.Name?.ToString());
+    }
+
+
+    [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "Dynamic compilation scenario")]
+    public static void Run(Compilation root)
+    {
+        using var pe = new MemoryStream();
+        var emitResult = root.Emit(pe);
+
+        if (emitResult.Success)
+        {
+            pe.Position = 0;
+            var asm = Assembly.Load(pe.ToArray());
+            var entry = asm.EntryPoint;
+            entry!.Invoke(null, new object[] { Array.Empty<string>() });
+        }
+    }
+
+    public static (Diagnostic[] diagnostics, CSharpCompilation compilation) Verify(CompilationUnitSyntax root)
+        => Compile(root);
+    
 }
