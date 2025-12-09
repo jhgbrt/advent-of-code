@@ -40,12 +40,10 @@ class CircuitManager
         }
     }
 
-    public Circuit FindCircuit(Coordinate coord) => coordinateToCircuit[coord];
-
     public bool Merge(Coordinate c1, Coordinate c2)
     {
-        var circuit1 = FindCircuit(c1);
-        var circuit2 = FindCircuit(c2);
+        var circuit1 = coordinateToCircuit[c1];
+        var circuit2 = coordinateToCircuit[c2];
 
         if (circuit1 == circuit2)
             return false;
@@ -59,33 +57,32 @@ class CircuitManager
         return true;
     }
 
-    public IEnumerable<Circuit> GetUniqueCircuits() =>
-        coordinateToCircuit.Values.Distinct();
+    public IEnumerable<Circuit> GetUniqueCircuits() => coordinateToCircuit.Values.Distinct();
 }
 
 
 public class AoC202508
 {
-    public AoC202508(string[] input, int iterations, TextWriter writer)
+    public AoC202508(string[] input, int iterations)
     {
-        this.writer = writer;
         this.iterations = iterations;
         this.coordinates = input.Select(line => Coordinate.Parse(line)).ToArray();
         this.pairs = (
-            from i in Enumerable.Range(0, coordinates.Length)
-            from j in Enumerable.Range(i + 1, coordinates.Length - i - 1)
+            from i in Range(0, coordinates.Length)
+            from j in Range(i + 1, coordinates.Length - i - 1)
             orderby coordinates[i].DistanceSquared(coordinates[j])
             select (coordinates[i], coordinates[j])
             ).ToArray();
         this.circuitManager = new CircuitManager(coordinates);
     }
 
-    public AoC202508() : this(Read.InputLines(), 1000, Console.Out) { }
-    private readonly TextWriter writer;
+    public AoC202508() : this(Read.InputLines(), 1000) { }
+
     private readonly Coordinate[] coordinates;
     private readonly (Coordinate c1, Coordinate c2)[] pairs;
     private readonly int iterations;
     private readonly CircuitManager circuitManager;
+
     public int Part1()
     {        
         foreach (var (c1, c2) in pairs[..iterations])
@@ -101,26 +98,17 @@ public class AoC202508
 
     public long Part2()
     {
-        bool count = true;
-        int n = 0;
         (Coordinate c1, Coordinate c2) last = default;
         foreach (var (c1, c2) in pairs[iterations..])
         {
             if (circuitManager.Merge(c1, c2))
             {
-                count = false;
                 last = (c1, c2);
                 var uniqueCircuits = circuitManager.GetUniqueCircuits().Count();
                 if (uniqueCircuits == 1)
                     break;
             }
-            else 
-            {
-                if (count)
-                    n++;
-            }
         }
-        writer.WriteLine(n);
         return 1L * last.c1.X * last.c2.X;
     }
 }
@@ -131,7 +119,7 @@ public class AoC202508Tests
     public AoC202508Tests(ITestOutputHelper output)
     {
         var input = Read.SampleLines();
-        sut = new AoC202508(input, 10, new TestWriter(output));
+        sut = new AoC202508(input, 10);
     }
 
     [Fact]
