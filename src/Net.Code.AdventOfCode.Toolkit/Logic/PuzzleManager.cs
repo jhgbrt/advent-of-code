@@ -89,14 +89,14 @@ class PuzzleManager(IAoCClient client, IAoCDbContext db, AoCLogic logic) : IPuzz
         return await queryable.ToArrayAsync();
     }
 
-    public async Task<PuzzleResultStatus> GetPuzzleResult(PuzzleKey key)
+    public async Task<PuzzleResultStatus?> GetPuzzleResult(PuzzleKey key)
     {
         logic.EnsureValid(key);
 
         var puzzle = await db.GetPuzzle(key);
 
         if (puzzle is null)
-            throw new ArgumentException(nameof(key));
+            return null;
 
         var result = await db.GetResult(key)
             ?? DayResult.NotImplemented(key);

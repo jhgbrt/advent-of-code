@@ -32,6 +32,12 @@ class Post(IPuzzleManager manager, AoCLogic logic, IInputOutputService io) : Sin
         if (string.IsNullOrEmpty(value))
         {
             var result = await manager.GetPuzzleResult(key);
+            if (result is null)
+            {
+                io.MarkupLine($"[red]No stored results found for {key}[/]");
+                return 1;
+            }
+
             if (result.Comparison.part1 == ResultStatus.Unknown)
             {
                 value = result.result.Part1.Value;

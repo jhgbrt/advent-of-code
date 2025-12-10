@@ -35,7 +35,7 @@ interface IPuzzleManager
     Task<Puzzle> SyncPuzzle(PuzzleKey key);
     Task<Puzzle> GetPuzzle(PuzzleKey key);
     Task<PuzzleResultStatus[]> GetPuzzleResults(int? year, TimeSpan? slowerthan);
-    Task<PuzzleResultStatus> GetPuzzleResult(PuzzleKey key);
+    Task<PuzzleResultStatus?> GetPuzzleResult(PuzzleKey key);
     Task AddResult(DayResult result);
     Task<(bool success, string content)> PostAnswer(PuzzleKey key, string answer);
 }

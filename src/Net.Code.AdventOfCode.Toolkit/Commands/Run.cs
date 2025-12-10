@@ -33,8 +33,16 @@ class Run(IAoCRunner manager, IPuzzleManager puzzleManager, AoCLogic aocLogic, I
         {
             await puzzleManager.AddResult(result);
             var resultStatus = await puzzleManager.GetPuzzleResult(key);
-            var reportLine = resultStatus.ToReportLineMarkup();
-            io.MarkupLine(reportLine);
+            if (resultStatus is not null)
+            {
+                var reportLine = resultStatus.ToReportLineMarkup();
+                io.MarkupLine(reportLine);
+            }
+            else 
+            {
+                io.MarkupLine("[red]ERROR: Could not retrieve result status after running the puzzle.[/]");
+                return 1;
+            }
         }
         else
         {
