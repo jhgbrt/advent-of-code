@@ -25,13 +25,16 @@ class Show(IPuzzleManager puzzleManager, AoCLogic aocLogic, IInputOutputService 
     {
         var puzzle = await puzzleManager.SyncPuzzle(key);
 
-        var markupString = options.Format switch
+        if (options.Format == "md")
         {
-            "md" => HtmlToMarkdown.Transform(puzzle.Html, puzzle.Status),
-            _ => HtmlToSpectreMarkup.Transform(puzzle.Html, puzzle.Status)
-        };
+            io.WriteLine(HtmlToMarkdown.Transform(puzzle.Html, puzzle.Status));
+        }
+        else 
+        {
+            var markup = HtmlToSpectreMarkup.Transform(puzzle.Html, puzzle.Status);
+            io.Write(new Markup(markup));
+        }
 
-        io.Write(new Markup(markupString));
         return 0;
     }
 }
