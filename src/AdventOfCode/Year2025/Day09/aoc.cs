@@ -188,9 +188,9 @@ record struct Polygon(Coordinate[] Corners)
     }
 }
 
-public class AoC202509(string[] input, TextWriter writer)
+public class AoC202509(string[] input)
 {
-    public AoC202509() : this(Read.InputLines(), Console.Out) { }
+    public AoC202509() : this(Read.InputLines()) { }
 
     Coordinate[] coordinates = [.. from line in input
                                    select Coordinate.Parse(line.AsSpan()) ];
@@ -234,7 +234,7 @@ public class AoC202509Tests
     public AoC202509Tests(ITestOutputHelper output)
     {
         var input = Read.SampleLines();
-        sut = new AoC202509(input, new TestWriter(output));
+        sut = new AoC202509(input);
     }
 
     [Fact]
