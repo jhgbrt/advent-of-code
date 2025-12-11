@@ -11,9 +11,17 @@ class Verify(IPuzzleManager manager, AoCLogic aocLogic, IInputOutputService io) 
     public override async Task<int> ExecuteAsync(PuzzleKey key, AoCSettings options, CancellationToken ct)
     {
         var resultStatus = await manager.GetPuzzleResult(key);
-        var reportLine = resultStatus.ToReportLineMarkup();
-        io.MarkupLine(reportLine);
-        return resultStatus.Ok ? 0 : 1;
+        if (resultStatus != null)
+        {
+            var reportLine = resultStatus.ToReportLineMarkup();
+            io.MarkupLine(reportLine);
+            return resultStatus.Ok ? 0 : 1;
+        }
+        else
+        {
+            io.MarkupLine($"[yellow]No result found for {key}.[/]");
+            return 1;
+        }
     }
 
 }
