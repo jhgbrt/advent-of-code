@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 
 using Net.Code.AdventOfCode.Toolkit.Core;
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
@@ -343,7 +344,7 @@ class CodeManager(IFileSystemFactory fileSystem, ILogger<CodeManager> logger) : 
         if (unit.Usings.Any(u => u.ToString().Equals(usingDirective, StringComparison.Ordinal)))
             return false;
 
-        var parsed = SyntaxFactory.ParseCompilationUnit(usingDirective + "\n").Usings.First();
+        var parsed = ParseCompilationUnit(usingDirective + "\n").Usings.First();
         unit = unit.AddUsings(parsed);
         return true;
     }
@@ -367,7 +368,8 @@ class CodeManager(IFileSystemFactory fileSystem, ILogger<CodeManager> logger) : 
         ["Sqrt"] = "using static System.Math;",
         ["Log"] = "using static System.Math;",
         ["Abs"] = "using static System.Math;",
-        ["ToImmutableArray"] = "using System.Collections.Immutable;"
+        ["ToImmutableArray"] = "using System.Collections.Immutable;",
+        ["BitOperations"] = "using System.Numerics;"
     };
 
     private static readonly HashSet<string> SymbolFixDiagnosticIds = new(StringComparer.Ordinal)
@@ -588,15 +590,14 @@ public static class CSharpSingleFileHelper
         // Add implicit usings that aren't already present
         string[] implicitUsingNamespaces =
         [
-            "System", "System.IO", "System.Collections.Generic",
-                "System.Linq", "System.Net.Http", "System.Threading",
-                "System.Threading.Tasks"
+        "System", "System.IO", "System.Collections.Generic",
+        "System.Linq", "System.Net.Http", "System.Threading",
+        "System.Threading.Tasks"
         ];
-
         var addedImplicitUsings = implicitUsingNamespaces
-            .Where(n => !originalUsingNames.Contains(n))
-            .Select(n => CreateUsingDirective(n))
-            .ToArray();
+                    .Where(n => !originalUsingNames.Contains(n))
+                    .Select(n => CreateUsingDirective(n))
+                    .ToArray();
 
         var updatedRoot = root.AddUsings(addedImplicitUsings);
 
@@ -610,17 +611,17 @@ public static class CSharpSingleFileHelper
     }
 
     private static UsingDirectiveSyntax CreateUsingDirective(ReadOnlySpan<char> namespaceName)
-    {
-        Span<Range> parts = stackalloc Range[32];
-        int partCount = namespaceName.Split(parts, '.');
+	{
+		Span<Range> parts = stackalloc Range[32];
+		int partCount = namespaceName.Split(parts, '.');
 
-        NameSyntax nameNode = IdentifierName(new string(namespaceName[parts[0]]));
+		NameSyntax nameNode = IdentifierName(new string(namespaceName[parts[0]]));
 
-        for (int i = 1; i < partCount; i++)
-            nameNode = QualifiedName(nameNode, IdentifierName(new string(namespaceName[parts[i]])));
+		for (int i = 1; i < partCount; i++)
+			nameNode = QualifiedName(nameNode, IdentifierName(new string(namespaceName[parts[i]])));
 
-        return UsingDirective(nameNode);
-    }
+		return UsingDirective(nameNode);
+	}
 
     private static CSharpCompilation CreateCompilation(CompilationUnitSyntax root)
     {
@@ -638,21 +639,21 @@ public static class CSharpSingleFileHelper
             options: new CSharpCompilationOptions(OutputKind.ConsoleApplication));
     }
 
-    private static bool IsRedundantImplicitUsingWarning(
-        Diagnostic diagnostic,
+	private static bool IsRedundantImplicitUsingWarning(
+		Diagnostic diagnostic,
         UsingDirectiveSyntax[] addedImplicitUsings,
         CompilationUnitSyntax root)
-    {
-        if (diagnostic.Id != "CS8019")
-            return false;
+	{
+		if (diagnostic.Id != "CS8019")
+			return false;
 
-        var span = diagnostic.Location.SourceSpan;
-        var usingNode = root.DescendantNodes(span)
-            .OfType<UsingDirectiveSyntax>()
-            .FirstOrDefault(u => u.Span == span);
+		var span = diagnostic.Location.SourceSpan;
+		var usingNode = root.DescendantNodes(span)
+			.OfType<UsingDirectiveSyntax>()
+			.FirstOrDefault(u => u.Span == span);
 
         return usingNode is not null &&
-               addedImplicitUsings.Any(u => u.Name?.ToString() == usingNode.Name?.ToString());
+              addedImplicitUsings.Any(u => u.Name?.ToString() == usingNode.Name?.ToString());
     }
 
 
@@ -673,5 +674,5 @@ public static class CSharpSingleFileHelper
 
     public static (Diagnostic[] diagnostics, CSharpCompilation compilation) Verify(CompilationUnitSyntax root)
         => Compile(root);
-    
+
 }
