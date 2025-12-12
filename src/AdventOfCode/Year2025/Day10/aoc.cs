@@ -1,3 +1,5 @@
+using Microsoft.Z3;
+
 namespace AdventOfCode.Year2025.Day10;
 
 // [.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
@@ -38,6 +40,65 @@ record Machine(int nofIndicators, int targetState, int[] buttons, int[] joltage)
         return minimum == int.MaxValue ? -1 : minimum;
     }
 
+    /*
+     * the "joltage" requirement can be seen as a system of linear equations:
+     *   - each button contributes +1 to every indicator it toggles every time it is pressed
+     *   - we can press a button any number of times
+     *   - for indicator i we want sum(presses[b]) == target[i] over all buttons b that light up i
+     *   - the objective is to minimise the total number of button presses subject to those equalities
+     */
+    public int SolveJoltage()
+    {
+        using var ctx = new Context();
+        var opt = ctx.MkOptimize();
+        var pressVars = Range(0, buttons.Length).Select(i => ctx.MkIntConst($"p{i}")).ToArray();
+
+        // Define each button's number of presses as a positive integer
+        var zero = ctx.MkInt(0);
+        foreach (var v in pressVars)
+        {
+            opt.Add(ctx.MkGe(v, zero));
+        }
+
+        for (int indicator = 0; indicator < joltage.Length; indicator++)
+        {
+            // build the LHS of the equality for this indicator:
+            // 
+            //                    nofb
+            //                    ----
+            //           t_i  =   \      press[b] * affects(b, i)
+            //                    /
+            //                    ----
+            //                    b=1
+            // each contributing button press adds +1 to the indicator's joltage
+            List<IntExpr> terms = [];
+            for (int b = 0; b < buttons.Length; b++)
+            {
+                if ((buttons[b] & (1 << indicator)) == 0) continue; // only consider buttons that toggle this indicator
+                terms.Add(pressVars[b]);
+            }
+            var sum = Sum(ctx, terms);
+            // tie the linear combination to the required joltage target for this indicator
+            opt.Add(ctx.MkEq(sum, ctx.MkInt(joltage[indicator])));
+        }
+
+        var totalPresses = Sum(ctx, pressVars);
+
+        // objective is to minimize the total number of button presses
+        opt.MkMinimize(totalPresses);
+
+        return opt.Check() == Status.SATISFIABLE ? Evaluate(opt.Model, totalPresses) : -1;
+    }
+
+    static IntExpr Sum(Context ctx, IReadOnlyList<IntExpr> terms) => terms.Count switch
+    {
+        0 => ctx.MkInt(0),
+        1 => terms[0],
+        _ => (IntExpr)ctx.MkAdd([.. terms.Cast<ArithExpr>()])
+    };
+
+    static int Evaluate(Model model, IntExpr expr) => ((IntNum)model.Evaluate(expr)).Int;
+
     public static Machine Parse(ReadOnlySpan<char> input)
     {
         T[] parseBetween<T>(ReadOnlySpan<char> input, char start, char end, char separator, Func<ReadOnlySpan<char>, T> convert) 
@@ -75,7 +136,7 @@ record Machine(int nofIndicators, int targetState, int[] buttons, int[] joltage)
         int[] buttons = new int[numberOfButtons];
         Range[] buttonsRanges = new Range[numberOfButtons];
         buttonsSpan.Split(buttonsRanges, ' ');
-        for (int i = 0; i < numberOfButtons; i++)
+        for (var i = 0; i < numberOfButtons; i++)
         {
             int button = 0;
             var digitsSeparatedByComma = buttonsSpan[buttonsRanges[i]][1..^1];
@@ -95,16 +156,10 @@ record Machine(int nofIndicators, int targetState, int[] buttons, int[] joltage)
 public class AoC202510(string[] input, TextWriter writer)
 {
     public AoC202510() : this(Read.InputLines(), Console.Out) {}
+    readonly Machine[] machines = input.Select(s => Machine.Parse(s)).ToArray();
 
-    public int Part1()
-    {
-        var machines = input.Select(s => Machine.Parse(s)).ToArray();
-        return machines.Sum(m => m.Start());
-    }
-    public int Part2()
-    {
-        return -1;
-    }
+    public int Part1() => machines.Sum(m => m.Start());
+    public int Part2() => machines.Sum(m => m.SolveJoltage());
 }
 
 public class AoC202510Tests
@@ -116,9 +171,25 @@ public class AoC202510Tests
         sut = new AoC202510(input, new TestWriter(output));
     }
 
+
     [Fact]
     public void TestParsing()
     {
+        var input = Read.SampleLines();
+        var machines = input.Select(s => Machine.Parse(s)).ToArray();
+        Assert.Equal(3, machines.Length);
+        
+        Assert.Equal(0b0110, machines[0].targetState);
+        Assert.Equal(0b1000, machines[1].targetState);
+        Assert.Equal(0b101110, machines[2].targetState);
+
+        Assert.Equal(6, machines[0].buttons.Length);
+        Assert.Equal(5, machines[1].buttons.Length);
+        Assert.Equal(4, machines[2].buttons.Length);
+
+        Assert.Equal([3,5,4,7], machines[0].joltage);
+        Assert.Equal([7,5,12,7,2], machines[1].joltage);
+        Assert.Equal([10,11,11,5,10,5], machines[2].joltage);
     }
 
     [Fact]
@@ -151,5 +222,12 @@ public class AoC202510Tests
         var machine = Machine.Parse(input);
         var result = machine.Start();
         Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void TestSolveJoltage()
+    {
+        var machine = Machine.Parse("[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}");
+        Assert.Equal(10, machine.SolveJoltage());
     }
 }
