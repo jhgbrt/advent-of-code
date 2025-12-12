@@ -153,9 +153,9 @@ record Machine(int nofIndicators, int targetState, int[] buttons, int[] joltage)
         return new Machine(nofIndicators, targetState, buttons, joltage);
     }
 }
-public class AoC202510(string[] input, TextWriter writer)
+public class AoC202510(string[] input)
 {
-    public AoC202510() : this(Read.InputLines(), Console.Out) {}
+    public AoC202510() : this(Read.InputLines()) { }
     readonly Machine[] machines = input.Select(s => Machine.Parse(s)).ToArray();
 
     public int Part1() => machines.Sum(m => m.Start());
@@ -168,7 +168,7 @@ public class AoC202510Tests
     public AoC202510Tests(ITestOutputHelper output)
     {
         var input = Read.SampleLines();
-        sut = new AoC202510(input, new TestWriter(output));
+        sut = new AoC202510(input);
     }
 
 
